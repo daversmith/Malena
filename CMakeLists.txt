@@ -12,6 +12,31 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp
+        src/MouseEvents.cpp
+        src/MouseEvents.h
+        src/MouseEvents_nontemplate.cpp
+        src/MouseEvents_nontemplate.cpp
+        src/StateManager.cpp
+        src/StateManager.h
+        src/Rectangle.cpp
+        src/Rectangle.h
+        src/Application.cpp
+        src/Application.h
+        src/Application.h
+        src/Component.cpp
+        src/Component.h
+        src/Window.h
+        src/MessageManager.cpp
+        src/MessageManager.h
+        src/EventsManager.h
+        src/AppLogic.cpp
+        src/AppLogic.h
+        src/RectangleApp.cpp
+        src/RectangleApp.h
+        src/EventManager.cpp
+        src/ComponentsManager.cpp
+        src/ComponentsManager.h
+)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
