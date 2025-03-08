@@ -2,7 +2,7 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 #include "EventsManager.h"
-#include "Component.h"
+#include "UIComponent.h"
 
 std::optional<std::map<void*, std::function<void()>>*> EventsManager::getEvent(const std::string& event) {
     auto it = events.find(event);
@@ -19,7 +19,7 @@ std::map<void *, std::function<void()>> *EventsManager::getCurrentEvent()
 {
     return currentEvent;
 }
-void EventsManager::setFilter(std::function<bool(Component&)> filter)
+void EventsManager::setFilter(std::function<bool(UIComponent&)> filter)
 {
     EventsManager::filter = filter;
 }
@@ -28,7 +28,7 @@ void EventsManager::reset()
     currentEvent = nullptr;
     filter = nullptr;
 }
-std::function<bool(Component&)> EventsManager::getFilter()
+std::function<bool(UIComponent&)> EventsManager::getFilter()
 {
     return filter;
 }
@@ -36,12 +36,12 @@ void EventsManager::setCurrentEvent(const std::string& event)
 {
     currentEvent = getEvent(event).value();
 }
-void EventsManager::setCurrentEvent(const std::string& event, std::function<bool(Component&)> filter)
+void EventsManager::setCurrentEvent(const std::string& event, std::function<bool(UIComponent&)> filter)
 {
     setCurrentEvent(event);
     setFilter(filter);
 }
-void EventsManager::process(const std::vector<Component*>& components)
+void EventsManager::process(const std::vector<UIComponent*>& components)
 {
     auto event_map = EventsManager::getCurrentEvent();
     if(event_map)
@@ -60,7 +60,7 @@ void EventsManager::process(const std::vector<Component*>& components)
     EventsManager::reset();
 }
 
-void EventsManager::fire(const std::string& event, std::function<bool(Component&)> filter)
+void EventsManager::fire(const std::string& event, std::function<bool(UIComponent&)> filter)
 {
     EventsManager::setCurrentEvent(event);
     EventsManager::setFilter(filter);

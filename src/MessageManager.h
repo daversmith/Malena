@@ -6,13 +6,16 @@
 #define MESSAGEMANAGER_H
 
 #include "EventsManager.h"
-class Component;
-class MessageManager {
+#include "StateManager.h"
+
+class MessageManager //: public StateManager
+{
 
 public:
     void onClick(std::function<void()>);
+    void onUpdate(std::function<void()>);
     void subscribe(const std::string& event, std::function<void()>);
-    static void publish(const std::string& event, std::function<bool(Component&)> filter = [](Component&){return true;});
+    static void publish(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
 };
 
 

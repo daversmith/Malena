@@ -3,12 +3,14 @@
 //
 
 #include "MessageManager.h"
-#include "Component.h"
 void MessageManager::onClick(std::function<void()>f)
 {
     subscribe("click", f);
 }
-
+void MessageManager::onUpdate(std::function<void()>f)
+{
+    subscribe("update", f);
+}
 void MessageManager::subscribe(const std::string &event, std::function<void()> f)
 {
     auto opt_map = EventsManager::getEvent(event);
@@ -20,7 +22,7 @@ void MessageManager::subscribe(const std::string &event, std::function<void()> f
     event_map[this] = f;
 }
 
-void MessageManager::publish(const std::string &event, std::function<bool(Component&)> filter)
+void MessageManager::publish(const std::string &event, std::function<bool(UIComponent&)> filter)
 {
     EventsManager::fire(event, filter);
 }

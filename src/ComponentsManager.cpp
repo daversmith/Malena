@@ -3,12 +3,21 @@
 //
 
 #include "ComponentsManager.h"
-void ComponentsManager::addComponent(Component &component)
+void ComponentsManager::addComponent(UIComponent &component)
 {
-  components.push_back(&component);
+  uiComponents.push_back(&component);
 }
 
-std::vector<Component *> ComponentsManager::getComponents() const
+std::vector<UIComponent *> ComponentsManager::getUIComponents() const
 {
-  return components;
+  return uiComponents;
+}
+
+
+
+ComponentsManager::~ComponentsManager()
+{
+  for(auto &c : uiComponents)
+    if(c->isDynamic)
+      delete c;
 }

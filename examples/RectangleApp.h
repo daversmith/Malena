@@ -4,13 +4,15 @@
 
 #ifndef RECTANGLEAPP_H
 #define RECTANGLEAPP_H
-#include "Application.h"
-#include "Rectangle.h"
+#include "../src/Application.h"
+#include "../src/UIManager.h"
+#include "../src/Graphics/Rectangle.h"
 
-class RectangleApp : public Application, public AppLogic
+class RectangleApp : public Application
 {
     Rectangle square;
     Rectangle square2;
+
 public:
     RectangleApp();
     void initialization() override;

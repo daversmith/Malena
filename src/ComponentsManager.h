@@ -6,15 +6,15 @@
 #define COMPONENTSMANAGER_H
 
 #include <vector>
-#include "Component.h"
+#include "UIComponent.h"
 
 class ComponentsManager {
-  std::vector<Component *> components;
-
+  std::vector<UIComponent *> uiComponents;
 public:
-  [[nodiscard]] std::vector<Component *> getComponents() const;
+  [[nodiscard]] std::vector<UIComponent *> getUIComponents() const;
 
-  void addComponent(Component & component);
+  void addComponent(UIComponent & component);
+  ~ComponentsManager();
 
 };
 

@@ -1,21 +1,45 @@
 #include <SFML/Graphics.hpp>
 
+#include "../examples/RectangleApp.h"
+#include "Graphics/Circle.h"
+#include "Graphics/Grid.h"
+
 int main()
 {
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
-    window.setFramerateLimit(144);
+    RectangleApp app;
+    Rectangle r;
+    r.setSize({50.f, 50.f});
 
-    while (window.isOpen())
+    Rectangle r1({50.f, 50.f}), r2({50.f, 50.f}), r3({50.f, 50.f});
+    Circle r4(25.f), r5(25.f), r6(25.f);
+    Grid grid({3, 2});
+
+    grid.addComponent(r1);
+    grid.addComponent(r2);
+    grid.addComponent(r3);
+    grid.addComponent(r4);
+    grid.addComponent(r5);
+    grid.addComponent(r6);
+
+
+    r.onClick([&r]()
     {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
+       // r.setSize({300.f, 300.f});
+    });
 
-        window.clear();
-        window.display();
-    }
+    r.onUpdate([&r]()
+    {
+        // if(r.checkState(StateManager::CLICKED))
+            r.move({0, .05f});
+    });
+
+    app.onUpdate([&r]()
+    {
+        if(r.getPosition().y > 200)
+            r.setSize({300.f, 300.f});
+    });
+
+    app.addComponent(grid);
+    app.addComponent(r);
+    app.run();
 }

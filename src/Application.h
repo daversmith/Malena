@@ -1,41 +1,17 @@
 //
-// Created by Dave R. Smith on 3/5/25.
+// Created by Dave Smith on 3/7/25.
 //
 
 #ifndef APPLICATION_H
 #define APPLICATION_H
+#include "AppController.h"
+#include "UIComponentAdapter.h"
+#include "UIManager.h"
 
-#include <vector>
-#include <SFML/Graphics.hpp>
-
-#include "AppLogic.h"
-#include "Component.h"
-
-class Application
+class Application : public UIManager, public AppController
 {
-
-private:
-    // std::vector<Component *> components;
-    AppLogic *appLogic;
-    //handle events
-    void handleEvents();
-    void fireEvents();
-    void firePublishedEvents() const;
-    //update objects
-    void updateComponents();
-
 public:
-    Application(const sf::VideoMode& videoMode, const std::string& title, AppLogic& appLogic);
-
-    void run();
-
-
-    //draw
-protected:
-    void draw();
-
+    using UIManager::UIManager;
 };
-
-
 
 #endif //APPLICATION_H

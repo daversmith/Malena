@@ -19,24 +19,40 @@ add_executable(main src/main.cpp
         src/MouseEvents_nontemplate.cpp
         src/StateManager.cpp
         src/StateManager.h
-        src/Rectangle.cpp
-        src/Rectangle.h
-        src/Application.cpp
-        src/Application.h
-        src/Application.h
-        src/Component.cpp
-        src/Component.h
-        src/Window.h
+        src/Graphics/Rectangle.h
+        src/UIManager.cpp
+        src/UIManager.h
+        src/UIComponent.cpp
+        src/UIComponent.h
         src/MessageManager.cpp
         src/MessageManager.h
         src/EventsManager.h
-        src/AppLogic.cpp
-        src/AppLogic.h
-        src/RectangleApp.cpp
-        src/RectangleApp.h
+        src/AppController.cpp
+        src/AppController.h
+        examples/RectangleApp.cpp
+        examples/RectangleApp.h
         src/EventManager.cpp
         src/ComponentsManager.cpp
         src/ComponentsManager.h
+        src/WindowManager.h
+        src/Application.h
+        src/Component.h
+        src/UIComponentAdapter.cpp
+        src/UIComponentAdapter.h
+        src/Application.cpp
+        src/Updateable.h
+        src/Controller.cpp
+        src/Controller.h
+        src/Graphics/Grid.cpp
+        src/Graphics/Grid.h
+        src/Shape.cpp
+        src/Shape.h
+        src/Graphics/Circle.h
+        src/Graphics/Convex.h
+        src/Positionable.cpp
+        src/Positionable.h
+        src/Tween.h
+        src/PositionableTemplates.cpp
 )
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

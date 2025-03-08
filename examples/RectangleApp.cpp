@@ -6,9 +6,16 @@
 
 RectangleApp::RectangleApp()
 : Application(sf::VideoMode({420u, 720u}, 32), "Rectangle App", *this),
-square({50.f, 50.f}), square2({50.f, 50.f})
+    square({50.f, 50.f}), square2({50.f, 50.f})
 {
-
+    auto &s = *(new Rectangle);
+    s.setSize({100, 100});
+    s.setPosition({200, 200});
+    s.onClick([&s]()
+    {
+        s.setSize({20.f, 20.f});
+    });
+    addComponent(s);
 }
 
 void RectangleApp::initialization()
