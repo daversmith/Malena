@@ -15,14 +15,14 @@ RectangleApp::RectangleApp()
     {
         s.setSize({20.f, 20.f});
     });
-    addComponent(s);
+    // addComponent(s);
 }
 
 void RectangleApp::initialization()
 {
     square2.setPosition({100.f, 100.f});
-    addComponent(square);
-    addComponent(square2);
+    // addComponent(square);
+    // addComponent(square2);
 }
 
 void RectangleApp::registerEvents()

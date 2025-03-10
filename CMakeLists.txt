@@ -53,6 +53,14 @@ add_executable(main src/main.cpp
         src/Positionable.h
         src/Tween.h
         src/PositionableTemplates.cpp
+        src/Graphics/Button.cpp
+        src/Graphics/Button.h
+        src/FontManager.cpp
+        src/FontManager.h
+        src/Graphics/RectangleButton.cpp
+        src/Graphics/RectangleButton.h
+        src/Graphics/CircleButton.cpp
+        src/Graphics/CircleButton.h
 )
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

@@ -8,7 +8,7 @@
 
 #include "../Shape.h"
 
-class Rectangle : public Shape<sf::RectangleShape>
+class Rectangle : public virtual Shape<sf::RectangleShape>
 {
     using Shape::Shape;
 };
