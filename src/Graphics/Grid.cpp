@@ -52,11 +52,12 @@ void Grid::reposition()
     // Position first element (top-left)
     for (int i = 0; i < components.size(); ++i)
     {
+        std::cout <<  components[i]->getGlobalBounds().size.y + spacing <<std::endl;
         if (i >= col)  // If it's in the second row or below, position below the element above
-            components[i - col]->bottom(*components[i], spacing);
+            components[i - col]->bottom(*components[i], components[i]->getGlobalBounds().size.y + spacing - max_height);
 
         if (i % col != 0)  // If it's not the first column, position to the right of the previous element
-            components[i - 1]->right(*components[i], spacing);
+            components[i - 1]->right(*components[i], components[i]->getGlobalBounds().size.x + spacing - max_width);
     }
 
 

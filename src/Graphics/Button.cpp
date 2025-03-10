@@ -13,7 +13,7 @@ Button<T, S>::Button(const sf::Font &font, std::optional<S> buttonSize, const st
   if (buttonSize.has_value()) {
     *static_cast<T *>(this) = T(buttonSize.value());  // Assign after construction
   }
-  T::centerText(*dynamic_cast<Rectangle *>(this), *dynamic_cast<sf::Text *>(this));
+  T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
 }
 template <typename T, typename S>
 void Button<T, S>::draw(sf::RenderTarget &target, sf::RenderStates states) const

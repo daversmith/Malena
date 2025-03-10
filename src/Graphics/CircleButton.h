@@ -4,11 +4,12 @@
 
 #ifndef CIRCLEBUTTON_H
 #define CIRCLEBUTTON_H
+#include "Button.h"
+#include "Circle.h"
 
 
-
-class CircleButton {
-
+class CircleButton : public Button<Circle, float>{
+  using Button::Button;
 };
 
 

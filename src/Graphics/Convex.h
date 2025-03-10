@@ -12,4 +12,4 @@ public:
     using Shape::Shape;
 };
 
-#endclass if //CONVEX_H
+#endif //CONVEX_H

@@ -2,6 +2,7 @@
 #include "../examples/RectangleApp.h"
 #include "Graphics/Button.h"
 #include "Graphics/Circle.h"
+#include "Graphics/CircleButton.h"
 #include "Graphics/Grid.h"
 #include "Graphics/RectangleButton.h"
 
@@ -13,7 +14,7 @@ int main()
     auto &font = FontManager::getFont(FontManager::ARIAL);
     RectangleButton r1(font,sf::Vector2f({50.f, 50.f}), "1"),
     r2(FontManager::DEFAULT,sf::Vector2f({50.f, 50.f}), "2"), r3(font,sf::Vector2f({50.f, 50.f}), "3");
-    Circle r4(25.f), r5(25.f), r6(25.f);
+    CircleButton r4(font, 25.f, "4"), r5(font, 25.f, "5"), r6(font, 25.f, "6");
     Grid grid({3, 2});
 
     grid.addComponent(r1);
