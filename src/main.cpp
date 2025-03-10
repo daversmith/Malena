@@ -25,9 +25,11 @@ int main()
     grid.addComponent(r6);
 
 
-    r.onClick([&r]()
+    r2.subscribe("spink", [](){std::cout << "it works";});
+    r1.onClick([&r1, &app]()
     {
-       // r.setSize({300.f, 300.f});
+        std::cout << "clicked";
+       r1.publish("spink", app, [](UIComponent& c){return true;});
     });
 
     r.onUpdate([&r]()

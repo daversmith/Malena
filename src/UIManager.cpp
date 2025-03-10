@@ -70,6 +70,7 @@ void UIManager::fireEvents()
       {
               EventsManager::fire("click", [this](UIComponent& c)
               {
+                      std::cout << "im click";
                       return MouseEvents::isClicked(c, *window);
               });
               firePublishedEvents();
