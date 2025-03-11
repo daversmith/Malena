@@ -10,7 +10,7 @@ class StateManager {
 public:
     enum State
     {
-        HOVERED, CLICKED,
+        HOVERED, CLICKED, HIDDEN,
 
         //// do not add states below
         LAST_STATE

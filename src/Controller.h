@@ -4,10 +4,11 @@
 
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
+
 #include "Updateable.h"
+#include "ComponentsManager.h"
 
-
-class Controller : public Updateable
+class Controller : public Updateable, public ComponentsManager
 {
 public:
     virtual void initialization() = 0;

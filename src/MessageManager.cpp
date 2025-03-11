@@ -3,7 +3,7 @@
 //
 
 #include "MessageManager.h"
-#include "AppController.h"
+#include "ComponentsManager.h"
 void MessageManager::onClick(std::function<void()>f)
 {
     subscribe("click", f);
@@ -23,7 +23,7 @@ void MessageManager::subscribe(const std::string &event, std::function<void()> f
     event_map[this] = f;
 }
 
-void MessageManager::publish(const std::string &event, AppController& app_controller, std::function<bool(UIComponent&)> filter)
+void MessageManager::publish(const std::string &event, ComponentsManager& app_controller, std::function<bool(UIComponent&)> filter)
 {
     EventsManager::fire(event, filter);
     EventsManager::process(app_controller.getUIComponents());

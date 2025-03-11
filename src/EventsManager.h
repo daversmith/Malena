@@ -9,7 +9,10 @@
 #include <string>
 
 
+
+
 class UIComponent;
+class Controller;
 class EventsManager
 {
 private:
@@ -26,6 +29,7 @@ public:
     static std::function<bool(UIComponent&)> getFilter();
     static void reset();
     static void process(const std::vector<UIComponent*>& components);
+    static void process(const std::vector<Controller *>& controllers);
     static void fire(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
 };
 #endif //EVENTSMANAGER_H

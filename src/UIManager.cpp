@@ -9,34 +9,55 @@ UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, A
         : window(&window)
 {
         this->window->create(videoMode,  title);
+        this->window->setFramerateLimit(60);
         UIManager::appLogic = &appLogic;
 }
 
 void UIManager::handleEvents()
 {
-        for(auto & c : appLogic->getUIComponents())
-                c->eventHandler();
+        for(auto &controller : appLogic->getControllers())
+        {
+                for(auto &c : controller->getUIComponents())
+                {
+                        c->eventHandler();
+                }
+        }
 }
 void UIManager::draw()
 {
         this->window->clear();
-        for(auto &c : appLogic->getUIComponents())
-                this->window->draw(*c);
+        for(auto &controller : appLogic->getControllers())
+        {
+                for(auto &c : controller->getUIComponents())
+                {
+                        this->window->draw(*c);
+                }
+        }
+
         this->window->display();
 }
 
 void UIManager::updateComponents()
 {
-        for(auto &c : appLogic->getUIComponents())
-               c->update();
+
+        for(auto &controller : appLogic->getControllers())
+        {
+                for(auto &c : controller->getUIComponents())
+                        c->update();
+        }
         EventsManager::fire("update");
         EventsManager::process(appLogic->getUIComponents());
+        EventsManager::process(appLogic->getControllers());
 }
 
 void UIManager::run()
 {
         appLogic->initialization();
-        appLogic->registerEvents();
+        for(auto &controller : appLogic->getControllers())
+        {
+                controller->initialization();
+                controller->registerEvents();
+        }
         UIManager::appLogic->addComponent(proxy);
         // proxy.onUpdate([](){});
         while(this->window->isOpen())
@@ -49,10 +70,12 @@ void UIManager::run()
                                 return;
                         }
                         handleEvents();
+                        fireEvents();
                 }
-                fireEvents();
+
                 updateComponents();
-                appLogic->update();
+                for(auto &controller : appLogic->getControllers())
+                        controller->update();
                 draw();
         }
 
@@ -61,7 +84,7 @@ void UIManager::run()
 
 void UIManager::firePublishedEvents()  const
 {
-        EventsManager::process(appLogic->getUIComponents());
+        EventsManager::process(appLogic->getControllers());
 }
 
 void UIManager::fireEvents()
@@ -70,8 +93,7 @@ void UIManager::fireEvents()
       {
               EventsManager::fire("click", [this](UIComponent& c)
               {
-                      std::cout << "im click";
-                      return MouseEvents::isClicked(c, *window);
+                return MouseEvents::isClicked(c, *window);
               });
               firePublishedEvents();
       }

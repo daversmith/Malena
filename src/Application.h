@@ -8,10 +8,13 @@
 #include "UIComponentAdapter.h"
 #include "UIManager.h"
 
-class Application : public UIManager, public AppController
+class Application : public UIManager, public  AppController
 {
 public:
-    using UIManager::UIManager;
+    Application(const sf::VideoMode &videoMode, const std::string &title,
+        AppController& appLogic, sf::RenderWindow &window = WindowManager::window);
+    // using UIManager::UIManager;
+
 };
 
 #endif //APPLICATION_H

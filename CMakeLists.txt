@@ -61,6 +61,26 @@ add_executable(main src/main.cpp
         src/Graphics/RectangleButton.h
         src/Graphics/CircleButton.cpp
         src/Graphics/CircleButton.h
+        src/Graphics/ConvexButton.cpp
+        src/Graphics/ConvexButton.h
+        examples/ButtonController.cpp
+        examples/ButtonController.h
+        examples/Jeopardy/Jeopardy.cpp
+        examples/Jeopardy/Jeopardy.h
+        examples/Jeopardy/JeopardyBoardController.cpp
+        examples/Jeopardy/JeopardyBoardController.h
+        examples/Jeopardy/JeopardyModel.cpp
+        examples/Jeopardy/JeopardyModel.h
+        examples/Jeopardy/JeopardyView.cpp
+        examples/Jeopardy/JeopardyView.h
+        examples/RandomCsQuestion/RandomCSQuestion.cpp
+        examples/RandomCsQuestion/RandomCSQuestion.h
+        examples/RandomCsQuestion/RandomCSQuestionView.cpp
+        examples/RandomCsQuestion/RandomCSQuestionView.h
+        examples/RandomCsQuestion/RandomCSQuestionModel.cpp
+        examples/RandomCsQuestion/RandomCSQuestionModel.h
+        examples/RandomCsQuestion/RandomCSQuestionController.cpp
+        examples/RandomCsQuestion/RandomCSQuestionController.h
 )
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
