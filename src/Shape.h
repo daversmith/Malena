@@ -9,6 +9,9 @@
 #include <SFML/Graphics.hpp>
 
 #include "UIComponent.h"
+#include <type_traits>
+
+
 template <typename T>
 class Shape :
     public T,
@@ -27,7 +30,9 @@ public:
     // using  T::getGlobalBounds;
     sf::FloatRect  getGlobalBounds() const override;
 
-    void setPosition(const sf::Vector2f &position) override;
+    // void setPosition(const sf::Vector2f &position) override;
+
+    void setPosition(const sf::Vector2f &position);
 
     sf::Vector2f getPosition() const override;
 };

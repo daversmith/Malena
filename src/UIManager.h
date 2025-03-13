@@ -10,35 +10,39 @@
 #include "WindowManager.h"
 #include "AppController.h"
 #include "UIComponentAdapter.h"
-
-class UIManager
+#include "Manager.h"
+#include "UIManagerMVC.h"
+#include "UIManagerEDA.h"
+class UIManager : public Manager
 {
-
 private:
-    // std::vector<Component *> components;
-    AppController *appLogic;
-    sf::RenderWindow *window = nullptr;
-    //handle events
-    void handleEvents();
-    void fireEvents();
-    void firePublishedEvents() const;
-    //update objects
-    void updateComponents();
-    UIComponentAdapter proxy;
-
+    std::unique_ptr<Manager> uiManager;
 public:
-    virtual ~UIManager() = default;
+    enum Architecture {MVC, EDA, ECS};
+
 
     UIManager(const sf::VideoMode& videoMode, const std::string& title, AppController& appLogic,
-              sf::RenderWindow &window = WindowManager::window);
+              sf::RenderWindow &window = WindowManager::window, Architecture architechture = MVC);
 
-    void run();
+private:
+    void handleEvents() override;
 
-    void onUpdate(std::function<void()>);
+    void fireEvents() override;
 
-    //draw
-protected:
-    void draw();
+    void firePublishedEvents() const override;
+
+    void updateComponents() override;
+
+    void draw() override;
+
+public:
+    void run() override;
+
+    void onUpdate(std::function<void()>) override;
+
+
+
+    virtual ~UIManager() = default;
 
 };
 

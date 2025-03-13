@@ -6,10 +6,11 @@
 #define RECTANGLEBUTTON_H
 #include "Button.h"
 
-
 class RectangleButton : public  Button<Rectangle, sf::Vector2f>{
 public:
   using Button::Button;
+
+
 };
 
 

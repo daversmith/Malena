@@ -4,22 +4,23 @@
 
 #ifndef GAMELOGIC_H
 #define GAMELOGIC_H
-#include "ComponentsManager.h"
+
 #include "Controller.h"
 
 
-class AppController : public ComponentsManager, public Controller
+class AppController :  public Controller
 {
     inline static std::vector<Controller *> controllers;
 public:
-
+    using Controller::Controller;
+    const std::vector<Controller *> &getControllers() const;
     void addController(Controller& controller);
 
-    void update() override;
+    virtual void update() ;
 
-    void initialization() override;
+    virtual void initialization() ;
 
-    void registerEvents() override;
+    virtual void registerEvents() ;
 
     virtual ~AppController() = default;
 };

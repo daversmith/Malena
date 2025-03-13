@@ -4,15 +4,12 @@
 
 #ifndef RECTANGLEAPP_H
 #define RECTANGLEAPP_H
+#include "ButtonController.h"
 #include "../src/Application.h"
-#include "../src/UIManager.h"
 #include "../src/Graphics/Rectangle.h"
 
 class RectangleApp : public Application
 {
-    Rectangle square;
-    Rectangle square2;
-
 public:
     RectangleApp();
     void initialization() override;
@@ -20,6 +17,8 @@ public:
     void registerEvents() override;
 
     void update() override;
+private:
+    ButtonController button_controller_;
 };
 
 

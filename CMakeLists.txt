@@ -57,10 +57,49 @@ add_executable(main src/main.cpp
         src/Graphics/Button.h
         src/FontManager.cpp
         src/FontManager.h
-        src/Graphics/RectangleButton.cpp
         src/Graphics/RectangleButton.h
-        src/Graphics/CircleButton.cpp
         src/Graphics/CircleButton.h
+        src/Graphics/ConvexButton.h
+        examples/ButtonController.cpp
+        examples/ButtonController.h
+        examples/Jeopardy/Jeopardy.cpp
+        examples/Jeopardy/Jeopardy.h
+        examples/Jeopardy/JeopardyBoardController.cpp
+        examples/Jeopardy/JeopardyBoardController.h
+        examples/Jeopardy/JeopardyModel.cpp
+        examples/Jeopardy/JeopardyModel.h
+        examples/Jeopardy/JeopardyView.cpp
+        examples/Jeopardy/JeopardyView.h
+        examples/RandomCsQuestion/RandomCSQuestion.cpp
+        examples/RandomCsQuestion/RandomCSQuestion.h
+        examples/RandomCsQuestion/RandomCSQuestionView.cpp
+        examples/RandomCsQuestion/RandomCSQuestionView.h
+        examples/RandomCsQuestion/RandomCSQuestionModel.cpp
+        examples/RandomCsQuestion/RandomCSQuestionModel.h
+        examples/RandomCsQuestion/RandomCSQuestionController.cpp
+        examples/RandomCsQuestion/RandomCSQuestionController.h
+        ECS/EventManagerECS.cpp
+        ECS/EventManagerECS.h
+        ECS/HealthSystem.cpp
+        ECS/HealthSystem.h
+        ECS/ECSManager.cpp
+        ECS/ECSManager.h
+        ECS/EntitiesAndComponents.h
+        ECS/MovementSystem.cpp
+        ECS/MovementSystem.h
+        ECS/RenderingSystem.cpp
+        ECS/RenderingSystem.h
+        ECS/SizeSystem.cpp
+        ECS/SizeSystem.h
+        src/UIManagerEDA.cpp
+        src/UIManagerEDA.h
+        src/UIManagerMVC.cpp
+        src/UIManagerMVC.h
+        src/Manager.h
+        src/Graphics/Text.h
+        src/Graphics/Sprite.h
+#        src/Graphics/VertexArray.cpp
+#        src/Graphics/VertexArray.h
 )
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

@@ -11,7 +11,7 @@
 class ComponentsManager {
   std::vector<UIComponent *> uiComponents;
 public:
-  [[nodiscard]] std::vector<UIComponent *> getUIComponents() const;
+  [[nodiscard]] const std::vector<UIComponent *> &getUIComponents() const;
 
   void addComponent(UIComponent & component);
   ~ComponentsManager();

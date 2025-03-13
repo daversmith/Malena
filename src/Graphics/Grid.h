@@ -9,6 +9,7 @@
 #include "../Component.h"
 #include <SFML/Graphics.hpp>
 
+#include "../Application.h"
 #include "../ComponentsManager.h"
 
 class Grid  : public ComponentsManager, public UIComponent
@@ -30,6 +31,9 @@ public:
     void setRow(int row);
 
     void addComponent(UIComponent & component);
+    void addToApp(Application & app) const;
+    void addToApp(Controller & app) const;
+
 
 protected:
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;

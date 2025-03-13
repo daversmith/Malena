@@ -26,3 +26,8 @@ void AppController::registerEvents()
     for(auto &c : controllers)
         c->initialization();
 }
+
+const std::vector<Controller *> & AppController::getControllers() const
+{
+    return controllers;
+}

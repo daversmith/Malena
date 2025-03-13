@@ -27,7 +27,7 @@ void Shape<T>::eventHandler()
     StateManager::setState(StateManager::HOVERED,
         MouseEvents::isHovered(*this, *this->window));
 }
-template <typename T>
+template<typename T>
 sf::FloatRect  Shape<T>::getGlobalBounds() const
 {
     return T::getGlobalBounds();

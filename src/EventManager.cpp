@@ -3,7 +3,7 @@
 //
 #include "EventsManager.h"
 #include "UIComponent.h"
-
+#include "Controller.h"
 std::optional<std::map<void*, std::function<void()>>*> EventsManager::getEvent(const std::string& event) {
     auto it = events.find(event);
     if (it != events.end()) {
@@ -34,7 +34,8 @@ std::function<bool(UIComponent&)> EventsManager::getFilter()
 }
 void EventsManager::setCurrentEvent(const std::string& event)
 {
-    currentEvent = getEvent(event).value();
+    if(events.count(event))
+        currentEvent = getEvent(event).value();
 }
 void EventsManager::setCurrentEvent(const std::string& event, std::function<bool(UIComponent&)> filter)
 {
@@ -59,7 +60,26 @@ void EventsManager::process(const std::vector<UIComponent*>& components)
     }
     EventsManager::reset();
 }
-
+void EventsManager::process(const std::vector<Controller*>& controllers)
+{
+    auto event_map = EventsManager::getCurrentEvent();
+    if(event_map)
+    {
+        for(auto& controller : controllers)
+        {
+            for(auto &c : controller->getUIComponents())
+            {
+                if(EventsManager::getFilter()(*c))
+                {
+                    if (auto func_it = event_map->find(c); func_it != event_map->end()) {
+                        func_it->second();
+                    }
+                }
+            }
+        }
+    }
+    EventsManager::reset();
+}
 void EventsManager::fire(const std::string& event, std::function<bool(UIComponent&)> filter)
 {
     EventsManager::setCurrentEvent(event);

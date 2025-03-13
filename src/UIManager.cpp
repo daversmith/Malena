@@ -5,79 +5,50 @@
 #include "UIManager.h"
 #include "EventsManager.h"
 
-UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, AppController& appLogic, sf::RenderWindow &window)
-        : window(&window)
+UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, AppController& appLogic, sf::RenderWindow &window, Architecture archType )
 {
-        this->window->create(videoMode,  title);
-        UIManager::appLogic = &appLogic;
+
+        if (archType == MVC) {
+                // uiManager = std::make_unique<UIManagerMVC>(videoMode,title, appLogic, window);
+                uiManager = std::make_unique<UIManagerMVC>(videoMode,title, appLogic);
+        } else {
+                uiManager = std::make_unique<UIManagerEDA>(videoMode,title, appLogic);
+        }
 }
 
 void UIManager::handleEvents()
 {
-        for(auto & c : appLogic->getUIComponents())
-                c->eventHandler();
+        uiManager->handleEvents();
 }
 void UIManager::draw()
 {
-        this->window->clear();
-        for(auto &c : appLogic->getUIComponents())
-                this->window->draw(*c);
-        this->window->display();
+        uiManager->draw();
 }
 
 void UIManager::updateComponents()
 {
-        for(auto &c : appLogic->getUIComponents())
-               c->update();
-        EventsManager::fire("update");
-        EventsManager::process(appLogic->getUIComponents());
+
+       uiManager->updateComponents();
 }
 
 void UIManager::run()
 {
-        appLogic->initialization();
-        appLogic->registerEvents();
-        UIManager::appLogic->addComponent(proxy);
-        // proxy.onUpdate([](){});
-        while(this->window->isOpen())
-        {
-                while(const std::optional event = this->window->pollEvent())
-                {
-                        if(event->is<sf::Event::Closed>())
-                        {
-                                this->window->close();
-                                return;
-                        }
-                        handleEvents();
-                }
-                fireEvents();
-                updateComponents();
-                appLogic->update();
-                draw();
-        }
+        uiManager->run();
 
 }
 
 
 void UIManager::firePublishedEvents()  const
 {
-        EventsManager::process(appLogic->getUIComponents());
+       uiManager->firePublishedEvents();
 }
 
 void UIManager::fireEvents()
 {
-      // if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-      {
-              EventsManager::fire("click", [this](UIComponent& c)
-              {
-                      std::cout << "im click";
-                      return MouseEvents::isClicked(c, *window);
-              });
-              firePublishedEvents();
-      }
+      uiManager->fireEvents();
 }
 
 void UIManager::onUpdate(std::function<void()> f)
 {
-        proxy.onUpdate(f);
+        uiManager->onUpdate(f);
 }

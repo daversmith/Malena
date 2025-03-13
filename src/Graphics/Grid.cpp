@@ -101,3 +101,14 @@ sf::FloatRect Grid::getGlobalBounds() const
     //TODO fix gloabalBounds
     return sf::FloatRect();
 }
+
+void Grid::addToApp(Application &app) const
+{
+    for(auto& c : getUIComponents())
+        app.addComponent(*c);
+}
+void Grid::addToApp(Controller &app) const
+{
+    for(auto& c : getUIComponents())
+        app.addComponent(*c);
+}

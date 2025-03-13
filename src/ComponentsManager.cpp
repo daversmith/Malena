@@ -8,7 +8,7 @@ void ComponentsManager::addComponent(UIComponent &component)
   uiComponents.push_back(&component);
 }
 
-std::vector<UIComponent *> ComponentsManager::getUIComponents() const
+const std::vector<UIComponent *> &ComponentsManager::getUIComponents() const
 {
   return uiComponents;
 }
