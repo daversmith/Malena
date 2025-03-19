@@ -12,7 +12,7 @@
 // Define an Entity type (just an ID)
 using Entity = int;
 
-// Components store only data
+// Component store only data
 struct PositionComponent {
     float x, y;
 };

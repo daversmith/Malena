@@ -5,6 +5,7 @@
 #define BUTTON_CPP
 #include "Button.h"
 
+namespace ml {
 
 template <typename T, typename S>
 Button<T, S>::Button(const sf::Font &font, std::optional<S> buttonSize, const std::string &text, unsigned int charSize)
@@ -34,5 +35,7 @@ void Button<T, S>::setString(const sf::String &text)
   sf::Text::setString(text);
   T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
 }
+} // namespace ml
 
 #endif
+

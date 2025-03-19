@@ -23,6 +23,6 @@ void RandomCSQuestionController::registerEvents()
 {
   view.next.onClick([this]()
   {
-    view.next.enableState(StateManager::CLICKED);
+    view.next.enableState(ml::Stateful::CLICKED);
   });
 }

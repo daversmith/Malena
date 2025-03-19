@@ -6,7 +6,10 @@
 #define RECTANGLE_H
 
 
-#include "../Shape.h"
+
+#include "Shape.h"
+
+namespace ml {
 
 class Rectangle : public virtual Shape<sf::RectangleShape>
 {
@@ -14,5 +17,7 @@ class Rectangle : public virtual Shape<sf::RectangleShape>
 };
 
 
-
+} // namespace ml
 #endif //RECTANGLE_H
+
+

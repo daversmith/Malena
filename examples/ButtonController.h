@@ -4,21 +4,21 @@
 
 #ifndef BUTTONCONTROLLER_H
 #define BUTTONCONTROLLER_H
-#include "../src/Controller.h"
+#include "../src/Controllers/Controller.h"
 #include "../src/Graphics/CircleButton.h"
 #include "../src/Graphics/Grid.h"
 #include "../src/Graphics/RectangleButton.h"
 
 
-class ButtonController : public Controller{
-  sf::Font font = FontManager::DEFAULT;
-  RectangleButton r1, r2, r3;
-  CircleButton r4, r5, r6;
-  Grid grid;
+class ButtonController : public ml::Controller{
+  sf::Font font = ml::FontManager::DEFAULT;
+  ml::RectangleButton r1, r2, r3;
+  ml::CircleButton r4, r5, r6;
+  ml::Grid grid;
   void addComponents();
   void addEvents();
 public:
-  ButtonController(Application &);
+  ButtonController(ml::Application &);
 
   void update() override;
 

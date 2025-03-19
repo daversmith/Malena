@@ -28,9 +28,9 @@ void RandomCSQuestionView::registerEvents()
 void RandomCSQuestionView::update()
 {
   // Application::update();
- if(next.checkState(StateManager::CLICKED))
+ if(next.checkState(ml::Stateful::CLICKED))
  {
    question.setString(model.getNextQuestion());
-   next.disableState(StateManager::CLICKED);
+   next.disableState(ml::Stateful::CLICKED);
  }
 }

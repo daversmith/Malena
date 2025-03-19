@@ -6,10 +6,10 @@
 #define RANDOMCSQUESTIONCONTROLLER_H
 #include "RandomCSQuestionModel.h"
 #include "RandomCSQuestionView.h"
-#include "../../src/Controller.h"
+#include "../../src/Controllers/Controller.h"
 
 
-class RandomCSQuestionController : public Controller
+class RandomCSQuestionController : public ml::Controller
 {
   RandomCSQuestionModel &model;
   RandomCSQuestionView &view;

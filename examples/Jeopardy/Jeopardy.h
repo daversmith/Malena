@@ -6,7 +6,7 @@
 #define JEOPARDY_H
 #include "JeopardyBoardController.h"
 #include "JeopardyModel.h"
-#include "../../src/Application.h"
+#include "../../src/Application/Application.h"
 #include "../../src/Graphics/Grid.h"
 #include "../../src/Graphics/RectangleButton.h"
 

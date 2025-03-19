@@ -5,10 +5,10 @@
 #ifndef RECTANGLEAPP_H
 #define RECTANGLEAPP_H
 #include "ButtonController.h"
-#include "../src/Application.h"
+#include "../src/Application/Application.h"
 #include "../src/Graphics/Rectangle.h"
 
-class RectangleApp : public Application
+class RectangleApp : public ml::Application
 {
 public:
     RectangleApp();

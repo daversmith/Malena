@@ -6,10 +6,10 @@
 #define JEAPARDYBOARDCONTROLLER_H
 #include "JeopardyModel.h"
 #include "JeopardyView.h"
-#include "../../src/Controller.h"
+#include "../../src/Controllers/Controller.h"
 
 
-class JeopardyBoardController : public Controller
+class JeopardyBoardController : public ml::Controller
 {
   JeopardyModel &model;
   JeopardyView &view;

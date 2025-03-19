@@ -3,9 +3,9 @@
 //
 
 #include "ButtonController.h"
-#include "../src/Application.h"
+#include "../src/Application/Application.h"
 
-ButtonController::ButtonController(Application &app)
+ButtonController::ButtonController(ml::Application &app)
 : Controller(app),
   r1(font,sf::Vector2f({50.f, 50.f}), "1"),
   r2(font,sf::Vector2f({50.f, 50.f}), "2"),

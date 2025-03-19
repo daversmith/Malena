@@ -4,9 +4,13 @@
 
 #ifndef BUTTON_H
 #define BUTTON_H
-#include "Rectangle.h"
 
-#include "../FontManager.h"
+#include "../Managers/FontManager.h"
+#include <SFML/Graphics/Text.hpp>
+#include "../Interfaces/UIComponent.h"
+
+namespace ml {
+
 template <typename T, typename S>
 class Button : public  T, public sf::Text//, public virtual UIComponent
 {
@@ -21,6 +25,8 @@ protected:
   void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 };
 
-
+} // namespace ml
 #include "Button.cpp"
 #endif //BUTTON_H
+
+

@@ -4,13 +4,16 @@
 
 #ifndef GRID_H
 #define GRID_H
+
 #include <vector>
 
-#include "../Component.h"
+#include "../Interfaces/Component.h"
 #include <SFML/Graphics.hpp>
 
-#include "../Application.h"
-#include "../ComponentsManager.h"
+#include "../Application//Application.h"
+#include "../Managers/ComponentsManager.h"
+
+namespace ml {
 
 class Grid  : public ComponentsManager, public UIComponent
 {
@@ -51,5 +54,7 @@ public:
 };
 
 
-
+} // namespace ml
 #endif //GRID_H
+
+

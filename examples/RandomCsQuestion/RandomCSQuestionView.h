@@ -5,14 +5,14 @@
 #ifndef RANDOMCSQUESTIONVIEW_H
 #define RANDOMCSQUESTIONVIEW_H
 #include "RandomCSQuestionModel.h"
-#include "../../src/Application.h"
+#include "../../src/Application/Application.h"
 #include "../../src/Graphics/RectangleButton.h"
 
 
 class RandomCSQuestionView
-  : public Application
+  : public ml::Application
 {
-  RectangleButton next;
+  ml::RectangleButton next;
   sf::Text question;
   RandomCSQuestionModel &model;
 

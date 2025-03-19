@@ -4,6 +4,8 @@
 
 #include "Grid.h"
 
+namespace ml {
+
 Grid::Grid()
 {
 }
@@ -112,3 +114,5 @@ void Grid::addToApp(Controller &app) const
     for(auto& c : getUIComponents())
         app.addComponent(*c);
 }
+} // namespace ml
+
