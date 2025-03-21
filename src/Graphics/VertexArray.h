@@ -1,6 +1,4 @@
-//
-// Created by Dave Smith on 3/12/25.
-//
+
 
 #ifndef VERTEXARRAY_H
 #define VERTEXARRAY_H

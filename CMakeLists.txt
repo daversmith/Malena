@@ -100,6 +100,18 @@ add_executable(main src/main.cpp
         src/Utilities/TextManipulators.cpp
         src/Utilities/TextManipulators.h
         src/Graphics/Text.cpp
+        src/Graphics/TextInput.cpp
+        src/Graphics/TextInput.h
+        src/Graphics/Cursor.cpp
+        src/Graphics/Cursor.h
+        src/Graphics/TextBox.cpp
+        src/Graphics/TextBox.h
+        examples/TextInputTest/TextInputTest.cpp
+        examples/TextInputTest/TextInputTest.h
+        src/Graphics/Typer.cpp
+        src/Graphics/Typer.h
+        examples/BrickGame/BrickGame.cpp
+        examples/BrickGame/BrickGame.h
         #        src/Graphics/VertexArray.cpp
 #        src/Graphics/VertexArray.h
 )

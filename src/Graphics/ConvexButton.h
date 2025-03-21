@@ -1,6 +1,3 @@
-//
-// Created by Dave R. Smith on 3/10/25.
-//
 
 #ifndef CONVEXBUTTON_H
 #define CONVEXBUTTON_H

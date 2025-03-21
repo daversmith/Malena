@@ -15,8 +15,10 @@ namespace ml {
     {
     public:
         Application(const sf::VideoMode &videoMode, const std::string &title,
-            UIController& appLogic, sf::RenderWindow &window = WindowManager::window);
+            UIController& appLogic, sf::RenderWindow &window = WindowManager::getWindow());
         // using UIManager::UIManager;
+
+
 
     };
 } // namespace ml

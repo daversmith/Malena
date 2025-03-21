@@ -26,10 +26,10 @@ public:
 
 
     UIManager(const sf::VideoMode& videoMode, const std::string& title, UIController& appLogic,
-              sf::RenderWindow &window = WindowManager::window, Architecture architechture = MVC);
+              sf::RenderWindow &window = WindowManager::getWindow(), Architecture architechture = MVC);
 
 private:
-    void handleEvents() override;
+    void handleEvents(const std::optional<sf::Event> &event) override;
 
     void fireEvents(const std::optional<sf::Event> &event) override;
 
@@ -45,6 +45,7 @@ public:
 
 
     virtual ~UIManager() = default;
+
 
 };
 

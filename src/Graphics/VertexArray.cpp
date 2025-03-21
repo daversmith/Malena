@@ -1,6 +1,3 @@
-//
-// Created by Dave Smith on 3/12/25.
-//
 
 #include "VertexArray.h"
 

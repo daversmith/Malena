@@ -4,7 +4,8 @@
 
 #ifndef UPDATEABLE_H
 #define UPDATEABLE_H
-
+#include <optional>
+#include <SFML/Graphics.hpp>
 namespace ml {
 
 class Updateable

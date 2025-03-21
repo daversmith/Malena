@@ -14,7 +14,7 @@ class Manager
 public:
     virtual ~Manager() = default;
 
-    virtual void handleEvents() = 0;
+    virtual void handleEvents(const std::optional<sf::Event> &event) = 0;
     virtual void fireEvents(const std::optional<sf::Event> &event) = 0;
     //update objects
     virtual void updateComponents() = 0;

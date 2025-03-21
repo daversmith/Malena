@@ -1,13 +1,14 @@
-//
-// Created by Dave Smith on 3/14/25.
-//
+
 #include "Text.h"
 
 #include "../Utilities/TextManipulators.h"
 
 namespace ml {
+    Text::Text(const sf::Font &font) : Shape<sf::Text>(font)
+    {
+    }
 
-void Text::set_word_wrap(bool word_wrap)
+    void Text::set_word_wrap(bool word_wrap)
 {
     wordWrap = word_wrap;
 }

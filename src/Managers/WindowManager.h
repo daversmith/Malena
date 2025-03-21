@@ -12,7 +12,13 @@ namespace ml {
 
 namespace WindowManager
 {
-    inline sf::RenderWindow window;
+    inline sf::RenderWindow& getWindow()
+    {
+        /// TODO fix memory leak. is it a problem?
+        static sf::RenderWindow* window = new sf::RenderWindow();
+        return *window;
+    }
+
 }
 } // namespace ml
 #endif //WINDOWMANAGER_H

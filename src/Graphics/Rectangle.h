@@ -1,6 +1,3 @@
-//
-// Created by Dave R. Smith on 3/4/25.
-//
 
 #ifndef RECTANGLE_H
 #define RECTANGLE_H

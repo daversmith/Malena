@@ -1,6 +1,3 @@
-//
-// Created by Dave R. Smith on 3/5/25.
-//
 
 #include "UIController.h"
 
@@ -27,7 +24,7 @@ namespace ml {
     void UIController::registerEvents()
     {
         for(auto &c : controllers)
-            c->initialization();
+            c->registerEvents();
     }
 
     const std::vector<Controller *> & UIController::getControllers() const

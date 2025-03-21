@@ -1,6 +1,3 @@
-//
-// Created by Dave R. Smith on 3/5/25.
-//
 
 #ifndef GAMELOGIC_H
 #define GAMELOGIC_H
@@ -15,6 +12,7 @@ namespace ml {
         UIComponentAdapter proxy;
     public:
         using Controller::Controller;
+        UIController(){ UIController::registerEvents();}
         const std::vector<Controller *> &getControllers() const;
         void addController(Controller& controller);
 

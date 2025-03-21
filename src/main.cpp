@@ -5,11 +5,13 @@
 // #include "../ECS/MovementSystem.h"
 // #include "../ECS/RenderingSystem.h"
 #include "../examples/Jeopardy/Jeopardy.h"
+#include "../examples/TextInputTest/TextInputTest.h"
 
 int main()
 {
-    Jeopardy j;
-    j.run();
+
+    TextInputTest test;
+    test.run();
     return 0;
 }
 // int main()

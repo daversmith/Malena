@@ -14,11 +14,11 @@ UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, U
         this->window->setFramerateLimit(60);
 }
 
-void UIManager::handleEvents()
+void UIManager::handleEvents(const std::optional<sf::Event> &event)
 {
         for(auto &c : uiController->getUIComponents())
         {
-                c->eventHandler();
+                c->eventHandler(event);
         }
 }
 void UIManager::draw()
@@ -26,7 +26,8 @@ void UIManager::draw()
         this->window->clear();
         for(auto &c : uiController->getUIComponents())
         {
-                this->window->draw(*c);
+                if(!c->checkState(Stateful::HIDDEN))
+                        this->window->draw(*c);
         }
 
         this->window->display();
@@ -48,14 +49,16 @@ void UIManager::run()
         // proxy.onUpdate([](){});
         while(this->window->isOpen())
         {
+                std::optional<sf::Event> *evPtr;
                 while(const std::optional event = this->window->pollEvent())
                 {
                         if(event->is<sf::Event::Closed>())
                         {
                                 this->window->close();
+
                                 return;
                         }
-                        handleEvents();
+                        handleEvents(event);
                         fireEvents(event);
                 }
 
@@ -73,23 +76,68 @@ void UIManager::fireEvents(const std::optional<sf::Event> &event)
 {
         if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
         {
-                EventsManager::fire("click", [this](UIComponent& c)
-                {
-                  return MouseEvents::isClicked(c, *window);
-                });
+                EventsManager::fire("click",
+                    [this, &event](UIComponent& c) -> bool
+                    {
+                        bool isClicked   = MouseEvents::isClicked(c, *window);
+                        bool isFocused   = c.checkState(Stateful::FOCUSED);
+
+                        if(isClicked)
+                        {
+                            if(!isFocused)
+                            {
+                                c.enableState(Stateful::FOCUSED);
+
+                                EventsManager::fire("focus",
+                                    [this, &c](UIComponent& comp) -> bool
+                                    {
+                                        return (&comp == &c);
+                                    },
+                                    nullptr,
+                                    event);
+                            }
+                        }
+                        else
+                        {
+                            if(isFocused)
+                            {
+                                EventsManager::fire("blur",
+                                    [this, &c](UIComponent& comp) -> bool
+                                    {
+                                        return (&comp == &c);
+                                    },
+                                    nullptr,
+                                    event);
+                                c.disableState(Stateful::FOCUSED);
+                            }
+                        }
+                        return isClicked;
+                    },
+                    nullptr,
+                    event);
         }
+
+        /// Checking Event (use else-if)
         if(event->is<sf::Event::MouseMoved>())
         {
                 EventsManager::fire("hover", [this](UIComponent& c)
                 {
                   return MouseEvents::isHovered(c, *window);
-                });
+                }, nullptr, event);
+        }
+        else if(event->is<sf::Event::TextEntered>())
+        {
+                EventsManager::fire("textentered", nullptr, nullptr, event);
+        }
+        else if(event->is<sf::Event::MouseMoved>())
+        {
+                EventsManager::fire("mousemoved", nullptr, nullptr, event);
+        }
+        else if(event->is<sf::Event::KeyPressed>())
+        {
+                EventsManager::fire("keypress", nullptr, nullptr, event);
         }
 }
 
-// void UIManager::onUpdate(std::function<void()> f)
-// {
-//         uiManager->onUpdate(f);
-// }
 } // namespace ml
 

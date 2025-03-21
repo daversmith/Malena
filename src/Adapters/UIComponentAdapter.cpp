@@ -1,7 +1,3 @@
-//
-// Created by Dave Smith on 3/7/25.
-//
-
 #include "UIComponentAdapter.h"
 
 namespace ml {
@@ -14,7 +10,7 @@ namespace ml {
     {
     }
 
-    void UIComponentAdapter::eventHandler()
+    void UIComponentAdapter::eventHandler(const std::optional<sf::Event> &event)
     {
     }
 

@@ -20,6 +20,18 @@ void JeopardyBoardController::initialization()
   auto gd = model.get_grid_dimensions();
   auto spacing = model.get_spacing();
   view.questionBoard = ml::RectangleButton(ml::FontManager::DEFAULT, model.get_question_window_size());
+  view.questionBoard.onClick([this]()
+  {
+    view.questionBoard.setFillColor(sf::Color::Blue);
+  });
+  view.questionBoard.onFocus([this]()
+  {
+    view.questionBoard.setString("I am focused");
+  });
+  view.questionBoard.onBlur([this]()
+  {
+    view.questionBoard.setString("I am blurred");
+  });
   model.set_filename("examples/Jeopardy/questions/jeopardy_cpp_questions.txt");
   sf::Vector2f boxSize = {gs.x/(gd.x + spacing),
                             gs.y/(gd.y + spacing)};
@@ -46,6 +58,7 @@ void JeopardyBoardController::registerEvents()
       view.questionBoard.disableState(ml::Stateful::HIDDEN);
     }
   };
-  for(auto& c : view.board.getUIComponents())
-    c->onClick(f);
+
+  // for(auto& c : view.board.getUIComponents())
+  //   c->onClick(f);
 }

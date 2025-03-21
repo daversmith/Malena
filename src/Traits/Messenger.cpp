@@ -10,7 +10,15 @@ void Messenger::onClick(std::function<void()>f)
 {
     subscribe("click", f);
 }
+    void Messenger::onClick(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("click", f);
+}
 void Messenger::onUpdate(std::function<void()>f)
+{
+    subscribe("update", f);
+}
+    void Messenger::onUpdate(std::function<void(const std::optional<sf::Event> &event)>f)
 {
     subscribe("update", f);
 }
@@ -18,7 +26,63 @@ void Messenger::onUpdate(std::function<void()>f)
 {
     subscribe("hover", f);
 }
-void Messenger::subscribe(const std::string &event, std::function<void()> f)
+    void Messenger::onHover(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("hover", f);
+}
+
+void Messenger::onTextEntered(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("textentered", f);
+}
+
+void Messenger::onTextEntered(std::function<void()> f)
+{
+
+    subscribe("textentered", f);
+}
+
+void Messenger::onFocus(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("focus", f);
+}
+
+void Messenger::onFocus(std::function<void()> f)
+{
+    subscribe("focus", f);
+}
+
+void Messenger::onBlur(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("blur", f);
+}
+
+void Messenger::onBlur(std::function<void()> f)
+{
+    subscribe("blur", f);
+}
+
+void Messenger::onKeypress(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("keypress", f);
+}
+
+void Messenger::onKeypress(std::function<void()> f)
+{
+    subscribe("keypress", f);
+}
+
+void Messenger::onMouseMoved(std::function<void(const std::optional<sf::Event> &event)>f)
+{
+    subscribe("mousemoved", f);
+}
+
+void Messenger::onMouseMoved(std::function<void()> f)
+{
+    subscribe("mousemoved", f);
+}
+
+void Messenger::subscribe(const std::string &event, std::function<void(const std::optional<sf::Event> &event)> f)
 {
     auto opt_map = EventsManager::getEvent(event);
     if ( !opt_map) {
@@ -26,7 +90,17 @@ void Messenger::subscribe(const std::string &event, std::function<void()> f)
         opt_map = EventsManager::getEvent(event);
     }
     auto& event_map = *opt_map.value();
-    event_map[this] = f;
+    event_map[reinterpret_cast<UIComponent*>(this)] = f;
+}
+
+void Messenger::subscribe(const std::string &event, std::function<void()>f)
+{
+    auto wrapped = [f](const std::optional<sf::Event>&)
+    {
+        f();
+    };
+
+    subscribe(event, wrapped);
 }
 
 void Messenger::publish(const std::string &event, ComponentsManager& app_controller, std::function<bool(UIComponent&)> filter)

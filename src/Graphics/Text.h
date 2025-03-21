@@ -1,11 +1,9 @@
-//
-// Created by Dave Smith on 3/12/25.
-//
 
 #ifndef TEXT_H
 #define TEXT_H
 
 #include "Shape.h"
+#include "../Managers/FontManager.h"
 
 namespace ml {
 
@@ -21,6 +19,7 @@ private:
     float maxWidth = 0.f;
 public:
     using Shape::Shape;
+    explicit Text(const sf::Font& font = FontManager::DEFAULT);
     void setString(const sf::String &text);
 };
 

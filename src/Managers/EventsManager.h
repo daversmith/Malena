@@ -8,7 +8,7 @@
 #include <any>
 #include <map>
 #include <string>
-
+#include <SFML/Graphics.hpp>
 namespace ml {
 
 
@@ -19,11 +19,11 @@ class Controller;
 class EventsManager
 {
 private:
-    inline static std::map<std::string, std::map<void *, std::function<void()>>> events;
+    inline static std::map<std::string, std::map<UIComponent *, std::function<void(const std::optional<sf::Event> &event)>>> events;
 public:
-    static std::optional<std::map<void *, std::function<void()>>*> getEvent(const std::string& event);
+    static std::optional<std::map<UIComponent *, std::function<void(const std::optional<sf::Event> &event)>>*> getEvent(const std::string& event);
     static void setEvent(const std::string& event);
-    static void fire(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;}, std::function<void(UIComponent&)> system = nullptr);
+    static void fire(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;}, std::function<void()> system = nullptr, const std::optional<sf::Event>&e = std::nullopt);
     // static void fire(const std::string& event, const std::vector<UIComponent*>& components, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;}, std::function<void(UIComponent&)> system = nullptr);
     // static void fire(const std::string& event, const std::vector<Controller*>& components, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;}, std::function<void(UIComponent&)> system = nullptr);
     // static void clearAllEvents();

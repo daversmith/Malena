@@ -1,6 +1,3 @@
-//
-// Created by Dave Smith on 3/7/25.
-//
 
 #ifndef UICOMPONENTADAPTER_H
 #define UICOMPONENTADAPTER_H
@@ -16,9 +13,9 @@ namespace ml {
         virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
     public:
-        virtual void update();
+        virtual void update(  );
 
-        virtual void eventHandler();
+        virtual void eventHandler(const std::optional<sf::Event> &event);
 
         [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
 

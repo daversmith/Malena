@@ -1,6 +1,3 @@
-//
-// Created by Dave R. Smith on 3/4/25.
-//
 
 #ifndef SHAPE_H
 #define SHAPE_H
@@ -20,14 +17,15 @@ class Shape :
 {
 public:
     using T::T;
-
-protected:
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+// protected:
+    virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const ;
 
 public:
+    Shape();
+    Shape(const sf::Font& font);
     void update() override;
 
-    void eventHandler() override;
+    void eventHandler(const std::optional<sf::Event> &event) override;
     // using  T::getGlobalBounds;
     sf::FloatRect  getGlobalBounds() const override;
 

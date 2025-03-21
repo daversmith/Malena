@@ -1,6 +1,3 @@
-//
-// Created by Dave Smith on 3/8/25.
-//
 
 #include "Grid.h"
 
@@ -92,10 +89,10 @@ void Grid::update()
         c->update();
 }
 
-void Grid::eventHandler()
+void Grid::eventHandler(const std::optional<sf::Event> &event)
 {
     for(auto &c : getUIComponents())
-        c->eventHandler();
+        c->eventHandler(event);
 }
 
 sf::FloatRect Grid::getGlobalBounds() const

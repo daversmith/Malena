@@ -13,8 +13,8 @@ class Stateful {
 public:
     enum State
     {
-        HOVERED, CLICKED, HIDDEN,
-
+        HOVERED, CLICKED, HIDDEN, BLINKING,
+        FOCUSED,
         //// do not add states below
         LAST_STATE
     };

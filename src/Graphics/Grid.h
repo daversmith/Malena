@@ -1,6 +1,3 @@
-//
-// Created by Dave Smith on 3/8/25.
-//
 
 #ifndef GRID_H
 #define GRID_H
@@ -48,7 +45,7 @@ public:
 
     void update() override;
 
-    void eventHandler() override;
+    void eventHandler(const std::optional<sf::Event> &event) override;
 
     [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
 };
