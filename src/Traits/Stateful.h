@@ -14,7 +14,7 @@ public:
     enum State
     {
         HOVERED, CLICKED, HIDDEN, BLINKING,
-        FOCUSED,
+        FOCUSED, ENABLED,
         //// do not add states below
         LAST_STATE
     };

@@ -220,6 +220,15 @@ Each component in the example illustrates a piece of Malena’s event‑driven a
 
 ---
 
+## 📺 Demo Video
+
+If you’d like to see Malena in action, check out this short walkthrough:
+
+[![Watch the demo](https://img.youtube.com/vi/sQducE5kbWE/0.jpg)](https://youtu.be/sQducE5kbWE)
+
+
+
+---
 ## ❤️ Contributing
 
 Malena is MIT‑style friendly. Fork, improve, submit PRs — and happy coding!

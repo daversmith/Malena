@@ -49,7 +49,7 @@ void BasicExample::initialization()
     //position unsubscribeAll below unsubscribeBtn;
     unsubscribeAll.right(clearAll, 10);
 
-    typer.enableState(ml::Stateful::FOCUSED);
+    typer.enableState(ml::Stateful::ENABLED);
     typer.enableState(ml::Stateful::HIDDEN);
 
     addComponent(box1);

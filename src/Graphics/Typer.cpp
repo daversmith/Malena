@@ -12,12 +12,12 @@ void ml::Typer::registerEvents()
 {
     onTextEntered([this](Event event)
        {
-           if(checkState(FOCUSED))
+            if(checkState(ENABLED))
            {
                std::string text = getString();
                char c = event->getIf<sf::Event::TextEntered>()->unicode;
 
-               if(c == '\b')
+               if(c == '\b' && !text.empty())
                    text.pop_back();
 
                if(c >= ' ' ||  c == '\n' || c == '\t')
