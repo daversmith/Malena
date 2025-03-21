@@ -13,14 +13,10 @@ class Manager
 {
 public:
     virtual ~Manager() = default;
-
-    virtual void handleEvents(const std::optional<sf::Event> &event) = 0;
-    virtual void fireEvents(const std::optional<sf::Event> &event) = 0;
+    virtual void fireInputEvents(const std::optional<sf::Event> &event) = 0;
     //update objects
-    virtual void updateComponents() = 0;
+    virtual void fireUpdateEvents() = 0;
     virtual void run() = 0;
-
-    // virtual void onUpdate(std::function<void()>) = 0;
     virtual void draw() = 0;
 
 };

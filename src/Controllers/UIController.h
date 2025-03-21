@@ -12,8 +12,6 @@ namespace ml {
     public:
         using Controller::Controller;
 
-        virtual void update() = 0 ;
-
         virtual void initialization() = 0;
 
         virtual void registerEvents() = 0;

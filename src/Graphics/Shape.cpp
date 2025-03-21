@@ -22,24 +22,7 @@ namespace ml {
         T r = *this;
         target.draw(r);
     }
-    template <typename T>
-    void Shape<T>::update()
-    {
-         // if(Stateful::checkState(Stateful::HOVERED))
-         //    sf::RectangleShape::setFillColor(sf::Color::Blue);
-         // else
-         //    sf::RectangleShape::setFillColor(sf::Color::Magenta);
-    }
-    template <typename T>
-    void Shape<T>::eventHandler(const std::optional<sf::Event> &event)
-    {
-        // Stateful::setState(Stateful::HOVERED,
-        //     MouseEvents::isHovered(*this, *this->window));
-        // onHover([this]()
-        // {
-        //     sf::RectangleShape::setFillColor(sf::Color::Blue);;
-        // });
-    }
+
     template<typename T>
     sf::FloatRect  Shape<T>::getGlobalBounds() const
     {

@@ -58,9 +58,6 @@ void Grid::reposition()
             components[i - 1]->right(*components[i], spacing );
     }
 
-
-
-
 }
 
 void Grid::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -83,17 +80,6 @@ sf::Vector2f Grid::getPosition() const
     return sf::Vector2f();
 }
 
-void Grid::update()
-{
-    for(auto &c : getUIComponents())
-        c->update();
-}
-
-void Grid::eventHandler(const std::optional<sf::Event> &event)
-{
-    for(auto &c : getUIComponents())
-        c->eventHandler(event);
-}
 
 sf::FloatRect Grid::getGlobalBounds() const
 {

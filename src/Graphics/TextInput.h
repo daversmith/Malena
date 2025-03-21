@@ -20,10 +20,6 @@ namespace ml
 
         sf::Vector2f getPosition() const override;
 
-        void update() override;
-
-        void eventHandler(const std::optional<sf::Event> &event) override;
-
         [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
         void enableState(Stateful::State state);
     };

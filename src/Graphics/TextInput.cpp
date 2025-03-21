@@ -25,19 +25,6 @@ namespace ml
     {
     }
 
-    void TextInput::update()
-    {
-        typer.update();
-        cursor.update();
-        typer.right(cursor);
-    }
-
-    void TextInput::eventHandler(const std::optional<sf::Event> &event)
-    {
-        typer.eventHandler(event);
-        cursor.eventHandler(event);
-    }
-
     sf::FloatRect TextInput::getGlobalBounds() const
     {
     }

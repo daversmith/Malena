@@ -90,6 +90,7 @@ add_executable(main src/main.cpp
         examples/BasicExample/BasicExample.h
         src/Graphics/Typer.cpp
         src/Graphics/Typer.h
+        Malena/common.hpp
         #        src/Graphics/VertexArray.cpp
 #        src/Graphics/VertexArray.h
 )

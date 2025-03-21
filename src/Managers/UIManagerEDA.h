@@ -22,9 +22,9 @@
 //     sf::RenderWindow *window = nullptr;
 //     //handle events
 //     void handleEvents();
-//     void fireEvents(const std::optional<sf::Event> &event);
+//     void fireInputEvents(const std::optional<sf::Event> &event);
 //     //update objects
-//     void updateComponents();
+//     void fireUpdateEvents();
 //     UIComponentAdapter proxy;
 //     //draw
 //     void draw();

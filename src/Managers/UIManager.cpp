@@ -14,13 +14,6 @@ UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, U
         this->window->setFramerateLimit(60);
 }
 
-void UIManager::handleEvents(const std::optional<sf::Event> &event)
-{
-        for(auto &c : uiController->getUIComponents())
-        {
-                c->eventHandler(event);
-        }
-}
 void UIManager::draw()
 {
         this->window->clear();
@@ -33,11 +26,8 @@ void UIManager::draw()
         this->window->display();
 }
 
-void UIManager::updateComponents()
+void UIManager::fireUpdateEvents()
 {
-
-        for(auto &c : uiController->getUIComponents())
-                c->update();
         EventsManager::fire("update");
 }
 
@@ -58,13 +48,10 @@ void UIManager::run()
 
                                 return;
                         }
-                        handleEvents(event);
-                        fireEvents(event);
+                        fireInputEvents(event);
                 }
 
-                updateComponents();
-                for(auto &c : uiController->getUIComponents())
-                        c->update();
+                fireUpdateEvents();
                 draw();
         }
 
@@ -72,7 +59,7 @@ void UIManager::run()
 
 
 
-void UIManager::fireEvents(const std::optional<sf::Event> &event)
+void UIManager::fireInputEvents(const std::optional<sf::Event> &event)
 {
         if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
         {

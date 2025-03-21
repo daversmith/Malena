@@ -5,10 +5,15 @@
 #include "UIComponent.h"
 
 namespace ml {
-UIComponent::UIComponent(sf::RenderWindow &window) : window(&window)
-{
-    onClick([](){});
-    onHover([](){});
-}
+    UIComponent::UIComponent(sf::RenderWindow &window) : window(&window)
+    {
+        onClick([](){});
+        onHover([](){});
+    }
+
+    UIComponent::~UIComponent()
+    {
+        unsubscribeAll();
+    }
 } // namespace ml
 

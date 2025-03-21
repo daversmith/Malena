@@ -4,23 +4,17 @@
 
 #ifndef TEXTINPUTTEST_H
 #define TEXTINPUTTEST_H
-#include "../../src/Application/Application.h"
-#include "../../src/Graphics/Cursor.h"
-#include "../../src/Graphics/RectangleButton.h"
-#include "../../src/Graphics/TextInput.h"
-#include "../../src/Graphics/Typer.h"
-
+#include "../../Malena/common.hpp"
 
 class BasicExample : public ml::Application
 {
-    ml::RectangleButton box1, box2, box3;
+    ml::RectangleButton box1, box2, myEventButton, unsubscribeBtn, subscribeBtn, unsubscribeAll, clearAll;
     ml::Typer typer;
 
 public:
     BasicExample();
     void initialization() override;
     void registerEvents() override;
-    void update() override;
 };
 
 

@@ -35,6 +35,8 @@ public:
     void onMouseMoved(std::function<void()>f);
     void subscribe(const std::string& event, std::function<void(const std::optional<sf::Event> &event)>);
     void subscribe(const std::string& event, std::function<void()>);
+    void unsubscribe(const std::string& event);
+    void unsubscribeAll();
     void publish(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
 };
 

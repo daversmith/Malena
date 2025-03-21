@@ -10,11 +10,11 @@ namespace ml
     {
         inline static sf::Clock clock;
         using Text::setString;
+        void registerEvents();
     public:
         using Text::Text;
         Cursor(const sf::Font& font = FontManager::DEFAULT);
-        void eventHandler(const std::optional<sf::Event> &event) override;
-        void update() override;
+
     };
 }
 

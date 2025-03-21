@@ -23,9 +23,7 @@ public:
 public:
     Shape();
     Shape(const sf::Font& font);
-    void update() override;
 
-    void eventHandler(const std::optional<sf::Event> &event) override;
     // using  T::getGlobalBounds;
     sf::FloatRect  getGlobalBounds() const override;
 

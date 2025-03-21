@@ -15,7 +15,7 @@
 namespace ml {
 
 class UIComponent : public virtual  sf::Drawable, public Messenger, public Component, public Stateful,
-                    public Updateable, public Positionable
+    public Positionable
 {
 protected:
     sf::RenderWindow *window = nullptr;
@@ -23,9 +23,8 @@ protected:
 public:
 
     explicit UIComponent(sf::RenderWindow &window = WindowManager::getWindow());
-    virtual void eventHandler(const std::optional<sf::Event> &event) = 0;
     [[nodiscard]] virtual  sf::FloatRect getGlobalBounds() const = 0;
-    virtual ~UIComponent() = default;
+    virtual ~UIComponent();
     void* operator new(size_t size) {
         UIComponent* obj = static_cast<UIComponent*>(malloc(size));
         obj->isDynamic = true; // Mark as dynamically allocated

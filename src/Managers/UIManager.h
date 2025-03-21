@@ -29,11 +29,11 @@ public:
               sf::RenderWindow &window = WindowManager::getWindow(), Architecture architechture = MVC);
 
 private:
-    void handleEvents(const std::optional<sf::Event> &event) override;
 
-    void fireEvents(const std::optional<sf::Event> &event) override;
 
-    void updateComponents() override;
+    void fireInputEvents(const std::optional<sf::Event> &event) override;
+
+    void fireUpdateEvents() override;
 
     void draw() override;
 

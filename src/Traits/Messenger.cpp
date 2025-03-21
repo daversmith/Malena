@@ -92,13 +92,7 @@ namespace ml {
 
     void Messenger::subscribe(const std::string &event, std::function<void(const std::optional<sf::Event> &event)> f)
     {
-        auto opt_map = EventsManager::getEvent(event);
-        if ( !opt_map) {
-            EventsManager::setEvent(event);
-            opt_map = EventsManager::getEvent(event);
-        }
-        auto& event_map = *opt_map.value();
-        event_map[reinterpret_cast<UIComponent*>(this)] = f;
+        EventsManager::subscribe(event, reinterpret_cast<UIComponent*>(this), f);
     }
 
     void Messenger::subscribe(const std::string &event, std::function<void()>f)
@@ -109,6 +103,16 @@ namespace ml {
         };
 
         subscribe(event, wrapped);
+    }
+
+    void Messenger::unsubscribe(const std::string &event)
+    {
+        EventsManager::unsubscribe(event, reinterpret_cast<UIComponent*>(this));
+    }
+
+    void Messenger::unsubscribeAll()
+    {
+        EventsManager::unsubscribeAll(reinterpret_cast<UIComponent*>(this));
     }
 
     void Messenger::publish(const std::string &event, std::function<bool(UIComponent&)> filter)

@@ -4,7 +4,13 @@ namespace ml
 {
     Typer::Typer(const sf::Font &font) : Shape<sf::Text>(font)
     {
-       onTextEntered([this](Event event)
+       registerEvents();
+    }
+}
+
+void ml::Typer::registerEvents()
+{
+    onTextEntered([this](Event event)
        {
            if(checkState(FOCUSED))
            {
@@ -20,16 +26,4 @@ namespace ml
                setString(text);
            }
        });
-
-    }
-
-    void Typer::eventHandler(const std::optional<sf::Event> &event)
-    {
-
-    }
-
-    void Typer::update()
-    {
-        Shape<Text>::update();
-    }
 }

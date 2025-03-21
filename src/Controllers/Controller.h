@@ -11,7 +11,7 @@
 namespace ml {
 
 
-    class Controller : public Updateable, public ComponentsManager
+    class Controller :  public ComponentsManager
     {
     public:
         virtual void initialization() = 0;

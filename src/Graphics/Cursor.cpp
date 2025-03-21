@@ -5,22 +5,22 @@ ml::Cursor::Cursor(const sf::Font& font) : Shape(font), Text(font)
 {
     Text::setString('|');
     enableState(Stateful::BLINKING);
+    registerEvents();
 }
 
-void ml::Cursor::eventHandler(const std::optional<sf::Event> &event)
-{
-    Text::eventHandler(event);
-}
 
-void ml::Cursor::update()
+void ml::Cursor::registerEvents()
 {
-    Text::update();
-    if(checkState(Stateful::BLINKING))
+    onUpdate([this]
     {
-        if(clock.getElapsedTime().asMilliseconds() > 500)
+        if(checkState(Stateful::BLINKING))
         {
-            toggleState(Stateful::HIDDEN);
-            clock.restart();
+            if(clock.getElapsedTime().asMilliseconds() > 500)
+            {
+                toggleState(Stateful::HIDDEN);
+                clock.restart();
+            }
         }
-    }
+    });
+
 }
