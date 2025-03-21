@@ -120,9 +120,18 @@ void UIManager::fireEvents(const std::optional<sf::Event> &event)
         /// Checking Event (use else-if)
         if(event->is<sf::Event::MouseMoved>())
         {
-                EventsManager::fire("hover", [this](UIComponent& c)
+                EventsManager::fire("hover", [this, &event](UIComponent& c)
                 {
-                  return MouseEvents::isHovered(c, *window);
+                        bool isHovered = MouseEvents::isHovered(c, *window);
+                        if(isHovered)
+                                c.enableState(ml::Stateful::HOVERED);
+                        else
+                        {
+                                c.disableState(ml::Stateful::HOVERED);
+                                EventsManager::fire("unhover", [&event](UIComponent& c){return !c.checkState(Stateful::HOVERED);}, nullptr, event);
+                        }
+
+                        return isHovered;
                 }, nullptr, event);
         }
         else if(event->is<sf::Event::TextEntered>())

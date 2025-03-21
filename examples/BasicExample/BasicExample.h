@@ -11,16 +11,16 @@
 #include "../../src/Graphics/Typer.h"
 
 
-class TextInputTest : public ml::Application
+class BasicExample : public ml::Application
 {
-    ml::RectangleButton box1, box2;
+    ml::RectangleButton box1, box2, box3;
     ml::Typer typer;
 
 public:
-    TextInputTest();
+    BasicExample();
     void initialization() override;
     void registerEvents() override;
-
+    void update() override;
 };
 
 

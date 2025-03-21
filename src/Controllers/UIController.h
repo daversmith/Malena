@@ -8,19 +8,15 @@ namespace ml {
 
     class UIController :  public Controller
     {
-        inline static std::vector<Controller *> controllers;
         UIComponentAdapter proxy;
     public:
         using Controller::Controller;
-        UIController(){ UIController::registerEvents();}
-        const std::vector<Controller *> &getControllers() const;
-        void addController(Controller& controller);
 
-        virtual void update() ;
+        virtual void update() = 0 ;
 
-        virtual void initialization() ;
+        virtual void initialization() = 0;
 
-        virtual void registerEvents() ;
+        virtual void registerEvents() = 0;
 
         void onUpdate(std::function<void()> f);
         virtual ~UIController() = default;

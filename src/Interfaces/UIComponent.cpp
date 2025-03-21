@@ -7,6 +7,8 @@
 namespace ml {
 UIComponent::UIComponent(sf::RenderWindow &window) : window(&window)
 {
+    onClick([](){});
+    onHover([](){});
 }
 } // namespace ml
 

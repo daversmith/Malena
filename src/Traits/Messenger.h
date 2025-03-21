@@ -18,9 +18,11 @@ public:
     void onClick(std::function<void()>);
     void onUpdate(std::function<void()>);
     void onHover(std::function<void()>);
+    void onHover(std::function<void(const std::optional<sf::Event> &event)>);
+    void onUnhover(std::function<void()>);
+    void onUnhover(std::function<void(const std::optional<sf::Event> &event)>);
     void onClick(std::function<void(const std::optional<sf::Event> &event)>);
     void onUpdate(std::function<void(const std::optional<sf::Event> &event)>);
-    void onHover(std::function<void(const std::optional<sf::Event> &event)>);
     void onTextEntered(std::function<void(const std::optional<sf::Event> &event)>);
     void onTextEntered(std::function<void()>f);
     void onFocus(std::function<void(const std::optional<sf::Event> &event)>);
@@ -33,7 +35,7 @@ public:
     void onMouseMoved(std::function<void()>f);
     void subscribe(const std::string& event, std::function<void(const std::optional<sf::Event> &event)>);
     void subscribe(const std::string& event, std::function<void()>);
-    static void publish(const std::string& event, ComponentsManager& app_controller, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
+    void publish(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
 };
 
 

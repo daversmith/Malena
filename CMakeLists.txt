@@ -29,8 +29,6 @@ add_executable(main src/main.cpp
         src/Managers/EventsManager.h
         src/Controllers/UIController.cpp
         src/Controllers/UIController.h
-        examples/RectangleApp.cpp
-        examples/RectangleApp.h
         src/Managers/EventManager.cpp
         src/Managers/ComponentsManager.cpp
         src/Managers/ComponentsManager.h
@@ -59,24 +57,6 @@ add_executable(main src/main.cpp
         src/Graphics/RectangleButton.h
         src/Graphics/CircleButton.h
         src/Graphics/ConvexButton.h
-        examples/ButtonController.cpp
-        examples/ButtonController.h
-        examples/Jeopardy/Jeopardy.cpp
-        examples/Jeopardy/Jeopardy.h
-        examples/Jeopardy/JeopardyBoardController.cpp
-        examples/Jeopardy/JeopardyBoardController.h
-        examples/Jeopardy/JeopardyModel.cpp
-        examples/Jeopardy/JeopardyModel.h
-        examples/Jeopardy/JeopardyView.cpp
-        examples/Jeopardy/JeopardyView.h
-        examples/RandomCsQuestion/RandomCSQuestion.cpp
-        examples/RandomCsQuestion/RandomCSQuestion.h
-        examples/RandomCsQuestion/RandomCSQuestionView.cpp
-        examples/RandomCsQuestion/RandomCSQuestionView.h
-        examples/RandomCsQuestion/RandomCSQuestionModel.cpp
-        examples/RandomCsQuestion/RandomCSQuestionModel.h
-        examples/RandomCsQuestion/RandomCSQuestionController.cpp
-        examples/RandomCsQuestion/RandomCSQuestionController.h
         ECS/EventManagerECS.cpp
         ECS/EventManagerECS.h
         ECS/HealthSystem.cpp
@@ -106,12 +86,10 @@ add_executable(main src/main.cpp
         src/Graphics/Cursor.h
         src/Graphics/TextBox.cpp
         src/Graphics/TextBox.h
-        examples/TextInputTest/TextInputTest.cpp
-        examples/TextInputTest/TextInputTest.h
+        examples/BasicExample/BasicExample.cpp
+        examples/BasicExample/BasicExample.h
         src/Graphics/Typer.cpp
         src/Graphics/Typer.h
-        examples/BrickGame/BrickGame.cpp
-        examples/BrickGame/BrickGame.h
         #        src/Graphics/VertexArray.cpp
 #        src/Graphics/VertexArray.h
 )
