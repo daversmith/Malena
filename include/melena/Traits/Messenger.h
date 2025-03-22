@@ -23,7 +23,7 @@ public:
     void onUnhover(std::function<void(const std::optional<sf::Event> &event)>);
     void onClick(std::function<void(const std::optional<sf::Event> &event)>);
     void onUpdate(std::function<void(const std::optional<sf::Event> &event)>);
-    void onTextEntered(std::function<void(const std::optional<sf::Event> &event)>);
+    void onTextEntered(const std::function<void(const std::optional<sf::Event> &event)>&);
     void onTextEntered(std::function<void()>f);
     void onFocus(std::function<void(const std::optional<sf::Event> &event)>);
     void onFocus(std::function<void()>f);
@@ -37,7 +37,7 @@ public:
     void subscribe(const std::string& event, std::function<void()>);
     void unsubscribe(const std::string& event);
     void unsubscribeAll();
-    void publish(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
+    static void publish(const std::string& event, std::function<bool(UIComponent&)> filter = [](UIComponent&){return true;});
 };
 
 

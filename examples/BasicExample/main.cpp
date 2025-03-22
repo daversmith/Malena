@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 
-#include "../examples/BasicExample/BasicExample.h"
+#include "BasicExample.h"
 
 int main()
 {

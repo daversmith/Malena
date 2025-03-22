@@ -1,7 +1,8 @@
 //
 // Created by Dave Smith on 11/13/22.
 //
-#include "../Traits/Positionable.h"
+
+#include <melena/Traits/Positionable.h>
 
 namespace ml {
 
@@ -56,12 +57,12 @@ void Positionable::moveTo(sf::Vector2f position, float seconds)
     {
         setPosition(position);
         scrolling = false;
-        initialPosition = sf::Vector2f(MAXFLOAT, MAXFLOAT);
+        initialPosition = sf::Vector2f(FLT_MAX, FLT_MAX);
     }
 }
 void Positionable::moveDistance(sf::Vector2f distance, float seconds)
 {
-    if(initialPosition == sf::Vector2f(MAXFLOAT, MAXFLOAT))
+    if(initialPosition == sf::Vector2f(FLT_MAX, FLT_MAX))
     {
         initialPosition = {getPosition().x + distance.x, getPosition().y + distance.y};
     }

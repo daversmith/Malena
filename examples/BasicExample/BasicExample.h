@@ -1,10 +1,6 @@
-//
-// Created by Dave Smith on 3/19/25.
-//
-
 #ifndef TEXTINPUTTEST_H
 #define TEXTINPUTTEST_H
-#include "../../Malena/common.hpp"
+#include <melena/common.hpp>  // Changed from "../../Malena/common.hpp"
 
 class BasicExample : public ml::Application
 {
@@ -16,7 +12,5 @@ public:
     void initialization() override;
     void registerEvents() override;
 };
-
-
 
 #endif //TEXTINPUTTEST_H

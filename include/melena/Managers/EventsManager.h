@@ -8,6 +8,7 @@
 #include <any>
 #include <map>
 #include <string>
+#include <functional>
 #include <SFML/Graphics.hpp>
 namespace ml {
 

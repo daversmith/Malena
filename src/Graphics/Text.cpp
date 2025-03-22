@@ -1,7 +1,7 @@
 
-#include "Text.h"
+#include <melena/Graphics/Text.h>
 
-#include "../Utilities/TextManipulators.h"
+#include <melena/Utilities/TextManipulators.h>
 
 namespace ml {
     Text::Text(const sf::Font &font) : Shape<sf::Text>(font)

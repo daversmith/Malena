@@ -14,7 +14,7 @@ namespace ml {
 class TextManipulators {
 
 public:
-  static  std::string wordwrap(sf::Text& text, float maxwidth);
+  static  std::string wordwrap(const sf::Text& text, float maxwidth);
   static std::string wordwrap(const std::string& input, const sf::Font& font, unsigned int characterSize, float maxWidth);
 };
 

@@ -1,5 +1,5 @@
 
-#include "Application.h"
+#include <melena/Application/Application.h>
 
 namespace ml {
     Application::Application(const sf::VideoMode &videoMode, const std::string &title, UIController& appLogic, sf::RenderWindow &window)

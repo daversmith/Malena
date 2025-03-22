@@ -1,7 +1,7 @@
 //
 // Created by Dave R. Smith on 3/3/25.
 //
-#include "MouseEvents.h"
+#include <melena/Utilities/MouseEvents.h>
 
 namespace ml {
 bool MouseEvents::isHovered(const sf::FloatRect& bounds,

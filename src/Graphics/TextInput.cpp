@@ -1,12 +1,14 @@
 
-#include "TextInput.h"
+#include <melena/Graphics/TextInput.h>
+
+#include <melena/Traits/Stateful.h>
 
 namespace ml
 {
     TextInput::TextInput()
     {
-        cursor.enableState(BLINKING);
-        enableState(FOCUSED);
+        cursor.enableState(Stateful::BLINKING);
+        enableState(Stateful::FOCUSED);
     }
 
     void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const

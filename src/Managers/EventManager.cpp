@@ -1,7 +1,8 @@
 
-#include "EventsManager.h"
-#include "../Interfaces/UIComponent.h"
-#include "../Controllers/Controller.h"
+#include <functional>
+#include <optional>
+
+#include <melena/Managers/EventsManager.h>
 
 namespace ml {
 
