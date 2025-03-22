@@ -4,13 +4,13 @@
 
 #include "Shape.h"
 
-namespace ml {
-class Sprite : public virtual Shape<sf::Sprite>
+namespace ml
 {
-    using Shape::Shape;
-};
+	class Sprite : public virtual Shape<sf::Sprite>
+	{
+		using Shape::Shape;
+	};
 
 
 } // namespace ml
-#endif //SPRITE_H
-
+#endif // SPRITE_H

@@ -5,14 +5,13 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-namespace ml {
-
-class Component
+namespace ml
 {
-public:
-    virtual ~Component() = default;
-};
+
+	class Component
+	{
+	public:
+		virtual ~Component() = default;
+	};
 } // namespace ml
-#endif //COMPONENT_H
-
-
+#endif // COMPONENT_H

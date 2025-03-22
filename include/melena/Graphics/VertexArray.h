@@ -5,17 +5,16 @@
 
 #include "Sprite.h"
 
-namespace ml {
+namespace ml
+{
 
-// class VertexArray : public virtual Shape<sf::VertexArray>
-// {
-//     using Shape::Shape;
-// public:
-//     sf::FloatRect getGlobalBounds() const override;
-//};
+	// class VertexArray : public virtual Shape<sf::VertexArray>
+	// {
+	//     using Shape::Shape;
+	// public:
+	//     sf::FloatRect getGlobalBounds() const override;
+	//};
 
 } // namespace ml
 
-#endif //VERTEXARRAY_H
-
-
+#endif // VERTEXARRAY_H

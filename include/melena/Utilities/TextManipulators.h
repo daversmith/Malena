@@ -7,19 +7,20 @@
 
 #include <string>
 
-#include "SFML/Graphics/Text.hpp"
 #include <iostream>
 #include <sstream>
-namespace ml {
-class TextManipulators {
+#include "SFML/Graphics/Text.hpp"
+namespace ml
+{
+	class TextManipulators
+	{
 
-public:
-  static  std::string wordwrap(const sf::Text& text, float maxwidth);
-  static std::string wordwrap(const std::string& input, const sf::Font& font, unsigned int characterSize, float maxWidth);
-};
+	public:
+		static std::string wordwrap(const sf::Text &text, float maxwidth);
+		static std::string wordwrap(const std::string &input, const sf::Font &font, unsigned int characterSize,
+									float maxWidth);
+	};
 
 
 } // namespace ml
-#endif //TEXTMANIPULATORS_H
-
-
+#endif // TEXTMANIPULATORS_H

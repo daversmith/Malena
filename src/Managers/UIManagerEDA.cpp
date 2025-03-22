@@ -17,7 +17,8 @@
 //
 // namespace ml {
 //
-// UIManagerEDA::UIManagerEDA(const sf::VideoMode &videoMode, const std::string &title, UIController& appLogic, sf::RenderWindow &window)
+// UIManagerEDA::UIManagerEDA(const sf::VideoMode &videoMode, const std::string &title, UIController& appLogic,
+// sf::RenderWindow &window)
 //         : window(&window)
 // {
 //         this->window->create(videoMode,  title);

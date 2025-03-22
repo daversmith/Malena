@@ -8,21 +8,22 @@
 #include <vector>
 #include "../Interfaces/UIComponent.h"
 
-namespace ml {
+namespace ml
+{
 
 
-class ComponentsManager {
-  std::vector<UIComponent *> uiComponents;
-public:
-  [[nodiscard]] const std::vector<UIComponent *> &getUIComponents() const;
+	class ComponentsManager
+	{
+		std::vector<UIComponent *> uiComponents;
 
-  void addComponent(UIComponent & component);
-  ~ComponentsManager();
+	public:
+		[[nodiscard]] const std::vector<UIComponent *> &getUIComponents() const;
 
-};
+		void addComponent(UIComponent &component);
+
+		virtual ~ComponentsManager();
+	};
 
 } // namespace ml
 
-#endif //COMPONENTSMANAGER_H
-
-
+#endif // COMPONENTSMANAGER_H

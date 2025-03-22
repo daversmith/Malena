@@ -5,12 +5,12 @@
 #ifndef SIZESYSTEM_H
 #define SIZESYSTEM_H
 
+#pragma once
 
 
-class SizeSystem {
-
+class SizeSystem
+{
 };
 
 
-
-#endif //SIZESYSTEM_H
+#endif // SIZESYSTEM_H

@@ -4,16 +4,16 @@
 
 #include <melena/Adapters/UIComponentAdapter.h>
 
-namespace ml {
-    UIComponent::UIComponent(sf::RenderWindow &window) : window(&window)
-    {
-        onClick([](){});
-        onHover([](){});
-    }
+namespace ml
+{
+	UIComponent::UIComponent(sf::RenderWindow &window) : window(&window)
+	{
+		onClick([]() {});
+		onHover([]() {});
+	}
 
-    UIComponent::~UIComponent()
-    {
-        unsubscribeAll();
-    }
+	UIComponent::~UIComponent()
+	{
+		unsubscribeAll();
+	}
 } // namespace ml
-

@@ -8,9 +8,8 @@
 
 namespace ml
 {
-	UIManager::UIManager(const sf::VideoMode& videoMode, const std::string& title, UIController& uiController,
-	                     sf::RenderWindow& window, Architecture archType)
-		: uiController(&uiController), window(&window)
+	UIManager::UIManager(const sf::VideoMode &videoMode, const std::string &title, UIController &uiController,
+						 sf::RenderWindow &window, Architecture archType) : uiController(&uiController), window(&window)
 	{
 		window.create(videoMode, title);
 		this->window->setFramerateLimit(60);
@@ -19,7 +18,7 @@ namespace ml
 	void UIManager::draw()
 	{
 		this->window->clear();
-		for (auto& c : uiController->getUIComponents())
+		for (auto &c : uiController->getUIComponents())
 		{
 			if (!c->checkState(Stateful::HIDDEN))
 				this->window->draw(*c);
@@ -41,7 +40,7 @@ namespace ml
 		// proxy.onUpdate([](){});
 		while (this->window->isOpen())
 		{
-			std::optional<sf::Event>* evPtr;
+			std::optional<sf::Event> *evPtr;
 			while (const std::optional event = this->window->pollEvent())
 			{
 				if (event->is<sf::Event::Closed>())
@@ -59,65 +58,62 @@ namespace ml
 	}
 
 
-	void UIManager::fireInputEvents(const std::optional<sf::Event>& event)
+	void UIManager::fireInputEvents(const std::optional<sf::Event> &event)
 	{
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
-			EventsManager::fire("click",
-			                    [this, &event] (UIComponent& c) -> bool {
-				                    bool isClicked = MouseEvents::isClicked(c, *window);
-				                    bool isFocused = c.checkState(Stateful::FOCUSED);
+			EventsManager::fire(
+					"click",
+					[this, &event](UIComponent &c) -> bool {
+						bool isClicked = MouseEvents::isClicked(c, *window);
+						bool isFocused = c.checkState(Stateful::FOCUSED);
 
-				                    if (isClicked)
-				                    {
-					                    if (!isFocused)
-					                    {
-						                    c.enableState(Stateful::FOCUSED);
+						if (isClicked)
+						{
+							if (!isFocused)
+							{
+								c.enableState(Stateful::FOCUSED);
 
-						                    EventsManager::fire("focus",
-						                                        [this, &c] (UIComponent& comp) -> bool {
-							                                        return (&comp == &c);
-						                                        },
-						                                        nullptr,
-						                                        event);
-					                    }
-				                    }
-				                    else
-				                    {
-					                    if (isFocused)
-					                    {
-						                    EventsManager::fire("blur",
-						                                        [this, &c] (UIComponent& comp) -> bool {
-							                                        return (&comp == &c);
-						                                        },
-						                                        nullptr,
-						                                        event);
-						                    c.disableState(Stateful::FOCUSED);
-					                    }
-				                    }
-				                    return isClicked;
-			                    },
-			                    nullptr,
-			                    event);
+								EventsManager::fire(
+										"focus", [this, &c](UIComponent &comp) -> bool { return (&comp == &c); },
+										nullptr, event);
+							}
+						}
+						else
+						{
+							if (isFocused)
+							{
+								EventsManager::fire(
+										"blur", [this, &c](UIComponent &comp) -> bool { return (&comp == &c); },
+										nullptr, event);
+								c.disableState(Stateful::FOCUSED);
+							}
+						}
+						return isClicked;
+					},
+					nullptr, event);
 		}
 
 		/// Checking Event (use else-if)
 		if (event->is<sf::Event::MouseMoved>())
 		{
-			EventsManager::fire("hover", [this, &event] (UIComponent& c) {
-				bool isHovered = MouseEvents::isHovered(c, *window);
-				if (isHovered)
-					c.enableState(ml::Stateful::HOVERED);
-				else
-				{
-					c.disableState(ml::Stateful::HOVERED);
-					EventsManager::fire("unhover", [&event] (UIComponent& c) {
-						return !c.checkState(Stateful::HOVERED);
-					}, nullptr, event);
-				}
+			EventsManager::fire(
+					"hover",
+					[this, &event](UIComponent &c) {
+						bool isHovered = MouseEvents::isHovered(c, *window);
+						if (isHovered)
+							c.enableState(ml::Stateful::HOVERED);
+						else
+						{
+							c.disableState(ml::Stateful::HOVERED);
+							EventsManager::fire(
+									"unhover", [&event](UIComponent &c) { return !c.checkState(Stateful::HOVERED); },
+									nullptr, event);
+						}
 
-				return isHovered;
-			}, nullptr, event);
+						return isHovered;
+					},
+					nullptr, event);
 		}
 		else if (event->is<sf::Event::TextEntered>())
 		{

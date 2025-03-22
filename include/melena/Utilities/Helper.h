@@ -7,15 +7,14 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-namespace ml {
-class Helper
+namespace ml
 {
-public:
-    static void output(sf::Vector2f vector);
-    static void output(sf::FloatRect floatRect);
-};
+	class Helper
+	{
+	public:
+		static void output(sf::Vector2f vector);
+		static void output(sf::FloatRect floatRect);
+	};
 
 } // namespace ml
-#endif //PORTFOLIO_HELPER_H
-
-
+#endif // PORTFOLIO_HELPER_H

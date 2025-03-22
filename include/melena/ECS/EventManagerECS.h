@@ -5,30 +5,32 @@
 #ifndef EVENTMANAGERECS_H
 #define EVENTMANAGERECS_H
 
+#pragma once
 
-
-#include <queue>
 #include <functional>
+#include <queue>
 #include <unordered_map>
 
-class EventManagerECS {
+class EventManagerECS
+{
 private:
-    std::queue<std::function<void()>> eventQueue;  // Queue of events to process
+	std::queue<std::function<void()>> eventQueue; // Queue of events to process
 
 public:
-    void pushEvent(std::function<void()> event) {
-        eventQueue.push(event);  // Add event to queue
-    }
+	void pushEvent(const std::function<void()> &event)
+	{
+		eventQueue.push(event); // Add event to queue
+	}
 
-    void processEvents() {
-        while (!eventQueue.empty()) {
-            eventQueue.front()();  // Execute event
-            eventQueue.pop();  // Remove event from queue
-        }
-    }
+	void processEvents()
+	{
+		while (!eventQueue.empty())
+		{
+			eventQueue.front()(); // Execute event
+			eventQueue.pop(); // Remove event from queue
+		}
+	}
 };
 
 
-
-
-#endif //EVENTMANAGERECS_H
+#endif // EVENTMANAGERECS_H

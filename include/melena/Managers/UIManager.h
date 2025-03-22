@@ -5,52 +5,52 @@
 #ifndef UIMANAGER_H
 #define UIMANAGER_H
 
-#include <vector>
 #include <SFML/Graphics.hpp>
-#include "WindowManager.h"
-#include "../Controllers/UIController.h"
+#include <vector>
 #include "../Adapters/UIComponentAdapter.h"
+#include "../Controllers/UIController.h"
 #include "Manager.h"
-#include "UIManagerMVC.h"
 #include "UIManagerEDA.h"
+#include "UIManagerMVC.h"
+#include "WindowManager.h"
 
-namespace ml {
-
-class UIManager : public Manager
+namespace ml
 {
-private:
-    UIController* uiController;
-    sf::RenderWindow *window = nullptr;
-public:
-    enum Architecture {MVC, EDA, ECS};
+
+	class UIManager : public Manager
+	{
+	private:
+		UIController *uiController;
+		sf::RenderWindow *window = nullptr;
+
+	public:
+		enum Architecture
+		{
+			MVC,
+			EDA,
+			ECS
+		};
 
 
-    UIManager(const sf::VideoMode& videoMode, const std::string& title, UIController& appLogic,
-              sf::RenderWindow &window = WindowManager::getWindow(), Architecture architechture = MVC);
+		UIManager(const sf::VideoMode &videoMode, const std::string &title, UIController &appLogic,
+				  sf::RenderWindow &window = WindowManager::getWindow(), Architecture architechture = MVC);
 
-private:
+	private:
+		void fireInputEvents(const std::optional<sf::Event> &event) override;
 
+		void fireUpdateEvents() override;
 
-    void fireInputEvents(const std::optional<sf::Event> &event) override;
+		void draw() override;
 
-    void fireUpdateEvents() override;
+	public:
+		void run() override;
 
-    void draw() override;
-
-public:
-    void run() override;
-
-    // void onUpdate(std::function<void()>) override;
+		// void onUpdate(std::function<void()>) override;
 
 
-
-    virtual ~UIManager() = default;
-
-
-};
+		virtual ~UIManager() = default;
+	};
 
 
 } // namespace ml
-#endif //UIMANAGER_H
-
-
+#endif // UIMANAGER_H

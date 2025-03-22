@@ -3,18 +3,16 @@
 #define RECTANGLE_H
 
 
-
 #include "Shape.h"
 
-namespace ml {
-
-class Rectangle : public virtual Shape<sf::RectangleShape>
+namespace ml
 {
-    using Shape::Shape;
-};
+
+	class Rectangle : public virtual Shape<sf::RectangleShape>
+	{
+		using Shape::Shape;
+	};
 
 
 } // namespace ml
-#endif //RECTANGLE_H
-
-
+#endif // RECTANGLE_H

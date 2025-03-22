@@ -5,22 +5,28 @@
 #ifndef MOVEMENTSYSTEM_H
 #define MOVEMENTSYSTEM_H
 
+#pragma once
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "ECSManager.h"
 #include "EntitiesAndComponents.h"
-class MovementSystem {
+
+class MovementSystem
+{
 public:
-    void update(ECSManager& ecs, float deltaTime) {
-        for (auto& [entity, velocity] : ecs.velocities) {
-            if (ecs.positions.find(entity) != ecs.positions.end()) {
-                ecs.positions[entity].x += velocity.vx * deltaTime;
-                ecs.positions[entity].y += velocity.vy * deltaTime;
-            }
-        }
-    }
+	static void update(ECSManager &ecs, const float deltaTime)
+	{
+		for (auto &[entity, velocity] : ecs.velocities)
+		{
+			if (ecs.positions.find(entity) != ecs.positions.end())
+			{
+				ecs.positions[entity].x += velocity.vx * deltaTime;
+				ecs.positions[entity].y += velocity.vy * deltaTime;
+			}
+		}
+	}
 };
 
-#endif //MOVEMENTSYSTEM_H
+#endif // MOVEMENTSYSTEM_H

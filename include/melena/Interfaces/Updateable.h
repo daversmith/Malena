@@ -4,18 +4,17 @@
 
 #ifndef UPDATEABLE_H
 #define UPDATEABLE_H
-#include <optional>
 #include <SFML/Graphics.hpp>
-namespace ml {
-
-class Updateable
+#include <optional>
+namespace ml
 {
-public:
-    virtual ~Updateable() = default;
 
-    virtual void update() = 0;
-};
+	class Updateable
+	{
+	public:
+		virtual ~Updateable() = default;
+
+		virtual void update() = 0;
+	};
 } // namespace ml
-#endif //UPDATEABLE_H
-
-
+#endif // UPDATEABLE_H

@@ -3,11 +3,9 @@
 #define TEXTBOX_H
 
 
-
-class TextBox {
-
+class TextBox
+{
 };
 
 
-
-#endif //TEXTBOX_H
+#endif // TEXTBOX_H

@@ -11,27 +11,26 @@
 
 namespace ml
 {
-    class MouseEvents {
+	class MouseEvents
+	{
 
-    public:
-        template <typename T>
-        static bool isHovered(const T& obj, const sf::RenderWindow& window)
-        {
-            return isHovered(obj.getGlobalBounds(), window);
-        }
+	public:
+		template<typename T>
+		static bool isHovered(const T &obj, const sf::RenderWindow &window)
+		{
+			return isHovered(obj.getGlobalBounds(), window);
+		}
 
-        static bool isHovered(const sf::FloatRect& bounds,
-            const sf::RenderWindow& window);
+		static bool isHovered(const sf::FloatRect &bounds, const sf::RenderWindow &window);
 
-        template <typename T>
-        static bool isClicked(const T& obj, const sf::RenderWindow& window)
-        {
-            return isClicked(obj.getGlobalBounds(), window);
-        }
+		template<typename T>
+		static bool isClicked(const T &obj, const sf::RenderWindow &window)
+		{
+			return isClicked(obj.getGlobalBounds(), window);
+		}
 
-        static bool isClicked(const sf::FloatRect& bounds,
-            const sf::RenderWindow& window);
-    };
-}
+		static bool isClicked(const sf::FloatRect &bounds, const sf::RenderWindow &window);
+	};
+} // namespace ml
 
-#endif //MOUSEEVENTS_H
+#endif // MOUSEEVENTS_H

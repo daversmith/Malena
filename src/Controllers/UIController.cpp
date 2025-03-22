@@ -3,12 +3,12 @@
 
 #include <functional>
 
-namespace ml {
+namespace ml
+{
 
 
-
-    void UIController::onUpdate(std::function<void()> f) {
-        proxy.onUpdate(f);
-    }
+	void UIController::onUpdate(std::function<void()> f)
+	{
+		proxy.onUpdate(f);
+	}
 } // namespace ml
-

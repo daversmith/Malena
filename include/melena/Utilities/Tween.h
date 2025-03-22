@@ -5,15 +5,14 @@
 #ifndef PORTFOLIO_TWEEN_H
 #define PORTFOLIO_TWEEN_H
 
-namespace ml {
-
-enum Tween
+namespace ml
 {
-    LINEAR,
-    EXPONENTIAL,
-    LAST_TWEEN
-};
+
+	enum Tween
+	{
+		LINEAR,
+		EXPONENTIAL,
+		LAST_TWEEN
+	};
 } // namespace ml
-#endif //PORTFOLIO_TWEEN_H
-
-
+#endif // PORTFOLIO_TWEEN_H

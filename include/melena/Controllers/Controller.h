@@ -5,23 +5,22 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#pragma once
+
 #include "../Interfaces/Updateable.h"
 #include "../Managers/ComponentsManager.h"
 
-namespace ml {
+namespace ml
+{
+	class Controller : public ComponentsManager
+	{
+	public:
+		virtual void initialization() = 0;
 
+		virtual void registerEvents() = 0;
 
-    class Controller :  public ComponentsManager
-    {
-    public:
-        virtual void initialization() = 0;
-        virtual void registerEvents() = 0;
-        virtual ~Controller() = default;
-
-    };
-
+		~Controller() override = default;
+	};
 } // namespace ml
 
-#endif //CONTROLLER_H
-
-
+#endif // CONTROLLER_H

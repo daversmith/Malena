@@ -5,46 +5,45 @@
 
 #include "../Interfaces/UIComponent.h"
 
-namespace ml {
+namespace ml
+{
 
-    template <typename T>
-    class Shape :
-        public T,
-        public UIComponent
-    {
-    public:
-        using T::T;
+	template<typename T>
+	class Shape : public T, public UIComponent
+	{
+	public:
+		using T::T;
 
-        Shape()
-        {
-        }
+		Shape()
+		{
+		}
 
-        explicit Shape(const sf::Font &font) : sf::Text(font)
-        {
-        }
+		explicit Shape(const sf::Font &font) : sf::Text(font)
+		{
+		}
 
-        virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const
-        {
-            T r = *this;
-            target.draw(r);
-        }
+		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const
+		{
+			T r = *this;
+			target.draw(r);
+		}
 
-        sf::FloatRect getGlobalBounds() const override
-        {
-            return T::getGlobalBounds();
-        }
+		sf::FloatRect getGlobalBounds() const override
+		{
+			return T::getGlobalBounds();
+		}
 
-        void setPosition(const sf::Vector2f &position) override
-        {
-            T::setPosition(position);
-        }
+		void setPosition(const sf::Vector2f &position) override
+		{
+			T::setPosition(position);
+		}
 
-        sf::Vector2f getPosition() const override
-        {
-            return T::getPosition();
-        }
-    };
+		sf::Vector2f getPosition() const override
+		{
+			return T::getPosition();
+		}
+	};
 
 } // namespace ml
 
-#endif //SHAPE_H
+#endif // SHAPE_H

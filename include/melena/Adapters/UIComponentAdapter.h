@@ -1,31 +1,28 @@
-
 #ifndef UICOMPONENTADAPTER_H
 #define UICOMPONENTADAPTER_H
 
+#pragma once
+
 #include "../Interfaces/UIComponent.h"
-#include <SFML/Graphics/RenderTarget.hpp>
 
-namespace ml {
+namespace ml
+{
+	class UIComponentAdapter final : public UIComponent
+	{
+	protected:
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-    class UIComponentAdapter : public UIComponent
-    {
-    protected:
-        virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+	public:
+		void update();
 
-    public:
-        virtual void update(  );
+		void eventHandler(const std::optional<sf::Event> &event);
 
-        virtual void eventHandler(const std::optional<sf::Event> &event);
+		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
 
-        [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
+		void setPosition(const sf::Vector2f &position) override;
 
-        void setPosition(const sf::Vector2f &position) override;
-
-        sf::Vector2f getPosition() const override;
-    };
-
+		[[nodiscard]] sf::Vector2f getPosition() const override;
+	};
 } // namespace ml
 
-#endif //UICOMPONENTADAPTER_H
-
-
+#endif // UICOMPONENTADAPTER_H

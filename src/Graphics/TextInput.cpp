@@ -5,38 +5,37 @@
 
 namespace ml
 {
-    TextInput::TextInput()
-    {
-        cursor.enableState(Stateful::BLINKING);
-        enableState(Stateful::FOCUSED);
-    }
+	TextInput::TextInput()
+	{
+		cursor.enableState(Stateful::BLINKING);
+		enableState(Stateful::FOCUSED);
+	}
 
-    void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const
-    {
-        typer.draw(target, states);
-        if(!cursor.checkState(HIDDEN))
-            cursor.draw(target, states);
+	void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const
+	{
+		typer.draw(target, states);
+		if (!cursor.checkState(HIDDEN))
+			cursor.draw(target, states);
+	}
 
-    }
+	void TextInput::setPosition(const sf::Vector2f &position)
+	{
+	}
 
-    void TextInput::setPosition(const sf::Vector2f &position)
-    {
-    }
+	sf::Vector2f TextInput::getPosition() const
+	{
+		return cursor.getPosition();
+	}
 
-    sf::Vector2f TextInput::getPosition() const
-    {
-        return cursor.getPosition();
-    }
+	sf::FloatRect TextInput::getGlobalBounds() const
+	{
+		return cursor.getGlobalBounds();
+	}
 
-    sf::FloatRect TextInput::getGlobalBounds() const
-    {
-        return cursor.getGlobalBounds();
-    }
-
-    void TextInput::enableState(const Stateful::State state)
-    {
-        Stateful::enableState(state);
-        typer.enableState(state);
-        cursor.enableState(state);
-    }
-}
+	void TextInput::enableState(const Stateful::State state)
+	{
+		Stateful::enableState(state);
+		typer.enableState(state);
+		cursor.enableState(state);
+	}
+} // namespace ml

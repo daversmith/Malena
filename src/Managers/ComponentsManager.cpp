@@ -6,22 +6,21 @@
 
 namespace ml
 {
-  void ComponentsManager::addComponent(UIComponent& component)
-  {
-    uiComponents.push_back(&component);
-  }
+	void ComponentsManager::addComponent(UIComponent &component)
+	{
+		uiComponents.push_back(&component);
+	}
 
-  const std::vector<UIComponent *>& ComponentsManager::getUIComponents() const
-  {
-    return uiComponents;
-  }
+	const std::vector<UIComponent *> &ComponentsManager::getUIComponents() const
+	{
+		return uiComponents;
+	}
 
 
-  ComponentsManager::~ComponentsManager()
-  {
-    for (auto& c : uiComponents)
-      if (c->isDynamic)
-        delete c;
-  }
+	ComponentsManager::~ComponentsManager()
+	{
+		for (auto &c : uiComponents)
+			if (c->isDynamic)
+				delete c;
+	}
 } // namespace ml
-

@@ -1,27 +1,29 @@
-
 #ifndef GAMELOGIC_H
 #define GAMELOGIC_H
 
-#include "Controller.h"
+#pragma once
+
 #include "../Adapters/UIComponentAdapter.h"
-namespace ml {
+#include "Controller.h"
 
-    class UIController :  public Controller
-    {
-        UIComponentAdapter proxy;
-    public:
-        using Controller::Controller;
+namespace ml
+{
+	class UIController : public Controller
+	{
+		UIComponentAdapter proxy;
 
-        virtual void initialization() = 0;
+	public:
+		using Controller::Controller;
 
-        virtual void registerEvents() = 0;
+		void initialization() override = 0;
 
-        void onUpdate(std::function<void()> f);
-        virtual ~UIController() = default;
-    };
+		void registerEvents() override = 0;
 
+		void onUpdate(std::function<void()> f);
+
+		~UIController() override = default;
+	};
 } // namespace ml
 
 
-#endif //GAMELOGIC_H
-
+#endif // GAMELOGIC_H

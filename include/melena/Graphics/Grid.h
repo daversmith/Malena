@@ -10,44 +10,42 @@
 
 namespace ml
 {
-    class Grid final : public ComponentsManager, public UIComponent
-    {
-        float max_height = 0, max_width = 0, spacing = 10;
-        unsigned int row = 1, col = 1;
+	class Grid final : public ComponentsManager, public UIComponent
+	{
+		float max_height = 0, max_width = 0, spacing = 10;
+		unsigned int row = 1, col = 1;
 
-        void reposition();
+		void reposition();
 
-    public:
-        Grid();
+	public:
+		Grid();
 
-        Grid(sf::Vector2u size);
+		Grid(sf::Vector2u size);
 
-        [[nodiscard]] float getSpacing() const;
+		[[nodiscard]] float getSpacing() const;
 
-        void setSpacing(float spacing);
+		void setSpacing(float spacing);
 
-        [[nodiscard]] int getRow() const;
+		[[nodiscard]] int getRow() const;
 
-        void setRow(int row);
+		void setRow(int row);
 
-        void addComponent(UIComponent& component);
+		void addComponent(UIComponent &component);
 
-        void addToApp(Application& app) const;
+		void addToApp(Application &app) const;
 
-        void addToApp(Controller& app) const;
+		void addToApp(Controller &app) const;
 
-    protected:
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	protected:
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-    public:
-        void setPosition(const sf::Vector2f& position) override;
+	public:
+		void setPosition(const sf::Vector2f &position) override;
 
-        [[nodiscard]] sf::Vector2f getPosition() const override;
+		[[nodiscard]] sf::Vector2f getPosition() const override;
 
 
-        [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
-    };
+		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
+	};
 } // namespace ml
-#endif //GRID_H
-
-
+#endif // GRID_H

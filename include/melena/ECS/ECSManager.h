@@ -5,7 +5,7 @@
 #ifndef ECSMANAGER_H
 #define ECSMANAGER_H
 
-
+#pragma once
 
 #include <unordered_map>
 
@@ -14,14 +14,14 @@
 // Entity is just an integer ID
 using Entity = int;
 
-class ECSManager {
+class ECSManager
+{
 public:
-    std::unordered_map<Entity, PositionComponent> positions;
-    std::unordered_map<Entity, VelocityComponent> velocities;
-    std::unordered_map<Entity, HealthComponent> healths;
-    std::unordered_map<Entity, HealthComponent> size;
+	std::unordered_map<Entity, PositionComponent> positions;
+	std::unordered_map<Entity, VelocityComponent> velocities;
+	std::unordered_map<Entity, HealthComponent> healths;
+	std::unordered_map<Entity, HealthComponent> size;
 };
 
 
-
-#endif //ECSMANAGER_H
+#endif // ECSMANAGER_H
