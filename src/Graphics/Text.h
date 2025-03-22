@@ -10,9 +10,9 @@ namespace ml {
 class Text : public virtual Shape<sf::Text>
 {
 public:
-    void set_word_wrap(bool word_wrap);
+    void setWordWrap(bool word_wrap);
 
-    void set_max_width(float max_width);
+    void setMaxWidth(float max_width);
 
 private:
     bool wordWrap = false;
