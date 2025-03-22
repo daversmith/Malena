@@ -77,14 +77,14 @@ namespace ml
     {
         if (!getUIComponents().empty())
             return getUIComponents().front()->getPosition();
-        return sf::Vector2f();
+        return {};
     }
 
 
     sf::FloatRect Grid::getGlobalBounds() const
     {
         //TODO fix gloabalBounds
-        return sf::FloatRect();
+        return {};
     }
 
     void Grid::addToApp(Application& app) const

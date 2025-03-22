@@ -25,13 +25,15 @@ namespace ml
 
     sf::Vector2f TextInput::getPosition() const
     {
+        return cursor.getPosition();
     }
 
     sf::FloatRect TextInput::getGlobalBounds() const
     {
+        return cursor.getGlobalBounds();
     }
 
-    void TextInput::enableState(Stateful::State state)
+    void TextInput::enableState(const Stateful::State state)
     {
         Stateful::enableState(state);
         typer.enableState(state);
