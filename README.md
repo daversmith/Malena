@@ -224,7 +224,7 @@ Each component in the example illustrates a piece of Malena’s event‑driven a
 
 If you’d like to see Malena in action, check out this short walkthrough:
 
-[![Watch the demo](https://img.youtube.com/vi/sQducE5kbWE/0.jpg)](https://youtu.be/sQducE5kbWE)
+[![Watch the demo](https://img.youtube.com/vi/-LSqvIpHAKY/0.jpg)](https://youtu.be/-LSqvIpHAKY)
 
 
 
