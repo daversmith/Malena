@@ -1,4 +1,4 @@
-add_library(melena
+add_library(malena
         "${CMAKE_CURRENT_SOURCE_DIR}/Utilities/MouseEvents_nontemplate.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Utilities/TextManipulators.cpp"
 
@@ -36,10 +36,10 @@ add_library(melena
         "${CMAKE_CURRENT_SOURCE_DIR}/ECS/SizeSystem.cpp"
 )
 
-add_library(melena::melena ALIAS melena)
+add_library(malena::malena ALIAS malena)
 
 # Set include directories
-target_include_directories(melena
+target_include_directories(malena
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -48,14 +48,14 @@ target_include_directories(melena
 )
 
 # Set C++ standard
-target_compile_features(melena PUBLIC cxx_std_17)
+target_compile_features(malena PUBLIC cxx_std_17)
 
 # Link with SFML
-target_link_libraries(melena PUBLIC SFML::Graphics)
+target_link_libraries(malena PUBLIC SFML::Graphics)
 
 # Install the library
-install(TARGETS melena
-        EXPORT melena-targets
+install(TARGETS malena
+        EXPORT malena-targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -64,8 +64,8 @@ install(TARGETS melena
 
 # Export the targets
 install(
-        EXPORT melena-targets
-        FILE melena-targets.cmake
-        NAMESPACE melena::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/melena
+        EXPORT malena-targets
+        FILE malena-targets.cmake
+        NAMESPACE malena::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/malena
 )

@@ -5,8 +5,8 @@
 #include <functional>
 #include <utility>
 
-#include <melena/Managers/ComponentsManager.h>
-#include <melena/Traits/Messenger.h>
+#include <malena/Managers/ComponentsManager.h>
+#include <malena/Traits/Messenger.h>
 
 namespace ml
 {

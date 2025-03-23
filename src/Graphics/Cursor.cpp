@@ -1,5 +1,5 @@
 
-#include <melena/Graphics/Cursor.h>
+#include <malena/Graphics/Cursor.h>
 
 ml::Cursor::Cursor(const sf::Font &font) : Shape(font), Text(font)
 {

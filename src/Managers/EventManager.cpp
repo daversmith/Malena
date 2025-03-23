@@ -2,7 +2,7 @@
 #include <functional>
 #include <optional>
 
-#include <melena/Managers/EventsManager.h>
+#include <malena/Managers/EventsManager.h>
 
 namespace ml
 {

@@ -1,4 +1,4 @@
-#include <melena/Adapters/UIComponentAdapter.h>
+#include <malena/Adapters/UIComponentAdapter.h>
 
 namespace ml
 {

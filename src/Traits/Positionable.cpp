@@ -2,7 +2,11 @@
 // Created by Dave Smith on 11/13/22.
 //
 
-#include <melena/Traits/Positionable.h>
+
+#include <iostream>
+
+#include <malena/Traits/Positionable.h>
+
 
 namespace ml
 {
@@ -24,7 +28,7 @@ namespace ml
 		float x = velocityX, y = 0.0;
 		std::cout << "abs: " << std::abs(velocityX * points.size()) << std::endl;
 		std::cout << "size: " << points.size() << std::endl;
-		float count;
+		float count{};
 		do
 		{
 			x += velocityX;
@@ -63,6 +67,7 @@ namespace ml
 			initialPosition = sf::Vector2f(FLT_MAX, FLT_MAX);
 		}
 	}
+
 	void Positionable::moveDistance(sf::Vector2f distance, float seconds)
 	{
 		if (initialPosition == sf::Vector2f(FLT_MAX, FLT_MAX))
@@ -96,6 +101,7 @@ namespace ml
 	{
 		Positionable::framerate = framerate;
 	}
+
 	bool Positionable::isScrolling()
 	{
 		return scrolling;

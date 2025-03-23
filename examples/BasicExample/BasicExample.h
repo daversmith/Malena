@@ -1,6 +1,10 @@
 #ifndef TEXTINPUTTEST_H
 #define TEXTINPUTTEST_H
-#include <melena/common.hpp> // Changed from "../../Malena/common.hpp"
+
+#pragma once
+
+#include <malena/common.hpp>
+
 
 class BasicExample : public ml::Application
 {

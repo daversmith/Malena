@@ -4,7 +4,7 @@
 
 #include "BasicExample.h"
 
-#include <melena/Utilities/TextManipulators.h>
+#include <malena/Utilities/TextManipulators.h>
 
 BasicExample::BasicExample() : Application(sf::VideoMode({720, 420}, 32), "Text Input", *this)
 {

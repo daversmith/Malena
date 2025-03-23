@@ -1,7 +1,7 @@
 
-#include <melena/Graphics/Text.h>
+#include <malena/Graphics/Text.h>
 
-#include <melena/Utilities/TextManipulators.h>
+#include <malena/Utilities/TextManipulators.h>
 
 namespace ml
 {
@@ -9,12 +9,12 @@ namespace ml
 	{
 	}
 
-	void Text::set_word_wrap(bool word_wrap)
+	void Text::setWordWrap(bool word_wrap)
 	{
 		wordWrap = word_wrap;
 	}
 
-	void Text::set_max_width(float max_width)
+	void Text::setMaxWidth(float max_width)
 	{
 		maxWidth = max_width;
 	}

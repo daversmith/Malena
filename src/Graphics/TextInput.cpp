@@ -1,7 +1,7 @@
 
-#include <melena/Graphics/TextInput.h>
+#include <malena/Graphics/TextInput.h>
 
-#include <melena/Traits/Stateful.h>
+#include <malena/Traits/Stateful.h>
 
 namespace ml
 {
