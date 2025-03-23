@@ -33,24 +33,50 @@ jobs:
           - { name: ArchLinux, os: ubuntu-latest, container: "archlinux:latest" }
           - { name: macOS, os: macos-latest }
         config:
-          - { name: Debug, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug }
-          - { name: Release, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
-          - { name: RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
+          - { name: Shared Debug, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug }
+          - { name: Shared Release, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
+          - { name: Shared RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
+          - { name: Static Debug, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Debug }
+          - { name: Static Release, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
+          - { name: Static RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
         exclude:
           - platform: { name: Windows VS2019 }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: Windows VS2019 }
+            config: { name: Static Debug }
           - platform: { name: Windows MSYS2 }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: Windows MSYS2 }
+            config: { name: Static Debug }
           - platform: { name: Linux Clang }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: Linux Clang }
+            config: { name: Static Debug }
           - platform: { name: Ubuntu 22.04 }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: Ubuntu 22.04 }
+            config: { name: Static Debug }
           - platform: { name: Fedora }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: Fedora }
+            config: { name: Static Debug }
           - platform: { name: ArchLinux }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: ArchLinux }
+            config: { name: Static Debug }
           - platform: { name: macOS }
-            config: { name: Debug }
+            config: { name: Shared Debug }
+          - platform: { name: macOS }
+            config: { name: Static Debug }
+
+          - platform: { name: Windows VS2019 }
+            config: { name: Static RelWithDebInfo }
+          - platform: { name: Windows MSYS2 }
+            config: { name: Static RelWithDebInfo }
+          - platform: { name: Fedora }
+            config: { name: Static RelWithDebInfo }
+          - platform: { name: ArchLinux }
+            config: { name: Static RelWithDebInfo }
 
     steps:
       - name: Checkout
@@ -136,4 +162,6 @@ jobs:
           fi
 
       - name: Build
-        run: cmake --build build --config ${{ contains(matrix.config.name, 'Debug') && 'Debug' || contains(matrix.config.name, 'Release') && 'Release' || 'RelWithDebInfo' }}
+        run: |
+          build_type="${{ contains(matrix.config.name, 'Debug') && 'Debug' || contains(matrix.config.name, 'Release') && 'Release' || 'RelWithDebInfo' }}"
+          cmake --build build --config $build_type
