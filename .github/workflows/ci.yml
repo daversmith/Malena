@@ -6,34 +6,134 @@ defaults:
   run:
     shell: bash
 
+env:
+  BUILD_TYPE: RelWithDebInfo
+
 jobs:
   build:
     name: ${{ matrix.platform.name }} ${{ matrix.config.name }}
     runs-on: ${{ matrix.platform.os }}
+    container: ${{ matrix.platform.container }}
+
+    defaults:
+      run:
+        shell: ${{ matrix.platform.shell || 'bash' }}
 
     strategy:
       fail-fast: false
       matrix:
         platform:
-        - { name: Windows VS2019, os: windows-2019  }
-        - { name: Windows VS2022, os: windows-2022  }
-        - { name: Linux GCC,      os: ubuntu-latest }
-        - { name: Linux Clang,    os: ubuntu-latest, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
-        - { name: macOS,          os: macos-latest  }
+          - { name: Windows VS2019, os: windows-2019 }
+          - { name: Windows VS2022, os: windows-2022 }
+          - { name: Windows MSYS2, os: windows-2022, shell: 'msys2 {0}' }
+          - { name: Linux GCC, os: ubuntu-latest }
+          - { name: Linux Clang, os: ubuntu-latest, flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ }
+          - { name: Ubuntu 22.04, os: ubuntu-22.04 }
+          - { name: Fedora, os: ubuntu-latest, container: "fedora:latest" }
+          - { name: ArchLinux, os: ubuntu-latest, container: "archlinux:latest" }
+          - { name: macOS, os: macos-latest }
         config:
-        - { name: Shared, flags: -DBUILD_SHARED_LIBS=TRUE }
-        - { name: Static, flags: -DBUILD_SHARED_LIBS=FALSE }
+          - { name: Debug, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug }
+          - { name: Release, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
+          - { name: RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
+        exclude:
+          - platform: { name: Windows VS2019 }
+            config: { name: Debug }
+          - platform: { name: Windows MSYS2 }
+            config: { name: Debug }
+          - platform: { name: Linux Clang }
+            config: { name: Debug }
+          - platform: { name: Ubuntu 22.04 }
+            config: { name: Debug }
+          - platform: { name: Fedora }
+            config: { name: Debug }
+          - platform: { name: ArchLinux }
+            config: { name: Debug }
+          - platform: { name: macOS }
+            config: { name: Debug }
 
     steps:
-    - name: Install Linux Dependencies
-      if: runner.os == 'Linux'
-      run: sudo apt-get update && sudo apt-get install libxrandr-dev libxcursor-dev libxi-dev libudev-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev libfreetype-dev
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Setup MSYS2
+        if: contains(matrix.platform.name, 'MSYS2')
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            git
 
-    - name: Configure
-      run: cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2.17
+        with:
+          key: ${{ runner.os }}-${{ matrix.platform.name }}-${{ matrix.config.name }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-${{ matrix.platform.name }}-${{ matrix.config.name }}-ccache
+          max-size: 1G
+        if: matrix.platform.container == '' && !contains(matrix.platform.name, 'MSYS2')
 
-    - name: Build
-      run: cmake --build build --config Release
+      - name: Install Ubuntu Dependencies
+        if: runner.os == 'Linux' && matrix.platform.container == ''
+        run: sudo apt-get update && sudo apt-get install -y libxrandr-dev libxcursor-dev libxi-dev libudev-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev libfreetype-dev
+
+      - name: Install MSYS2 Dependencies
+        if: contains(matrix.platform.name, 'MSYS2')
+        run: |
+          pacman -S --noconfirm mingw-w64-x86_64-sfml mingw-w64-x86_64-openal
+
+      - name: Install Fedora Dependencies
+        if: matrix.platform.container == 'fedora:latest'
+        run: |
+          dnf install -y gcc gcc-c++ cmake make git \
+            libXrandr-devel libXcursor-devel libXi-devel systemd-devel \
+            flac-devel libvorbis-devel mesa-libGL-devel mesa-libEGL-devel freetype-devel
+
+      - name: Install ArchLinux Dependencies
+        if: matrix.platform.container == 'archlinux:latest'
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm base-devel cmake git \
+            libxrandr libxcursor libxi systemd-libs \
+            flac libvorbis mesa freetype2
+
+      - name: Configure MSYS2 Build
+        if: contains(matrix.platform.name, 'MSYS2')
+        run: |
+          export PATH=/mingw64/bin:$PATH
+          
+          cmake_flags="${{matrix.config.flags}}"
+          cmake_flags="${cmake_flags//-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON/-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF}"
+          
+          cmake -G "Ninja" -B build ${cmake_flags} \
+            -DCMAKE_C_COMPILER=/mingw64/bin/gcc.exe \
+            -DCMAKE_CXX_COMPILER=/mingw64/bin/g++.exe
+
+      - name: Configure Linux with LTO
+        if: runner.os == 'Linux' && !contains(matrix.config.name, 'Debug') && matrix.platform.container == ''
+        run: |
+          cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+
+      - name: Configure Linux Container with LTO
+        if: runner.os == 'Linux' && !contains(matrix.config.name, 'Debug') && matrix.platform.container != ''
+        run: |
+          cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}} \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+
+      - name: Configure Standard
+        if: "!contains(matrix.platform.name, 'MSYS2') && !(runner.os == 'Linux' && !contains(matrix.config.name, 'Debug'))"
+        run: |
+          if [[ -n "${{ matrix.platform.container }}" ]]; then
+            cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+          else
+            cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          fi
+
+      - name: Build
+        run: cmake --build build --config ${{ contains(matrix.config.name, 'Debug') && 'Debug' || contains(matrix.config.name, 'Release') && 'Release' || 'RelWithDebInfo' }}
