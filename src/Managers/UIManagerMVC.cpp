@@ -12,7 +12,8 @@
 //
 // namespace ml {
 //
-// UIManagerMVC::UIManagerMVC(const sf::VideoMode &videoMode, const std::string &title, UIController& appLogic, sf::RenderWindow &window)
+// UIManagerMVC::UIManagerMVC(const sf::VideoMode &videoMode, const std::string &title, UIController& appLogic,
+// sf::RenderWindow &window)
 //         : window(&window)
 // {
 //

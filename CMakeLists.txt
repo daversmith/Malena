@@ -1,98 +1,60 @@
-cmake_minimum_required(VERSION 3.28)
-project(CMakeSFMLProject LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+project(Malena VERSION 0.1.0 LANGUAGES CXX)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Include GNUInstallDirs for platform-specific install directories
+include(GNUInstallDirs)
 
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 3.0.0
-    GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
-    SYSTEM)
-FetchContent_MakeAvailable(SFML)
+# Options
+option(MALENA_BUILD_EXAMPLES "Build Malena examples" OFF)
+option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
-add_executable(main src/main.cpp
-        src/Utilities/MouseEvents.cpp
-        src/Utilities/MouseEvents.h
-        src/Utilities/MouseEvents_nontemplate.cpp
-        src/Utilities/MouseEvents_nontemplate.cpp
-        src/Traits/Stateful.cpp
-        src/Traits/Stateful.h
-        src/Graphics/Rectangle.h
-        src/Managers/UIManager.cpp
-        src/Managers/UIManager.h
-        src/Interfaces/UIComponent.cpp
-        src/Interfaces/UIComponent.h
-        src/Traits/Messenger.cpp
-        src/Traits/Messenger.h
-        src/Managers/EventsManager.h
-        src/Controllers/UIController.cpp
-        src/Controllers/UIController.h
-        src/Managers/EventManager.cpp
-        src/Managers/ComponentsManager.cpp
-        src/Managers/ComponentsManager.h
-        src/Managers/WindowManager.h
-        src/Application/Application.h
-        src/Interfaces/Component.h
-        src/Adapters/UIComponentAdapter.cpp
-        src/Adapters/UIComponentAdapter.h
-        src/Application/Application.cpp
-        src/Interfaces/Updateable.h
-        src/Controllers/Controller.h
-        src/Graphics/Grid.cpp
-        src/Graphics/Grid.h
-        src/Graphics/Shape.cpp
-        src/Graphics/Shape.h
-        src/Graphics/Circle.h
-        src/Graphics/Convex.h
-        src/Traits/Positionable.cpp
-        src/Traits/Positionable.h
-        src/Utilities/Tween.h
-        src/Traits/PositionableTemplates.cpp
-        src/Graphics/Button.cpp
-        src/Graphics/Button.h
-        src/Managers/FontManager.cpp
-        src/Managers/FontManager.h
-        src/Graphics/RectangleButton.h
-        src/Graphics/CircleButton.h
-        src/Graphics/ConvexButton.h
-        ECS/EventManagerECS.cpp
-        ECS/EventManagerECS.h
-        ECS/HealthSystem.cpp
-        ECS/HealthSystem.h
-        ECS/ECSManager.cpp
-        ECS/ECSManager.h
-        ECS/EntitiesAndComponents.h
-        ECS/MovementSystem.cpp
-        ECS/MovementSystem.h
-        ECS/RenderingSystem.cpp
-        ECS/RenderingSystem.h
-        ECS/SizeSystem.cpp
-        ECS/SizeSystem.h
-        src/Managers/UIManagerEDA.cpp
-        src/Managers/UIManagerEDA.h
-        src/Managers/UIManagerMVC.cpp
-        src/Managers/UIManagerMVC.h
-        src/Managers/Manager.h
-        src/Graphics/Text.h
-        src/Graphics/Sprite.h
-        src/Utilities/TextManipulators.cpp
-        src/Utilities/TextManipulators.h
-        src/Graphics/Text.cpp
-        src/Graphics/TextInput.cpp
-        src/Graphics/TextInput.h
-        src/Graphics/Cursor.cpp
-        src/Graphics/Cursor.h
-        src/Graphics/TextBox.cpp
-        src/Graphics/TextBox.h
-        examples/BasicExample/BasicExample.cpp
-        examples/BasicExample/BasicExample.h
-        src/Graphics/Typer.cpp
-        src/Graphics/Typer.h
-        Malena/common.hpp
-        #        src/Graphics/VertexArray.cpp
-#        src/Graphics/VertexArray.h
+# SFML handling
+if(MALENA_USE_SYSTEM_SFML)
+    find_package(SFML 3.0 COMPONENTS Graphics REQUIRED)
+else()
+    include(FetchContent)
+    FetchContent_Declare(SFML
+            GIT_REPOSITORY https://github.com/SFML/SFML.git
+            GIT_TAG 3.0.0
+            GIT_SHALLOW ON
+            EXCLUDE_FROM_ALL
+            SYSTEM)
+    FetchContent_MakeAvailable(SFML)
+endif()
+
+# Add the library
+add_subdirectory(src)
+
+# Examples
+if(MALENA_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+# Export targets
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config-version.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
 )
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PRIVATE SFML::Graphics)
+
+# Create and install config file
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MalenaConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Malena
+)
+
+# Install config files
+install(
+        FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config-version.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Malena
+)
+
+# Install headers
+install(
+        DIRECTORY include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)

@@ -1,12 +1,14 @@
 
-#include "UIController.h"
+#include <Malena/Controllers/UIController.h>
 
-namespace ml {
+#include <functional>
+
+namespace ml
+{
 
 
-
-    void UIController::onUpdate(std::function<void()> f) {
-        proxy.onUpdate(f);
-    }
+	void UIController::onUpdate(std::function<void()> f)
+	{
+		proxy.onUpdate(f);
+	}
 } // namespace ml
-
