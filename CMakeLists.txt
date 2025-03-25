@@ -5,11 +5,11 @@ project(Malena VERSION 0.1.0 LANGUAGES CXX)
 include(GNUInstallDirs)
 
 # Options
-option(Malena_BUILD_EXAMPLES "Build Malena examples" OFF)
-option(Malena_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
+option(MALENA_BUILD_EXAMPLES "Build Malena examples" OFF)
+option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
 # SFML handling
-if(Malena_USE_SYSTEM_SFML)
+if(MALENA_USE_SYSTEM_SFML)
     find_package(SFML 3.0 COMPONENTS Graphics REQUIRED)
 else()
     include(FetchContent)
@@ -26,7 +26,7 @@ endif()
 add_subdirectory(src)
 
 # Examples
-if(Malena_BUILD_EXAMPLES)
+if(MALENA_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
