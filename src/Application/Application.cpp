@@ -1,5 +1,5 @@
 
-#include <malena/Application/Application.h>
+#include <Malena/Application/Application.h>
 
 namespace ml
 {

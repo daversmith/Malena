@@ -6,6 +6,6 @@ include(CMakeFindDependencyMacro)
 find_dependency(SFML 3.0 COMPONENTS Graphics REQUIRED)
 
 # Import targets
-include("${CMAKE_CURRENT_LIST_DIR}/malena-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/Malena-targets.cmake")
 
-check_required_components(malena)
+check_required_components(Malena)

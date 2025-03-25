@@ -1,5 +1,5 @@
 
-#include <malena/Graphics/Grid.h>
+#include <Malena/Graphics/Grid.h>
 
 namespace ml
 {

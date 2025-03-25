@@ -2,7 +2,7 @@
 // Created by Dave R. Smith on 3/4/25.
 //
 
-#include <malena/Traits/Stateful.h>
+#include <Malena/Traits/Stateful.h>
 
 namespace ml
 {

@@ -1,7 +1,7 @@
 
-#include <malena/Graphics/Text.h>
+#include <Malena/Graphics/Text.h>
 
-#include <malena/Utilities/TextManipulators.h>
+#include <Malena/Utilities/TextManipulators.h>
 
 namespace ml
 {

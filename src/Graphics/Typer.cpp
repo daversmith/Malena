@@ -1,4 +1,4 @@
-#include <malena/Graphics/Typer.h>
+#include <Malena/Graphics/Typer.h>
 
 namespace ml
 {

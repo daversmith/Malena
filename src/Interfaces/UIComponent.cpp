@@ -2,7 +2,7 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#include <malena/Adapters/UIComponentAdapter.h>
+#include <Malena/Adapters/UIComponentAdapter.h>
 
 namespace ml
 {

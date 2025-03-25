@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-project(malena VERSION 0.1.0 LANGUAGES CXX)
+project(Malena VERSION 0.1.0 LANGUAGES CXX)
 
 # Include GNUInstallDirs for platform-specific install directories
 include(GNUInstallDirs)
 
 # Options
-option(malena_BUILD_EXAMPLES "Build malena examples" OFF)
-option(malena_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
+option(Malena_BUILD_EXAMPLES "Build Malena examples" OFF)
+option(Malena_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
 # SFML handling
-if(malena_USE_SYSTEM_SFML)
+if(Malena_USE_SYSTEM_SFML)
     find_package(SFML 3.0 COMPONENTS Graphics REQUIRED)
 else()
     include(FetchContent)
@@ -26,31 +26,31 @@ endif()
 add_subdirectory(src)
 
 # Examples
-if(malena_BUILD_EXAMPLES)
+if(Malena_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
 # Export targets
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/malena-config-version.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config-version.cmake"
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY SameMajorVersion
 )
 
 # Create and install config file
 configure_package_config_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/malenaConfig.cmake.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/malena-config.cmake"
-        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/malena
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MalenaConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Malena
 )
 
 # Install config files
 install(
         FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/malena-config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/malena-config-version.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/malena
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/Malena-config-version.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Malena
 )
 
 # Install headers

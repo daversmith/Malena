@@ -2,7 +2,7 @@
 // Created by Dave R. Smith on 3/6/25.
 //
 
-#include <malena/Managers/ComponentsManager.h>
+#include <Malena/Managers/ComponentsManager.h>
 
 namespace ml
 {

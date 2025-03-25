@@ -2,7 +2,7 @@
 // Created by Dave R. Smith on 3/12/25.
 //
 
-#include <malena/Utilities/TextManipulators.h>
+#include <Malena/Utilities/TextManipulators.h>
 
 namespace ml
 {

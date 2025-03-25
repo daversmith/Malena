@@ -1,7 +1,7 @@
 //
 // Created by Dave R. Smith on 3/3/25.
 //
-#include <malena/Utilities/MouseEvents.h>
+#include <Malena/Utilities/MouseEvents.h>
 
 namespace ml
 {

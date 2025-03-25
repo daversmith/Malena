@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <malena/common.hpp>
+#include <Malena/common.hpp>
 
 
 class BasicExample : public ml::Application
