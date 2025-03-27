@@ -23,7 +23,7 @@ namespace ml
 
 	public:
 		using Shape::Shape;
-		explicit Text(const sf::Font &font = FontManager::DEFAULT);
+		explicit Text(const sf::Font &font = FontManager::getDefault());
 		void setString(const sf::String &text);
 	};
 
