@@ -123,7 +123,7 @@ namespace ml
 			return false;
 		}
 
-		std::ifstream file(id.data(), std::ios::binary | std::ios::ate);
+		std::ifstream file(filePath.data(), std::ios::binary | std::ios::ate);
 		if (!file.is_open())
 		{
 			std::cerr << "Error: Failed to open font file '" << filePath << "'." << std::endl;
