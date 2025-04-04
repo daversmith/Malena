@@ -16,25 +16,111 @@ Malena makes it easy to create interactive applications in C++ by providing:
 
 ## 📦 Requirements
 
-- C++17 or newer
-- SFML ≥ 2.5
-- Your favorite build system (Makefile/CMake/etc.)
+-   C++17 compatible compiler
+-   **CMake 3.14** or newer
+-   **SFML 3.0** (Can be installed system-wide or fetched automatically via CMake)
 
 ---
 
-## 🚀 Quickstart (Basic Example)
+## 🚀 Building the Examples
 
-Clone the repo, then compile+link against SFML:
+You can build the included examples using CMake:
 
-```bash
-g++ -std=c++17 \
-    -I src -I examples/BasicExample \
-    src/main.cpp \
-    src/**/*.cpp \
-    -lsfml-graphics -lsfml-window -lsfml-system \
-    -o BasicExample
-./BasicExample
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/daversmith/Malena.git
+    cd Malena
+    ```
+2.  **Configure with CMake:** (Enable example building)
+    ```bash
+    # out-of-source builds are recommended!
+    cmake -B build -S . -DMALENA_BUILD_EXAMPLES=ON
+    ```
+    * By default, CMake will fetch SFML 3.0 automatically if it's not found or if `MALENA_USE_SYSTEM_SFML` is OFF (default).
+    * To use a pre-installed SFML 3.0, you can configure like this:
+        ```bash
+        # Ensure CMake can find your SFML installation (you might need to set CMAKE_PREFIX_PATH or SFML_DIR)
+        cmake -B build -S . -DMALENA_BUILD_EXAMPLES=ON -DMALENA_USE_SYSTEM_SFML=ON
+        ```
+
+3.  **Build:**
+    ```bash
+    cmake --build build
+    # For multi-config generators (like Visual Studio or Xcode), specify the configuration:
+    # cmake --build build --config Release
+    ```
+4.  **Run an example:** (Executable location depends on generator and platform)
+    ```bash
+    # Example for Makefiles/Ninja on Linux/macOS:
+    ./build/examples/BasicExample/BasicExample
+
+    # Example for Visual Studio on Windows (assuming Release config):
+    .\build\examples\BasicExample\Release\BasicExample.exe
+    ```
+
+---
+
+## 🛠️ Using Malena in Your CMake Project (FetchContent)
+
+You can easily integrate Malena into your own CMake project using `WorkspaceContent`. This allows CMake to automatically download and configure Malena as part of your build process.
+
+1.  **Modify your `CMakeLists.txt`:**
+
+    ```cmake
+    cmake_minimum_required(VERSION 3.14)
+    project(MyAwesomeApp LANGUAGES CXX)
+
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+
+    include(FetchContent)
+
+    # Declare the Malena dependency
+    FetchContent_Declare(
+        Malena # Arbitrary name for FetchContent
+        GIT_REPOSITORY [https://github.com/daversmith/Malena.git](https://github.com/daversmith/Malena.git)
+
+        # --- Choose ONE way to specify the version ---
+        # Option 1: Use a specific release tag (RECOMMENDED for stability)
+        GIT_TAG v0.2.0
+
+        # Option 2: Use a specific commit hash (for exact reproducibility)
+        # GIT_TAG 2617d4e27aa2a0920f0d8a524beb74a158e8a7bd # Example commit hash
+
+        # Option 3: Track the main branch (useful for development, less stable)
+        # GIT_TAG main
+    )
+
+    # Make Malena available to your project (this triggers download/configure)
+    FetchContent_MakeAvailable(Malena)
+
+    # Define your application executable
+    add_executable(my_app_executable_name
+        main.cpp
+        # Add your other source files...
+    )
+
+    # Link your application against the Malena library target
+    # Malena::Malena already links publicly against SFML::Graphics,
+    # so CMake handles the transitive dependency automatically.
+    target_link_libraries(my_app_executable_name PRIVATE Malena::Malena)
+
+    # Note: If your application code *directly* includes SFML headers (e.g., <SFML/Window.hpp>)
+    # that aren't covered by Malena's public headers, you might explicitly need
+    # target_link_libraries(my_app_executable_name PRIVATE Malena::Malena SFML::Graphics)
+    # or ensure include paths are correct, but often Malena::Malena is sufficient.
+    ```
+
+2.  **Configure and Build Your Project:**
+    When you run CMake for your project, it will handle Malena:
+    ```bash
+    # Configure (from your project's root)
+    cmake -B build -S .
+
+    # Build
+    cmake --build build
+    ```
 
 ---
 
@@ -42,15 +128,22 @@ g++ -std=c++17 \
 
 ```
 Malena/
-├── examples/BasicExample/      ← Simple “Hello world” demo
-├── src/
-│   ├── Application/            ← ml::Application base class
-│   ├── Managers/               ← Window, UI, Event, Font, Components
-│   ├── Interfaces/             ← UIComponent, Updateable
-│   ├── Graphics/               ← RectangleButton, TextBox, Typer, Grid, Circle, Sprite
-│   ├── Controllers/            ← UIController
-│   ├── Utilities/              ← Tween, TextManipulators, MouseEvents
-│   └── Traits/                 ← Positionable, Stateful, Messenger
+├── examples/         ← Example applications using Malena (e.g., BasicExample/)
+├── include/Malena/   ← Public headers (.h/.hpp) for the library
+│   ├── Application/  ← Application framework and lifecycle management classes
+│   ├── Managers/     ← Subsystem managers (UI, components, events, font resources)
+│   ├── Interfaces/   ← Abstract interfaces and component base classes
+│   ├── Graphics/     ← UI components, shapes, text rendering, visual elements
+│   ├── Controllers/  ← Input handlers and application control logic
+│   ├── Utilities/    ← Helper functions, text manipulation, mouse interaction utilities
+│   └── Traits/       ← Reusable behaviors (Stateful, Positionable, Messenger) for composition
+├── src/           
+│   ├── Application/
+│   ├── Managers/
+│   ├── ... (etc.)
+├── cmake/            ← Helper CMake scripts (e.g., MalenaConfig.cmake.in)
+├── .github/          ← GitHub Actions workflows (if used)
+├── CMakeLists.txt    ← Root CMake build script for Malena library
 └── README.md
 ```
 
