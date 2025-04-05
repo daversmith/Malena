@@ -133,6 +133,7 @@ jobs:
           
           cmake_flags="${{matrix.config.flags}}"
           cmake_flags="${cmake_flags//-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON/-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF}"
+          cmake_flags="${cmake_flags} -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
           
           cmake -G "Ninja" -B build ${cmake_flags} \
             -DCMAKE_C_COMPILER=/mingw64/bin/gcc.exe \
@@ -155,10 +156,13 @@ jobs:
       - name: Configure Standard
         if: "!contains(matrix.platform.name, 'MSYS2') && !(runner.os == 'Linux' && !contains(matrix.config.name, 'Debug'))"
         run: |
+          cmake_flags="${{matrix.platform.flags}} ${{matrix.config.flags}}"
+          cmake_flags="${cmake_flags} -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+          
           if [[ -n "${{ matrix.platform.container }}" ]]; then
-            cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}}
+            cmake -B build ${cmake_flags}
           else
-            cmake -B build ${{matrix.platform.flags}} ${{matrix.config.flags}} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            cmake -B build ${cmake_flags} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           fi
 
       - name: Build
