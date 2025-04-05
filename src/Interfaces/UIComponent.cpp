@@ -3,6 +3,7 @@
 //
 
 #include <Malena/Adapters/UIComponentAdapter.h>
+#include <Malena/Application/Application.h>
 
 namespace ml
 {
@@ -15,5 +16,10 @@ namespace ml
 	UIComponent::~UIComponent()
 	{
 		unsubscribeAll();
+	}
+
+	void UIComponent::addToApplication(Application& application)
+	{
+		application.addToApplication(*this);
 	}
 } // namespace ml

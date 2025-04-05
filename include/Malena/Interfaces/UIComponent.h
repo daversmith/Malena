@@ -15,13 +15,23 @@
 namespace ml
 {
 
+	class Application;
 	class UIComponent : public virtual sf::Drawable,
 						public Messenger,
 						public Component,
 						public Stateful,
 						public Positionable
 	{
-	protected:
+		/**
+	 * @brief Override if Custom UIComponent consists of multiple UIComponents
+	 *
+	 * @details This function should simply call application.addToApplication(<UiComponent>) for each UIComponent
+	 *          Member variable in the child class
+	 * @return nothing is returned
+	 */
+		virtual void addToApplication(Application& application);
+
+
 		sf::RenderWindow *window = nullptr;
 		bool isDynamic = false;
 
@@ -35,8 +45,11 @@ namespace ml
 			obj->isDynamic = true; // Mark as dynamically allocated
 			return obj;
 		}
+
 		friend class ComponentsManager;
+		friend class Application;
 	};
+
 
 
 } // namespace ml
