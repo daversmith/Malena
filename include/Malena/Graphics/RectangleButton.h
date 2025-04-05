@@ -13,7 +13,6 @@ namespace ml
 	{
 	public:
 		using Button::Button;
-		using sf::RectangleShape::setFillColor;
 	};
 
 } // namespace ml

@@ -32,9 +32,9 @@ namespace ml
 
 		void addComponent(UIComponent &component);
 
-		void addToApp(Application &app) const;
-
-		void addToApp(Controller &app) const;
+		// void addToApp(Application &app) const;
+		//
+		// void addToApp(Controller &app) const;
 
 	protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
@@ -46,6 +46,7 @@ namespace ml
 
 
 		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
+		void addToApplication(Application& application) override;
 	};
 } // namespace ml
 #endif // GRID_H

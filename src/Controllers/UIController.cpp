@@ -11,4 +11,5 @@ namespace ml
 	{
 		proxy.onUpdate(f);
 	}
+
 } // namespace ml

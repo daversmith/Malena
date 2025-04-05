@@ -86,15 +86,10 @@ namespace ml
 		return {};
 	}
 
-	void Grid::addToApp(Application &app) const
+	void Grid::addToApplication(Application &application)
 	{
 		for (auto &c : getUIComponents())
-			app.addComponent(*c);
+			application.addToApplication(*c);
 	}
 
-	void Grid::addToApp(Controller &app) const
-	{
-		for (auto &c : getUIComponents())
-			app.addComponent(*c);
-	}
 } // namespace ml

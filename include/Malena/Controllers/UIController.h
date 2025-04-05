@@ -6,6 +6,7 @@
 #include "../Adapters/UIComponentAdapter.h"
 #include "Controller.h"
 
+
 namespace ml
 {
 	class UIController : public Controller
@@ -20,6 +21,8 @@ namespace ml
 		void registerEvents() override = 0;
 
 		void onUpdate(std::function<void()> f);
+
+
 
 		~UIController() override = default;
 	};
