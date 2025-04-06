@@ -83,7 +83,7 @@ You can easily integrate Malena into your own CMake project using `WorkspaceCont
 
         # --- Choose ONE way to specify the version ---
         # Option 1: Use a specific release tag (RECOMMENDED for stability)
-        GIT_TAG v0.2.0
+        GIT_TAG v0.2.2
 
         # Option 2: Use a specific commit hash (for exact reproducibility)
         # GIT_TAG 2617d4e27aa2a0920f0d8a524beb74a158e8a7bd # Example commit hash

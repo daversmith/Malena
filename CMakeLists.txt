@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-project(Malena VERSION 0.2.0 LANGUAGES CXX)
+project(Malena VERSION 0.2.2 LANGUAGES CXX)
 
 # Include GNUInstallDirs for platform-specific install directories
 include(GNUInstallDirs)
