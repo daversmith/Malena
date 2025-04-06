@@ -13,7 +13,11 @@ namespace ml
 	public:
 		Application(const sf::VideoMode &videoMode, const std::string &title, UIController &appLogic,
 					sf::RenderWindow &window = WindowManager::getWindow());
+		Application(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth, const std::string& title);
+		Application(const sf::VideoMode &videoMode, const std::string &title);
 
+		void addComponent(UIComponent &component) override;
+		void addToApplication(UIComponent &component);
 		// using UIManager::UIManager;
 	};
 } // namespace ml

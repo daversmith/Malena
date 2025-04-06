@@ -18,7 +18,7 @@ namespace ml
 	public:
 		Button(const sf::Font &font = FontManager::getFont(FontManager::ARIAL),
 			   std::optional<S> buttonSize = std::nullopt, const std::string &text = "", unsigned int charSize = 30) :
-			Text(font, text, charSize), T()
+			 Text(font, text, charSize), T()
 		{
 			if (buttonSize.has_value())
 			{
@@ -27,7 +27,7 @@ namespace ml
 			T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
 		}
 
-		void setPosition(const sf::Vector2f &position) override
+		void setPosition(const sf::Vector2f &position)
 		{
 			T::setPosition(position);
 			T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
@@ -39,7 +39,15 @@ namespace ml
 			T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
 		}
 
+
+
+		void setTextColor(const sf::Color &color)
+		{
+			sf::Text::setFillColor(color);
+		}
+
 		using T::getPosition;
+		using T::setFillColor;
 
 	protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override
@@ -49,6 +57,5 @@ namespace ml
 			target.draw(t, states);
 		}
 	};
-
 } // namespace ml
 #endif // BUTTON_H
