@@ -322,6 +322,6 @@ If you’d like to see Malena in action, check out this short walkthrough:
 
 
 ---
-## ❤️ Contributing
+## ❤️ Contributing 
 
 Malena is MIT‑style friendly. Fork, improve, submit PRs — and happy coding!
