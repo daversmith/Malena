@@ -11,16 +11,15 @@ namespace ml
 {
 
 	template<typename T>
-	class Shape : public T, public UIComponent
+	class Shape : public T, public virtual UIComponent
 	{
 	public:
 		using T::T;
-
 		Shape()
 		{
 		}
-
-		explicit Shape(const sf::Font &font) : sf::Text(font)
+		template <typename U>
+		explicit Shape(const U &obj) : T(obj)
 		{
 		}
 
