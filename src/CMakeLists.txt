@@ -34,6 +34,10 @@ add_library(Malena
         "${CMAKE_CURRENT_SOURCE_DIR}/ECS/MovementSystem.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/ECS/RenderingSystem.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/ECS/SizeSystem.cpp"
+        Utilities/TextureSlicer.cpp
+        ../include/Malena/Utilities/TextureSlicer.h
+        Utilities/ImageRects.cpp
+        ../include/Malena/Utilities/ImageRects.h
 )
 
 add_library(Malena::Malena ALIAS Malena)
