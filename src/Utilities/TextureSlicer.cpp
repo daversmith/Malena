@@ -4,20 +4,24 @@
 
 #include <Malena/Utilities/TextureSlicer.h>
 
-ml::ImageRects TextureSlicer::getImageRects(const sf::Texture &texture, int rows, int cols)
+namespace ml
 {
-	int width = texture.getSize().x / cols;
-	int height = texture.getSize().y / rows;
-	ml::ImageRects image_rects(cols);
-	for (int row=0; row<rows; ++row)
+	ImageRects TextureSlicer::getImageRects(const sf::Texture &texture, int rows, int cols)
 	{
-		for (int col=0; col<cols; col++)
+		int width = texture.getSize().x / cols;
+		int height = texture.getSize().y / rows;
+		ImageRects image_rects(cols);
+		for (int row=0; row<rows; ++row)
 		{
-			image_rects.push(sf::IntRect(
-							{row * height, col * width},
-							{width, height}));
+			for (int col=0; col<cols; col++)
+			{
+				image_rects.push(sf::IntRect(
+								{row * height, col * width},
+								{width, height}));
+			}
 		}
-	}
 
-	return image_rects;
+		return image_rects;
+	}
 }
+

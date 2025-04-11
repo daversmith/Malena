@@ -7,11 +7,14 @@
 
 #include <SFML/Graphics.hpp>
 #include "ImageRects.h"
-
-class TextureSlicer
+namespace ml
 {
-public:
-	static ml::ImageRects getImageRects(const sf::Texture& texture, int rows, int cols);
-};
+	class TextureSlicer
+	{
+	public:
+		static ml::ImageRects getImageRects(const sf::Texture& texture, int rows, int cols);
+	};
+}
+
 
 #endif //TEXTURESLICER_H
