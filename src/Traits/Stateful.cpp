@@ -10,7 +10,8 @@ namespace ml
 	{
 		for (int i = 0; i < LAST_STATE; i++)
 		{
-			_states[static_cast<State>(i)] = false;
+			// _states[static_cast<State>(i)] = false;
+			_states.insert({static_cast<State>(i), false});
 		}
 	}
 
@@ -21,21 +22,21 @@ namespace ml
 
 	void Stateful::enableState(const State state)
 	{
-		_states[state] = true;
+		_states.at(state)= true;
 	}
 
 	void Stateful::disableState(const State state)
 	{
-		_states[state] = false;
+		_states.at(state) = false;
 	}
 
 	void Stateful::toggleState(const State state)
 	{
-		_states[state] = !_states[state];
+		_states.at(state) = !_states.at(state);
 	}
 
 	void Stateful::setState(const State state, const bool status)
 	{
-		_states[state] = status;
+		_states.at(state) = status;
 	}
 } // namespace ml

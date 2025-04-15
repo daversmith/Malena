@@ -8,7 +8,7 @@
 #pragma once
 
 #include <map>
-
+#include <iostream>
 namespace ml
 {
 
@@ -29,9 +29,13 @@ namespace ml
 
 	private:
 		std::map<State, bool> _states;
-
 	public:
 		Stateful();
+		Stateful(const Stateful& stateful)
+		{
+			for(auto & state : stateful._states)
+				_states.insert(state);
+		}
 		bool checkState(State state) const;
 		void enableState(State state);
 		void disableState(State state);
