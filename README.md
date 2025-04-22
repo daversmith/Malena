@@ -67,49 +67,24 @@ You can easily integrate Malena into your own CMake project using `WorkspaceCont
 1.  **Modify your `CMakeLists.txt`:**
 
     ```cmake
-    cmake_minimum_required(VERSION 3.14)
-    project(MyAwesomeApp LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14)
+project(CS8)
 
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
+include(FetchContent)
+FetchContent_Declare(
+malena
+GIT_REPOSITORY https://github.com/daversmith/Malena.git
+GIT_TAG v0.2.4
+)
+FetchContent_MakeAvailable(malena)
 
-    include(FetchContent)
+add_executable(${PROJECT_NAME}
+main.cpp
+TextureSlicerDemo.cpp
+TextureSlicerDemo.h
+)
 
-    # Declare the Malena dependency
-    FetchContent_Declare(
-        Malena # Arbitrary name for FetchContent
-        GIT_REPOSITORY [https://github.com/daversmith/Malena.git](https://github.com/daversmith/Malena.git)
-
-        # --- Choose ONE way to specify the version ---
-        # Option 1: Use a specific release tag (RECOMMENDED for stability)
-        GIT_TAG v0.2.2
-
-        # Option 2: Use a specific commit hash (for exact reproducibility)
-        # GIT_TAG 2617d4e27aa2a0920f0d8a524beb74a158e8a7bd # Example commit hash
-
-        # Option 3: Track the main branch (useful for development, less stable)
-        # GIT_TAG main
-    )
-
-    # Make Malena available to your project (this triggers download/configure)
-    FetchContent_MakeAvailable(Malena)
-
-    # Define your application executable
-    add_executable(my_app_executable_name
-        main.cpp
-        # Add your other source files...
-    )
-
-    # Link your application against the Malena library target
-    # Malena::Malena already links publicly against SFML::Graphics,
-    # so CMake handles the transitive dependency automatically.
-    target_link_libraries(my_app_executable_name PRIVATE Malena::Malena)
-
-    # Note: If your application code *directly* includes SFML headers (e.g., <SFML/Window.hpp>)
-    # that aren't covered by Malena's public headers, you might explicitly need
-    # target_link_libraries(my_app_executable_name PRIVATE Malena::Malena SFML::Graphics)
-    # or ensure include paths are correct, but often Malena::Malena is sufficient.
+target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
     ```
 
 2.  **Configure and Build Your Project:**
