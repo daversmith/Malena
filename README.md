@@ -67,24 +67,24 @@ You can easily integrate Malena into your own CMake project using `WorkspaceCont
 1.  **Modify your `CMakeLists.txt`:**
 
     ```cmake
-cmake_minimum_required(VERSION 3.14)
-project(CS8)
+    cmake_minimum_required(VERSION 3.14)
+    project(CS8)
 
-include(FetchContent)
-FetchContent_Declare(
-malena
-GIT_REPOSITORY https://github.com/daversmith/Malena.git
-GIT_TAG v0.2.4
-)
-FetchContent_MakeAvailable(malena)
+    include(FetchContent)
+    FetchContent_Declare(
+        malena
+        GIT_REPOSITORY https://github.com/daversmith/Malena.git
+        GIT_TAG v0.2.4
+    )
+    FetchContent_MakeAvailable(malena)
 
-add_executable(${PROJECT_NAME}
-main.cpp
-TextureSlicerDemo.cpp
-TextureSlicerDemo.h
-)
+    add_executable(${PROJECT_NAME}
+        main.cpp
+        TextureSlicerDemo.cpp
+        TextureSlicerDemo.h
+    )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
     ```
 
 2.  **Configure and Build Your Project:**
