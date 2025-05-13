@@ -15,9 +15,18 @@ namespace ml
 	{
 	public:
 		using T::T;
-		Shape()
+		static T isItText() {
+			if constexpr (std::is_same_v<T, sf::Text>) {
+				return sf::Text(FontManager::getDefault());
+			} else {
+				return T();
+			}
+		}
+
+		Shape() : T(isItText())
 		{
 		}
+
 		template <typename U>
 		explicit Shape(const U &obj) : T(obj)
 		{
