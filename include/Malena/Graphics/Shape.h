@@ -6,7 +6,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 
 #include "../Interfaces/UIComponent.h"
-
+#include "../Managers/FontManager.h"
 namespace ml
 {
 
