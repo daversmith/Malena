@@ -1,4 +1,3 @@
-
 # Malena Framework - Complete Documentation
 
 ## Table of Contents
@@ -10,6 +9,7 @@
 - [Core Architecture](#core-architecture)
 - [Application Class](#application-class)
 - [UI Components](#ui-components)
+- [Creating Custom Components](#creating-custom-components)
 - [Event System](#event-system)
 - [Component States](#component-states)
 - [Positioning and Layout](#positioning-and-layout)
@@ -18,12 +18,18 @@
 - [Advanced Features](#advanced-features)
 - [Best Practices](#best-practices)
 - [Framework Architecture Patterns](#framework-architecture-patterns)
+- [Supporting the Project](#supporting-the-project)
 
 ## Overview
 
 Malena is a lightweight, event-driven C++ UI/game framework built on SFML. It provides a comprehensive architecture for building interactive applications with support for multiple design patterns (MVC, EDA, ECS), a robust component system, and flexible event management.
 
 ## Requirements
+
+### In This Section:
+- [System Requirements](#system-requirements)
+- [Supported Platforms](#supported-platforms)
+- [Compiler Support](#compiler-support)
 
 ### System Requirements
 - **C++17 compatible compiler** or newer
@@ -41,6 +47,11 @@ Malena is a lightweight, event-driven C++ UI/game framework built on SFML. It pr
 - **MSVC**: Visual Studio 2017 or newer
 
 ## Installation
+
+### In This Section:
+- [Method 1: FetchContent (Recommended)](#method-1-fetchcontent-recommended)
+- [Method 2: Manual Installation](#method-2-manual-installation)
+- [Method 3: Git Submodule](#method-3-git-submodule)
 
 ### Method 1: FetchContent (Recommended)
 
@@ -142,6 +153,13 @@ target_link_libraries(MyApp PRIVATE Malena::Malena)
 ```
 
 ## Quick Start
+
+### In This Section:
+- [Create Project Structure](#1-create-project-structure)
+- [Create CMakeLists.txt](#2-create-cmakeliststxt)
+- [Create Your First Application](#3-create-your-first-application-srcmaincpp)
+- [Build and Run](#4-build-and-run)
+- [Advanced CMake Configuration](#advanced-cmake-configuration)
 
 ### 1. Create Project Structure
 ```bash
@@ -367,6 +385,10 @@ cmake --build build
 
 ## Core Architecture
 
+### In This Section:
+- [Inheritance Hierarchy](#inheritance-hierarchy)
+- [Key Concepts](#key-concepts)
+
 ### Inheritance Hierarchy
 ```
 Manager
@@ -383,7 +405,621 @@ Manager
 
 ---
 
+## Creating Custom Components
+
+### In This Section:
+- [Component Creation Approaches](#component-creation-approaches)
+- [Understanding addToApplication()](#understanding-addtoapplication)
+- [Component Inheritance Hierarchy](#component-inheritance-hierarchy)
+- [Approach 1: Pure SFML Components](#approach-1-pure-sfml-components)
+- [Approach 2: Pure Malena Components](#approach-2-pure-malena-components-composite)
+- [Approach 3: Hybrid Components](#approach-3-hybrid-components-sfml--malena)
+- [Decision Matrix](#decision-matrix-which-approach-to-use)
+- [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+- [Component Best Practices](#component-best-practices)
+- [Testing Custom Components](#testing-custom-components)
+- [Advanced Topics](#advanced-topics)
+
+Malena's architecture makes it easy to create custom UI components by leveraging the framework's trait-based design and inheritance patterns. There are several approaches to creating components, each with different benefits and use cases.
+
+### Component Creation Approaches
+
+#### Approach 1: Pure SFML Components
+Best for simple, self-contained visual elements that don't need framework features.
+
+#### Approach 2: Pure Malena Components
+Best for complex interactive components that leverage framework event handling and state management.
+
+#### Approach 3: Hybrid Components
+Best for components that combine SFML graphics with Malena interactive elements.
+
+### Understanding addToApplication()
+
+The `addToApplication()` method is crucial for composite components. It determines how your component and its children are managed by the framework.
+
+**Default Behavior:**
+```cpp
+// UIComponent's default implementation
+void UIComponent::addToApplication(Application& application) {
+    application.addToApplication(*this);  // Only adds this component
+}
+```
+
+**When to Override:**
+- Your component contains child `UIComponent` objects
+- Child components need independent event handling
+- You want automatic framework management of child components
+
+### Component Inheritance Hierarchy
+
+All UI components in Malena follow this inheritance pattern:
+
+```cpp
+UIComponent (base interface)
+├── Messenger (trait for events)
+├── Positionable (trait for positioning)
+├── Stateful (trait for state management)
+├── Component (base component interface)
+└── sf::Drawable (SFML rendering interface)
+```
+
+### Approach 1: Pure SFML Components
+
+Use this approach when you need simple visual elements without framework features.
+
+```cpp
+class PureSFMLWidget : public ml::UIComponent {
+private:
+    sf::RectangleShape background;
+    sf::CircleShape indicator;
+    sf::Text label;
+
+public:
+    PureSFMLWidget() : UIComponent() {
+        // Setup SFML objects directly
+        background.setSize({100, 50});
+        background.setFillColor(sf::Color::Blue);
+        
+        indicator.setRadius(5);
+        indicator.setFillColor(sf::Color::Red);
+        
+        label.setFont(ml::FontManager::getDefault());
+        label.setString("Pure SFML");
+        label.setCharacterSize(14);
+        
+        updatePositions();
+    }
+
+    // Required implementations
+    sf::FloatRect getGlobalBounds() const override {
+        return background.getGlobalBounds();
+    }
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        // Draw all SFML objects manually
+        target.draw(background, states);
+        target.draw(indicator, states);
+        target.draw(label, states);
+    }
+
+    void setPosition(const sf::Vector2f& position) override {
+        background.setPosition(position);
+        updatePositions();
+    }
+
+    // Custom methods
+    void setIndicatorColor(const sf::Color& color) {
+        indicator.setFillColor(color);
+    }
+
+private:
+    void updatePositions() {
+        sf::Vector2f bgPos = background.getPosition();
+        sf::Vector2f bgSize = background.getSize();
+        
+        // Position indicator in top-right corner
+        indicator.setPosition(bgPos.x + bgSize.x - 10, bgPos.y + 5);
+        
+        // Center label
+        sf::FloatRect textBounds = label.getGlobalBounds();
+        label.setPosition(
+            bgPos.x + (bgSize.x - textBounds.width) / 2,
+            bgPos.y + (bgSize.y - textBounds.height) / 2
+        );
+    }
+};
+
+// Usage: Simple - no addToApplication override needed
+// The component manages all its own rendering
+```
+
+**Pros:**
+- ✅ Full control over rendering
+- ✅ Lightweight and efficient
+- ✅ No framework overhead
+- ✅ Easy to understand
+
+**Cons:**
+- ❌ No automatic event handling for sub-elements
+- ❌ Manual positioning management
+- ❌ No individual state management for parts
+
+### Approach 2: Pure Malena Components (Composite)
+
+Use this approach when you need multiple interactive elements working together.
+
+```cpp
+class PureMalenaComposite : public ml::UIComponent {
+private:
+    ml::RectangleButton primaryButton;
+    ml::RectangleButton secondaryButton;
+    ml::TextBox statusDisplay;
+    ml::Typer inputField;
+
+public:
+    PureMalenaComposite() : UIComponent() {
+        setupComponents();
+    }
+
+    // CRITICAL: Override addToApplication for composite components
+    void addToApplication(ml::Application& application) override {
+        // Add this component first
+        UIComponent::addToApplication(application);
+        
+        // Add all child Malena components for independent management
+        application.addToApplication(primaryButton);
+        application.addToApplication(secondaryButton);
+        application.addToApplication(statusDisplay);
+        application.addToApplication(inputField);
+        
+        // Now each component gets:
+        // - Independent event handling
+        // - Automatic state management
+        // - Framework update/render cycles
+        // - Individual focus/hover states
+    }
+
+    sf::FloatRect getGlobalBounds() const override {
+        // Calculate bounds encompassing all children
+        sf::FloatRect bounds = primaryButton.getGlobalBounds();
+        
+        sf::FloatRect secondaryBounds = secondaryButton.getGlobalBounds();
+        sf::FloatRect statusBounds = statusDisplay.getGlobalBounds();
+        sf::FloatRect inputBounds = inputField.getGlobalBounds();
+        
+        // Expand bounds to include all children
+        bounds.left = std::min({bounds.left, secondaryBounds.left, 
+                               statusBounds.left, inputBounds.left});
+        bounds.top = std::min({bounds.top, secondaryBounds.top, 
+                              statusBounds.top, inputBounds.top});
+        
+        float right = std::max({bounds.left + bounds.width,
+                               secondaryBounds.left + secondaryBounds.width,
+                               statusBounds.left + statusBounds.width,
+                               inputBounds.left + inputBounds.width});
+        float bottom = std::max({bounds.top + bounds.height,
+                                secondaryBounds.top + secondaryBounds.height,
+                                statusBounds.top + statusBounds.height,
+                                inputBounds.top + inputBounds.height});
+        
+        bounds.width = right - bounds.left;
+        bounds.height = bottom - bounds.top;
+        return bounds;
+    }
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        // Child components are automatically drawn by the framework
+        // because they were added via addToApplication()
+        // Only draw additional decorative elements here if needed
+        
+        // Optional: Draw connecting lines or decorative elements
+        sf::RectangleShape separator({200, 1});
+        separator.setFillColor(sf::Color(128, 128, 128));
+        separator.setPosition(primaryButton.getPosition().x, 
+                             primaryButton.getPosition().y + 60);
+        target.draw(separator, states);
+    }
+
+    void setPosition(const sf::Vector2f& position) override {
+        // Position all child components relative to the new position
+        primaryButton.setPosition(position);
+        secondaryButton.setPosition({position.x + 160, position.y});
+        statusDisplay.setPosition({position.x, position.y + 70});
+        inputField.setPosition({position.x, position.y + 180});
+    }
+
+    // Access methods for setting up events in the main application
+    ml::RectangleButton& getPrimaryButton() { return primaryButton; }
+    ml::RectangleButton& getSecondaryButton() { return secondaryButton; }
+    ml::TextBox& getStatusDisplay() { return statusDisplay; }
+    ml::Typer& getInputField() { return inputField; }
+
+private:
+    void setupComponents() {
+        // Configure primary button
+        primaryButton.setSize({150, 50});
+        primaryButton.setString("Primary");
+        primaryButton.setFillColor(sf::Color::Blue);
+        
+        // Configure secondary button
+        secondaryButton.setSize({150, 50});
+        secondaryButton.setString("Secondary");
+        secondaryButton.setFillColor(sf::Color::Gray);
+        
+        // Configure status display
+        statusDisplay.setSize({320, 100});
+        statusDisplay.setString("Status: Ready");
+        statusDisplay.setFillColor(sf::Color::White);
+        
+        // Configure input field
+        inputField.setSize({320, 30});
+        inputField.enableState(ml::Stateful::ENABLED);
+    }
+};
+
+// Usage in main application:
+void MyApp::initialization() override {
+    composite.setPosition({100, 100});
+    addComponent(composite);  // This calls composite.addToApplication()
+}
+
+void MyApp::registerEvents() override {
+    // Each child component can have independent events!
+    composite.getPrimaryButton().onClick([this]() {
+        composite.getStatusDisplay().setString("Primary clicked!");
+    });
+    
+    composite.getSecondaryButton().onClick([this]() {
+        composite.getStatusDisplay().setString("Secondary clicked!");
+    });
+    
+    composite.getInputField().onKeypress([this]() {
+        std::string text = composite.getInputField().getString();
+        composite.getStatusDisplay().setString("Input: " + text);
+    });
+    
+    // Each button can have independent hover effects
+    composite.getPrimaryButton().onHover([this]() {
+        composite.getPrimaryButton().setFillColor(sf::Color::Cyan);
+    });
+    
+    composite.getPrimaryButton().onUnhover([this]() {
+        composite.getPrimaryButton().setFillColor(sf::Color::Blue);
+    });
+}
+```
+
+**Pros:**
+- ✅ Independent event handling for each child
+- ✅ Automatic state management (hover, focus, etc.)
+- ✅ Framework handles update/render cycles
+- ✅ Rich interactive capabilities
+
+**Cons:**
+- ❌ More complex setup
+- ❌ Requires understanding of addToApplication()
+- ❌ Higher memory overhead
+
+### Approach 3: Hybrid Components (SFML + Malena)
+
+Best approach for components that need both custom graphics and interactive elements.
+
+```cpp
+class HybridComponent : public ml::UIComponent {
+private:
+    // SFML elements for custom graphics
+    sf::RectangleShape background;
+    sf::CircleShape decorativeCircle;
+    sf::Text title;
+    
+    // Malena elements for interaction
+    ml::RectangleButton actionButton;
+    ml::Typer inputField;
+
+public:
+    HybridComponent() : UIComponent() {
+        setupSFMLElements();
+        setupMalenaElements();
+    }
+
+    void addToApplication(ml::Application& application) override {
+        // Add this component
+        UIComponent::addToApplication(application);
+        
+        // Only add Malena components for framework management
+        application.addToApplication(actionButton);
+        application.addToApplication(inputField);
+        
+        // SFML elements (background, decorativeCircle, title) 
+        // are managed by this component's draw() method
+    }
+
+    sf::FloatRect getGlobalBounds() const override {
+        return background.getGlobalBounds();
+    }
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        // Draw SFML elements manually
+        target.draw(background, states);
+        target.draw(decorativeCircle, states);
+        target.draw(title, states);
+        
+        // Malena elements are drawn automatically by framework
+        // (actionButton and inputField)
+    }
+
+    void setPosition(const sf::Vector2f& position) override {
+        // Update SFML elements
+        background.setPosition(position);
+        updateSFMLPositions();
+        
+        // Update Malena elements
+        actionButton.setPosition({position.x + 20, position.y + 100});
+        inputField.setPosition({position.x + 20, position.y + 160});
+    }
+
+    // Access methods for Malena components
+    ml::RectangleButton& getActionButton() { return actionButton; }
+    ml::Typer& getInputField() { return inputField; }
+
+    // Custom methods for SFML elements
+    void setTitle(const std::string& text) {
+        title.setString(text);
+        centerTitle();
+    }
+
+    void setThemeColor(const sf::Color& color) {
+        background.setFillColor(color);
+        decorativeCircle.setOutlineColor(color);
+    }
+
+private:
+    void setupSFMLElements() {
+        // Background
+        background.setSize({300, 200});
+        background.setFillColor(sf::Color(40, 40, 40));
+        background.setOutlineThickness(2);
+        background.setOutlineColor(sf::Color::White);
+        
+        // Decorative circle
+        decorativeCircle.setRadius(15);
+        decorativeCircle.setFillColor(sf::Color::Transparent);
+        decorativeCircle.setOutlineThickness(2);
+        decorativeCircle.setOutlineColor(sf::Color::Cyan);
+        
+        // Title
+        title.setFont(ml::FontManager::getDefault());
+        title.setString("Hybrid Component");
+        title.setCharacterSize(18);
+        title.setFillColor(sf::Color::White);
+    }
+
+    void setupMalenaElements() {
+        // Action button
+        actionButton.setSize({150, 40});
+        actionButton.setString("Action");
+        actionButton.setFillColor(sf::Color::Green);
+        
+        // Input field
+        inputField.setSize({250, 25});
+        inputField.enableState(ml::Stateful::ENABLED);
+    }
+
+    void updateSFMLPositions() {
+        sf::Vector2f bgPos = background.getPosition();
+        
+        // Position decorative circle in top-right
+        decorativeCircle.setPosition(bgPos.x + 260, bgPos.y + 10);
+        
+        centerTitle();
+    }
+
+    void centerTitle() {
+        sf::Vector2f bgPos = background.getPosition();
+        sf::FloatRect titleBounds = title.getGlobalBounds();
+        
+        title.setPosition(
+            bgPos.x + (300 - titleBounds.width) / 2,
+            bgPos.y + 20
+        );
+    }
+};
+
+// Usage combines both approaches:
+void MyApp::registerEvents() override {
+    // Malena components get full event handling
+    hybrid.getActionButton().onClick([this]() {
+        std::string input = hybrid.getInputField().getString();
+        std::cout << "Action with input: " << input << std::endl;
+    });
+    
+    hybrid.getInputField().onFocus([this]() {
+        hybrid.setThemeColor(sf::Color(60, 60, 100));  // Custom SFML theming
+    });
+    
+    hybrid.getInputField().onBlur([this]() {
+        hybrid.setThemeColor(sf::Color(40, 40, 40));   // Reset theme
+    });
+    
+    // The component itself can also have events
+    hybrid.onClick([this]() {
+        hybrid.setTitle("Component Clicked!");
+    });
+}
+```
+
+**Pros:**
+- ✅ Best of both worlds
+- ✅ Custom graphics with interactive elements
+- ✅ Selective framework usage
+- ✅ Optimal performance
+
+**Cons:**
+- ❌ Most complex to implement
+- ❌ Requires careful management of both systems
+
+### Decision Matrix: Which Approach to Use?
+
+| Use Case | Recommended Approach | Why |
+|----------|---------------------|-----|
+| Simple visual indicator | Pure SFML | Lightweight, no interaction needed |
+| Custom button with unique graphics | Pure SFML | Self-contained, simple events |
+| Form with multiple inputs | Pure Malena | Independent field management |
+| Dialog with buttons and text fields | Pure Malena | Complex interactions |
+| Game HUD with stats and buttons | Hybrid | Custom graphics + interactive controls |
+| Dashboard with charts and controls | Hybrid | Data visualization + user input |
+| Simple progress bar | Pure SFML | Just visual feedback |
+| Interactive progress bar with controls | Hybrid | Visual + play/pause buttons |
+
+### Common Mistakes to Avoid
+
+#### ❌ Forgetting to Override addToApplication()
+```cpp
+class BrokenComposite : public ml::UIComponent {
+    ml::RectangleButton button1, button2;
+    
+    // MISSING: addToApplication override
+    // Result: buttons won't receive events independently
+};
+```
+
+#### ❌ Adding SFML Objects to Application
+```cpp
+void BadComponent::addToApplication(ml::Application& app) {
+    UIComponent::addToApplication(app);
+    
+    // DON'T DO THIS - sf::RectangleShape is not a UIComponent
+    // app.addToApplication(sfmlRectangle);  // COMPILER ERROR
+}
+```
+
+#### ❌ Double-Drawing Malena Components
+```cpp
+void BadComponent::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    // Don't manually draw components added via addToApplication
+    // target.draw(childMalenaButton, states);  // They're drawn automatically!
+}
+```
+
+### Summary
+
+- **Pure SFML**: Simple, efficient, manual management
+- **Pure Malena**: Rich interactions, automatic management, requires addToApplication()
+- **Hybrid**: Flexible, combines custom graphics with framework features
+
+Choose based on your component's complexity and interaction requirements!
+
+---
+        onHover([this]() {
+            // Change appearance on hover
+            setFillColor(sf::Color::Yellow);
+        });
+        
+        onUnhover([this]() {
+            // Reset appearance
+            setFillColor(sf::Color::White);
+        });
+    }
+};
+```
+
+#### 3. State Management
+```cpp
+class StatefulComponent : public ml::UIComponent {
+private:
+    enum class ComponentState {
+        Normal,
+        Loading,
+        Error,
+        Success
+    };
+    
+    ComponentState currentState = ComponentState::Normal;
+
+public:
+    void setState(ComponentState state) {
+        if (currentState != state) {
+            currentState = state;
+            updateAppearance();
+            publish("stateChanged");
+        }
+    }
+
+    ComponentState getState() const { return currentState; }
+
+private:
+    void updateAppearance() {
+        switch (currentState) {
+            case ComponentState::Normal:
+                setFillColor(sf::Color::White);
+                break;
+            case ComponentState::Loading:
+                setFillColor(sf::Color::Yellow);
+                break;
+            case ComponentState::Error:
+                setFillColor(sf::Color::Red);
+                break;
+            case ComponentState::Success:
+                setFillColor(sf::Color::Green);
+                break;
+        }
+    }
+};
+```
+
+### Testing Custom Components
+
+```cpp
+// Simple test harness for custom components
+class ComponentTestApp : public ml::Application {
+private:
+    CustomWidget testWidget;
+    ProgressBar testProgress;
+    InteractiveKnob testKnob;
+
+public:
+    ComponentTestApp() : Application(800, 600, 32, "Component Test") {}
+
+    void initialization() override {
+        // Position components for testing
+        testWidget.setPosition({50, 50});
+        testProgress.setPosition({50, 150});
+        testKnob.setPosition({300, 200});
+        
+        addComponent(testWidget);
+        addComponent(testProgress);
+        addComponent(testKnob);
+    }
+
+    void registerEvents() override {
+        // Test interactions
+        testWidget.onClick([this]() {
+            // Simulate progress
+            static float progress = 0;
+            progress += 10;
+            if (progress > 100) progress = 0;
+            testProgress.setValue(progress);
+        });
+
+        testKnob.subscribe("valueChanged", [this]() {
+            float knobValue = testKnob.getValue();
+            testProgress.setValue(knobValue * 100);
+        });
+    }
+};
+```
+
+Creating custom components in Malena is straightforward thanks to the trait-based architecture. The key is to inherit from `UIComponent`, implement the required methods (`getGlobalBounds()` and `draw()`), and leverage the built-in event system and state management for interactive behavior.
+
+---
+
 ## Application Class
+
+### In This Section:
+- [Class Declaration](#class-declaration)
+- [Constructors](#constructors)
+- [Essential Methods](#essential-methods)
+- [Required Override Methods](#required-override-methods)
 
 ### Class Declaration
 ```cpp
@@ -483,6 +1119,13 @@ Called after initialization. Use this to set up event handlers and component int
 
 ## UI Components
 
+### In This Section:
+- [Available Components](#available-components)
+- [RectangleButton](#rectanglebutton)
+- [TextBox](#textbox)
+- [Typer (Text Input)](#typer-text-input)
+- [Circle](#circle)
+
 All UI components inherit from `UIComponent` which provides:
 - **Messenger trait**: Event handling capabilities
 - **Positionable trait**: Position and alignment utilities
@@ -539,6 +1182,12 @@ circle.setFillColor(sf::Color::Red);
 ---
 
 ## Event System
+
+### In This Section:
+- [Built-in Events](#built-in-events)
+- [Event Callback Variations](#event-callback-variations)
+- [Custom Events](#custom-events)
+- [Event Management](#event-management)
 
 ### Built-in Events
 
@@ -611,6 +1260,10 @@ ml::EventsManager::clearAllEvents();
 
 ## Component States
 
+### In This Section:
+- [Available States](#available-states)
+- [State Operations](#state-operations)
+
 Components have built-in state management through the `Stateful` trait:
 
 ### Available States
@@ -645,6 +1298,10 @@ button.onUpdate([&button]() {
 ---
 
 ## Positioning and Layout
+
+### In This Section:
+- [Basic Positioning](#basic-positioning)
+- [Relative Positioning](#relative-positioning)
 
 ### Basic Positioning
 ```cpp
@@ -774,6 +1431,11 @@ int main() {
 
 ## Advanced Features
 
+### In This Section:
+- [Architecture Selection](#architecture-selection)
+- [Dynamic Component Management](#dynamic-component-management)
+- [Text Manipulation Utilities](#text-manipulation-utilities)
+
 ### Architecture Selection
 ```cpp
 // Choose your preferred architecture
@@ -806,6 +1468,12 @@ std::string wrappedText = ml::TextManipulators::wordwrap(
 
 ## Best Practices
 
+### In This Section:
+- [Component Lifecycle](#1-component-lifecycle)
+- [Event Management](#2-event-management)
+- [State Management](#3-state-management)
+- [Performance Tips](#4-performance-tips)
+
 ### 1. Component Lifecycle
 - Create components in `initialization()`
 - Set up events in `registerEvents()`
@@ -829,6 +1497,17 @@ std::string wrappedText = ml::TextManipulators::wordwrap(
 ---
 
 ## Texture Management
+
+### In This Section:
+- [TextureManager Overview](#texturemanager-overview)
+- [Creating a Texture Manifest](#creating-a-texture-manifest)
+- [Manifest Requirements](#manifest-requirements)
+- [Using TextureManager](#using-texturemanager)
+- [Advanced Usage](#advanced-usage)
+- [Memory Management](#memory-management)
+- [Complete Texture Example](#complete-texture-example)
+- [Error Handling](#error-handling)
+- [TextureManager Benefits](#texturemanager-benefits)
 
 Malena provides a sophisticated template-based texture management system that uses a manifest pattern for efficient texture loading, caching, and memory management.
 
@@ -1177,6 +1856,11 @@ try {
 
 ## Framework Architecture Patterns
 
+### In This Section:
+- [MVC (Model-View-Controller)](#mvc-model-view-controller---default)
+- [EDA (Event-Driven Architecture)](#eda-event-driven-architecture)
+- [ECS (Entity-Component-System)](#ecs-entity-component-system)
+
 ### MVC (Model-View-Controller) - Default
 - **Model**: Your data structures
 - **View**: UI Components
@@ -1193,3 +1877,181 @@ try {
 - Systems process component data
 
 Choose the pattern that best fits your application's complexity and requirements.
+
+---
+
+## Supporting the Project
+
+### In This Section:
+- [Why Support Malena?](#why-support-malena)
+- [Ways to Support](#ways-to-support)
+- [Sponsorship Tiers](#sponsorship-tiers)
+- [Corporate Sponsorship](#corporate-sponsorship)
+- [Recognition](#recognition)
+- [How Donations Are Used](#how-donations-are-used)
+- [Transparency](#transparency)
+
+Malena is an open-source project developed and maintained by passionate developers who dedicate their time and effort to creating and improving this framework. If you find Malena useful for your projects, consider supporting the development team.
+
+### Why Support Malena?
+
+- **Continued Development**: Your support helps ensure ongoing development, bug fixes, and new features
+- **Documentation & Examples**: Funding helps create better documentation, tutorials, and example projects
+- **Community Support**: Resources for maintaining community forums, Discord servers, and user support
+- **Infrastructure**: Costs for hosting documentation, CI/CD, and development tools
+- **Framework Evolution**: Support enables research into new features and architectural improvements
+
+### Ways to Support
+
+#### 💰 Financial Support
+
+**GitHub Sponsors** (Recommended)
+- Visit the [Malena GitHub repository](https://github.com/daversmith/Malena)
+- Click the "Sponsor" button to support via GitHub Sponsors
+- Choose from various sponsorship tiers with different benefits
+
+**PayPal Donations**
+- One-time or recurring donations welcome
+- Visit the project's PayPal donation page (link in repository)
+
+**Buy the Developers Coffee** ☕
+- Small donations to show appreciation
+- Every contribution helps, no matter the size
+
+#### 🤝 Non-Financial Support
+
+**Contribute Code**
+```bash
+# Fork the repository
+git clone https://github.com/YOUR_USERNAME/Malena.git
+cd Malena
+
+# Create a feature branch
+git checkout -b feature/amazing-feature
+
+# Make your changes and commit
+git commit -m "Add amazing feature"
+
+# Push and create a pull request
+git push origin feature/amazing-feature
+```
+
+**Report Issues & Bugs**
+- Use the [GitHub Issues](https://github.com/daversmith/Malena/issues) page
+- Provide detailed bug reports with code examples
+- Suggest new features and improvements
+
+**Improve Documentation**
+- Fix typos and unclear explanations
+- Add examples and tutorials
+- Translate documentation to other languages
+
+**Community Support**
+- Help other users on forums and Discord
+- Share your Malena projects and experiences
+- Write blog posts or create video tutorials
+
+### Sponsorship Tiers
+
+#### 🥉 Bronze Supporter ($5/month)
+- Recognition in project README
+- Early access to release notes
+- Supporter badge in community forums
+
+#### 🥈 Silver Supporter ($15/month)
+- All Bronze benefits
+- Direct email support for framework questions
+- Input on roadmap priorities
+- Name listed in documentation credits
+
+#### 🥇 Gold Supporter ($50/month)
+- All Silver benefits
+- Monthly video call with development team
+- Custom feature request consideration
+- Logo placement in documentation
+
+#### 💎 Platinum Supporter ($100+/month)
+- All Gold benefits
+- Priority support and bug fixes
+- Consultation on architectural decisions
+- Custom integrations and enterprise features
+
+### Corporate Sponsorship
+
+If your company uses Malena in commercial projects, consider corporate sponsorship:
+
+- **Startup Package** ($250/month): Basic support and recognition
+- **Business Package** ($500/month): Priority support, custom features
+- **Enterprise Package** ($1000+/month): Dedicated support, SLA agreements
+
+### Recognition
+
+All supporters are recognized in various ways:
+
+#### GitHub Sponsors
+- Automatic recognition in repository sponsors section
+- Sponsor badges on GitHub profile
+
+#### Documentation Credits
+- Names listed in framework documentation
+- Company logos for corporate sponsors
+
+#### Release Notes
+- Sponsor shout-outs in major release announcements
+- Special thanks in changelog
+
+### How Donations Are Used
+
+**Development (60%)**
+- Framework improvements and new features
+- Bug fixes and security updates
+- Performance optimizations
+
+**Documentation (20%)**
+- Writing comprehensive guides
+- Creating video tutorials
+- Maintaining example projects
+
+**Infrastructure (15%)**
+- GitHub Actions CI/CD
+- Documentation hosting
+- Development tools and licenses
+
+**Community (5%)**
+- Discord/forum moderation
+- Community events and contests
+- User support
+
+### Transparency
+
+The Malena development team believes in transparency:
+
+- **Monthly Reports**: Regular updates on how donations are used
+- **Public Roadmap**: Open development roadmap based on community input
+- **Financial Transparency**: Annual reports on project funding and expenses
+
+### Start Supporting Today
+
+1. **Visit**: [https://github.com/daversmith/Malena](https://github.com/daversmith/Malena)
+2. **Click**: The "Sponsor" button
+3. **Choose**: Your preferred support method and amount
+4. **Join**: The community of Malena supporters
+
+### Thank You
+
+A huge thank you to all current and future supporters! Your contributions make Malena possible and help it grow into an even better framework for the C++ community.
+
+**Current Major Sponsors:**
+- Your name could be here! ✨
+
+**Special Thanks To:**
+- All GitHub star contributors
+- Bug reporters and feature requesters
+- Community members who help others
+- Everyone who spreads the word about Malena
+
+---
+
+*"Building great software is a team effort. Thank you for being part of the Malena team!"*
+
+*- The Malena Development Team*
