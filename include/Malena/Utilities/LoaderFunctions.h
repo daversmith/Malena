@@ -12,5 +12,8 @@ namespace ml
 
     template <typename Resource>
     bool fileOpener(Resource& r, const std::string& path){return r.openFromFile(path);}
+
+    template <typename Resource>
+    bool returnTrue(Resource& r, const std::string& path){return true;}
 }
 #endif //LOADERFUNCTION_H

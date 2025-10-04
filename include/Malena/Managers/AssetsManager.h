@@ -15,19 +15,19 @@ namespace ml {
     struct has_Image : std::false_type {};
 
     template<typename T>
-    struct has_Image<T, std::void_t<typename T::Image>> : std::true_type {};
+    struct has_Image<T, std::void_t<typename T::Images>> : std::true_type {};
 
     template<typename T, typename = void>
     struct has_Font : std::false_type {};
 
     template<typename T>
-    struct has_Font<T, std::void_t<typename T::Font>> : std::true_type {};
+    struct has_Font<T, std::void_t<typename T::Fonts>> : std::true_type {};
 
     template<typename T, typename = void>
     struct has_Sound : std::false_type {};
 
     template<typename T>
-    struct has_Sound<T, std::void_t<typename T::Sound>> : std::true_type {};
+    struct has_Sound<T, std::void_t<typename T::Sounds>> : std::true_type {};
 
     template<typename Manifest>
     class AssetsManager {
@@ -35,27 +35,27 @@ namespace ml {
         using TextureMgr = TextureManager<Manifest>;
         using FontMgr = FontManager<Manifest>;
         using SoundMgr = SoundManager<Manifest>;
-        using Config = ConfigManager<Manifest>;
+        // using Config = ConfigManager<Manifest>;
 
     public:
         // Only define get() for Image if Manifest has Image enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Image<M>::value, const sf::Texture&>
-        get(typename M::Image image) {
+        get(typename M::Images image) {
             return TextureMgr::get(image);
         }
 
         // Only define get() for Font if Manifest has Font enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Font<M>::value, const sf::Font&>
-        get(typename M::Font font) {
+        get(typename M::Fonts font) {
             return FontMgr::get(font);
         }
 
         // Only define get() for Sound if Manifest has Sound enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Sound<M>::value, const sf::SoundBuffer&>
-        get(typename M::Sound sound) {
+        get(typename M::Sounds sound) {
             return SoundMgr::get(sound);
         }
 
