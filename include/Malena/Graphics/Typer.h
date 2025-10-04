@@ -15,7 +15,7 @@ namespace ml
 
 	public:
 		using Shape::Shape;
-		Typer(const sf::Font &font = ml::FontManager::getDefault());
+		Typer(const sf::Font &font = ml::FontManager<>::getDefault());
 	};
 } // namespace ml
 

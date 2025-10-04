@@ -16,7 +16,7 @@ namespace ml
 		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponent");
 
 	public:
-		Button(const sf::Font &font = FontManager::getFont(FontManager::ARIAL),
+		Button(const sf::Font &font = FontManager<>::getDefault(),
 			   std::optional<S> buttonSize = std::nullopt, const std::string &text = "", unsigned int charSize = 30) :
 			 Text(font, text, charSize), T()
 		{

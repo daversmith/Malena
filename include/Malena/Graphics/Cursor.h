@@ -13,7 +13,7 @@ namespace ml
 
 	public:
 		using Text::Text;
-		Cursor(const sf::Font &font = FontManager::getDefault());
+		Cursor(const sf::Font &font = FontManager<>::getDefault());
 	};
 } // namespace ml
 
