@@ -9,12 +9,12 @@
 namespace ml
 {
 
-	template<typename Manifest = void>
-	class ConvexWith : Shape<sf::ConvexShape, Manifest>
+	class Convex : Shape<sf::ConvexShape>
 	{
 	public:
-		using Shape<sf::ConvexShape, Manifest>::Shape;
+		using Shape::Shape;
 	};
-	using Convex = ConvexWith<>;
+	template <typename MANIFEST>
+	class ConvexWith: public With<Convex, MANIFEST>{};
 } // namespace ml
 #endif // CONVEX_H

@@ -8,12 +8,13 @@
 
 namespace ml
 {
-	template<typename Manifest = void>
-	class CircleWith : public Shape<sf::CircleShape, Manifest>
+	class Circle : public Shape<sf::CircleShape>
 	{
 	public:
-		using Shape<sf::CircleShape, Manifest>::Shape;
+		using Shape::Shape;
 	};
-	using Circle = CircleWith<>;
+
+	template <typename MANIFEST>
+	class CircleWith: public With<Circle, MANIFEST>{};
 } // namespace ml
 #endif // CIRCLE_H

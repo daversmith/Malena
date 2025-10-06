@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
-#include <Malena/Interfaces/UIComponent.h>
 #include <Malena/Traits/CustomFlaggable.h>
 #include <Malena/Managers/StateManager.h>
 namespace ml
@@ -29,50 +28,47 @@ namespace ml
 	};
 
 	// Use them in UIComponentWith
-	template<typename Manifest = void>
-	class UIComponentWith : public virtual UIComponent,
-							public CustomFlaggable<typename extract_Flags<Manifest>::type>,
-							public StateManager<typename extract_State<Manifest>::type>
+	template<typename Component, typename Manifest = void>
+	class With :	public Component,
+					public CustomFlaggable<typename extract_Flags<Manifest>::type>,
+					public StateManager<typename extract_State<Manifest>::type>
 	{
 	public:
+
+		using Component::Component;
 		// Bring both enableFlag overloads into scope
-		using UIComponent::enableFlag;
-		using UIComponent::disableFlag;
-		using UIComponent::setFlag;
-		using UIComponent::toggleFlag;
-		using UIComponent::checkFlag;
+		using Component::enableFlag;
+		using Component::disableFlag;
+		using Component::setFlag;
+		using Component::toggleFlag;
+		using Component::checkFlag;
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		std::enable_if_t<!std::is_void_v<T>>
-		enableFlag(T flag) {
+		bool enableFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::enableFlag(flag);
 		}
+
 		template<typename T = typename extract_Flags<Manifest>::type>
-			std::enable_if_t<!std::is_void_v<T>>
-			disableFlag(T flag) {
+		bool disableFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::disableFlag(flag);
 		}
 		template<typename T = typename extract_Flags<Manifest>::type>
-		std::enable_if_t<!std::is_void_v<T>, bool>
-		checkFlag(T flag) const {
+		bool checkFlag(T flag) const {
 			return this->CustomFlaggable<typename extract_Flags<Manifest>::type>::checkFlag(flag);
 		}
 
 		// State methods - wrapper instead of using declaration
 		template<typename T = typename extract_State<Manifest>::type>
-		std::enable_if_t<!std::is_void_v<T>>
-		setFlag(T flag, bool value) {
+		bool setFlag(T flag, bool value) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::setFlagFlag(flag, value);
 		}
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		std::enable_if_t<!std::is_void_v<T>>
-		toggleFlag(T flag) {
+		bool toggleFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::toggleFlag(flag);
 		}
 
 	};
-
 
 
 } // namespace ml

@@ -9,8 +9,8 @@
 
 namespace ml
 {
-	template<typename Manifest = void>
-	class TextWith : public virtual Shape<sf::Text, Manifest>
+
+	class Text : public virtual Shape<sf::Text>
 	{
 	public:
 		void setWordWrap(bool word_wrap);
@@ -22,14 +22,15 @@ namespace ml
 		float maxWidth = 0.f;
 
 	public:
-		using Shape<sf::Text, Manifest>::Shape;
-		explicit TextWith(const sf::Font &font = FontManager<>::getDefault());
+		using Shape::Shape;
+		explicit Text(const sf::Font &font = FontManager<>::getDefault());
 		void setString(const sf::String &text);
 	};
 
-	using Text = TextWith<>;
+	template<typename Manifest>
+	class TextWidth: public With<Text, Manifest>{};
 
 
 } // namespace ml
-#include "../../../src/Graphics/Text.cpp"
+
 #endif // TEXT_H

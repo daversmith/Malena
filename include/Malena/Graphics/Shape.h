@@ -5,14 +5,14 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#include "../Interfaces/UIComponentWith.h"
+#include "../Interfaces/With.h"
 #include "../Managers/FontManager.h"
 
 namespace ml
 {
 
-	template<typename T, typename Manifest = void>
-	class Shape : public T, public virtual UIComponentWith<Manifest>
+	template<typename T>
+	class Shape : public T, public virtual UIComponent
 	{
 	public:
 		using T::T;

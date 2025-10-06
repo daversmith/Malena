@@ -9,19 +9,16 @@
 
 namespace ml
 {
-	template<typename Manifest = void >
-	class TyperWith : public virtual Shape<sf::Text, Manifest>
+	class Typer : public virtual Shape<sf::Text>
 	{
 		void registerEvents();
 
 	public:
-		using Shape<sf::Text, Manifest>::Shape;
-		TyperWith(const sf::Font &font = FontManager<>::getDefault());
+		using Shape::Shape;
+		Typer(const sf::Font &font = FontManager<>::getDefault());
 	};
 
-	using Typer = TyperWith<>;
-
 } // namespace ml
-#include "../../../src/Graphics/Typer.cpp"
+
 
 #endif // TYPER_H

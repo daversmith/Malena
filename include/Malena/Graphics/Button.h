@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics/Text.hpp>
 
-#include "../Interfaces/UIComponentWith.h"
+#include "../Interfaces/With.h"
 #include "../Managers/FontManager.h"
 
 namespace ml
