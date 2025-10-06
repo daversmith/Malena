@@ -8,13 +8,14 @@
 
 namespace ml
 {
-	class Sprite : public virtual Shape<sf::Sprite>
+	template<typename Manifest = void>
+	class SpriteWith : public virtual Shape<sf::Sprite, Manifest>
 	{
 	public:
-		using Shape::Shape;
+		using Shape<sf::Sprite, Manifest>::Shape;
 		// Sprite(const sf::Texture& texture = sf::Texture()) : Shape(texture) {}
 	};
 
-
+	using Sprite = SpriteWith<>;
 } // namespace ml
 #endif // SPRITE_H

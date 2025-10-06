@@ -116,8 +116,10 @@ namespace ml
 		EventsManager::unsubscribeAll(reinterpret_cast<UIComponent *>(this));
 	}
 
-	void Messenger::publish(const std::string &event, std::function<bool(UIComponent &)> filter)
+	void Messenger::publish(const std::string &event, std::function<bool(UIComponent & )> filter)
 	{
 		EventsManager::fire(event, std::move(filter));
 	}
+
+
 } // namespace ml

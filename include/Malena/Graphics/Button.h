@@ -5,15 +5,15 @@
 
 #include <SFML/Graphics/Text.hpp>
 
-#include "../Interfaces/UIComponent.h"
+#include "../Interfaces/UIComponentWith.h"
 #include "../Managers/FontManager.h"
 
 namespace ml
 {
 	template<typename T, typename S>
-	class Button : public T, public sf::Text //, public virtual UIComponent
+	class Button : public T, public sf::Text //, public virtual UIComponentWith
 	{
-		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponent");
+		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponentWith");
 
 	public:
 		Button(const sf::Font &font = FontManager<>::getDefault(),

@@ -5,14 +5,14 @@
 
 namespace ml
 {
-	class Cursor : public Text
+	class Cursor : public ml::Text
 	{
 		inline static sf::Clock clock;
 		using Text::setString;
 		void registerEvents();
 
 	public:
-		using Text::Text;
+		using ml::Text::Text;
 		Cursor(const sf::Font &font = FontManager<>::getDefault());
 	};
 } // namespace ml

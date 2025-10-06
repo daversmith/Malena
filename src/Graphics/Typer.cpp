@@ -1,19 +1,23 @@
+#ifndef TYPER_CPP
+#define TYPER_CPP
 #include <Malena/Graphics/Typer.h>
 
 namespace ml
 {
-	Typer::Typer(const sf::Font &font) : Shape<sf::Text>(font)
+	template<typename MANIFEST>
+	TyperWith<MANIFEST>::TyperWith(const sf::Font &font) : Shape<sf::Text, MANIFEST>(font)
 	{
 		registerEvents();
 	}
-} // namespace ml
 
-void ml::Typer::registerEvents()
+} // namespace ml
+template<typename Manifest>
+	void ml::TyperWith<Manifest>::registerEvents()
 {
-	onTextEntered([this](Event event) {
-		if (checkState(ENABLED))
+	this->onTextEntered([this](const std::optional<sf::Event>&  event) {
+		if (this->checkState(ml::State::ENABLED))
 		{
-			std::string text = getString();
+			std::string text = this->getString();
 			const char c = event->getIf<sf::Event::TextEntered>()->unicode;
 
 			if (c == '\b' && !text.empty())
@@ -22,7 +26,9 @@ void ml::Typer::registerEvents()
 			if (c >= ' ' || c == '\n' || c == '\t')
 				text.push_back(c);
 
-			setString(text);
+			this->setString(text);
 		}
 	});
 }
+
+#endif

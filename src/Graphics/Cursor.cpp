@@ -1,10 +1,10 @@
 
 #include <Malena/Graphics/Cursor.h>
 
-ml::Cursor::Cursor(const sf::Font &font) : Shape(font), Text(font)
+ml::Cursor::Cursor(const sf::Font &font) : Shape(font), ml::Text(font)
 {
 	Text::setString('|');
-	enableState(Stateful::BLINKING);
+	enableState(State::BLINKING);
 	registerEvents();
 }
 
@@ -12,11 +12,11 @@ ml::Cursor::Cursor(const sf::Font &font) : Shape(font), Text(font)
 void ml::Cursor::registerEvents()
 {
 	onUpdate([this] {
-		if (checkState(Stateful::BLINKING))
+		if (checkState(State::BLINKING))
 		{
 			if (clock.getElapsedTime().asMilliseconds() > 500)
 			{
-				toggleState(Stateful::HIDDEN);
+				toggleState(State::HIDDEN);
 				clock.restart();
 			}
 		}

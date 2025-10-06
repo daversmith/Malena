@@ -12,9 +12,9 @@
 #include <functional>
 #include <map>
 #include <string>
+
 namespace ml
 {
-
 
 	class UIComponent;
 	class Controller;
@@ -22,7 +22,7 @@ namespace ml
 	{
 	private:
 		inline static std::map<std::string,
-							   std::map<UIComponent *, std::function<void(const std::optional<sf::Event> &event)>>>
+							   std::map<ml::UIComponent *, std::function<void(const std::optional<sf::Event> &event)>>>
 				events;
 		inline static bool clearPending = false;
 		inline static int fireDepth = 0;

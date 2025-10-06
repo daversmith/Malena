@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../Interfaces/UIComponent.h"
+#include <Malena/Interfaces/UIComponent.h>
 
 namespace ml
 {

@@ -20,7 +20,7 @@ namespace ml
 		this->window->clear();
 		for (auto &c : uiController->getUIComponents())
 		{
-			if (!c->checkState(Stateful::HIDDEN))
+			if (!c->checkState(State::HIDDEN))
 				this->window->draw(*c);
 		}
 
@@ -66,13 +66,13 @@ namespace ml
 					"click",
 					[this, &event](UIComponent &c) -> bool {
 						bool isClicked = MouseEvents::isClicked(c, *window);
-						bool isFocused = c.checkState(Stateful::FOCUSED);
+						bool isFocused = c.checkState(State::FOCUSED);
 
 						if (isClicked)
 						{
 							if (!isFocused)
 							{
-								c.enableState(Stateful::FOCUSED);
+								c.enableState(State::FOCUSED);
 
 								EventsManager::fire(
 										"focus", [this, &c](UIComponent &comp) -> bool { return (&comp == &c); },
@@ -86,7 +86,7 @@ namespace ml
 								EventsManager::fire(
 										"blur", [this, &c](UIComponent &comp) -> bool { return (&comp == &c); },
 										nullptr, event);
-								c.disableState(Stateful::FOCUSED);
+								c.disableState(State::FOCUSED);
 							}
 						}
 						return isClicked;
@@ -102,12 +102,12 @@ namespace ml
 					[this, &event](UIComponent &c) {
 						bool isHovered = MouseEvents::isHovered(c, *window);
 						if (isHovered)
-							c.enableState(ml::Stateful::HOVERED);
+							c.enableState(ml::State::HOVERED);
 						else
 						{
-							c.disableState(ml::Stateful::HOVERED);
+							c.disableState(ml::State::HOVERED);
 							EventsManager::fire(
-									"unhover", [&event](UIComponent &c) { return !c.checkState(Stateful::HOVERED); },
+									"unhover", [&event](UIComponent &c) { return !c.checkState(State::HOVERED); },
 									nullptr, event);
 						}
 

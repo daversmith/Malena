@@ -51,7 +51,7 @@ namespace ml
 			}
 		}
 	}
-	void EventsManager::unsubscribe(const std::string &event, UIComponent *component)
+	void EventsManager::unsubscribe(const std::string &event, UIComponent*component)
 	{
 		auto it = events.find(event);
 		if (it == events.end())

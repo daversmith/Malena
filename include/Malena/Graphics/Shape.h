@@ -5,19 +5,19 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#include "../Interfaces/UIComponent.h"
+#include "../Interfaces/UIComponentWith.h"
 #include "../Managers/FontManager.h"
 namespace ml
 {
 
-	template<typename T>
-	class Shape : public T, public virtual UIComponent
+	template<typename T, typename Manifest = void>
+	class Shape : public T, public virtual UIComponentWith<Manifest>
 	{
 	public:
 		using T::T;
 		static T isItText() {
 			if constexpr (std::is_same_v<T, sf::Text>) {
-				return sf::Text(FontManager::getDefault());
+				return sf::Text(FontManager<>::getDefault());
 			} else {
 				return T();
 			}

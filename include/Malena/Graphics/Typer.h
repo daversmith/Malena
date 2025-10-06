@@ -4,20 +4,24 @@
 
 #pragma once
 
-#include "../Managers/FontManager.h"
-#include "Shape.h"
+#include <Malena/Managers/FontManager.h>
+#include <Malena/Graphics/Shape.h>
 
 namespace ml
 {
-	class Typer : public virtual ml::Shape<sf::Text>
+	template<typename Manifest = void >
+	class TyperWith : public virtual Shape<sf::Text, Manifest>
 	{
 		void registerEvents();
 
 	public:
-		using Shape::Shape;
-		Typer(const sf::Font &font = ml::FontManager<>::getDefault());
+		using Shape<sf::Text, Manifest>::Shape;
+		TyperWith(const sf::Font &font = FontManager<>::getDefault());
 	};
-} // namespace ml
 
+	using Typer = TyperWith<>;
+
+} // namespace ml
+#include "../../../src/Graphics/Typer.cpp"
 
 #endif // TYPER_H

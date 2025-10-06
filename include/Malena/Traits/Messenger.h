@@ -8,7 +8,7 @@
 #pragma once
 
 #include "../Managers/EventsManager.h"
-#include "../Traits/Stateful.h"
+#include "../Traits/Flaggable.h"
 
 namespace ml
 {

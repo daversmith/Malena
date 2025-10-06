@@ -1,20 +1,20 @@
 
 #include <Malena/Graphics/TextInput.h>
 
-#include <Malena/Traits/Stateful.h>
+#include <Malena/Traits/Flaggable.h>
 
 namespace ml
 {
 	TextInput::TextInput()
 	{
-		cursor.enableState(Stateful::BLINKING);
-		enableState(Stateful::FOCUSED);
+		cursor.enableState(State::BLINKING);
+		enableState(State::FOCUSED);
 	}
 
 	void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	{
 		typer.draw(target, states);
-		if (!cursor.checkState(HIDDEN))
+		if (!cursor.checkState(ml::State::HIDDEN))
 			cursor.draw(target, states);
 	}
 
@@ -32,7 +32,7 @@ namespace ml
 		return cursor.getGlobalBounds();
 	}
 
-	void TextInput::enableState(const Stateful::State state)
+	void TextInput::enableState(const State state)
 	{
 		Stateful::enableState(state);
 		typer.enableState(state);
