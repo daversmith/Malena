@@ -4,16 +4,16 @@
 #pragma once
 
 #include <SFML/Graphics/Text.hpp>
+#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Managers/FontManager.h>
 
-#include "../Interfaces/With.h"
-#include "../Managers/FontManager.h"
 
 namespace ml
 {
 	template<typename T, typename S>
 	class Button : public T, public sf::Text //, public virtual UIComponentWith
 	{
-		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponentWith");
+		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponent");
 
 	public:
 		Button(const sf::Font &font = FontManager<>::getDefault(),
