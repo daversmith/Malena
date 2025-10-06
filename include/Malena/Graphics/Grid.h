@@ -1,4 +1,4 @@
-#ifndef GRID_H
+ #ifndef GRID_H
 #define GRID_H
 
 #pragma once

@@ -1,20 +1,20 @@
 
 #include <Malena/Graphics/TextInput.h>
 
-#include <Malena/Traits/Flaggable.h>
+#include <Malena/Managers/FlagManager.h>
 
 namespace ml
 {
 	TextInput::TextInput()
 	{
-		cursor.enableState(State::BLINKING);
+		cursor.enableFlag(State::BLINKING);
 		enableState(State::FOCUSED);
 	}
 
 	void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	{
 		typer.draw(target, states);
-		if (!cursor.checkState(ml::State::HIDDEN))
+		if (!cursor.checkFlag(ml::Flag::HIDDEN))
 			cursor.draw(target, states);
 	}
 
@@ -34,8 +34,8 @@ namespace ml
 
 	void TextInput::enableState(const State state)
 	{
-		Stateful::enableState(state);
-		typer.enableState(state);
-		cursor.enableState(state);
+		Flaggable::enableFlag(state);
+		typer.enableFlag(state);
+		cursor.enableFlag(state);
 	}
 } // namespace ml

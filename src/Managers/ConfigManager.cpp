@@ -14,17 +14,33 @@ namespace ml {
     template<typename Manifest>
     template<typename M>
     std::enable_if_t<has_Strings<M>::value, const std::string&>
-    ConfigManager<Manifest>::get(typename M::Strings config) {
+    ConfigManager<Manifest>::get(typename M::Text config) {
         ensureInitialized();
-        return Manifest::template getConfig<typename M::Strings, std::string>(config);
+        return Manifest::template getConfig<typename M::Text, std::string>(config);
     }
 
     template<typename Manifest>
     template<typename M>
     std::enable_if_t<has_Ints<M>::value, int>
-    ConfigManager<Manifest>::get(typename M::Ints config) {
+    ConfigManager<Manifest>::get(typename M::Integers config) {
         ensureInitialized();
-        return Manifest::template getConfig<typename M::Ints, int>(config);
+        return Manifest::template getConfig<typename M::Integers, int>(config);
+    }
+
+    template<typename Manifest>
+   template<typename M>
+   std::enable_if_t<has_Floats<M>::value, float>
+   ConfigManager<Manifest>::get(typename M::Floats config) {
+        ensureInitialized();
+        return Manifest::template getConfig<typename M::Floats, float>(config);
+    }
+
+    template<typename Manifest>
+   template<typename M>
+   std::enable_if_t<has_Booleans<M>::value, bool>
+   ConfigManager<Manifest>::get(typename M::Booleans config) {
+        ensureInitialized();
+        return Manifest::template getConfig<typename M::Booleans, bool>(config);
     }
 }
 

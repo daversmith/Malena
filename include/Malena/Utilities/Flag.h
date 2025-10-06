@@ -6,7 +6,7 @@
 #define SYSTEMSTATESENUM_H
 namespace ml
 {
-    enum class State
+    enum class Flag
     {
         HOVERED,
         CLICKED,

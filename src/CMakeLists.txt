@@ -2,7 +2,7 @@ add_library(Malena
         "${CMAKE_CURRENT_SOURCE_DIR}/Utilities/MouseEvents_nontemplate.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Utilities/TextManipulators.cpp"
 
-        "${CMAKE_CURRENT_SOURCE_DIR}/Traits/Stateful.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Traits/Flaggable.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Traits/Messenger.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Traits/Positionable.cpp"
 
@@ -38,6 +38,7 @@ add_library(Malena
         ../include/Malena/Utilities/TextureSlicer.h
         Utilities/ImageRects.cpp
         ../include/Malena/Utilities/ImageRects.h
+        ../include/Malena/Managers/ResourceManager.h
 )
 
 add_library(Malena::Malena ALIAS Malena)

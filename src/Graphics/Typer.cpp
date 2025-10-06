@@ -15,7 +15,7 @@ template<typename Manifest>
 	void ml::TyperWith<Manifest>::registerEvents()
 {
 	this->onTextEntered([this](const std::optional<sf::Event>&  event) {
-		if (this->checkState(ml::State::ENABLED))
+		if (this->checkFlag(ml::Flag::ENABLED))
 		{
 			std::string text = this->getString();
 			const char c = event->getIf<sf::Event::TextEntered>()->unicode;

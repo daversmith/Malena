@@ -4,7 +4,7 @@
 ml::Cursor::Cursor(const sf::Font &font) : Shape(font), ml::Text(font)
 {
 	Text::setString('|');
-	enableState(State::BLINKING);
+	enableFlag(State::BLINKING);
 	registerEvents();
 }
 
@@ -12,11 +12,11 @@ ml::Cursor::Cursor(const sf::Font &font) : Shape(font), ml::Text(font)
 void ml::Cursor::registerEvents()
 {
 	onUpdate([this] {
-		if (checkState(State::BLINKING))
+		if (checkFlag(State::BLINKING))
 		{
 			if (clock.getElapsedTime().asMilliseconds() > 500)
 			{
-				toggleState(State::HIDDEN);
+				toggleFlag(State::HIDDEN);
 				clock.restart();
 			}
 		}

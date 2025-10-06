@@ -15,7 +15,7 @@
 #include "../Utilities/MouseEvents.h"
 #include "Component.h"
 #include "Updateable.h"
-#include "Malena/Traits/Stateful.h"
+#include "Malena/Traits/Flaggable.h"
 
 namespace ml
     {
@@ -24,7 +24,7 @@ namespace ml
         class UIComponent : public virtual sf::Drawable,
                             public Messenger,
                             public Component,
-                            public Stateful,
+                            public Flaggable,
                             public Positionable
         {
             /**

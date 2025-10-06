@@ -25,7 +25,7 @@ namespace ml
 		sf::Vector2f getPosition() const override;
 
 		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
-		void enableState(Stateful::State state);
+		void enableState(Flaggable::State state);
 	};
 
 } // namespace ml
