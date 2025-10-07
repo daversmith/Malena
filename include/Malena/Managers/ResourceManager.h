@@ -9,6 +9,7 @@
 #include <Malena/Utilities/EnumClassHash.h>
 #include <Malena/Utilities/LoaderFunctions.h>
 #include <string>
+#include <stdexcept>
 namespace ml
 {
 

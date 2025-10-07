@@ -44,12 +44,12 @@ namespace ml
 		using Component::checkFlag;
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		bool enableFlag(T flag) {
+		void enableFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::enableFlag(flag);
 		}
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		bool disableFlag(T flag) {
+		void disableFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::disableFlag(flag);
 		}
 		template<typename T = typename extract_Flags<Manifest>::type>
@@ -59,12 +59,12 @@ namespace ml
 
 		// State methods - wrapper instead of using declaration
 		template<typename T = typename extract_State<Manifest>::type>
-		bool setFlag(T flag, bool value) {
+		void setFlag(T flag, bool value) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::setFlagFlag(flag, value);
 		}
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		bool toggleFlag(T flag) {
+		void toggleFlag(T flag) {
 			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::toggleFlag(flag);
 		}
 
