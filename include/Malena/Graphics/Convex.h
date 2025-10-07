@@ -15,6 +15,6 @@ namespace ml
 		using Shape::Shape;
 	};
 	template <typename MANIFEST>
-	class ConvexWith: public With<Convex, MANIFEST>{};
+	class ConvexWith: public Customizable<Convex, MANIFEST>{};
 } // namespace ml
 #endif // CONVEX_H

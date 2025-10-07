@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Malena/Graphics/Shape.h>
-#include <../Traits/With.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
@@ -17,6 +17,6 @@ namespace ml
 	};
 
 	template<typename MANIFEST>
-	class SpriteWidth: public With<Sprite, MANIFEST>{};
+	class SpriteWidth: public Customizable<Sprite, MANIFEST>{};
 } // namespace ml
 #endif // SPRITE_H

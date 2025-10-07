@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Malena/Graphics/Shape.h>
-#include <../Traits/With.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
@@ -16,6 +16,6 @@ namespace ml
 	};
 
 	template <typename MANIFEST>
-	class CircleWith: public With<Circle, MANIFEST>{};
+	class CircleWith: public Customizable<Circle, MANIFEST>{};
 } // namespace ml
 #endif // CIRCLE_H

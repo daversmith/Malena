@@ -3,7 +3,7 @@
 //
 
 #include <Malena/Application/Application.h>
-#include <../../include/Malena/Traits/With.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {

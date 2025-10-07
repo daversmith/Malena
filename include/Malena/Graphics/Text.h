@@ -6,7 +6,7 @@
 
 #include <Malena/Managers/FontManager.h>
 #include <Malena/Graphics/Shape.h>
-#include <../Traits/With.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
@@ -29,7 +29,7 @@ namespace ml
 	};
 
 	template<typename Manifest>
-	class TextWidth: public With<Text, Manifest>{};
+	class TextWidth: public Customizable<Text, Manifest>{};
 
 
 } // namespace ml

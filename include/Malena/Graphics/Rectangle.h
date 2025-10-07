@@ -16,6 +16,6 @@ namespace ml
 	};
 
 	template <typename MANIFEST>
-	class RectangleWith: public virtual With<Rectangle, MANIFEST>{};
+	class RectangleWith: public virtual Customizable<Rectangle, MANIFEST>{};
 } // namespace ml
 #endif // RECTANGLE_H
