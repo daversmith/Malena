@@ -9,7 +9,7 @@
 
 #include "../Managers/EventsManager.h"
 #include "../Managers/FlagManager.h"
-
+#include <string>
 namespace ml
 {
 	class ComponentsManager;

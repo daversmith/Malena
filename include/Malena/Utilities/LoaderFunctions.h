@@ -4,7 +4,7 @@
 
 #ifndef LOADERFUNCTIONS_H
 #define LOADERFUNCTIONS_H
-
+#include <string>
 namespace ml
 {
     template <typename Resource>

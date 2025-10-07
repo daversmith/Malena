@@ -13,7 +13,7 @@
 #include "UIManagerEDA.h"
 #include "UIManagerMVC.h"
 #include "WindowManager.h"
-
+#include <string>
 namespace ml
 {
 

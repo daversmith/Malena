@@ -6,7 +6,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <Malena/Interfaces/UIComponent.h>
 #include <Malena/Managers/FontManager.h>
-
+#include <string>
 
 namespace ml
 {
