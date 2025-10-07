@@ -6,7 +6,7 @@
 
 #include <Malena/Managers/FontManager.h>
 #include <Malena/Graphics/Shape.h>
-#include <Malena/Interfaces/With.h>
+#include <../Traits/With.h>
 
 namespace ml
 {

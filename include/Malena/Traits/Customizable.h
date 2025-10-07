@@ -29,7 +29,7 @@ namespace ml
 
 	// Use them in UIComponentWith
 	template<typename Component, typename Manifest = void>
-	class With :	public Component,
+	class Customizable :	public Component,
 					public CustomFlaggable<typename extract_Flags<Manifest>::type>,
 					public StateManager<typename extract_State<Manifest>::type>
 	{

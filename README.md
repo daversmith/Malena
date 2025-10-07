@@ -165,7 +165,7 @@ int main() { MyApp().run(); }
 `ml::Application` runs the loop and mixes in `UIManager` (loop, draw, input firing) and `UIController` (your logic).
 
 ### UI components
-Wrappers over SFML drawables with traits: `Messenger` (events), `Flaggable` (flags), `Positionable` (layout).
+Wrappers over SFML drawables with traits: `Messenger` (events), `Flaggable` (flags), `Positionable` (layout), `Customizable` (manifests).
 
 ### Events
 String-keyed; built-ins include `click`, `hover`, `unhover`, `focus`, `blur`, `keypress`, `textentered`, `mousemoved`, and `update`. You can publish your own.
