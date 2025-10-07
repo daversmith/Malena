@@ -1,2057 +1,544 @@
-# Malena Framework - Complete Documentation
+# Malena Framework – README
 
-## Table of Contents
+This README reflects the `master` branch layout and public headers in `include/Malena/*`, aligns with your examples, and follows the installation style used on the GitHub page. It also adds **“In this section”** mini-TOCs to *every* section, fixes the Manifest pattern, and includes a full **Context** guide showing one manifest + one context used across an entire app.
 
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Core Architecture](#core-architecture)
-- [Application Class](#application-class)
-- [UI Components](#ui-components)
-- [Creating Custom Components](#creating-custom-components)
-- [Event System](#event-system)
-- [Component States](#component-states)
-- [Positioning and Layout](#positioning-and-layout)
-- [Texture Management](#texture-management)
-- [Complete Application Example](#complete-application-example)
-- [Advanced Features](#advanced-features)
+- [Core Concepts](#core-concepts)
+- [Application](#application)
+- [UI Components (Complete)](#ui-components-complete)
+- [Events and Messaging](#events-and-messaging)
+- [Flags and State](#flags-and-state)
+- [Positioning and Layout helpers](#positioning-and-layout-helpers)
+- [Manifest System (Accurate Pattern)](#manifest-system-accurate-pattern)
+- [Using a Single Context Across Your App](#using-a-single-context-across-your-app)
 - [Best Practices](#best-practices)
-- [Framework Architecture Patterns](#framework-architecture-patterns)
-- [Supporting the Project](#supporting-the-project)
+- [License](#license)
+
+---
 
 ## Overview
 
-Malena is a lightweight, event-driven C++ UI/game framework built on SFML. It provides a comprehensive architecture for building interactive applications with support for multiple design patterns (MVC, EDA, ECS), a robust component system, and flexible event management.
+**In this section:**  
+[What Malena provides](#what-malena-provides) · [Where things live](#where-things-live)
+
+### What Malena provides
+
+Malena is a lightweight, event-driven C++ framework on top of SFML. It provides:
+
+- An `Application` shell that opens a window and runs your loop
+- A publish/subscribe event system with friendly component helpers
+- A focused set of UI **graphics components** that wrap SFML drawables
+- Positioning helpers for simple relative layout
+- A *Manifest* pattern for type-safe assets and config
+- A *Context* façade to use one manifest globally across your app
+
+### Where things live
+
+- Core types: `include/Malena/*`
+- Example app: `examples/BasicExample`
+
+---
 
 ## Requirements
 
-### In This Section:
-- [System Requirements](#system-requirements)
-- [Supported Platforms](#supported-platforms)
-- [Compiler Support](#compiler-support)
+**In this section:**  
+[C++ standard](#c-standard) · [CMake](#cmake) · [SFML](#sfml)
 
-### System Requirements
-- **C++17 compatible compiler** or newer
-- **CMake 3.14** or newer
-- **SFML 3.0** (automatically fetched by CMake if not found)
+### C++ standard
+C++17 or newer
 
-### Supported Platforms
-- Windows (Visual Studio, MinGW)
-- Linux (GCC, Clang)
-- macOS (Xcode, Clang)
+### CMake
+CMake 3.14+
 
-### Compiler Support
-- **GCC**: 7.0 or newer
-- **Clang**: 5.0 or newer
-- **MSVC**: Visual Studio 2017 or newer
+### SFML
+SFML 3 (Malena wraps SFML drawables; your app links SFML as usual)
+
+---
 
 ## Installation
 
-### In This Section:
-- [Method 1: FetchContent (Recommended)](#method-1-fetchcontent-recommended)
-- [Method 2: Manual Installation](#method-2-manual-installation)
-- [Method 3: Git Submodule](#method-3-git-submodule)
+**In this section:**  
+[Clone](#clone) · [Build the bundled example](#build-the-bundled-example) · [Add as subdirectory (your app)](#add-as-subdirectory-your-app) · [FetchContent (alternative)](#fetchcontent-alternative)
 
-### Method 1: FetchContent (Recommended)
+> This mirrors the style used on the GitHub page: clone, optionally build examples, or consume via CMake with a simple link target.
 
-The easiest way to integrate Malena into your project is using CMake's `FetchContent`:
+### Clone
 
-#### CMakeLists.txt Example
+```bash
+git clone https://github.com/daversmith/Malena.git
+```
+
+### Build the bundled example
+
+```bash
+cd Malena
+cmake -B build -S . -DMALENA_BUILD_EXAMPLES=ON
+cmake --build build
+# run the example (path depends on your generator)
+./build/examples/BasicExample/BasicExample
+```
+
+### Add as subdirectory (your app)
+
 ```cmake
+# CMakeLists.txt of your app
 cmake_minimum_required(VERSION 3.14)
-project(MyMalenaApp VERSION 1.0.0 LANGUAGES CXX)
+project(MyMalenaApp LANGUAGES CXX)
 
-# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Fetch Malena framework
+add_subdirectory(external/Malena)  # where you cloned Malena
+
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+)
+
+# Malena exports an interface target; link it
+target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
+```
+
+### FetchContent (alternative)
+
+```cmake
 include(FetchContent)
 FetchContent_Declare(
-    malena
-    GIT_REPOSITORY https://github.com/daversmith/Malena.git
-    GIT_TAG        master  # or specify a specific version tag
+  malena
+  GIT_REPOSITORY https://github.com/daversmith/Malena.git
+  # GIT_TAG <pin-a-tag-when-releasing>
 )
-
-# Make Malena available
 FetchContent_MakeAvailable(malena)
 
-# Create your executable
-add_executable(${PROJECT_NAME} 
-    src/main.cpp
-    src/MyApplication.cpp
-    src/MyApplication.h
-)
-
-# Link Malena to your project
+add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
-
-# Optional: Copy assets to build directory
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 ```
 
-#### Complete Project Structure
-```
-MyMalenaApp/
-├── CMakeLists.txt
-├── src/
-│   ├── main.cpp
-│   ├── MyApplication.cpp
-│   └── MyApplication.h
-├── assets/
-│   ├── textures/
-│   │   ├── player.png
-│   │   └── background.jpg
-│   └── fonts/
-│       └── custom.ttf
-└── build/          # Generated by CMake
-```
-
-### Method 2: Manual Installation
-
-#### Clone and Build
-```bash
-# Clone the repository
-git clone https://github.com/daversmith/Malena.git
-cd Malena
-
-# Create build directory
-mkdir build && cd build
-
-# Configure with CMake
-cmake -DMALENA_BUILD_EXAMPLES=ON ..
-
-# Build the library
-cmake --build .
-
-# Optional: Install system-wide
-cmake --install . --prefix /usr/local
-```
-
-#### Using Installed Malena
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(MyApp)
-
-find_package(Malena REQUIRED)
-
-add_executable(MyApp main.cpp)
-target_link_libraries(MyApp PRIVATE Malena::Malena)
-```
-
-### Method 3: Git Submodule
-
-```bash
-# Add as submodule
-git submodule add https://github.com/daversmith/Malena.git external/malena
-git submodule update --init --recursive
-
-# In your CMakeLists.txt
-add_subdirectory(external/malena)
-target_link_libraries(MyApp PRIVATE Malena::Malena)
-```
+---
 
 ## Quick Start
 
-### In This Section:
-- [Create Project Structure](#1-create-project-structure)
-- [Create CMakeLists.txt](#2-create-cmakeliststxt)
-- [Create Your First Application](#3-create-your-first-application-srcmaincpp)
-- [Build and Run](#4-build-and-run)
-- [Advanced CMake Configuration](#advanced-cmake-configuration)
+**In this section:**  
+[Minimal app](#minimal-app) · [Where to put code](#where-to-put-code)
 
-### 1. Create Project Structure
-```bash
-mkdir MyMalenaApp && cd MyMalenaApp
-mkdir src assets
-```
+### Minimal app
 
-### 2. Create CMakeLists.txt
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(MyMalenaApp)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include(FetchContent)
-FetchContent_Declare(
-    malena
-    GIT_REPOSITORY https://github.com/daversmith/Malena.git
-    GIT_TAG        master
-)
-FetchContent_MakeAvailable(malena)
-
-add_executable(MyMalenaApp src/main.cpp)
-target_link_libraries(MyMalenaApp PRIVATE Malena::Malena)
-```
-
-### 3. Create Your First Application (src/main.cpp)
 ```cpp
 #include <Malena/Application/Application.h>
 #include <Malena/Graphics/RectangleButton.h>
 
 class MyApp : public ml::Application {
-private:
-    ml::RectangleButton helloButton;
+  ml::RectangleButton button;
 
 public:
-    MyApp() : Application(800, 600, 32, "My First Malena App") {}
+  MyApp()
+  : ml::Application(sf::VideoMode({800, 480}, 32), "My App", *this) {}
 
-    void initialization() override {
-        helloButton.setSize({200, 50});
-        helloButton.setPosition({300, 275});
-        helloButton.setString("Hello, Malena!");
-        helloButton.setFillColor(sf::Color::Blue);
-        
-        addComponent(helloButton);
-    }
+  void initialization() override {
+    button.setSize({240, 64});
+    button.setPosition({40, 40});
+    button.setString("Click me");
+    addComponent(button);
+  }
 
-    void registerEvents() override {
-        helloButton.onClick([]() {
-            std::cout << "Hello from Malena Framework!" << std::endl;
-        });
-    }
+  void registerEvents() override {
+    button.onClick([this]{ button.setString("Clicked!"); });
+  }
 };
 
-int main() {
-    MyApp app;
-    app.run();
-    return 0;
-}
+int main() { MyApp().run(); }
 ```
 
-### 4. Build and Run
-```bash
-# Configure
-cmake -B build -S .
+### Where to put code
 
-# Build
-cmake --build build
-
-# Run (path may vary by platform/generator)
-./build/MyMalenaApp        # Linux/macOS
-# or
-.\build\Debug\MyMalenaApp.exe  # Windows with Visual Studio
-```
-
-### Advanced CMake Configuration
-
-#### Full-Featured CMakeLists.txt
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(AdvancedMalenaApp VERSION 1.0.0 LANGUAGES CXX)
-
-# C++ Standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Build type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
-
-# Compiler-specific options
-if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
-else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-# Fetch Malena
-include(FetchContent)
-FetchContent_Declare(
-    malena
-    GIT_REPOSITORY https://github.com/daversmith/Malena.git
-    GIT_TAG        v0.2.4  # Use specific version for stability
-)
-
-# Optional: Configure SFML before fetching Malena
-set(MALENA_USE_SYSTEM_SFML OFF)  # Let CMake fetch SFML automatically
-FetchContent_MakeAvailable(malena)
-
-# Organize source files
-file(GLOB_RECURSE SOURCES 
-    "src/*.cpp"
-    "src/*.h"
-    "src/*.hpp"
-)
-
-# Create executable
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-# Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
-
-# Include directories
-target_include_directories(${PROJECT_NAME} PRIVATE src/)
-
-# Copy assets to build directory
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
-    COMMENT "Copying assets to build directory"
-)
-
-# Platform-specific settings
-if(WIN32)
-    # Windows-specific settings
-    set_property(TARGET ${PROJECT_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
-elseif(APPLE)
-    # macOS-specific settings
-    set_property(TARGET ${PROJECT_NAME} PROPERTY MACOSX_BUNDLE TRUE)
-endif()
-
-# Debug/Release configurations
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    $<$<CONFIG:Debug>:DEBUG>
-    $<$<CONFIG:Release>:NDEBUG>
-)
-```
-
-### Using System SFML
-
-If you have SFML 3.0 installed system-wide:
-
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(MyApp)
-
-# Use system SFML
-set(MALENA_USE_SYSTEM_SFML ON)
-
-include(FetchContent)
-FetchContent_Declare(
-    malena
-    GIT_REPOSITORY https://github.com/daversmith/Malena.git
-    GIT_TAG        master
-)
-FetchContent_MakeAvailable(malena)
-
-add_executable(MyApp src/main.cpp)
-target_link_libraries(MyApp PRIVATE Malena::Malena)
-```
-
-### Troubleshooting Installation
-
-#### Common Issues
-
-1. **CMake Version Too Old**
-   ```bash
-   # Update CMake
-   # Ubuntu/Debian:
-   sudo apt update && sudo apt install cmake
-   
-   # Windows: Download from cmake.org
-   # macOS:
-   brew install cmake
-   ```
-
-2. **C++17 Compiler Issues**
-   ```cmake
-   # Force C++17
-   set(CMAKE_CXX_STANDARD 17)
-   set(CMAKE_CXX_STANDARD_REQUIRED ON)
-   
-   # For older GCC versions
-   target_compile_features(MyApp PRIVATE cxx_std_17)
-   ```
-
-3. **SFML Not Found**
-   ```cmake
-   # Let Malena fetch SFML automatically
-   set(MALENA_USE_SYSTEM_SFML OFF)
-   
-   # Or specify SFML path
-   set(CMAKE_PREFIX_PATH "/path/to/sfml")
-   ```
-
-### Building Examples
-
-To build and run the included examples:
-
-```bash
-git clone https://github.com/daversmith/Malena.git
-cd Malena
-cmake -B build -S . -DMALENA_BUILD_EXAMPLES=ON
-cmake --build build
-
-# Run basic example
-./build/examples/BasicExample/BasicExample  # Linux/macOS
-.\build\examples\BasicExample\Debug\BasicExample.exe  # Windows
-```
-
-## Core Architecture
-
-### In This Section:
-- [Inheritance Hierarchy](#inheritance-hierarchy)
-- [Key Concepts](#key-concepts)
-
-### Inheritance Hierarchy
-```
-Manager
-└── UIManager
-    └── Application : public UIManager, public UIController
-                     └── Controller : public ComponentsManager
-```
-
-### Key Concepts
-- **Event-Driven Architecture**: Components communicate through a publish/subscribe event system
-- **Component-Based UI**: All UI elements inherit from `UIComponent`
-- **Trait-Based Design**: Components gain functionality through traits (Messenger, Positionable, Stateful)
-- **Multiple Architecture Support**: Choose between MVC, EDA, or ECS patterns
+- Create and register components in `initialization()`
+- Subscribe to events in `registerEvents()`
 
 ---
 
-## Creating Custom Components
+## Core Concepts
 
-### In This Section:
-- [Component Creation Approaches](#component-creation-approaches)
-- [Understanding addToApplication()](#understanding-addtoapplication)
-- [Component Inheritance Hierarchy](#component-inheritance-hierarchy)
-- [Approach 1: Pure SFML Components](#approach-1-pure-sfml-components)
-- [Approach 2: Pure Malena Components](#approach-2-pure-malena-components-composite)
-- [Approach 3: Hybrid Components](#approach-3-hybrid-components-sfml--malena)
-- [Decision Matrix](#decision-matrix-which-approach-to-use)
-- [Common Mistakes to Avoid](#common-mistakes-to-avoid)
-- [Component Best Practices](#component-best-practices)
-- [Testing Custom Components](#testing-custom-components)
-- [Advanced Topics](#advanced-topics)
+**In this section:**  
+[Application shell](#application-shell) · [UI components](#ui-components) · [Events](#events) · [Flags](#flags) · [Positioning](#positioning)
 
-Malena's architecture makes it easy to create custom UI components by leveraging the framework's trait-based design and inheritance patterns. There are several approaches to creating components, each with different benefits and use cases.
+### Application shell
+`ml::Application` runs the loop and mixes in `UIManager` (loop, draw, input firing) and `UIController` (your logic).
 
-### Component Creation Approaches
+### UI components
+Wrappers over SFML drawables with traits: `Messenger` (events), `Flaggable` (flags), `Positionable` (layout).
 
-#### Approach 1: Pure SFML Components
-Best for simple, self-contained visual elements that don't need framework features.
+### Events
+String-keyed; built-ins include `click`, `hover`, `unhover`, `focus`, `blur`, `keypress`, `textentered`, `mousemoved`, and `update`. You can publish your own.
 
-#### Approach 2: Pure Malena Components
-Best for complex interactive components that leverage framework event handling and state management.
+### Flags
+State bits such as `HOVERED`, `FOCUSED`, `ENABLED`, `HIDDEN`. Some are maintained automatically.
 
-#### Approach 3: Hybrid Components
-Best for components that combine SFML graphics with Malena interactive elements.
-
-### Understanding addToApplication()
-
-The `addToApplication()` method is crucial for composite components. It determines how your component and its children are managed by the framework.
-
-**Default Behavior:**
-```cpp
-// UIComponent's default implementation
-void UIComponent::addToApplication(Application& application) {
-    application.addToApplication(*this);  // Only adds this component
-}
-```
-
-**When to Override:**
-- Your component contains child `UIComponent` objects
-- Child components need independent event handling
-- You want automatic framework management of child components
-
-### Component Inheritance Hierarchy
-
-All UI components in Malena follow this inheritance pattern:
-
-```cpp
-UIComponent (base interface)
-├── Messenger (trait for events)
-├── Positionable (trait for positioning)
-├── Stateful (trait for state management)
-├── Component (base component interface)
-└── sf::Drawable (SFML rendering interface)
-```
-
-### Approach 1: Pure SFML Components
-
-Use this approach when you need simple visual elements without framework features.
-
-```cpp
-class PureSFMLWidget : public ml::UIComponent {
-private:
-    sf::RectangleShape background;
-    sf::CircleShape indicator;
-    sf::Text label;
-
-public:
-    PureSFMLWidget() : UIComponent() {
-        // Setup SFML objects directly
-        background.setSize({100, 50});
-        background.setFillColor(sf::Color::Blue);
-        
-        indicator.setRadius(5);
-        indicator.setFillColor(sf::Color::Red);
-        
-        label.setFont(ml::FontManager::getDefault());
-        label.setString("Pure SFML");
-        label.setCharacterSize(14);
-        
-        updatePositions();
-    }
-
-    // Required implementations
-    sf::FloatRect getGlobalBounds() const override {
-        return background.getGlobalBounds();
-    }
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Draw all SFML objects manually
-        target.draw(background, states);
-        target.draw(indicator, states);
-        target.draw(label, states);
-    }
-
-    void setPosition(const sf::Vector2f& position) override {
-        background.setPosition(position);
-        updatePositions();
-    }
-
-    // Custom methods
-    void setIndicatorColor(const sf::Color& color) {
-        indicator.setFillColor(color);
-    }
-
-private:
-    void updatePositions() {
-        sf::Vector2f bgPos = background.getPosition();
-        sf::Vector2f bgSize = background.getSize();
-        
-        // Position indicator in top-right corner
-        indicator.setPosition(bgPos.x + bgSize.x - 10, bgPos.y + 5);
-        
-        // Center label
-        sf::FloatRect textBounds = label.getGlobalBounds();
-        label.setPosition(
-            bgPos.x + (bgSize.x - textBounds.width) / 2,
-            bgPos.y + (bgSize.y - textBounds.height) / 2
-        );
-    }
-};
-
-// Usage: Simple - no addToApplication override needed
-// The component manages all its own rendering
-```
-
-**Pros:**
-- ✅ Full control over rendering
-- ✅ Lightweight and efficient
-- ✅ No framework overhead
-- ✅ Easy to understand
-
-**Cons:**
-- ❌ No automatic event handling for sub-elements
-- ❌ Manual positioning management
-- ❌ No individual state management for parts
-
-### Approach 2: Pure Malena Components (Composite)
-
-Use this approach when you need multiple interactive elements working together.
-
-```cpp
-class PureMalenaComposite : public ml::UIComponent {
-private:
-    ml::RectangleButton primaryButton;
-    ml::RectangleButton secondaryButton;
-    ml::TextBox statusDisplay;
-    ml::Typer inputField;
-
-public:
-    PureMalenaComposite() : UIComponent() {
-        setupComponents();
-    }
-
-    // CRITICAL: Override addToApplication for composite components
-    void addToApplication(ml::Application& application) override {
-        // Add this component first
-        UIComponent::addToApplication(application);
-        
-        // Add all child Malena components for independent management
-        application.addToApplication(primaryButton);
-        application.addToApplication(secondaryButton);
-        application.addToApplication(statusDisplay);
-        application.addToApplication(inputField);
-        
-        // Now each component gets:
-        // - Independent event handling
-        // - Automatic state management
-        // - Framework update/render cycles
-        // - Individual focus/hover states
-    }
-
-    sf::FloatRect getGlobalBounds() const override {
-        // Calculate bounds encompassing all children
-        sf::FloatRect bounds = primaryButton.getGlobalBounds();
-        
-        sf::FloatRect secondaryBounds = secondaryButton.getGlobalBounds();
-        sf::FloatRect statusBounds = statusDisplay.getGlobalBounds();
-        sf::FloatRect inputBounds = inputField.getGlobalBounds();
-        
-        // Expand bounds to include all children
-        bounds.left = std::min({bounds.left, secondaryBounds.left, 
-                               statusBounds.left, inputBounds.left});
-        bounds.top = std::min({bounds.top, secondaryBounds.top, 
-                              statusBounds.top, inputBounds.top});
-        
-        float right = std::max({bounds.left + bounds.width,
-                               secondaryBounds.left + secondaryBounds.width,
-                               statusBounds.left + statusBounds.width,
-                               inputBounds.left + inputBounds.width});
-        float bottom = std::max({bounds.top + bounds.height,
-                                secondaryBounds.top + secondaryBounds.height,
-                                statusBounds.top + statusBounds.height,
-                                inputBounds.top + inputBounds.height});
-        
-        bounds.width = right - bounds.left;
-        bounds.height = bottom - bounds.top;
-        return bounds;
-    }
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Child components are automatically drawn by the framework
-        // because they were added via addToApplication()
-        // Only draw additional decorative elements here if needed
-        
-        // Optional: Draw connecting lines or decorative elements
-        sf::RectangleShape separator({200, 1});
-        separator.setFillColor(sf::Color(128, 128, 128));
-        separator.setPosition(primaryButton.getPosition().x, 
-                             primaryButton.getPosition().y + 60);
-        target.draw(separator, states);
-    }
-
-    void setPosition(const sf::Vector2f& position) override {
-        // Position all child components relative to the new position
-        primaryButton.setPosition(position);
-        secondaryButton.setPosition({position.x + 160, position.y});
-        statusDisplay.setPosition({position.x, position.y + 70});
-        inputField.setPosition({position.x, position.y + 180});
-    }
-
-    // Access methods for setting up events in the main application
-    ml::RectangleButton& getPrimaryButton() { return primaryButton; }
-    ml::RectangleButton& getSecondaryButton() { return secondaryButton; }
-    ml::TextBox& getStatusDisplay() { return statusDisplay; }
-    ml::Typer& getInputField() { return inputField; }
-
-private:
-    void setupComponents() {
-        // Configure primary button
-        primaryButton.setSize({150, 50});
-        primaryButton.setString("Primary");
-        primaryButton.setFillColor(sf::Color::Blue);
-        
-        // Configure secondary button
-        secondaryButton.setSize({150, 50});
-        secondaryButton.setString("Secondary");
-        secondaryButton.setFillColor(sf::Color::Gray);
-        
-        // Configure status display
-        statusDisplay.setSize({320, 100});
-        statusDisplay.setString("Status: Ready");
-        statusDisplay.setFillColor(sf::Color::White);
-        
-        // Configure input field
-        inputField.setSize({320, 30});
-        inputField.enableState(ml::Stateful::ENABLED);
-    }
-};
-
-// Usage in main application:
-void MyApp::initialization() override {
-    composite.setPosition({100, 100});
-    addComponent(composite);  // This calls composite.addToApplication()
-}
-
-void MyApp::registerEvents() override {
-    // Each child component can have independent events!
-    composite.getPrimaryButton().onClick([this]() {
-        composite.getStatusDisplay().setString("Primary clicked!");
-    });
-    
-    composite.getSecondaryButton().onClick([this]() {
-        composite.getStatusDisplay().setString("Secondary clicked!");
-    });
-    
-    composite.getInputField().onKeypress([this]() {
-        std::string text = composite.getInputField().getString();
-        composite.getStatusDisplay().setString("Input: " + text);
-    });
-    
-    // Each button can have independent hover effects
-    composite.getPrimaryButton().onHover([this]() {
-        composite.getPrimaryButton().setFillColor(sf::Color::Cyan);
-    });
-    
-    composite.getPrimaryButton().onUnhover([this]() {
-        composite.getPrimaryButton().setFillColor(sf::Color::Blue);
-    });
-}
-```
-
-**Pros:**
-- ✅ Independent event handling for each child
-- ✅ Automatic state management (hover, focus, etc.)
-- ✅ Framework handles update/render cycles
-- ✅ Rich interactive capabilities
-
-**Cons:**
-- ❌ More complex setup
-- ❌ Requires understanding of addToApplication()
-- ❌ Higher memory overhead
-
-### Approach 3: Hybrid Components (SFML + Malena)
-
-Best approach for components that need both custom graphics and interactive elements.
-
-```cpp
-class HybridComponent : public ml::UIComponent {
-private:
-    // SFML elements for custom graphics
-    sf::RectangleShape background;
-    sf::CircleShape decorativeCircle;
-    sf::Text title;
-    
-    // Malena elements for interaction
-    ml::RectangleButton actionButton;
-    ml::Typer inputField;
-
-public:
-    HybridComponent() : UIComponent() {
-        setupSFMLElements();
-        setupMalenaElements();
-    }
-
-    void addToApplication(ml::Application& application) override {
-        // Add this component
-        UIComponent::addToApplication(application);
-        
-        // Only add Malena components for framework management
-        application.addToApplication(actionButton);
-        application.addToApplication(inputField);
-        
-        // SFML elements (background, decorativeCircle, title) 
-        // are managed by this component's draw() method
-    }
-
-    sf::FloatRect getGlobalBounds() const override {
-        return background.getGlobalBounds();
-    }
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        // Draw SFML elements manually
-        target.draw(background, states);
-        target.draw(decorativeCircle, states);
-        target.draw(title, states);
-        
-        // Malena elements are drawn automatically by framework
-        // (actionButton and inputField)
-    }
-
-    void setPosition(const sf::Vector2f& position) override {
-        // Update SFML elements
-        background.setPosition(position);
-        updateSFMLPositions();
-        
-        // Update Malena elements
-        actionButton.setPosition({position.x + 20, position.y + 100});
-        inputField.setPosition({position.x + 20, position.y + 160});
-    }
-
-    // Access methods for Malena components
-    ml::RectangleButton& getActionButton() { return actionButton; }
-    ml::Typer& getInputField() { return inputField; }
-
-    // Custom methods for SFML elements
-    void setTitle(const std::string& text) {
-        title.setString(text);
-        centerTitle();
-    }
-
-    void setThemeColor(const sf::Color& color) {
-        background.setFillColor(color);
-        decorativeCircle.setOutlineColor(color);
-    }
-
-private:
-    void setupSFMLElements() {
-        // Background
-        background.setSize({300, 200});
-        background.setFillColor(sf::Color(40, 40, 40));
-        background.setOutlineThickness(2);
-        background.setOutlineColor(sf::Color::White);
-        
-        // Decorative circle
-        decorativeCircle.setRadius(15);
-        decorativeCircle.setFillColor(sf::Color::Transparent);
-        decorativeCircle.setOutlineThickness(2);
-        decorativeCircle.setOutlineColor(sf::Color::Cyan);
-        
-        // Title
-        title.setFont(ml::FontManager::getDefault());
-        title.setString("Hybrid Component");
-        title.setCharacterSize(18);
-        title.setFillColor(sf::Color::White);
-    }
-
-    void setupMalenaElements() {
-        // Action button
-        actionButton.setSize({150, 40});
-        actionButton.setString("Action");
-        actionButton.setFillColor(sf::Color::Green);
-        
-        // Input field
-        inputField.setSize({250, 25});
-        inputField.enableState(ml::Stateful::ENABLED);
-    }
-
-    void updateSFMLPositions() {
-        sf::Vector2f bgPos = background.getPosition();
-        
-        // Position decorative circle in top-right
-        decorativeCircle.setPosition(bgPos.x + 260, bgPos.y + 10);
-        
-        centerTitle();
-    }
-
-    void centerTitle() {
-        sf::Vector2f bgPos = background.getPosition();
-        sf::FloatRect titleBounds = title.getGlobalBounds();
-        
-        title.setPosition(
-            bgPos.x + (300 - titleBounds.width) / 2,
-            bgPos.y + 20
-        );
-    }
-};
-
-// Usage combines both approaches:
-void MyApp::registerEvents() override {
-    // Malena components get full event handling
-    hybrid.getActionButton().onClick([this]() {
-        std::string input = hybrid.getInputField().getString();
-        std::cout << "Action with input: " << input << std::endl;
-    });
-    
-    hybrid.getInputField().onFocus([this]() {
-        hybrid.setThemeColor(sf::Color(60, 60, 100));  // Custom SFML theming
-    });
-    
-    hybrid.getInputField().onBlur([this]() {
-        hybrid.setThemeColor(sf::Color(40, 40, 40));   // Reset theme
-    });
-    
-    // The component itself can also have events
-    hybrid.onClick([this]() {
-        hybrid.setTitle("Component Clicked!");
-    });
-}
-```
-
-**Pros:**
-- ✅ Best of both worlds
-- ✅ Custom graphics with interactive elements
-- ✅ Selective framework usage
-- ✅ Optimal performance
-
-**Cons:**
-- ❌ Most complex to implement
-- ❌ Requires careful management of both systems
-
-### Decision Matrix: Which Approach to Use?
-
-| Use Case | Recommended Approach | Why |
-|----------|---------------------|-----|
-| Simple visual indicator | Pure SFML | Lightweight, no interaction needed |
-| Custom button with unique graphics | Pure SFML | Self-contained, simple events |
-| Form with multiple inputs | Pure Malena | Independent field management |
-| Dialog with buttons and text fields | Pure Malena | Complex interactions |
-| Game HUD with stats and buttons | Hybrid | Custom graphics + interactive controls |
-| Dashboard with charts and controls | Hybrid | Data visualization + user input |
-| Simple progress bar | Pure SFML | Just visual feedback |
-| Interactive progress bar with controls | Hybrid | Visual + play/pause buttons |
-
-### Common Mistakes to Avoid
-
-#### ❌ Forgetting to Override addToApplication()
-```cpp
-class BrokenComposite : public ml::UIComponent {
-    ml::RectangleButton button1, button2;
-    
-    // MISSING: addToApplication override
-    // Result: buttons won't receive events independently
-};
-```
-
-#### ❌ Adding SFML Objects to Application
-```cpp
-void BadComponent::addToApplication(ml::Application& app) {
-    UIComponent::addToApplication(app);
-    
-    // DON'T DO THIS - sf::RectangleShape is not a UIComponent
-    // app.addToApplication(sfmlRectangle);  // COMPILER ERROR
-}
-```
-
-#### ❌ Double-Drawing Malena Components
-```cpp
-void BadComponent::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    // Don't manually draw components added via addToApplication
-    // target.draw(childMalenaButton, states);  // They're drawn automatically!
-}
-```
-
-### Summary
-
-- **Pure SFML**: Simple, efficient, manual management
-- **Pure Malena**: Rich interactions, automatic management, requires addToApplication()
-- **Hybrid**: Flexible, combines custom graphics with framework features
-
-Choose based on your component's complexity and interaction requirements!
-
----
-        onHover([this]() {
-            // Change appearance on hover
-            setFillColor(sf::Color::Yellow);
-        });
-        
-        onUnhover([this]() {
-            // Reset appearance
-            setFillColor(sf::Color::White);
-        });
-    }
-};
-```
-
-#### 3. State Management
-```cpp
-class StatefulComponent : public ml::UIComponent {
-private:
-    enum class ComponentState {
-        Normal,
-        Loading,
-        Error,
-        Success
-    };
-    
-    ComponentState currentState = ComponentState::Normal;
-
-public:
-    void setState(ComponentState state) {
-        if (currentState != state) {
-            currentState = state;
-            updateAppearance();
-            publish("stateChanged");
-        }
-    }
-
-    ComponentState getState() const { return currentState; }
-
-private:
-    void updateAppearance() {
-        switch (currentState) {
-            case ComponentState::Normal:
-                setFillColor(sf::Color::White);
-                break;
-            case ComponentState::Loading:
-                setFillColor(sf::Color::Yellow);
-                break;
-            case ComponentState::Error:
-                setFillColor(sf::Color::Red);
-                break;
-            case ComponentState::Success:
-                setFillColor(sf::Color::Green);
-                break;
-        }
-    }
-};
-```
-
-### Testing Custom Components
-
-```cpp
-// Simple test harness for custom components
-class ComponentTestApp : public ml::Application {
-private:
-    CustomWidget testWidget;
-    ProgressBar testProgress;
-    InteractiveKnob testKnob;
-
-public:
-    ComponentTestApp() : Application(800, 600, 32, "Component Test") {}
-
-    void initialization() override {
-        // Position components for testing
-        testWidget.setPosition({50, 50});
-        testProgress.setPosition({50, 150});
-        testKnob.setPosition({300, 200});
-        
-        addComponent(testWidget);
-        addComponent(testProgress);
-        addComponent(testKnob);
-    }
-
-    void registerEvents() override {
-        // Test interactions
-        testWidget.onClick([this]() {
-            // Simulate progress
-            static float progress = 0;
-            progress += 10;
-            if (progress > 100) progress = 0;
-            testProgress.setValue(progress);
-        });
-
-        testKnob.subscribe("valueChanged", [this]() {
-            float knobValue = testKnob.getValue();
-            testProgress.setValue(knobValue * 100);
-        });
-    }
-};
-```
-
-Creating custom components in Malena is straightforward thanks to the trait-based architecture. The key is to inherit from `UIComponent`, implement the required methods (`getGlobalBounds()` and `draw()`), and leverage the built-in event system and state management for interactive behavior.
+### Positioning
+Helpers like `right`, `left`, `top`, `bottom`, `center`, `xCenter`, `yCenter` and `centerText` simplify layout.
 
 ---
 
-## Application Class
+## Application
 
-### In This Section:
-- [Class Declaration](#class-declaration)
-- [Constructors](#constructors)
-- [Essential Methods](#essential-methods)
-- [Required Override Methods](#required-override-methods)
-
-### Class Declaration
-```cpp
-namespace ml {
-    class Application : public UIManager, public UIController
-    {
-        // Combines UI management with application logic
-    };
-}
-```
-
-The `Application` class serves as the main entry point for Malena applications, inheriting from both `UIManager` (for rendering and window management) and `UIController` (for application logic and event handling).
+**In this section:**  
+[Constructors](#constructors) · [Lifecycle](#lifecycle)
 
 ### Constructors
 
-#### 1. Full Control Constructor
+Common forms include:
+
+- `Application(const sf::VideoMode&, const std::string& title, UIController& appLogic, sf::RenderWindow& window = WindowManager::getWindow())`
+- `Application(unsigned int w, unsigned int h, unsigned int bitDepth, const std::string& title)`
+- `Application(const sf::VideoMode&, const std::string& title)`
+
+Pass `*this` as the `UIController` when deriving.
+
+### Lifecycle
+
+- `initialization()` — create components, `addComponent(...)`
+- `registerEvents()` — attach `onClick`, `onHover`, `onUpdate`, custom `subscribe`
+- `run()` — poll events → fire → update → draw
+
+---
+
+## UI Components (Complete)
+
+**In this section:**  
+[List](#list) · [Examples](#examples)
+
+### List
+
+Graphics components in `include/Malena/Graphics`:
+
+- **Button.h** – generic button template used by specific button shapes
+- **Circle.h** – wraps `sf::CircleShape`
+- **CircleButton.h** – circular button with centered text
+- **Convex.h** – wraps `sf::ConvexShape`
+- **ConvexButton.h** – convex-shape button with centered text
+- **Cursor.h** – caret for text input
+- **Grid.h** – grid helper for cell positioning/placement
+- **Rectangle.h** – wraps `sf::RectangleShape`
+- **RectangleButton.h** – rectangular button with centered text
+- **Shape.h** – base helper to wrap an SFML shape drawable
+- **Sprite.h** – wraps `sf::Sprite`
+- **Text.h** – wraps `sf::Text`, with optional word-wrap controls (e.g., `setWordWrap`, `setMaxWidth`)
+- **TextBox.h** – framed text display area
+- **TextInput.h** – composite input field using `Typer` and `Cursor`
+- **Typer.h** – text entry logic (focus, textentered, keypress)
+- **VertexArray.h** – wraps `sf::VertexArray`
+
+### Examples
+
+**RectangleButton**
+
 ```cpp
-Application(const sf::VideoMode &videoMode, const std::string &title, 
-           UIController &appLogic, sf::RenderWindow &window = WindowManager::getWindow());
+#include <Malena/Graphics/RectangleButton.h>
+
+ml::RectangleButton submit;
+submit.setSize({200, 50});
+submit.setPosition({40, 40});
+submit.setString("Submit");
+addComponent(submit);
+
+submit.onHover([&]{ submit.setFillColor(sf::Color(180,220,255)); });
+submit.onUnhover([&]{ submit.setFillColor(sf::Color(100,160,255)); });
+submit.onClick([&]{ /* ... */ });
 ```
 
-**Use Case**: Maximum flexibility with custom logic controller
+**Text + TextInput**
+
 ```cpp
-class GameLogic : public ml::UIController {
+#include <Malena/Graphics/Text.h>
+#include <Malena/Graphics/TextInput.h>
+
+ml::Text label;
+ml::TextInput input;
+
+label.setString("Username");
+label.setPosition({40, 120});
+
+input.setPosition({40, 150});
+input.setSize({240, 32});
+addComponent(label);
+addComponent(input);
+
+input.onTextEntered([&](const std::optional<sf::Event>&){ /* read input */ });
+```
+
+**Sprite**
+
+```cpp
+#include <Malena/Graphics/Sprite.h>
+
+ml::Sprite icon;
+icon.setTexture(/* sf::Texture */);
+icon.setPosition({320, 60});
+addComponent(icon);
+
+icon.onClick([&]{ /* ... */ });
+```
+
+**Grid**
+
+```cpp
+#include <Malena/Graphics/Grid.h>
+
+ml::Grid grid(3, 3);
+grid.setPosition({40, 220});
+grid.setCellSize({72, 72});
+grid.setSpacing(8, 8);
+addComponent(grid);
+```
+
+---
+
+## Events and Messaging
+
+**In this section:**  
+[Built-in events](#built-in-events) · [Component helpers](#component-helpers) · [Custom events](#custom-events)
+
+### Built-in events
+`click`, `hover`, `unhover`, `focus`, `blur`, `keypress`, `textentered`, `mousemoved`, `update`
+
+### Component helpers
+
+```cpp
+button.onClick([]{});
+button.onHover([]{});
+button.onUnhover([]{});
+button.onFocus([]{});
+button.onBlur([]{});
+button.onKeypress([](const std::optional<sf::Event>&){});
+button.onMouseMoved([](const std::optional<sf::Event>&){});
+button.onTextEntered([](const std::optional<sf::Event>&){});
+button.onUpdate([]{});
+```
+
+### Custom events
+
+```cpp
+box.subscribe("MyEvent", []{ /* ... */ });
+ml::Messenger::publish("MyEvent");
+box.unsubscribe("MyEvent");
+box.unsubscribeAll();
+
+// publish to others, optionally filter
+ml::Messenger::publish("MyEvent", [](ml::UIComponent& c){
+  return !c.checkFlag(ml::Flag::HIDDEN);
+});
+```
+
+---
+
+## Flags and State
+
+**In this section:**  
+[Common flags](#common-flags) · [Operations](#operations)
+
+### Common flags
+`HOVERED`, `CLICKED`, `FOCUSED`, `ENABLED`, `HIDDEN`, `BLINKING`
+
+### Operations
+
+```cpp
+if (btn.checkFlag(ml::Flag::HOVERED)) { /* … */ }
+btn.enableFlag(ml::Flag::ENABLED);
+btn.disableFlag(ml::Flag::HIDDEN);
+btn.toggleFlag(ml::Flag::FOCUSED);
+btn.setFlag(ml::Flag::ENABLED, true);
+```
+
+---
+
+## Positioning and Layout helpers
+
+**In this section:**  
+[Relative placement](#relative-placement) · [Centering](#centering) · [Motion helpers](#motion-helpers)
+
+### Relative placement
+`right(of, spacing)`, `left(of, spacing)`, `top(of, spacing)`, `bottom(of, spacing)`
+
+### Centering
+`center(of)`, `xCenter(of)`, `yCenter(of)`, `centerText(sf::Text&)`
+
+### Motion helpers
+`moveTo`, `moveDistance`, `calcVelocity` (simple queue-based tweening helpers)
+
+---
+
+## Manifest System (Accurate Pattern)
+
+**In this section:**  
+[Manifest class](#manifest-class) · [Registering values](#registering-values) · [Access via managers](#access-via-managers)
+
+> **Important:** Your manifests should **inherit** `ml::Manifest`.
+
+### Manifest class
+
+```cpp
+// AssetsManifest.h  (aligned with your file)
+#include <Malena/Manifests/Manifest.h>
+
+class AssetsManifest : public ml::Manifest {
 public:
-    void initialization() override {
-        // Setup game-specific UI
-    }
-    void registerEvents() override {
-        // Handle game events
-    }
+  enum class Fonts  { OPEN_SANS };
+  enum class Images { FLYER, SCREENSHOT };
+  enum class Text   { PLEASE };
+
+  struct RectangleConfig { enum class Flags { STOP, EAT }; };
+
+private:
+  inline static const auto _ = [](){
+    set(
+      Images::FLYER,      "assets/images/image002.jpg",
+      Images::SCREENSHOT, "assets/fonts/thumbnail_Screenshot_20210605-131717_Messages.jpg"
+    );
+    set(Fonts::OPEN_SANS, "assets/fonts/OpenSans-Light.ttf");
+    set(Text::PLEASE,     std::string("Please Work!!!"));
+    return 0;
+  }();
 };
-
-GameLogic logic;
-sf::VideoMode mode(1024, 768, 32);
-ml::Application app(mode, "My Game", logic);
-app.run();
 ```
 
-#### 2. Dimension Constructor
-```cpp
-Application(unsigned int screenWidth, unsigned int screenHeight, 
-           unsigned int bitDepth, const std::string& title);
-```
+### Registering values
 
-**Use Case**: Quick setup with specific dimensions
-```cpp
-ml::Application app(1920, 1080, 32, "My Application");
-app.run();
-```
+- Call `set(...)` inside a static initializer (or constructor) to associate enum IDs with file paths or config values.
+- You can create small specialized manifests as well (e.g., `BasicImageManifest`, `BasicManifest` with a single enum).
 
-#### 3. Simple VideoMode Constructor
-```cpp
-Application(const sf::VideoMode &videoMode, const std::string &title);
-```
-
-**Use Case**: Standard setup with VideoMode
-```cpp
-sf::VideoMode mode = sf::VideoMode::getDesktopMode();
-ml::Application app(mode, "Fullscreen App");
-app.run();
-```
-
-### Essential Methods
-
-#### addComponent()
-```cpp
-void addComponent(UIComponent &component) override;
-```
-Registers a UI component with the application for rendering and event handling.
+### Access via managers
 
 ```cpp
-ml::RectangleButton button;
-button.setSize({200, 50});
-button.setPosition({100, 100});
-button.setString("Click Me");
-app.addComponent(button);
-```
+#include <Malena/Managers/TextureManager.h>
+#include <Malena/Managers/FontManager.h>
+#include <Malena/Managers/SoundManager.h>
+#include <Malena/Managers/ConfigManager.h>
 
-### Required Override Methods
+using Tex  = ml::TextureManager<AssetsManifest>;
+using Font = ml::FontManager<AssetsManifest>;
+using Cfg  = ml::ConfigManager<AssetsManifest>;
 
-When inheriting from Application, you must implement:
-
-#### initialization()
-```cpp
-void initialization() override;
-```
-Called once during application startup. Use this to create and configure UI components.
-
-#### registerEvents()
-```cpp
-void registerEvents() override;
-```
-Called after initialization. Use this to set up event handlers and component interactions.
-
----
-
-## UI Components
-
-### In This Section:
-- [Available Components](#available-components)
-- [RectangleButton](#rectanglebutton)
-- [TextBox](#textbox)
-- [Typer (Text Input)](#typer-text-input)
-- [Circle](#circle)
-
-All UI components inherit from `UIComponent` which provides:
-- **Messenger trait**: Event handling capabilities
-- **Positionable trait**: Position and alignment utilities
-- **Stateful trait**: State management (focused, hovered, etc.)
-- **sf::Drawable**: SFML rendering interface
-
-### Available Components
-
-#### RectangleButton
-```cpp
-ml::RectangleButton button;
-button.setSize({200, 50});
-button.setPosition({100, 100});
-button.setString("Button Text");
-button.setFillColor(sf::Color::Blue);
-button.setTextColor(sf::Color::White);
-
-// Event handling
-button.onClick([]() {
-    std::cout << "Button clicked!\n";
-});
-```
-
-#### TextBox
-```cpp
-ml::TextBox textBox;
-textBox.setSize({300, 100});
-textBox.setPosition({50, 50});
-textBox.setString("Multi-line text content");
-textBox.setFillColor(sf::Color::White);
-```
-
-#### Typer (Text Input)
-```cpp
-ml::Typer input;
-input.setSize({250, 30});
-input.setPosition({100, 200});
-input.enableState(ml::Stateful::ENABLED);
-
-input.onKeypress([&input]() {
-    std::string text = input.getString();
-    std::cout << "Current input: " << text << std::endl;
-});
-```
-
-#### Circle
-```cpp
-ml::Circle circle;
-circle.setRadius(50);
-circle.setPosition({200, 200});
-circle.setFillColor(sf::Color::Red);
+const sf::Texture& flyer = Tex::get(AssetsManifest::Images::FLYER);
+const sf::Font&    ui    = Font::get(AssetsManifest::Fonts::OPEN_SANS);
+const std::string& please= Cfg::get<AssetsManifest>(AssetsManifest::Text::PLEASE);
 ```
 
 ---
 
-## Event System
+## Using a Single Context Across Your App
 
-### In This Section:
-- [Built-in Events](#built-in-events)
-- [Event Callback Variations](#event-callback-variations)
-- [Custom Events](#custom-events)
-- [Event Management](#event-management)
+**In this section:**  
+[Define one manifest](#define-one-manifest) · [Create the Context alias](#create-the-context-alias) · [Use across UI](#use-across-ui) · [Use inside Application](#use-inside-application)
 
-### Built-in Events
+The **Context** façade binds all managers to your manifest and exposes typed access in one place.
 
-Components automatically support these events:
+### Define one manifest
+Use `AssetsManifest` above (inherits `ml::Manifest`).
 
-```cpp
-component.onClick(callback);         // Mouse click
-component.onHover(callback);         // Mouse enters component
-component.onUnhover(callback);       // Mouse leaves component
-component.onFocus(callback);         // Component gains focus
-component.onBlur(callback);          // Component loses focus
-component.onKeypress(callback);      // Key pressed while focused
-component.onUpdate(callback);        // Called every frame
-component.onTextEntered(callback);   // Text input received
-component.onMouseMoved(callback);    // Mouse movement over component
-```
-
-### Event Callback Variations
-Events support two callback signatures:
+### Create the Context alias
 
 ```cpp
-// Simple callbacks
-button.onClick([]() {
-    std::cout << "Clicked!\n";
-});
+// AppContext.h
+#pragma once
+#include <Malena/Manifests/Context.h>
+#include "AssetsManifest.h"
 
-// Event-aware callbacks
-button.onClick([](const std::optional<sf::Event>& event) {
-    if (event && event->type == sf::Event::MouseButtonPressed) {
-        std::cout << "Mouse button: " << event->mouseButton.button << std::endl;
-    }
-});
+using App = ml::Context<AssetsManifest>; // One context for the whole app
 ```
 
-### Custom Events
-
-Create and use custom events:
+### Use across UI
 
 ```cpp
-// Subscribe to custom event
-component.subscribe("enemyDefeated", []() {
-    std::cout << "Enemy defeated!\n";
-});
+#include "AppContext.h"
+#include <Malena/Graphics/Text.h>
+#include <Malena/Graphics/Sprite.h>
 
-// Publish custom event
-triggerButton.onClick([&component]() {
-    component.publish("enemyDefeated");
-});
+class MyPanel {
+  ml::Text   title;
+  ml::Sprite image;
 
-// Publish with filter
-ml::Messenger::publish("globalEvent", [](ml::UIComponent& comp) {
-    return comp.checkState(ml::Stateful::VISIBLE);
-});
+public:
+  void build() {
+    title.setFont(App::Assets::get(AssetsManifest::Fonts::OPEN_SANS));
+    title.setString(App::Config::get(AssetsManifest::Text::PLEASE));
+    image.setTexture(App::Assets::get(AssetsManifest::Images::FLYER));
+  }
+};
 ```
 
-### Event Management
-
-```cpp
-// Remove specific event
-component.unsubscribe("click");
-
-// Remove all events from component
-component.unsubscribeAll();
-
-// Clear all events globally
-ml::EventsManager::clearAllEvents();
-```
-
----
-
-## Component States
-
-### In This Section:
-- [Available States](#available-states)
-- [State Operations](#state-operations)
-
-Components have built-in state management through the `Stateful` trait:
-
-### Available States
-```cpp
-ml::Stateful::FOCUSED     // Component has input focus
-ml::Stateful::HOVERED     // Mouse is over component
-ml::Stateful::ACTIVE      // Component is being interacted with
-ml::Stateful::ENABLED     // Component accepts input
-ml::Stateful::VISIBLE     // Component is rendered
-ml::Stateful::HIDDEN      // Component is not rendered
-```
-
-### State Operations
-```cpp
-// Check state
-if (button.checkState(ml::Stateful::HOVERED)) {
-    button.setFillColor(sf::Color::Yellow);
-}
-
-// Enable/disable states
-input.enableState(ml::Stateful::ENABLED);
-input.disableState(ml::Stateful::HIDDEN);
-
-// React to state changes
-button.onUpdate([&button]() {
-    if (button.checkState(ml::Stateful::FOCUSED)) {
-        button.setFillColor(sf::Color::Green);
-    }
-});
-```
-
----
-
-## Positioning and Layout
-
-### In This Section:
-- [Basic Positioning](#basic-positioning)
-- [Relative Positioning](#relative-positioning)
-
-### Basic Positioning
-```cpp
-component.setPosition({100, 50});
-component.setSize({200, 100});
-
-sf::Vector2f pos = component.getPosition();
-sf::Vector2f size = component.getSize();
-```
-
-### Relative Positioning
-Components provide relative positioning methods:
-
-```cpp
-// Position component2 below component1
-component1.bottom(component2, 10); // 10 pixels spacing
-
-// Position component2 to the right of component1
-component1.right(component2, 5); // 5 pixels spacing
-
-// Other positioning methods available:
-// top(), left(), center(), etc.
-```
-
----
-
-## Complete Application Example
+### Use inside Application
 
 ```cpp
 #include <Malena/Application/Application.h>
+#include "AppContext.h"
 #include <Malena/Graphics/RectangleButton.h>
-#include <Malena/Graphics/TextBox.h>
-#include <Malena/Graphics/Typer.h>
 
-class MyApplication : public ml::Application {
-private:
-    ml::RectangleButton startButton;
-    ml::RectangleButton quitButton;
-    ml::TextBox infoDisplay;
-    ml::Typer nameInput;
+class ContextDemo : public ml::Application {
+  ml::RectangleButton start;
+  ml::Text            title;
+  ml::Sprite          flyer;
 
 public:
-    MyApplication() : Application(800, 600, 32, "My Malena App") {}
+  ContextDemo()
+  : ml::Application(720, 420, 32, "Context Demo", *this),
+    flyer(App::Assets::get(AssetsManifest::Images::FLYER)) {}
 
-    void initialization() override {
-        // Setup start button
-        startButton.setSize({150, 50});
-        startButton.setPosition({100, 100});
-        startButton.setString("Start Game");
-        startButton.setFillColor(sf::Color::Green);
+  void initialization() override {
+    title.setFont(App::Assets::get(AssetsManifest::Fonts::OPEN_SANS));
+    title.setString("Welcome");
+    title.setPosition({40, 24});
 
-        // Setup quit button
-        quitButton.setSize({150, 50});
-        startButton.right(quitButton, 20);
-        quitButton.setString("Quit");
-        quitButton.setFillColor(sf::Color::Red);
+    start.setSize({220, 56});
+    start.setString("Start");
+    start.setPosition({40, 80});
 
-        // Setup info display
-        infoDisplay.setSize({400, 100});
-        infoDisplay.setPosition({100, 200});
-        infoDisplay.setString("Welcome to Malena Framework!");
-        infoDisplay.setFillColor(sf::Color::White);
+    addComponent(title);
+    addComponent(start);
+    addComponent(flyer);
+  }
 
-        // Setup name input
-        nameInput.setSize({300, 30});
-        infoDisplay.bottom(nameInput, 20);
-        nameInput.enableState(ml::Stateful::ENABLED);
-
-        // Add components to application
-        addComponent(startButton);
-        addComponent(quitButton);
-        addComponent(infoDisplay);
-        addComponent(nameInput);
-    }
-
-    void registerEvents() override {
-        // Start button behavior
-        startButton.onClick([this]() {
-            std::string name = nameInput.getString();
-            if (!name.empty()) {
-                infoDisplay.setString("Starting game for: " + name);
-                startButton.setFillColor(sf::Color::Blue);
-            } else {
-                infoDisplay.setString("Please enter your name first!");
-            }
-        });
-
-        // Quit button behavior
-        quitButton.onClick([this]() {
-            ml::WindowManager::getWindow().close();
-        });
-
-        // Name input behavior
-        nameInput.onKeypress([this]() {
-            std::string currentText = nameInput.getString();
-            infoDisplay.setString("Hello, " + currentText + "!");
-        });
-
-        // Hover effects
-        startButton.onHover([this]() {
-            startButton.setFillColor(sf::Color::Yellow);
-        });
-
-        startButton.onUnhover([this]() {
-            startButton.setFillColor(sf::Color::Green);
-        });
-
-        // Custom event example
-        startButton.subscribe("gameStarted", [this]() {
-            infoDisplay.setString("Game is starting...");
-        });
-
-        quitButton.onClick([this]() {
-            startButton.publish("gameStarted");
-        });
-    }
+  void registerEvents() override {
+    start.onClick([this]{
+      // Example: swap texture at runtime using the same context
+      flyer.setTexture(App::Assets::get(AssetsManifest::Images::SCREENSHOT));
+    });
+  }
 };
 
-int main() {
-    MyApplication app;
-    app.run();
-    return 0;
-}
-```
-
----
-
-## Advanced Features
-
-### In This Section:
-- [Architecture Selection](#architecture-selection)
-- [Dynamic Component Management](#dynamic-component-management)
-- [Text Manipulation Utilities](#text-manipulation-utilities)
-
-### Architecture Selection
-```cpp
-// Choose your preferred architecture
-ml::UIManager::Architecture arch = ml::UIManager::MVC; // or EDA, ECS
-ml::Application app(videoMode, title, controller, window, arch);
-```
-
-### Dynamic Component Management
-```cpp
-// Components can be dynamically allocated
-auto* button = new ml::RectangleButton();
-button->setSize({100, 50});
-app.addComponent(*button);
-// Framework handles cleanup automatically
-```
-
-### Text Manipulation Utilities
-```cpp
-#include <Malena/Utilities/TextManipulators.h>
-
-std::string wrappedText = ml::TextManipulators::wordwrap(
-    "This is a long text that needs wrapping",
-    font, 
-    fontSize, 
-    maxWidth
-);
+int main() { ContextDemo().run(); }
 ```
 
 ---
 
 ## Best Practices
 
-### In This Section:
-- [Component Lifecycle](#1-component-lifecycle)
-- [Event Management](#2-event-management)
-- [State Management](#3-state-management)
-- [Performance Tips](#4-performance-tips)
+**In this section:**  
+[Lifecycle](#lifecycle-1) · [Events](#events-1) · [Flags](#flags-1) · [Layout](#layout) · [Manifests & Context](#manifests--context)
 
-### 1. Component Lifecycle
-- Create components in `initialization()`
-- Set up events in `registerEvents()`
-- Always call `addComponent()` for components to be rendered
+### Lifecycle
+Create components in `initialization()`, wire events in `registerEvents()`, and always `addComponent(...)` for things you want updated/drawn.
 
-### 2. Event Management
-- Use lambda captures carefully to avoid memory issues
-- Unsubscribe from events when components are destroyed
-- Prefer custom events for complex component communication
+### Events
+Prefer component helpers (`onClick`, `onHover`, `onUpdate`) over polling; use custom channels for decoupled logic.
 
-### 3. State Management
-- Check component states before performing operations
-- Use `onUpdate()` for continuous state-dependent behavior
-- Enable/disable states as needed for user interaction
+### Flags
+Many flags are updated automatically (e.g., `HOVERED`, `FOCUSED`). Check them in `onUpdate` for continuous behaviors.
 
-### 4. Performance Tips
-- Minimize work in `onUpdate()` callbacks
-- Use event-driven patterns instead of polling
-- Consider component visibility states for optimization
+### Layout
+Use `bottom`, `right`, `center`, `xCenter`, `yCenter`, and `centerText` to simplify placement.
+
+### Manifests & Context
+- **Manifests must inherit `ml::Manifest`.**
+- Register filepaths/config via `set(...)`.
+- Use a single `Context<YourManifest>` alias (`App`) across your app for clean, typed access to assets and config.
 
 ---
 
-## Texture Management
+## License
 
-### In This Section:
-- [TextureManager Overview](#texturemanager-overview)
-- [Creating a Texture Manifest](#creating-a-texture-manifest)
-- [Manifest Requirements](#manifest-requirements)
-- [Using TextureManager](#using-texturemanager)
-- [Advanced Usage](#advanced-usage)
-- [Memory Management](#memory-management)
-- [Complete Texture Example](#complete-texture-example)
-- [Error Handling](#error-handling)
-- [TextureManager Benefits](#texturemanager-benefits)
+**In this section:**  
+[MIT License](#mit-license)
 
-Malena provides a sophisticated template-based texture management system that uses a manifest pattern for efficient texture loading, caching, and memory management.
-
-### TextureManager Overview
-
-The `TextureManager` is a template class that works with user-defined manifest classes to manage textures. It provides automatic caching, lazy loading, and type-safe texture access.
-
-#### Key Features
-- **Template-based**: Works with any user-defined manifest class
-- **Automatic Caching**: Textures are loaded once and cached
-- **Lazy Loading**: Textures are only loaded when first requested
-- **Type Safety**: Uses enums to prevent invalid texture access
-- **Memory Management**: Provides texture unloading capabilities
-
-### Creating a Texture Manifest
-
-To use the TextureManager, you need to create a manifest class:
-
-```cpp
-#include <Malena/Managers/TextureManager.h>
-
-class GameTextures {
-public:
-    enum class Image {
-        PLAYER_SPRITE,
-        ENEMY_SPRITE,
-        BACKGROUND,
-        BUTTON_NORMAL,
-        BUTTON_HOVER,
-        EXPLOSION
-    };
-
-    static std::string getFilepath(Image image) {
-        switch (image) {
-            case Image::PLAYER_SPRITE: return "assets/player.png";
-            case Image::ENEMY_SPRITE:  return "assets/enemy.png";
-            case Image::BACKGROUND:    return "assets/background.jpg";
-            case Image::BUTTON_NORMAL: return "assets/button_normal.png";
-            case Image::BUTTON_HOVER:  return "assets/button_hover.png";
-            case Image::EXPLOSION:     return "assets/explosion.png";
-            default: return "";
-        }
-    }
-};
-
-// Create type alias for convenience
-using TextureManager = ml::TextureManager<GameTextures>;
-```
-
-### Manifest Requirements
-
-Your manifest class must provide:
-
-1. **Image enum**: A nested enum or enum class defining texture identifiers
-2. **getFilepath() method**: A static method returning the file path for each texture
-
-```cpp
-class MyManifest {
-public:
-    enum class Image {
-        TEXTURE1,
-        TEXTURE2
-        // ... more textures
-    };
-
-    static std::string getFilepath(Image image) {
-        // Return file path based on image enum
-    }
-};
-```
-
-### Using TextureManager
-
-#### Basic Texture Loading
-```cpp
-// Get texture (automatically loads and caches)
-const sf::Texture& playerTexture = TextureManager::getTexture(GameTextures::Image::PLAYER_SPRITE);
-
-// Use with SFML sprite
-sf::Sprite playerSprite;
-playerSprite.setTexture(playerTexture);
-```
-
-#### With Malena Sprite Component
-```cpp
-// Create sprite component
-ml::Sprite playerSprite;
-
-// Set texture from TextureManager
-const sf::Texture& texture = TextureManager::getTexture(GameTextures::Image::PLAYER_SPRITE);
-playerSprite.setTexture(texture);
-
-// Position and add to application
-playerSprite.setPosition({100, 100});
-app.addComponent(playerSprite);
-```
-
-#### Button Texture Example
-```cpp
-// Create button with different textures for states
-ml::RectangleButton button;
-
-// Set normal texture
-const sf::Texture& normalTex = TextureManager::getTexture(GameTextures::Image::BUTTON_NORMAL);
-button.setTexture(&normalTex);
-
-// Handle hover state with different texture
-button.onHover([&button]() {
-    const sf::Texture& hoverTex = TextureManager::getTexture(GameTextures::Image::BUTTON_HOVER);
-    button.setTexture(&hoverTex);
-});
-
-button.onUnhover([&button]() {
-    const sf::Texture& normalTex = TextureManager::getTexture(GameTextures::Image::BUTTON_NORMAL);
-    button.setTexture(&normalTex);
-});
-```
-
-### Advanced Usage
-
-#### Multiple Texture Manifests
-```cpp
-// Game textures
-class GameTextures {
-public:
-    enum class Image { PLAYER, ENEMY };
-    static std::string getFilepath(Image image) { /* ... */ }
-};
-
-// UI textures  
-class UITextures {
-public:
-    enum class Image { BUTTON, PANEL, ICON };
-    static std::string getFilepath(Image image) { /* ... */ }
-};
-
-// Create separate managers
-using GameTextureManager = ml::TextureManager<GameTextures>;
-using UITextureManager = ml::TextureManager<UITextures>;
-
-// Use them independently
-const sf::Texture& playerTex = GameTextureManager::getTexture(GameTextures::Image::PLAYER);
-const sf::Texture& buttonTex = UITextureManager::getTexture(UITextures::Image::BUTTON);
-```
-
-#### Resource Path Management
-```cpp
-class ResourceManager {
-private:
-    static inline std::string basePath = "assets/";
-    
-public:
-    enum class Image {
-        PLAYER,
-        BACKGROUND
-    };
-
-    static void setBasePath(const std::string& path) {
-        basePath = path;
-    }
-
-    static std::string getFilepath(Image image) {
-        switch (image) {
-            case Image::PLAYER: 
-                return basePath + "sprites/player.png";
-            case Image::BACKGROUND: 
-                return basePath + "backgrounds/main.jpg";
-            default: 
-                return "";
-        }
-    }
-};
-
-// Set base path at startup
-ResourceManager::setBasePath("data/textures/");
-```
-
-### Memory Management
-
-#### Texture Unloading
-```cpp
-// Unload specific texture from cache
-TextureManager::unloadTexture(GameTextures::Image::EXPLOSION);
-
-// Note: Be careful not to unload textures still in use by sprites
-```
-
-#### Best Practices for Memory Management
-
-```cpp
-class TextureLifecycleManager {
-private:
-    std::vector<sf::Sprite*> activeSprites;
-
-public:
-    void loadLevelTextures() {
-        // Preload textures for current level
-        TextureManager::getTexture(GameTextures::Image::BACKGROUND);
-        TextureManager::getTexture(GameTextures::Image::PLAYER_SPRITE);
-    }
-
-    void unloadLevelTextures() {
-        // Clear sprites first
-        activeSprites.clear();
-        
-        // Then unload textures
-        TextureManager::unloadTexture(GameTextures::Image::BACKGROUND);
-        TextureManager::unloadTexture(GameTextures::Image::PLAYER_SPRITE);
-    }
-
-    void addSprite(sf::Sprite* sprite) {
-        activeSprites.push_back(sprite);
-    }
-};
-```
-
-### Complete Texture Example
-
-```cpp
-#include <Malena/Application/Application.h>
-#include <Malena/Graphics/Sprite.h>
-#include <Malena/Graphics/RectangleButton.h>
-#include <Malena/Managers/TextureManager.h>
-
-// Define texture manifest
-class GameAssets {
-public:
-    enum class Image {
-        PLAYER,
-        BACKGROUND,
-        BUTTON_NORMAL,
-        BUTTON_PRESSED
-    };
-
-    static std::string getFilepath(Image image) {
-        switch (image) {
-            case Image::PLAYER: return "assets/player.png";
-            case Image::BACKGROUND: return "assets/background.jpg";
-            case Image::BUTTON_NORMAL: return "assets/btn_normal.png";
-            case Image::BUTTON_PRESSED: return "assets/btn_pressed.png";
-            default: return "";
-        }
-    }
-};
-
-using AssetManager = ml::TextureManager<GameAssets>;
-
-class TexturedApplication : public ml::Application {
-private:
-    ml::Sprite background;
-    ml::Sprite player;
-    ml::RectangleButton actionButton;
-
-public:
-    TexturedApplication() : Application(1024, 768, 32, "Textured App") {}
-
-    void initialization() override {
-        // Setup background
-        const sf::Texture& bgTexture = AssetManager::getTexture(GameAssets::Image::BACKGROUND);
-        background.setTexture(bgTexture);
-        background.setPosition({0, 0});
-
-        // Setup player sprite
-        const sf::Texture& playerTexture = AssetManager::getTexture(GameAssets::Image::PLAYER);
-        player.setTexture(playerTexture);
-        player.setPosition({400, 300});
-
-        // Setup textured button
-        const sf::Texture& btnTexture = AssetManager::getTexture(GameAssets::Image::BUTTON_NORMAL);
-        actionButton.setTexture(&btnTexture);
-        actionButton.setPosition({100, 100});
-        actionButton.setSize({200, 60});
-        actionButton.setString("Action");
-
-        // Add components
-        addComponent(background);
-        addComponent(player);
-        addComponent(actionButton);
-    }
-
-    void registerEvents() override {
-        // Button press effect with texture change
-        actionButton.onClick([this]() {
-            const sf::Texture& pressedTex = AssetManager::getTexture(GameAssets::Image::BUTTON_PRESSED);
-            actionButton.setTexture(&pressedTex);
-        });
-
-        // Reset button texture on release
-        actionButton.onUnhover([this]() {
-            const sf::Texture& normalTex = AssetManager::getTexture(GameAssets::Image::BUTTON_NORMAL);
-            actionButton.setTexture(&normalTex);
-        });
-
-        // Move player with arrow keys
-        actionButton.onKeypress([this](const std::optional<sf::Event>& event) {
-            if (event && event->type == sf::Event::KeyPressed) {
-                sf::Vector2f pos = player.getPosition();
-                switch (event->key.code) {
-                    case sf::Keyboard::Left:  pos.x -= 10; break;
-                    case sf::Keyboard::Right: pos.x += 10; break;
-                    case sf::Keyboard::Up:    pos.y -= 10; break;
-                    case sf::Keyboard::Down:  pos.y += 10; break;
-                    default: break;
-                }
-                player.setPosition(pos);
-            }
-        });
-    }
-};
-
-int main() {
-    try {
-        TexturedApplication app;
-        app.run();
-    } catch (const std::runtime_error& e) {
-        std::cerr << "Texture loading error: " << e.what() << std::endl;
-        return -1;
-    }
-    return 0;
-}
-```
-
-### Error Handling
-
-The TextureManager throws `std::runtime_error` if texture loading fails:
-
-```cpp
-try {
-    const sf::Texture& texture = TextureManager::getTexture(GameAssets::Image::PLAYER);
-    // Use texture...
-} catch (const std::runtime_error& e) {
-    std::cerr << "Failed to load texture: " << e.what() << std::endl;
-    // Handle error (use default texture, show error message, etc.)
-}
-```
-
-### TextureManager Benefits
-
-1. **Performance**: Automatic caching prevents duplicate texture loading
-2. **Memory Efficiency**: Textures are shared across multiple sprites
-3. **Type Safety**: Enum-based access prevents typos and invalid texture requests
-4. **Organization**: Centralized texture management keeps assets organized
-5. **Flexibility**: Template design allows multiple texture managers for different asset types
-
----
-
-## Framework Architecture Patterns
-
-### In This Section:
-- [MVC (Model-View-Controller)](#mvc-model-view-controller---default)
-- [EDA (Event-Driven Architecture)](#eda-event-driven-architecture)
-- [ECS (Entity-Component-System)](#ecs-entity-component-system)
-
-### MVC (Model-View-Controller) - Default
-- **Model**: Your data structures
-- **View**: UI Components
-- **Controller**: Application class handling logic
-
-### EDA (Event-Driven Architecture)
-- Components communicate primarily through events
-- Loose coupling between components
-- Ideal for complex interactive applications
-
-### ECS (Entity-Component-System)
-- Entity-based architecture for game development
-- Components as data containers
-- Systems process component data
-
-Choose the pattern that best fits your application's complexity and requirements.
-
----
-
-## Supporting the Project
-
-### In This Section:
-- [Why Support Malena?](#why-support-malena)
-- [Ways to Support](#ways-to-support)
-- [Sponsorship Tiers](#sponsorship-tiers)
-- [Corporate Sponsorship](#corporate-sponsorship)
-- [Recognition](#recognition)
-- [How Donations Are Used](#how-donations-are-used)
-- [Transparency](#transparency)
-
-Malena is an open-source project developed and maintained by passionate developers who dedicate their time and effort to creating and improving this framework. If you find Malena useful for your projects, consider supporting the development team.
-
-### Why Support Malena?
-
-- **Continued Development**: Your support helps ensure ongoing development, bug fixes, and new features
-- **Documentation & Examples**: Funding helps create better documentation, tutorials, and example projects
-- **Community Support**: Resources for maintaining community forums, Discord servers, and user support
-- **Infrastructure**: Costs for hosting documentation, CI/CD, and development tools
-- **Framework Evolution**: Support enables research into new features and architectural improvements
-
-### Ways to Support
-
-#### 💰 Financial Support
-
-**GitHub Sponsors** (Recommended)
-- Visit the [Malena GitHub repository](https://github.com/daversmith/Malena)
-- Click the "Sponsor" button to support via GitHub Sponsors
-- Choose from various sponsorship tiers with different benefits
-
-**PayPal Donations**
-- One-time or recurring donations welcome
-- Visit the project's PayPal donation page (link in repository)
-
-**Buy the Developers Coffee** ☕
-- Small donations to show appreciation
-- Every contribution helps, no matter the size
-
-#### 🤝 Non-Financial Support
-
-**Contribute Code**
-```bash
-# Fork the repository
-git clone https://github.com/YOUR_USERNAME/Malena.git
-cd Malena
-
-# Create a feature branch
-git checkout -b feature/amazing-feature
-
-# Make your changes and commit
-git commit -m "Add amazing feature"
-
-# Push and create a pull request
-git push origin feature/amazing-feature
-```
-
-**Report Issues & Bugs**
-- Use the [GitHub Issues](https://github.com/daversmith/Malena/issues) page
-- Provide detailed bug reports with code examples
-- Suggest new features and improvements
-
-**Improve Documentation**
-- Fix typos and unclear explanations
-- Add examples and tutorials
-- Translate documentation to other languages
-
-**Community Support**
-- Help other users on forums and Discord
-- Share your Malena projects and experiences
-- Write blog posts or create video tutorials
-
-### Sponsorship Tiers
-
-#### 🥉 Bronze Supporter ($5/month)
-- Recognition in project README
-- Early access to release notes
-- Supporter badge in community forums
-
-#### 🥈 Silver Supporter ($15/month)
-- All Bronze benefits
-- Direct email support for framework questions
-- Input on roadmap priorities
-- Name listed in documentation credits
-
-#### 🥇 Gold Supporter ($50/month)
-- All Silver benefits
-- Monthly video call with development team
-- Custom feature request consideration
-- Logo placement in documentation
-
-#### 💎 Platinum Supporter ($100+/month)
-- All Gold benefits
-- Priority support and bug fixes
-- Consultation on architectural decisions
-- Custom integrations and enterprise features
-
-### Corporate Sponsorship
-
-If your company uses Malena in commercial projects, consider corporate sponsorship:
-
-- **Startup Package** ($250/month): Basic support and recognition
-- **Business Package** ($500/month): Priority support, custom features
-- **Enterprise Package** ($1000+/month): Dedicated support, SLA agreements
-
-### Recognition
-
-All supporters are recognized in various ways:
-
-#### GitHub Sponsors
-- Automatic recognition in repository sponsors section
-- Sponsor badges on GitHub profile
-
-#### Documentation Credits
-- Names listed in framework documentation
-- Company logos for corporate sponsors
-
-#### Release Notes
-- Sponsor shout-outs in major release announcements
-- Special thanks in changelog
-
-### How Donations Are Used
-
-**Development (60%)**
-- Framework improvements and new features
-- Bug fixes and security updates
-- Performance optimizations
-
-**Documentation (20%)**
-- Writing comprehensive guides
-- Creating video tutorials
-- Maintaining example projects
-
-**Infrastructure (15%)**
-- GitHub Actions CI/CD
-- Documentation hosting
-- Development tools and licenses
-
-**Community (5%)**
-- Discord/forum moderation
-- Community events and contests
-- User support
-
-### Transparency
-
-The Malena development team believes in transparency:
-
-- **Monthly Reports**: Regular updates on how donations are used
-- **Public Roadmap**: Open development roadmap based on community input
-- **Financial Transparency**: Annual reports on project funding and expenses
-
-### Start Supporting Today
-
-1. **Visit**: [https://github.com/daversmith/Malena](https://github.com/daversmith/Malena)
-2. **Click**: The "Sponsor" button
-3. **Choose**: Your preferred support method and amount
-4. **Join**: The community of Malena supporters
-
-### Thank You
-
-A huge thank you to all current and future supporters! Your contributions make Malena possible and help it grow into an even better framework for the C++ community.
-
-**Current Major Sponsors:**
-- Your name could be here! ✨
-
-**Special Thanks To:**
-- All GitHub star contributors
-- Bug reporters and feature requesters
-- Community members who help others
-- Everyone who spreads the word about Malena
-
----
-
-*"Building great software is a team effort. Thank you for being part of the Malena team!"*
-
-*- The Malena Development Team*
+### MIT License
+MIT. See `LICENSE.md`.
