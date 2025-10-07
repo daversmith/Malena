@@ -1,7 +1,5 @@
 # Malena Framework – README
 
-This README reflects the `master` branch layout and public headers in `include/Malena/*`, aligns with your examples, and follows the installation style used on the GitHub page. It also adds **“In this section”** mini-TOCs to *every* section, fixes the Manifest pattern, and includes a full **Context** guide showing one manifest + one context used across an entire app.
-
 - [Overview](#overview)
 - [Requirements](#requirements)
 - [Installation](#installation)
