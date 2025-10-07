@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "../Managers/FontManager.h"
-#include "Shape.h"
+#include <Malena/Managers/FontManager.h>
+#include <Malena/Graphics/Shape.h>
+#include <Malena/Interfaces/With.h>
 
 namespace ml
 {

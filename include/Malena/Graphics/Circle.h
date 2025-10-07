@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Shape.h"
+#include <Malena/Graphics/Shape.h>
+#include <Malena/Interfaces/With.h>
 
 namespace ml
 {

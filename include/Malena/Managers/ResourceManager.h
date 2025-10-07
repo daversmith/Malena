@@ -23,5 +23,5 @@ namespace ml
     };
 
 }
-#include "../../../src/Managers/ResourceManager.cpp"
+#include "../../../src/Managers/ResourceManager.tpp"
 #endif //RESOURCEMANAGER_H

@@ -1,5 +1,5 @@
 
-#include "VertexArray.h"
+#include <Malena/Graphics/VertexArray.h>
 
 namespace ml
 {

@@ -69,6 +69,6 @@ namespace ml {
 
 } // namespace ml
 
-#include "../../../src/Managers/StateManager.cpp"
+#include "../../../src/Managers/StateManager.tpp"
 
 #endif // STATEMANAGER_H

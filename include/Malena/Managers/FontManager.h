@@ -16,5 +16,5 @@ class FontManager : public ResourceManager<Manifest, sf::Font, &fileOpener>
 		static const sf::Font& getDefault();
 	};
 }
-#include "../../../src/Managers/FontManager.cpp"
+#include "../../../src/Managers/FontManager.tpp"
 #endif

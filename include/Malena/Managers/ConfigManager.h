@@ -56,6 +56,6 @@ namespace ml {
     };
 }
 
-#include "../../../src/Managers/ConfigManager.cpp"
+#include "../../../src/Managers/ConfigManager.tpp"
 
 #endif //CONFIGMANAGER_H

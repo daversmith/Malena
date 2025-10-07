@@ -42,5 +42,5 @@ namespace ml {
 
 
 } // ml
-#include "../../../src/Traits/CustomFlaggable.cpp"
+#include "../../../src/Traits/CustomFlaggable.tpp"
 #endif //CUSTOMSTATEFUL_H
