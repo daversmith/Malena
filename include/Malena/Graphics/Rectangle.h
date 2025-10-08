@@ -5,8 +5,8 @@
 #pragma once
 
 
-#include "Shape.h"
-
+#include <Malena/Graphics/Shape.h>
+#include <Malena/Traits/Customizable.h>
 namespace ml
 {
 
