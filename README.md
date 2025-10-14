@@ -102,15 +102,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
 ### FetchContent (alternative)
 
 ```cmake
+cmake_minimum_required(VERSION 3.14)
+project(MyMalenaProject)
+
 include(FetchContent)
 FetchContent_Declare(
-  malena
-  GIT_REPOSITORY https://github.com/daversmith/Malena.git
-  # GIT_TAG <pin-a-tag-when-releasing>
+        malena
+        GIT_REPOSITORY https://github.com/daversmith/Malena.git
+        GIT_TAG "v0.3.4"
 )
 FetchContent_MakeAvailable(malena)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+        main.cpp
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
 ```
 
