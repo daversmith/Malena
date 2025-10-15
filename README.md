@@ -545,19 +545,7 @@ Use `bottom`, `right`, `center`, `xCenter`, `yCenter`, and `centerText` to simpl
 This page embeds the Malena tutorials playlist. If your Markdown renderer supports HTML, the playlist will display below. Otherwise, use the direct link.
 
 **Watch on YouTube:** https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0
-
-<!-- HTML embed (works in many Markdown renderers that allow HTML, such as Canvas pages) -->
-<div align="center">
-  <iframe
-    width="560"
-    height="315"
-    src="https://www.youtube.com/embed/videoseries?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0"
-    title="YouTube playlist player"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowfullscreen>
-  </iframe>
-</div>
+[![Watch the Malena Playlist](https://img.shields.io/badge/Watch%20Playlist-YouTube-red?logo=youtube)](https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0)
 
 ## License
 
