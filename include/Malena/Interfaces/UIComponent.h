@@ -15,6 +15,7 @@
 #include "../Utilities/MouseEvents.h"
 #include "Component.h"
 #include "Updateable.h"
+#include "Malena/Traits/Draggable.h"
 #include "Malena/Traits/Flaggable.h"
 
 namespace ml
@@ -25,7 +26,8 @@ namespace ml
                             public Messenger,
                             public Component,
                             public Flaggable,
-                            public Positionable
+                            public Positionable,
+                            public Draggable
         {
             /**
          * @brief Override if Custom UIComponent consists of multiple UIComponents
@@ -42,7 +44,7 @@ namespace ml
 
         public:
             explicit UIComponent(sf::RenderWindow &window = WindowManager::getWindow());
-            [[nodiscard]] virtual sf::FloatRect getGlobalBounds() const = 0;
+            [[nodiscard]] virtual sf::FloatRect getGlobalBounds() const;
             virtual ~UIComponent();
             void *operator new(size_t size)
             {

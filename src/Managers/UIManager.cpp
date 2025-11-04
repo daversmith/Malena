@@ -127,5 +127,7 @@ namespace ml
 		{
 			EventsManager::fire("keypress", nullptr, nullptr, event);
 		}
+
+		EventsManager::fire("draggable", nullptr, nullptr, event);
 	}
 } // namespace ml

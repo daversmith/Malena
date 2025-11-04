@@ -12,6 +12,15 @@ namespace ml
     {
         onClick([]() {});
         onHover([]() {});
+        subscribe("draggable", [this](const std::optional<sf::Event>& event)
+        {
+            if (checkFlag(Flag::DRAGGABLE))
+                this->handleDragEvent(event);
+        });
+    }
+
+    sf::FloatRect UIComponent::getGlobalBounds() const
+    {
     }
 
     UIComponent::~UIComponent()
