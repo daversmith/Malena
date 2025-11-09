@@ -19,11 +19,6 @@ namespace ml
         });
     }
 
-    sf::FloatRect UIComponent::getGlobalBounds() const
-    {
-        return sf::FloatRect();
-    }
-
     UIComponent::~UIComponent()
     {
         unsubscribeAll();
