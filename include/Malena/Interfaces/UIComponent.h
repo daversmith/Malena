@@ -44,7 +44,6 @@ namespace ml
 
         public:
             explicit UIComponent(sf::RenderWindow &window = WindowManager::getWindow());
-            [[nodiscard]] virtual sf::FloatRect getGlobalBounds() const;
             virtual ~UIComponent();
             void *operator new(size_t size)
             {
