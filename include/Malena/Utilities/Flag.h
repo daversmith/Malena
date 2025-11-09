@@ -14,6 +14,7 @@ namespace ml
         BLINKING,
         FOCUSED,
         ENABLED,
+        DRAGGABLE,
         //// do not add states below
         LAST_STATE
     };

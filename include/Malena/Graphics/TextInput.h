@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Cursor.h"
+#include "Sprite.h"
 #include "Typer.h"
 
 namespace ml
@@ -14,7 +15,6 @@ namespace ml
 
 		ml::Typer typer;
 		ml::Cursor cursor;
-
 	protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 

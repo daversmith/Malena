@@ -13,6 +13,7 @@
 - [Manifest System (Accurate Pattern)](#manifest-system-accurate-pattern)
 - [Using a Single Context Across Your App](#using-a-single-context-across-your-app)
 - [Best Practices](#best-practices)
+- [Video Tutorials](#malena-tutorials-playlist)
 - [License](#license)
 
 ---
@@ -541,8 +542,6 @@ Use `bottom`, `right`, `center`, `xCenter`, `yCenter`, and `centerText` to simpl
 
 ---
 # Malena Tutorials Playlist
-
-This page embeds the Malena tutorials playlist. If your Markdown renderer supports HTML, the playlist will display below. Otherwise, use the direct link.
 
 **Watch on YouTube:** https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0
 [![Watch the Malena Playlist](https://img.shields.io/badge/Watch%20Playlist-YouTube-red?logo=youtube)](https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0)
