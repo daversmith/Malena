@@ -60,6 +60,12 @@ namespace ml
 
 	void UIManager::fireInputEvents(const std::optional<sf::Event> &event)
 	{
+		if (event->is<sf::Event::MouseButtonPressed>() ||
+		event->is<sf::Event::MouseButtonReleased>() ||
+		event->is<sf::Event::MouseMoved>())
+		{
+			EventsManager::fire("draggable", nullptr, nullptr, event);
+		}
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
 			EventsManager::fire(
@@ -127,7 +133,5 @@ namespace ml
 		{
 			EventsManager::fire("keypress", nullptr, nullptr, event);
 		}
-
-		EventsManager::fire("draggable", nullptr, nullptr, event);
 	}
 } // namespace ml

@@ -7,10 +7,13 @@
 
 #include <Malena/Graphics/Shape.h>
 #include <Malena/Traits/Customizable.h>
+
+#include "RoundedRectangle.h"
+
 namespace ml
 {
 
-	class Rectangle: public virtual Shape<sf::RectangleShape>
+	class Rectangle: public virtual Shape<ml::RoundedRectangle>
 	{
 		using Shape::Shape;
 	};

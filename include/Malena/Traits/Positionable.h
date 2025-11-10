@@ -75,17 +75,39 @@ namespace ml
 
 		void centerText(sf::Text &obj);
 
+		// template<class T>
+		// static void centerText(const T &obj, sf::Text &text)
+		// {
+		// 	sf::FloatRect textRect = text.getGlobalBounds();
+		// 	sf::FloatRect tRect = obj.getGlobalBounds();
+		// 	sf::Vector2f center = {textRect.size.x / 2.0f, textRect.size.y / 2.f};
+		// 	sf::Vector2f localBounds = {center.x + text.getLocalBounds().position.x,
+		// 								center.y + text.getLocalBounds().position.y};
+		// 	sf::Vector2f rounded = {std::round(localBounds.x), std::round(localBounds.y)};
+		// 	text.setOrigin(rounded);
+		// 	text.setPosition({tRect.position.x + tRect.size.x / 2, tRect.position.y + tRect.size.y / 2});
+		// }
+
 		template<class T>
-		static void centerText(const T &obj, sf::Text &text)
+static void centerText(const T &obj, sf::Text &text)
 		{
-			sf::FloatRect textRect = text.getGlobalBounds();
-			sf::FloatRect tRect = obj.getGlobalBounds();
-			sf::Vector2f center = {textRect.size.x / 2.0f, textRect.size.y / 2.f};
-			sf::Vector2f localBounds = {center.x + text.getLocalBounds().position.x,
-										center.y + text.getLocalBounds().position.y};
-			sf::Vector2f rounded = {std::round(localBounds.x), std::round(localBounds.y)};
-			text.setOrigin(rounded);
-			text.setPosition({tRect.position.x + tRect.size.x / 2, tRect.position.y + tRect.size.y / 2});
+			// Get the LOCAL bounds of the text (unaffected by transformations)
+			sf::FloatRect textLocalBounds = text.getLocalBounds();
+
+			// Set the origin to the LOCAL center of the text
+			text.setOrigin({
+				textLocalBounds.position.x + textLocalBounds.size.x / 2.0f,
+				textLocalBounds.position.y + textLocalBounds.size.y / 2.0f
+			});
+
+			// Get the GLOBAL bounds of the shape (includes transformations)
+			sf::FloatRect shapeGlobalBounds = obj.getGlobalBounds();
+
+			// Position text at the global center of the shape
+			text.setPosition({
+				shapeGlobalBounds.position.x + shapeGlobalBounds.size.x / 2.0f,
+				shapeGlobalBounds.position.y + shapeGlobalBounds.size.y / 2.0f
+			});
 		}
 
 		template<class T, class S>

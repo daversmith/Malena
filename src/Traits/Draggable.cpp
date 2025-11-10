@@ -5,10 +5,6 @@
 #include <Malena/Traits/Draggable.h>
 namespace ml
 {
-    bool Draggable::getIsDragging() const
-    {
-        return isDragging;
-    }
 
     void Draggable::handleDragEvent(const std::optional<sf::Event>& event)
     {
