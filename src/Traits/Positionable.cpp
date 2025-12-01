@@ -89,7 +89,7 @@ namespace ml
 
 	bool Positionable::error(sf::Vector2f a, sf::Vector2f b, float err)
 	{
-		return abs((int) a.x - b.x) <= err && abs((int) a.y - b.y) <= err;
+		return abs( a.x - b.x) <= err && abs(a.y - b.y) <= err;
 	}
 
 	void Positionable::moveTo(sf::FloatRect position, float seconds)

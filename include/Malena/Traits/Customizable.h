@@ -58,9 +58,9 @@ namespace ml
 		}
 
 		// State methods - wrapper instead of using declaration
-		template<typename T = typename extract_State<Manifest>::type>
+		template<typename T = typename extract_Flags<Manifest>::type>
 		void setFlag(T flag, bool value) {
-			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::setFlagFlag(flag, value);
+			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::setFlag(flag, value);
 		}
 
 		template<typename T = typename extract_Flags<Manifest>::type>

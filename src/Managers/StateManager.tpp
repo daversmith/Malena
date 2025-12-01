@@ -14,7 +14,7 @@ namespace ml {
 
     template<typename StateEnum>
     StateManager<StateEnum>::StateManager()
-        : _currentState(0) {}
+        : _currentState(StateEnum{}) {}
 
     template<typename StateEnum>
     template<typename T>
