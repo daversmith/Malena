@@ -9,14 +9,13 @@
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
-#include "../Managers/WindowManager.h"
-#include "../Traits/Messenger.h"
-#include "../Traits/Positionable.h"
-#include "../Utilities/MouseEvents.h"
+#include <Malena/Managers/WindowManager.h>
+#include <Malena/Traits/Messenger.h>
+#include <Malena/Traits/Positionable.h>
+#include <Malena/Utilities/MouseEvents.h>
 #include "Component.h"
-#include "Updateable.h"
-#include "Malena/Traits/Draggable.h"
-#include "Malena/Traits/Flaggable.h"
+#include <Malena/Traits/Draggable.h>
+#include <Malena/Traits/Flaggable.h>
 
 namespace ml
     {

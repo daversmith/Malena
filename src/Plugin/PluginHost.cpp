@@ -53,15 +53,15 @@ namespace ml
 	}
 
 	void PluginHost::unloadPlugin(Plugin* plugin) {
-	    auto it = std::find_if(_plugins.begin(), _plugins.end(),
-	        [plugin](const PluginData& pd) { return pd.plugin == plugin; });
-
-	    if (it != _plugins.end()) {
-	        it->plugin->onUnload();
-	        delete it->plugin;
-	        CLOSE_LIB(it->handle);
-	        _plugins.erase(it);
-	    }
+		for (auto it = _plugins.begin(); it != _plugins.end(); ++it) {
+			if (it->plugin == plugin) {
+				it->plugin->onUnload();
+				delete it->plugin;
+				CLOSE_LIB(it->handle);
+				_plugins.erase(it);
+				return;
+			}
+		}
 	}
 
 	std::vector<std::string> PluginHost::getFilesInDirectory(const std::string& directory,
