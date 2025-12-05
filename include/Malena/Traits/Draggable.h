@@ -23,13 +23,10 @@ namespace ml {
     private:
         bool isDragging = false;
         sf::Vector2f dragOffset;
-
+        void handleDragEvent(const std::optional<sf::Event>& event);
     public:
         virtual ~Draggable() = default;
-
-        [[nodiscard]] bool getIsDragging() const;
-
-        void handleDragEvent(const std::optional<sf::Event>& event);
+        friend class UIComponent;
     };
 
 } // namespace ml
