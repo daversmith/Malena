@@ -20,28 +20,28 @@ namespace ml {
     std::enable_if_t<!std::is_void_v<T>>
     CustomFlaggable<CustomStateEnum>::enableFlag(T state)
     {
-        _custom_states.at(state)= true;
+        _custom_states[state] = true;
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
     CustomFlaggable<CustomStateEnum>::disableFlag(T state)
     {
-        _custom_states.at(state) = false;
+        _custom_states[state] = false;
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
     CustomFlaggable<CustomStateEnum>::toggleFlag(T state)
     {
-        _custom_states.at(state) = !_custom_states.at(state);
+        _custom_states[state] = !_custom_states[state];
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
     CustomFlaggable<CustomStateEnum>::setFlag(T state, bool status)
     {
-        _custom_states.at(state) = status;
+        _custom_states[state] = status;
     }
 } // ml
 #endif
