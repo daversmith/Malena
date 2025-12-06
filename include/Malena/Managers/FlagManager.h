@@ -36,6 +36,6 @@ namespace ml
 	};
 
 } // namespace ml
-#include "../../../src/Traits/FlagManager.tpp"
+#include "../src/Managers/FlagManager.tpp"
 
 #endif // FLAGGABLE_H
