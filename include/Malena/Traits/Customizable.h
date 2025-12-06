@@ -35,7 +35,11 @@ namespace ml
 	{
 	public:
 
-		using Component::Component;
+		template<typename... Args>
+	    Customizable(Args&&... args)
+		: Component(std::forward<Args>(args)...)
+			{}
+		// using Component::Component;
 		// Bring both enableFlag overloads into scope
 		// using Component::enableFlag;
 		// using Component::disableFlag;
