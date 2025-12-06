@@ -37,11 +37,11 @@ namespace ml
 
 		using Component::Component;
 		// Bring both enableFlag overloads into scope
-		using Component::enableFlag;
-		using Component::disableFlag;
-		using Component::setFlag;
-		using Component::toggleFlag;
-		using Component::checkFlag;
+		// using Component::enableFlag;
+		// using Component::disableFlag;
+		// using Component::setFlag;
+		// using Component::toggleFlag;
+		// using Component::checkFlag;
 
 		template<typename T = typename extract_Flags<Manifest>::type>
 		void enableFlag(T flag) {
