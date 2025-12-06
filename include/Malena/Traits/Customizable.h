@@ -35,7 +35,7 @@ namespace ml
 	{
 	public:
 
-		Customizable() : Component() {}
+		Customizable() = default;
 
 		// Forwarding constructor with SFINAE to avoid ambiguity
 		template<typename Arg, typename... Args,
