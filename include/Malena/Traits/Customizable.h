@@ -35,10 +35,14 @@ namespace ml
 	{
 	public:
 
-		template<typename... Args>
-	    Customizable(Args&&... args)
-		: Component(std::forward<Args>(args)...)
-			{}
+		Customizable() : Component() {}
+
+		// Forwarding constructor with SFINAE to avoid ambiguity
+		template<typename Arg, typename... Args,
+			 typename = std::enable_if_t<!std::is_same_v<std::decay_t<Arg>, Customizable>>>
+		explicit Customizable(Arg&& arg, Args&&... args)
+		    : Component(std::forward<Arg>(arg), std::forward<Args>(args)...)
+		{}
 		// using Component::Component;
 		// Bring both enableFlag overloads into scope
 		// using Component::enableFlag;
