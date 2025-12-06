@@ -16,6 +16,21 @@ namespace ml {
 		virtual const char* getVersion() const { return "1.0"; }
 		virtual void onLoad() {}
 		virtual void onUnload() {}
+		// Plugin.h
+		template<typename T>
+		bool is() const {
+			return dynamic_cast<const T*>(this) != nullptr;
+		}
+
+		template<typename T>
+		T* getIf() {  // Returns nullptr if not this type
+			return dynamic_cast<T*>(this);
+		}
+
+		template<typename T>
+		const T* getIf() const {
+			return dynamic_cast<const T*>(this);
+		}
 	};
 
 } // namespace ml
