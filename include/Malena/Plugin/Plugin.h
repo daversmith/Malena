@@ -1,12 +1,14 @@
 // Plugin.h
 #pragma once
-
+#ifndef MALENA_PLUGIN_H
+#define MALENA_PLUGIN_H
 #ifdef _WIN32
 	#define PLUGIN_EXPORT __declspec(dllexport)
 #else
 	#define PLUGIN_EXPORT
 #endif
 
+#include <Malena/Traits/Messenger.h>
 namespace ml {
 
 	class Plugin : public Messenger
@@ -45,3 +47,5 @@ PLUGIN_EXPORT void destroyPlugin(ml::Plugin* plugin) { \
 delete plugin; \
 } \
 }
+
+#endif
