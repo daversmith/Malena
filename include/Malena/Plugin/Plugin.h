@@ -1,7 +1,7 @@
 // Plugin.h
 #pragma once
-#ifndef MALENA_PLUGIN_H
-#define MALENA_PLUGIN_H
+// #ifndef MALENA_PLUGIN_H
+// #define MALENA_PLUGIN_H
 #ifdef _WIN32
 	#define PLUGIN_EXPORT __declspec(dllexport)
 #else
@@ -48,4 +48,4 @@ delete plugin; \
 } \
 }
 
-#endif
+// #endif
