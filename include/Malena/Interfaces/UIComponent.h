@@ -8,14 +8,15 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <iostream>
 #include <Malena/Managers/WindowManager.h>
+#include <Malena/Traits/Draggable.h>
+#include <Malena/Traits/EventPublisher.h>
+#include <Malena/Traits/Flaggable.h>
 #include <Malena/Traits/Messenger.h>
 #include <Malena/Traits/Positionable.h>
 #include <Malena/Utilities/MouseEvents.h>
+#include <iostream>
 #include "Component.h"
-#include <Malena/Traits/Draggable.h>
-#include <Malena/Traits/Flaggable.h>
 
 namespace ml
     {
@@ -23,6 +24,7 @@ namespace ml
         class Application;
         class UIComponent : public virtual sf::Drawable,
                             public Messenger,
+                            public EventPublisher,
                             public Component,
                             public Flaggable,
                             public Positionable,

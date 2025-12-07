@@ -1,51 +1,54 @@
-//
-// Created by Dave R. Smith on 3/5/25.
-//
+#ifndef MALENA_MESSENGER_NEW_H
+#define MALENA_MESSENGER_NEW_H
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#include <Malena/Events/EventBus.h>
+#include <functional>
 
-#pragma once
+namespace ml {
 
-#include "../Managers/EventsManager.h"
-#include "../Managers/FlagManager.h"
-#include <string>
-namespace ml
-{
-	class ComponentsManager;
-	class Messenger
-	{
+  /**
+   * Messenger - Trait for sending/receiving type-safe messages
+   * Wraps EventBus static service similar to how old Messenger wraps EventsManager
+   */
+  class Messenger {
+  protected:
+    /**
+     * Send a message to all listeners
+     * @tparam DataType - The data type being sent
+     * @tparam Enum - The event enum type
+     * @param event - The specific event
+     * @param data - The message data
+     */
+    template<typename DataType, typename Enum>
+    void sendMessage(Enum event, const DataType& data);
+    /**
+     * Listen for a specific message
+     * @tparam DataType - The data type to receive
+     * @tparam Enum - The event enum type
+     * @param event - The specific event to listen for
+     * @param callback - Function to call when message received
+     */
+    template<typename DataType, typename Enum>
+    void onMessage(Enum event, std::function<void(const DataType&)> callback);
 
+    /**
+     * Stop listening to a specific message
+     * @tparam DataType - The data type
+     * @tparam Enum - The event enum type
+     * @param event - The specific event to unsubscribe from
+     */
+    template<typename DataType, typename Enum>
+    void offMessage(Enum event);
 
-	public:
-		typedef const std::optional<sf::Event> &Event;
-		void onClick(std::function<void()>);
-		void onUpdate(std::function<void()>);
-		void onHover(std::function<void()>);
-		void onHover(std::function<void(const std::optional<sf::Event> &event)>);
-		void onUnhover(std::function<void()>);
-		void onUnhover(std::function<void(const std::optional<sf::Event> &event)>);
-		void onClick(std::function<void(const std::optional<sf::Event> &event)>);
-		void onUpdate(std::function<void(const std::optional<sf::Event> &event)>);
-		void onTextEntered(const std::function<void(const std::optional<sf::Event> &event)> &);
-		void onTextEntered(std::function<void()> f);
-		void onFocus(std::function<void(const std::optional<sf::Event> &event)>);
-		void onFocus(std::function<void()> f);
-		void onBlur(std::function<void(const std::optional<sf::Event> &event)>);
-		void onBlur(std::function<void()> f);
-		void onKeypress(std::function<void(const std::optional<sf::Event> &event)>);
-		void onKeypress(std::function<void()> f);
-		void onMouseMoved(std::function<void(const std::optional<sf::Event> &event)>);
-		void onMouseMoved(std::function<void()> f);
-		void subscribe(const std::string &event, std::function<void(const std::optional<sf::Event> &event)>);
-		void subscribe(const std::string &event, std::function<void()>);
-		void unsubscribe(const std::string &event);
-		void unsubscribeAll();
-		static void publish(
-				const std::string &event,
-				std::function<bool(UIComponent &)> filter = [](UIComponent &) { return true; });
-	};
+    /**
+     * Stop listening to all messages
+     */
+    void offAllMessages();
 
+  public:
+    virtual ~Messenger();
+  };
 
 } // namespace ml
-#endif // MESSAGEMANAGER_H
+#include "../../../src/Traits/Messenger.tpp"
+#endif // MALENA_MESSENGER_NEW_H
