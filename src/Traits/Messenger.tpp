@@ -1,6 +1,9 @@
 //
 // Created by Dave Smith on 12/7/25.
 //
+
+#ifndef MALENA_MESSENGER_NEW_TPP
+#define MALENA_MESSENGER_NEW_TPP
 #include <Malena/Traits/Messenger.h>
 namespace ml
 {
@@ -19,12 +22,5 @@ namespace ml
 		EventBus::unsubscribe<DataType>(event, this);
 	}
 
-	void Messenger::offAllMessages() {
-			EventBus::unsubscribeAll(this);
-		}
-
-	Messenger::~Messenger() {
-		// Auto-cleanup when object is destroyed
-		offAllMessages();
-	}
  }
+#endif

@@ -27,7 +27,7 @@ namespace ml
 			T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
 		}
 
-		void setPosition(const sf::Vector2f &position)
+		void setPosition(const sf::Vector2f &position) override
 		{
 			T::setPosition(position);
 			T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));

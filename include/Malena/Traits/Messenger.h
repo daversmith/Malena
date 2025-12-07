@@ -11,7 +11,8 @@ namespace ml {
    * Wraps EventBus static service similar to how old Messenger wraps EventsManager
    */
   class Messenger {
-  protected:
+  public:
+
     /**
      * Send a message to all listeners
      * @tparam DataType - The data type being sent
@@ -45,8 +46,8 @@ namespace ml {
      */
     void offAllMessages();
 
-  public:
     virtual ~Messenger();
+    Messenger()= default;
   };
 
 } // namespace ml
