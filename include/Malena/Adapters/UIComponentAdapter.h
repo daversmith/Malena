@@ -7,7 +7,7 @@
 
 namespace ml
 {
-	class UIComponentAdapter final : public UIComponent
+	class UIComponentAdapter : public UIComponent
 	{
 	protected:
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
