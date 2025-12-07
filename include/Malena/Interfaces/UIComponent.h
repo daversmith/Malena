@@ -23,7 +23,7 @@ namespace ml
 
         class Application;
         class UIComponent : public virtual sf::Drawable,
-                            public Messenger,
+                            // public Messenger, maybe later?
                             public EventPublisher,
                             public Component,
                             public Flaggable,

@@ -9,7 +9,8 @@
 
 namespace ml {
 
-	class Plugin {
+	class Plugin : public Messenger
+	{
 	public:
 		virtual ~Plugin() = default;
 		virtual const char* getName() const { return "Unnamed Plugin"; }
