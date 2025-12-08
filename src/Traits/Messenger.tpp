@@ -9,17 +9,17 @@ namespace ml
 {
 	template<typename DataType, typename Enum>
 	void Messenger::sendMessage(Enum event, const DataType& data) {
-		EventBus::publish(event, data);
+		MessageManager::publish(event, data);
 	}
 
 	template<typename DataType, typename Enum>
 	void Messenger::onMessage(Enum event, std::function<void(const DataType&)> callback) {
-		EventBus::subscribe<DataType>(event, this, callback);
+		MessageManager::subscribe<DataType>(event, this, callback);
 	}
 
 	template<typename DataType, typename Enum>
 	void Messenger::offMessage(Enum event) {
-		EventBus::unsubscribe<DataType>(event, this);
+		MessageManager::unsubscribe<DataType>(event, this);
 	}
 
  }

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <tuple>
+#include <algorithm>
 
 namespace ml {
 
@@ -13,7 +14,7 @@ namespace ml {
  * EventBus - Static service for type-safe event messaging
  * Similar to EventsManager but for custom enum-based events
  */
-class EventBus {
+class MessageManager {
 private:
     // Key: (enum type, enum value, data type)
     using EventKey = std::tuple<std::type_index, int, std::type_index>;

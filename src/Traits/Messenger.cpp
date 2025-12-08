@@ -5,7 +5,7 @@
 namespace ml
 {
     void Messenger::offAllMessages() {
-        EventBus::unsubscribeAll(this);
+        MessageManager::unsubscribeAll(this);
     }
 
     Messenger::~Messenger() {

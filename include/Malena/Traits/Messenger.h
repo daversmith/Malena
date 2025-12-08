@@ -1,7 +1,7 @@
 #ifndef MALENA_MESSENGER_NEW_H
 #define MALENA_MESSENGER_NEW_H
 
-#include <Malena/Events/EventBus.h>
+#include <Malena/Managers/MessageManager.h>
 #include <functional>
 
 namespace ml {
