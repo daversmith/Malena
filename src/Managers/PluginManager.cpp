@@ -2,24 +2,24 @@
 // Created by Dave Smith on 12/5/25.
 //
 
-#include <Malena/Plugin/PluginHost.h>
+#include <Malena/Managers/PluginManager.h>
 
 
 namespace ml
 {
 
-	PluginHost::PluginHost(const std::string& pluginPath)
+	PluginManager::PluginManager(const std::string& pluginPath)
 	{
 		// loadPluginsFromDirectory(pluginPath);
 	}
 
-	void PluginHost::loadPluginsFromDirectory(const std::string& dir) {
+	void PluginManager::loadPluginsFromDirectory(const std::string& dir) {
 	    for (const auto& file : getPluginFiles(dir)) {
 	        loadPlugin(file);
 	    }
 	}
 
-	Plugin* PluginHost::loadPlugin(const std::string& path) {
+	Plugin* PluginManager::loadPlugin(const std::string& path) {
 	    LIB_HANDLE handle = LOAD_LIB(path.c_str());
 	    if (!handle) {
 	#ifdef _WIN32
@@ -52,7 +52,7 @@ namespace ml
 	    return plugin;
 	}
 
-	void PluginHost::unloadPlugin(Plugin* plugin) {
+	void PluginManager::unloadPlugin(Plugin* plugin) {
 		for (auto it = _plugins.begin(); it != _plugins.end(); ++it) {
 			if (it->plugin == plugin) {
 				it->plugin->onUnload();
@@ -64,7 +64,7 @@ namespace ml
 		}
 	}
 
-	std::vector<std::string> PluginHost::getFilesInDirectory(const std::string& directory,
+	std::vector<std::string> PluginManager::getFilesInDirectory(const std::string& directory,
 	                                                  const std::string& extension) {
 	    std::vector<std::string> files;
 
@@ -92,7 +92,7 @@ namespace ml
 	}
 
 	// Overload that checks for both .dll and .so
-	std::vector<std::string> PluginHost::getPluginFiles(const std::string& directory) {
+	std::vector<std::string> PluginManager::getPluginFiles(const std::string& directory) {
 	    std::vector<std::string> files;
 
 	    if (!fs::exists(directory) || !fs::is_directory(directory)) {
@@ -110,7 +110,7 @@ namespace ml
 
 	    return files;
 	}
-	std::vector<Plugin*> PluginHost::getPlugins() const {
+	std::vector<Plugin*> PluginManager::getPlugins() const {
 	    std::vector<Plugin*> result;
 	    result.reserve(_plugins.size());
 	    for (const auto& pd : _plugins) {

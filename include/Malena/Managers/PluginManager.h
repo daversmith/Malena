@@ -6,7 +6,7 @@
 #define PLUGINHOST_H
 
 #include <Malena/Application/Application.h>
-#include "Plugin.h"
+#include <Malena/Plugin/Plugin.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -24,7 +24,7 @@
 namespace fs = std::filesystem;
 namespace ml
 {
-	class PluginHost
+	class PluginManager
 	{
 	    struct PluginData {
 	        Plugin* plugin;
@@ -35,7 +35,7 @@ namespace ml
 	    std::vector<std::string> getFilesInDirectory(const std::string& directory,
 	                                                  const std::string& extension = "");
 	public:
-	    PluginHost(const std::string& pluginPath = "/Users/dsmizzle/CLionProjects/DaveStation2.0/cmake-build-debug/plugins");
+	    PluginManager(const std::string& pluginPath = "/Users/dsmizzle/CLionProjects/DaveStation2.0/cmake-build-debug/plugins");
 	    Plugin* loadPlugin(const std::string& path);
 	    void unloadPlugin(Plugin* plugin);
 	    void loadPluginsFromDirectory(const std::string& dir);
