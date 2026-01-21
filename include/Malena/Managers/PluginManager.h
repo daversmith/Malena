@@ -14,7 +14,7 @@
 	#define LIB_HANDLE HMODULE
 	#define LOAD_LIB(path) LoadLibraryA(path)
 	#define GET_FUNC(handle, name) GetProcAddress(handle, name)
-	#define CLOSE_LIB(handle) FreeLibrary(handle)
+	#define CLOSE_LIB(handle) FreeLibrary(static_cast<HMODULE>(handle))
 #else
 	#include <dlfcn.h>
 	#define LIB_HANDLE void*
