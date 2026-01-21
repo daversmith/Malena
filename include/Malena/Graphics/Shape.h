@@ -16,6 +16,9 @@ namespace ml
 	{
 	public:
 		using T::T;
+		operator const sf::Drawable&() const {
+			return static_cast<const T&>(*this);
+		}
 		static T isItText() {
 			if constexpr (std::is_same_v<T, sf::Text>) {
 				return sf::Text(FontManager<>::getDefault());
@@ -33,10 +36,9 @@ namespace ml
 		{
 		}
 
-		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const override
 		{
-			T r = *this;
-			target.draw(r);
+			target.draw(static_cast<const T>(*this), states);
 		}
 
 		sf::FloatRect getGlobalBounds() const override

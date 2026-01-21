@@ -37,7 +37,7 @@ namespace ml
 		// void addToApp(Controller &app) const;
 
 	protected:
-		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const; //override;
 
 	public:
 		void setPosition(const sf::Vector2f &position) override;

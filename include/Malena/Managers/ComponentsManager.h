@@ -1,5 +1,5 @@
 //
-// Created by Dave R. Smith on 3/6/25.
+// ComponentsManager.h
 //
 
 #ifndef COMPONENTSMANAGER_H
@@ -8,13 +8,12 @@
 #pragma once
 
 #include <vector>
-#include "../Interfaces/UIComponent.h"
+#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Managers/DeferredOperationsManager.h>
 
 namespace ml
 {
-
-
-	class ComponentsManager
+	class ComponentsManager : public DeferredOperationsManager<ComponentsManager>
 	{
 		std::vector<UIComponent *> uiComponents;
 
@@ -23,7 +22,18 @@ namespace ml
 
 		virtual void addComponent(UIComponent &component);
 
+		// Safe to call anytime - defers removal if currently iterating
+		virtual bool removeComponent(UIComponent &component);
+		virtual bool removeComponent(UIComponent *component);
+
+		// Clear all (deferred if busy)
+		virtual void clearComponents();
+
 		virtual ~ComponentsManager();
+
+	private:
+		// Internal method for actual removal
+		void doRemoveComponent(UIComponent *component);
 	};
 
 } // namespace ml

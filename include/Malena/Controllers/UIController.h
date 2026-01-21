@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "../Adapters/UIComponentAdapter.h"
-#include "Controller.h"
-
+#include <Malena/Adapters/UIComponentAdapter.h>
+#include <Malena/Controllers/Controller.h>
 
 namespace ml
 {

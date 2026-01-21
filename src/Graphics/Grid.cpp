@@ -62,6 +62,7 @@ namespace ml
 	void Grid::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	{
 		for (auto &c : getUIComponents())
+			// c->draw(target, states);
 			target.draw(*c);
 	}
 

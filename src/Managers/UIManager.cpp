@@ -21,7 +21,8 @@ namespace ml
 		for (auto &c : uiController->getUIComponents())
 		{
 			if (!c->checkFlag(Flag::HIDDEN))
-				this->window->draw(*c);
+				c->draw(*window, c->getRenderStates());
+			// 	//this->window->draw(*c);
 		}
 
 		this->window->display();

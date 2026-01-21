@@ -222,6 +222,7 @@ namespace ml
 	    for (const auto* component : _components)
 	    {
 	        _renderTexture.draw(*component);
+	    	// component->draw(_renderTexture, component->getRenderStates());
 	    }
 
 	    _renderTexture.display();

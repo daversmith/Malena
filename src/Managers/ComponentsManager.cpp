@@ -1,8 +1,9 @@
 //
-// Created by Dave R. Smith on 3/6/25.
+// ComponentsManager.cpp
 //
 
 #include <Malena/Managers/ComponentsManager.h>
+#include <algorithm>
 
 namespace ml
 {
@@ -16,11 +17,41 @@ namespace ml
 		return uiComponents;
 	}
 
+	bool ComponentsManager::removeComponent(UIComponent &component)
+	{
+		return removeComponent(&component);
+	}
+
+	bool ComponentsManager::removeComponent(UIComponent *component)
+	{
+		deferOrExecute([this, component]() {  // ✅ Using base class method
+			doRemoveComponent(component);
+		});
+		return true;
+	}
+
+	void ComponentsManager::doRemoveComponent(UIComponent *component)
+	{
+		auto it = std::find(uiComponents.begin(), uiComponents.end(), component);
+		if (it != uiComponents.end())
+		{
+			uiComponents.erase(it);
+		}
+	}
+
+	void ComponentsManager::clearComponents()
+	{
+		deferOrExecute([this]() {  // ✅ Using base class method
+			uiComponents.clear();
+			clearPending();
+		});
+	}
 
 	ComponentsManager::~ComponentsManager()
 	{
-		for (auto &c : uiComponents)
-			if (c->isDynamic)
-				delete c;
+		// Force immediate - we're destructing
+		uiComponents.clear();
+		clearPending();
 	}
+
 } // namespace ml

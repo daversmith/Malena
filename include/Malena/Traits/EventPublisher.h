@@ -19,6 +19,7 @@ namespace ml
 
 	public:
 		typedef const std::optional<sf::Event> &Event;
+		~EventPublisher();
 		void onClick(std::function<void()>);
 		void onUpdate(std::function<void()>);
 		void onHover(std::function<void()>);

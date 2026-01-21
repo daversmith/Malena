@@ -10,18 +10,18 @@ namespace ml
 	class UIComponentAdapter : public UIComponent
 	{
 	protected:
-		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const ;//override;
 
 	public:
-		void update();
+		virtual void update();
 
-		void eventHandler(const std::optional<sf::Event> &event);
+		virtual void eventHandler(const std::optional<sf::Event> &event);
 
-		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
+		virtual  sf::FloatRect getGlobalBounds() const override;
 
-		void setPosition(const sf::Vector2f &position) override;
+		virtual void setPosition(const sf::Vector2f &position) override;
 
-		[[nodiscard]] sf::Vector2f getPosition() const override;
+		virtual sf::Vector2f getPosition() const override;
 	};
 } // namespace ml
 
