@@ -54,7 +54,7 @@ namespace ml
 
 
 	protected:
-	    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+	    void draw(sf::RenderTarget &target, sf::RenderStates states) const; //override;
 
 	public:
 	    Carousel();

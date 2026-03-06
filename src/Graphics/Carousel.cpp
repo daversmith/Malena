@@ -219,9 +219,9 @@ namespace ml
 	    _renderTexture.setView(_carouselView);  // Apply the scrolling view
 	    _renderTexture.clear(sf::Color::Transparent);
 
-	    for (const auto* component : _components)
+	    for ( auto* component : _components)
 	    {
-	        _renderTexture.draw(*component);
+	        _renderTexture.draw(*dynamic_cast<sf::Drawable*>(component));
 	    	// component->draw(_renderTexture, component->getRenderStates());
 	    }
 

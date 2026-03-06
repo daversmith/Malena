@@ -24,7 +24,7 @@ namespace ml
     {
 
         class Application;
-        class UIComponent : public virtual sf::Drawable,
+        class UIComponent : //public virtual sf::Drawable,
                             // public Messenger, maybe later?
                             public EventPublisher,
                             public Component,
@@ -55,7 +55,7 @@ namespace ml
             template <typename APP, typename ...Components>
             void addChildren(APP& application, Components&... components);
 
-            void draw(sf::RenderTarget& target, sf::RenderStates states) const override {};
+           // void draw(sf::RenderTarget& target, sf::RenderStates states) const override {};
             virtual sf::RenderStates getRenderStates() const { return sf::RenderStates();}
             friend class ComponentsManager;
             friend class Application;

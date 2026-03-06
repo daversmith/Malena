@@ -21,7 +21,7 @@ namespace ml
 		for (auto &c : uiController->getUIComponents())
 		{
 			if (!c->checkFlag(Flag::HIDDEN))
-				c->draw(*window, c->getRenderStates());
+				window->draw(*dynamic_cast<sf::Drawable*>(c), c->getRenderStates());
 			// 	//this->window->draw(*c);
 		}
 

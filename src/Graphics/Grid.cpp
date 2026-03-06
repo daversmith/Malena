@@ -63,7 +63,7 @@ namespace ml
 	{
 		for (auto &c : getUIComponents())
 			// c->draw(target, states);
-			target.draw(*c);
+			target.draw(*dynamic_cast<sf::Drawable*>(c));
 	}
 
 	void Grid::setPosition(const sf::Vector2f &position)

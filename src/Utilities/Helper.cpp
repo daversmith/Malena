@@ -15,7 +15,7 @@ namespace ml
 	void Helper::output(sf::FloatRect floatRect)
 	{
 		// TODO: revisit
-		// std::cout << "left: " << floatRect.left << ", top: " << floatRect.top
-		//<< ", width: " << floatRect.width << "height: " << floatRect.height << std::endl;
+		 std::cout << "left: " << floatRect.position.x << ", top: " << floatRect.position.y
+		<< ", width: " << floatRect.size.x << "height: " << floatRect.size.y << std::endl;
 	}
 } // namespace ml

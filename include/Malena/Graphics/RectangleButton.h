@@ -9,11 +9,12 @@
 
 namespace ml
 {
-	class RectangleButton : public Button<Rectangle, sf::Vector2f>
-	{
-	public:
-		using Button::Button;
-	};
+	using RectangleButton = Button<Rectangle, sf::Vector2f>;
+	// class RectangleButton : public Button<Rectangle, sf::Vector2f>
+	// {
+	// public:
+	// 	using Button::Button;
+	// };
 
 } // namespace ml
 
