@@ -16,7 +16,7 @@ namespace ml
 		ml::Typer typer;
 		ml::Cursor cursor;
 	protected:
-		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const;//override;
 
 	public:
 		TextInput();
