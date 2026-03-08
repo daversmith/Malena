@@ -10,14 +10,14 @@
 
 namespace ml
 {
-	class VertexArray : public Core<sf::VertexArray>
-	{
-	public:
-		using Core::Core;
-	};
-
-	template<typename MANIFEST>
-	class VertexArrayWidth: public Customizable<VertexArray, MANIFEST>{};
+	// class VertexArray : public Core<sf::VertexArray>
+	// {
+	// public:
+	// 	using Core::Core;
+	// };
+	//
+	// template<typename MANIFEST>
+	// class VertexArrayWidth: public Customizable<VertexArray, MANIFEST>{};
 } // namespace ml
 
 #endif // VERTEXARRAY_H
