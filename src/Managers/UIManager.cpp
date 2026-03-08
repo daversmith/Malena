@@ -18,11 +18,10 @@ namespace ml
 	void UIManager::draw()
 	{
 		this->window->clear();
-		for (auto &c : uiController->getUIComponents())
+		for (auto &c : ComponentsManager::getUIComponents())
 		{
 			if (!c->checkFlag(Flag::HIDDEN))
 				window->draw(*dynamic_cast<sf::Drawable*>(c), c->getRenderStates());
-			// 	//this->window->draw(*c);
 		}
 
 		this->window->display();

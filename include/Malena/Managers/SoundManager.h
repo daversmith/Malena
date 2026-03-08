@@ -12,7 +12,7 @@ namespace ml
 {
 
     template<typename Manifest>
-    using SoundManager = ml::ResourceManager<Manifest, sf::SoundBuffer>;
+    class SoundManager : public ml::ResourceManager<Manifest, sf::SoundBuffer>{};
 }
 
 #endif //SOUNDMANAGER_H

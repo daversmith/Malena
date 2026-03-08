@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "Button.h"
-#include "Circle.h"
+#include <Malena/Graphics/Button.h>
+#include <Malena/Graphics/Circle.h>
 
 
 namespace ml
@@ -14,6 +14,10 @@ namespace ml
 	{
 		using Button::Button;
 	};
+
+	template <typename MANIFEST>
+	class CircleButtonWith: public virtual Customizable<CircleButton, MANIFEST>{};
+
 
 } // namespace ml
 

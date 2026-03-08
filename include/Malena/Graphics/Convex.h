@@ -4,16 +4,18 @@
 
 #pragma once
 
-#include "Shape.h"
+#include <Malena/Graphics/Core.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
 
-	class Convex : Shape<sf::ConvexShape>
+	class Convex : public Core<sf::ConvexShape>
 	{
 	public:
-		using Shape::Shape;
+		using Core::Core;
 	};
+
 	template <typename MANIFEST>
 	class ConvexWith: public Customizable<Convex, MANIFEST>{};
 } // namespace ml

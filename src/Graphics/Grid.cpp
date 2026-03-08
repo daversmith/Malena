@@ -52,10 +52,10 @@ namespace ml
 		for (int i = 0; i < components.size(); ++i)
 		{
 			if (i >= col) // If it's in the second row or below, position below the element above
-				components[i - col]->bottom(*components[i], spacing);
+				components[i - col]->setBelow(*components[i], spacing);
 
 			if (i % col != 0) // If it's not the first column, position to the right of the previous element
-				components[i - 1]->right(*components[i], spacing);
+				components[i - 1]->setRightOf(*components[i], spacing);
 		}
 	}
 
@@ -85,12 +85,6 @@ namespace ml
 	{
 		// TODO fix gloabalBounds
 		return {};
-	}
-
-	void Grid::addToApplication(Application &application)
-	{
-		for (auto &c : getUIComponents())
-			application.addToApplication(*c);
 	}
 
 } // namespace ml

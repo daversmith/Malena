@@ -12,7 +12,7 @@ namespace ml
 		uiComponents.push_back(&component);
 	}
 
-	const std::vector<UIComponent *> &ComponentsManager::getUIComponents() const
+	const std::vector<UIComponent *> &ComponentsManager::getUIComponents()
 	{
 		return uiComponents;
 	}
@@ -24,8 +24,8 @@ namespace ml
 
 	bool ComponentsManager::removeComponent(UIComponent *component)
 	{
-		deferOrExecute([this, component]() {  // ✅ Using base class method
-			doRemoveComponent(component);
+		deferOrExecute([component]() {  // ✅ Using base class method
+			ComponentsManager::doRemoveComponent(component);
 		});
 		return true;
 	}
@@ -41,8 +41,8 @@ namespace ml
 
 	void ComponentsManager::clearComponents()
 	{
-		deferOrExecute([this]() {  // ✅ Using base class method
-			uiComponents.clear();
+		deferOrExecute([]() {  // ✅ Using base class method
+			ComponentsManager::uiComponents.clear();
 			clearPending();
 		});
 	}

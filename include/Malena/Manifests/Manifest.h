@@ -16,31 +16,19 @@ namespace ml
     {
     public:
         template<typename Asset>
-        static const std::string& getFilepath(const Asset &asset)
-        {
-            return getFilePaths<Asset>()[asset];
-        }
+        static const std::string& getFilepath(const Asset &asset);
 
         template<typename ConfigType, typename ValueType>
-        static const ValueType& getConfig(ConfigType config)
-        {
-            return getConfigs<ConfigType, ValueType>().at(config);
-        }
+        static const ValueType& getConfig(ConfigType config);
 
     protected:
         // Add asset - const char* means filepath
         template<typename EnumType>
-        static void set(EnumType key, const char* filepath)
-        {
-            getFilePaths<EnumType>()[key] = std::string(filepath);
-        }
+        static void set(EnumType key, const char* filepath);
 
         // Add string config - std::string explicitly means config value
         template<typename EnumType>
-        static void set(EnumType key, std::string value)
-        {
-            getConfigs<EnumType, std::string>()[key] = std::move(value);
-        }
+        static void set(EnumType key, std::string value);
 
         // Add config - other types (int, bool, float, etc.)
         template<typename EnumType, typename ValueType>
@@ -48,37 +36,19 @@ namespace ml
             !std::is_same_v<std::decay_t<ValueType>, const char*> &&
             !std::is_same_v<std::decay_t<ValueType>, std::string>
         >
-        set(EnumType key, ValueType&& value)
-        {
-            getConfigs<EnumType, std::decay_t<ValueType>>()[key] = std::forward<ValueType>(value);
-        }
+        set(EnumType key, ValueType&& value);
 
         // Variadic add for batch registration
         template<typename E, typename V, typename... Args>
-        static void set(E key, V&& value, Args&&... args)
-        {
-            set(key, std::forward<V>(value));
-            if constexpr (sizeof...(args) > 0)
-            {
-                set(std::forward<Args>(args)...);
-            }
-        }
+        static void set(E key, V&& value, Args&&... args);
 
     private:
         template<typename Asset>
-        static std::unordered_map<Asset, std::string, EnumClassHash>& getFilePaths()
-        {
-            static std::unordered_map<Asset, std::string, EnumClassHash> _filepaths;
-            return _filepaths;
-        }
+        static std::unordered_map<Asset, std::string, EnumClassHash>& getFilePaths();
 
         template<typename ConfigType, typename ValueType>
-        static auto& getConfigs()
-        {
-            static std::unordered_map<ConfigType, ValueType, EnumClassHash> _configs;
-            return _configs;
-        }
+        static auto& getConfigs();
     };
 }
-
+#include "../../../src/Manifest/Manifest.tpp"
 #endif //MANIFEST_H

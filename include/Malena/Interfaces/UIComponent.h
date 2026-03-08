@@ -16,7 +16,6 @@
 #include <Malena/Traits/Positionable.h>
 #include <Malena/Utilities/MouseEvents.h>
 #include <iostream>
-#include "Component.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <list>
 
@@ -27,19 +26,11 @@ namespace ml
         class UIComponent : //public virtual sf::Drawable,
                             // public Messenger, maybe later?
                             public EventPublisher,
-                            public Component,
                             public Flaggable,
                             public Positionable,
                             public Draggable
         {
-            /**
-         * @brief Override if Custom UIComponent consists of multiple UIComponents
-         *
-         * @details This function should simply call application.addToApplication(<UiComponent>) for each UIComponent
-         *          Member variable in the child class
-         * @return nothing is returned
-         */
-            virtual void addToApplication(Application& application);
+
 
 
             sf::RenderWindow *window = nullptr;
@@ -52,9 +43,6 @@ namespace ml
             void *operator new(size_t size);
             void removeComponent(UIComponent* component);
             void clear();
-            template <typename APP, typename ...Components>
-            void addChildren(APP& application, Components&... components);
-
            // void draw(sf::RenderTarget& target, sf::RenderStates states) const override {};
             virtual sf::RenderStates getRenderStates() const { return sf::RenderStates();}
             friend class ComponentsManager;
@@ -65,5 +53,4 @@ namespace ml
 
     } // namespace ml
 
-#include "../../../src/Interfaces/UIComponent.tpp"
 #endif //UICOMPONENTBASE_H

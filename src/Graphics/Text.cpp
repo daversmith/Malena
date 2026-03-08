@@ -5,7 +5,7 @@
 
 namespace ml
 {
-	Text::Text(const sf::Font &font) : Shape<sf::Text>(font)
+	Text::Text(const sf::Font &font) : Core<sf::Text>(font)
 	{
 	}
 

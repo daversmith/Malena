@@ -42,67 +42,13 @@ private:
 
 public:
     template<typename DataType, typename Enum>
-    static void subscribe(Enum event, void* subscriber, std::function<void(const DataType&)> callback) {
-        auto key = std::make_tuple(
-            std::type_index(typeid(Enum)),
-            static_cast<int>(event),
-            std::type_index(typeid(DataType))
-        );
-
-        auto wrapper = [callback](const void* data) {
-            callback(*static_cast<const DataType*>(data));
-        };
-
-        subscribers[key].push_back(Subscription{subscriber, wrapper});
-    }
+    static void subscribe(Enum event, void* subscriber, std::function<void(const DataType&)> callback);
 
     template<typename DataType, typename Enum>
-    static void publish(Enum event, const DataType& data) {
-        auto key = std::make_tuple(
-            std::type_index(typeid(Enum)),
-            static_cast<int>(event),
-            std::type_index(typeid(DataType))
-        );
-
-        auto it = subscribers.find(key);
-        if (it == subscribers.end()) {
-            return;
-        }
-
-        beginBusy();  // ✅ Using base class method
-
-        auto subscribersCopy = it->second;
-
-        for (auto& sub : subscribersCopy) {
-            auto currentIt = subscribers.find(key);
-            if (currentIt != subscribers.end()) {
-                auto& currentSubs = currentIt->second;
-                auto found = std::find_if(currentSubs.begin(), currentSubs.end(),
-                    [&sub](const Subscription& s) {
-                        return s.subscriber == sub.subscriber;
-                    });
-
-                if (found != currentSubs.end()) {
-                    sub.callback(&data);
-                }
-            }
-        }
-
-        endBusy();  // ✅ Using base class method - auto-processes pending
-    }
+    static void publish(Enum event, const DataType& data);
 
     template<typename DataType, typename Enum>
-    static void unsubscribe(Enum event, void* subscriber) {
-        auto key = std::make_tuple(
-            std::type_index(typeid(Enum)),
-            static_cast<int>(event),
-            std::type_index(typeid(DataType))
-        );
-
-        deferOrExecute([=]() {  // ✅ Using base class method
-            doUnsubscribe(key, subscriber);
-        });
-    }
+    static void unsubscribe(Enum event, void* subscriber);
 
     static void unsubscribeAll(void* subscriber);
     static void clear();
@@ -112,5 +58,5 @@ public:
 };
 
 } // namespace ml
-
+#include "../../../src/Managers/MessageManager.tpp"
 #endif // MALENA_EVENTBUS_H

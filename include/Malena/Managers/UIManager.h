@@ -8,8 +8,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "../Controllers/UIController.h"
-#include "Manager.h"
+#include <Malena/Controllers/UIController.h>
+#include <Malena/Managers/Manager.h>
+#include <Malena/Managers/ComponentsManager.h>
 #include "UIManagerEDA.h"
 #include "UIManagerMVC.h"
 #include "WindowManager.h"

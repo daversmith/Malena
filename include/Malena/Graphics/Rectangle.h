@@ -1,21 +1,20 @@
-
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
 #pragma once
 
 
-#include <Malena/Graphics/Shape.h>
+#include <Malena/Graphics/Core.h>
 #include <Malena/Traits/Customizable.h>
 
-#include "RoundedRectangle.h"
+#include <Malena/Graphics/RoundedRectangle.h>
 
 namespace ml
 {
-
-	class Rectangle: public virtual Shape<ml::RoundedRectangle>
+	class Rectangle : public Core<ml::RoundedRectangle>
 	{
-		using Shape::Shape;
+	public:
+		using Core::Core;
 	};
 
 	template <typename MANIFEST>

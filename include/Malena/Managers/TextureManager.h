@@ -13,7 +13,7 @@ namespace ml
 {
 
     template<typename Manifest>
-    using TextureManager = ml::ResourceManager<Manifest, sf::Texture>;
+    class TextureManager : public ml::ResourceManager<Manifest, sf::Texture>{};
 }
 
 

@@ -40,44 +40,27 @@ namespace ml
 		// Forwarding constructor with SFINAE to avoid ambiguity
 		template<typename Arg, typename... Args,
 			 typename = std::enable_if_t<!std::is_same_v<std::decay_t<Arg>, Customizable>>>
-		explicit Customizable(Arg&& arg, Args&&... args)
-		    : Component(std::forward<Arg>(arg), std::forward<Args>(args)...)
-		{}
-		// using Component::Component;
-		// Bring both enableFlag overloads into scope
-		// using Component::enableFlag;
-		// using Component::disableFlag;
-		// using Component::setFlag;
-		// using Component::toggleFlag;
-		// using Component::checkFlag;
+		explicit Customizable(Arg&& arg, Args&&... args);
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		void enableFlag(T flag) {
-			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::enableFlag(flag);
-		}
+		void enableFlag(T flag);
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		void disableFlag(T flag) {
-			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::disableFlag(flag);
-		}
+		void disableFlag(T flag);
+
 		template<typename T = typename extract_Flags<Manifest>::type>
-		bool checkFlag(T flag) const {
-			return this->CustomFlaggable<typename extract_Flags<Manifest>::type>::checkFlag(flag);
-		}
+		bool checkFlag(T flag) const;
 
 		// State methods - wrapper instead of using declaration
 		template<typename T = typename extract_Flags<Manifest>::type>
-		void setFlag(T flag, bool value) {
-			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::setFlag(flag, value);
-		}
+		void setFlag(T flag, bool value);
 
 		template<typename T = typename extract_Flags<Manifest>::type>
-		void toggleFlag(T flag) {
-			this->CustomFlaggable<typename extract_Flags<Manifest>::type>::toggleFlag(flag);
-		}
+		void toggleFlag(T flag);
 
 	};
 
 
 } // namespace ml
+#include "../../../src/Traits/Customizable.cpp"
 #endif // UICOMPONENT_H

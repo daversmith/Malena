@@ -23,18 +23,15 @@ namespace ml
         clear();
     }
 
-    void UIComponent::addToApplication(Application& application)
-    {
-        application_ = &application;
-        application.addToApplication(*this);
-    }
+    // void UIComponent::addToApplication(Application& application)
+    // {
+    //     application_ = &application;
+    //     application.addToApplication(*this);
+    // }
 
     void UIComponent::removeComponent(UIComponent* component)
     {
-        if (application_)
-        {
-            application_->removeComponent(component);
-        }
+        ComponentsManager::removeComponent(component);
     }
 
     void UIComponent::clear()

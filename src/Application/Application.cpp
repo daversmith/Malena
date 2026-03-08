@@ -20,12 +20,7 @@ namespace ml
 
 	void Application::addComponent(UIComponent &component)
 	{
-		// component.addToApplication(*this);
 		ComponentsManager::addComponent(component);
 	}
 
-	void Application::addToApplication(UIComponent &component)
-	{
-		ComponentsManager::addComponent(component);
-	}
 } // namespace ml

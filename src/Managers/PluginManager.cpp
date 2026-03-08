@@ -110,6 +110,11 @@ namespace ml
     }
 
     void PluginManager::unloadPlugin(Plugin* plugin) {
+        if (auto *component = plugin->getIf<UIComponent>())
+        {
+            ComponentsManager::removeComponent(component);
+            delete component;
+        }
         deferOrExecute([this, plugin]() {  //  Using base class method
             doUnloadPlugin(plugin);
         });
@@ -141,6 +146,8 @@ namespace ml
             // Force immediate unsubscribe
             if (auto* uiComp = dynamic_cast<UIComponent*>(toDelete)) {
                 EventsManager::forceUnsubscribeAll(uiComp);
+                delete uiComp;
+                std::cout << "remove component";
             }
 
             if (auto* messenger = dynamic_cast<Messenger*>(toDelete)) {

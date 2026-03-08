@@ -15,25 +15,25 @@ namespace ml
 {
 	class ComponentsManager : public DeferredOperationsManager<ComponentsManager>
 	{
-		std::vector<UIComponent *> uiComponents;
+		inline static std::vector<UIComponent *> uiComponents;
 
 	public:
-		[[nodiscard]] const std::vector<UIComponent *> &getUIComponents() const;
+		[[nodiscard]] static const std::vector<UIComponent *> &getUIComponents();
 
-		virtual void addComponent(UIComponent &component);
+		static void addComponent(UIComponent &component);
 
 		// Safe to call anytime - defers removal if currently iterating
-		virtual bool removeComponent(UIComponent &component);
-		virtual bool removeComponent(UIComponent *component);
+		static bool removeComponent(UIComponent &component);
+		static bool removeComponent(UIComponent *component);
 
 		// Clear all (deferred if busy)
-		virtual void clearComponents();
+		static void clearComponents();
 
 		virtual ~ComponentsManager();
 
 	private:
 		// Internal method for actual removal
-		void doRemoveComponent(UIComponent *component);
+		static void doRemoveComponent(UIComponent *component);
 	};
 
 } // namespace ml

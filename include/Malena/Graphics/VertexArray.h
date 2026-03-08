@@ -5,18 +5,19 @@
 
 #pragma once
 
-#include "Sprite.h"
+#include <Malena/Graphics/Core.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
+	class VertexArray : public Core<sf::VertexArray>
+	{
+	public:
+		using Core::Core;
+	};
 
-	// class VertexArray : public virtual Shape<sf::VertexArray>
-	// {
-	//     using Shape::Shape;
-	// public:
-	//     sf::FloatRect getGlobalBounds() const override;
-	//};
-
+	template<typename MANIFEST>
+	class VertexArrayWidth: public Customizable<VertexArray, MANIFEST>{};
 } // namespace ml
 
 #endif // VERTEXARRAY_H

@@ -3,7 +3,7 @@
 
 namespace ml
 {
-	Typer::Typer(const sf::Font &font) : Shape<sf::Text>(font)
+	Typer::Typer(const sf::Font &font) : Core<sf::Text>(font)
 	{
 		registerEvents();
 	}

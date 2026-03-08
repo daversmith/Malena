@@ -7,13 +7,14 @@
 #include <Malena/Managers/AssetsManager.h>
 #include <Malena/Managers/ConfigManager.h>
 #include <Malena/Managers/StateManager.h>
+#include <Malena/Manifests/ManifestAliases.h>
 namespace ml
 {
     template<typename Manifest>
-    struct Context {
-        using Assets = AssetsManager<Manifest>;
-        using Config = ConfigManager<Manifest>;
-        using State = StateManager<Manifest>;
+    struct Context : public ManifestAliases<Manifest> {
+        using AssetMgr = AssetsManager<Manifest>;
+        using ConfigMgr = ConfigManager<Manifest>;
+        using StateMgr = StateManager<Manifest>;
     };
 }
 

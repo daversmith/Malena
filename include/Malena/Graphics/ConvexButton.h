@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "Button.h"
-#include "Convex.h"
-
+#include <Malena/Graphics/Button.h>
+#include <Malena/Graphics/Convex.h>
+#include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
@@ -14,6 +14,9 @@ namespace ml
 	{
 		using Button::Button;
 	};
+
+	template <typename MANIFEST>
+	class ConvexButtonWith: public virtual Customizable<ConvexButton, MANIFEST>{};
 
 } // namespace ml
 #endif // CONVEXBUTTON_H

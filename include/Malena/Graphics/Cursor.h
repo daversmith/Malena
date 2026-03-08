@@ -1,7 +1,7 @@
 #ifndef CURSOR_H
 #define CURSOR_H
-#include "../Managers/FontManager.h"
-#include "Text.h"
+#include <Malena/Managers/FontManager.h>
+#include <Malena/Graphics/Text.h>
 
 namespace ml
 {

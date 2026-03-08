@@ -8,8 +8,8 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-#include "Shape.h"
-#include "Malena/Traits/Customizable.h"
+#include <Malena/Graphics/Core.h>
+#include <Malena/Traits/Customizable.h>
 
 
 namespace ml

@@ -7,19 +7,17 @@
 
 #pragma once
 
-#include "../Interfaces/Updateable.h"
-#include "../Managers/ComponentsManager.h"
 
 namespace ml
 {
-	class Controller : public ComponentsManager
+	class Controller
 	{
 	public:
 		virtual void initialization() = 0;
 
 		virtual void registerEvents() = 0;
 
-		~Controller() override = default;
+		virtual ~Controller()  = default;
 	};
 } // namespace ml
 

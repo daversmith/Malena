@@ -41,30 +41,23 @@ namespace ml {
         // Only define get() for Image if Manifest has Image enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Image<M>::value, const sf::Texture&>
-        get(typename M::Images image) {
-            return TextureMgr::get(image);
-        }
+        get(typename M::Images image);
 
         // Only define get() for Font if Manifest has Font enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Font<M>::value, const sf::Font&>
-        get(typename M::Fonts font) {
-            return FontMgr::get(font);
-        }
+        get(typename M::Fonts font);
 
         // Only define get() for Sound if Manifest has Sound enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Sound<M>::value, const sf::SoundBuffer&>
-        get(typename M::Sounds sound) {
-            return SoundMgr::get(sound);
-        }
+        get(typename M::Sounds sound);
 
         // getDefaultFont only available if Manifest has Font enum
         template<typename M = Manifest>
         static std::enable_if_t<has_Font<M>::value, const sf::Font&>
-        getDefaultFont() {
-            return FontMgr::getDefault();
-        }
+        getDefaultFont();
     };
 }
+#include "../../../src/Managers/AssetsManager.tpp"
 #endif //ASSETSMANAGER_H

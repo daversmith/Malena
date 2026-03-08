@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "Cursor.h"
-#include "Sprite.h"
-#include "Typer.h"
+#include <Malena/Graphics/Cursor.h>
+#include <Malena/Graphics/Sprite.h>
+#include <Malena/Graphics/Typer.h>
 
 namespace ml
 {

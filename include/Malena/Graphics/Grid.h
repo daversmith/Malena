@@ -5,8 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../Application/Application.h"
-#include "../Managers/ComponentsManager.h"
+#include <Malena/Application/Application.h>
+#include <Malena/Managers/ComponentsManager.h>
 
 namespace ml
 {
@@ -46,7 +46,6 @@ namespace ml
 
 
 		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
-		void addToApplication(Application& application) override;
 	};
 } // namespace ml
 #endif // GRID_H

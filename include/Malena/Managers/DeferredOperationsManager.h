@@ -37,64 +37,39 @@ protected:
      * Mark that we're busy (iterating/firing/processing)
      * Nested calls are supported (depth counter)
      */
-    static void beginBusy() {
-        ++busyDepth;
-    }
+    static void beginBusy();
 
     /**
      * Mark that we're done, process pending if depth reaches 0
      */
-    static void endBusy() {
-        --busyDepth;
-        if (busyDepth == 0) {
-            processPending();
-        }
-    }
+    static void endBusy();
 
     /**
      * Defer an operation if busy, execute immediately if safe
      */
-    static void deferOrExecute(std::function<void()> operation) {
-        if (busyDepth > 0) {
-            pendingOperations.push_back(std::move(operation));
-        } else {
-            operation();
-        }
-    }
+    static void deferOrExecute(std::function<void()> operation);
 
 public:
     /**
      * Check if currently busy (useful for external checks)
      */
-    static bool isBusy() {
-        return busyDepth > 0;
-    }
+    static bool isBusy();
 
     /**
      * Force process all pending operations
      * Usually called automatically by endBusy(), but can be called manually
      */
-    static void processPending() {
-        if (pendingOperations.empty()) return;
-
-        auto ops = std::move(pendingOperations);
-        pendingOperations.clear();
-
-        for (auto& op : ops) {
-            op();
-        }
-    }
+    static void processPending();
 
     /**
      * Clear all pending operations without executing them
      * Use when shutting down or resetting
      */
-    static void clearPending() {
-        pendingOperations.clear();
-    }
+    static void clearPending();
 };
 
 } // namespace ml
 
+#include "../../../src/Managers/DeferredOperationsManager.tpp"
 #endif // MALENA_DEFERREDOPERATIONSMANAGER_H
 
