@@ -5,11 +5,13 @@
 #ifndef CAROUSEL_H
 #define CAROUSEL_H
 
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 #include <Malena/Traits/Customizable.h>
 #include <Malena/Manifests/Manifest.h>
 #include <list>
 #include <Malena/Utilities/ShaderLibrary.h>
+
+#include "Malena/Components/ComponentWith.h"
 
 namespace ml
 {
@@ -21,14 +23,15 @@ namespace ml
 	    using Style = ShaderLibrary::Style;
 	};
 
-	class Carousel : public ml::Customizable<ml::UIComponent, CarouselManifest>
+	class Carousel : public ComponentWith<CarouselManifest, Draggable>
 	{
 	public:
 	    typedef CarouselManifest::Flags Flag;
 	    typedef CarouselManifest::State State;
 	    typedef CarouselManifest::Style Style;
+
 	private:
-	    std::list<ml::UIComponent*> _components;
+	    std::list<ml::Core*> _components;
 	    sf::RenderTexture _renderTexture;
 	    sf::Sprite _sprite;
 	    sf::View _carouselView;
@@ -59,12 +62,12 @@ namespace ml
 	public:
 	    Carousel();
 
-	    void add(ml::UIComponent& component);
-	    void remove(ml::UIComponent& component);
+	    void add(ml::Core& component);
+	    void remove(ml::Core& component);
 
-	    void setPosition(const sf::Vector2f &position) override;
-	    sf::Vector2f getPosition() const override;
-	    sf::FloatRect getGlobalBounds() const override;
+	    void setPosition(const sf::Vector2f &position);// override;
+	    sf::Vector2f getPosition() const;// override;
+	    sf::FloatRect getGlobalBounds() const;//` override;
 
 	    void next();
 	    void previous();

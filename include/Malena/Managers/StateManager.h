@@ -20,7 +20,6 @@ namespace ml {
         using type = std::function<void()>;
     };
 
-    // In StateManager
     template<typename StateEnum = void>
     class StateManager {
     private:
@@ -28,7 +27,7 @@ namespace ml {
             !std::is_void_v<StateEnum>,
             StateEnum,
             int
-        > _currentState;
+        > _currentState{};  // {} instead of StateEnum{} — safe when StateEnum=void
 
         typename StateCallback<StateEnum>::type _onEnterCallback;
         typename StateCallback<StateEnum>::type _onExitCallback;
@@ -39,7 +38,7 @@ namespace ml {
         explicit StateManager(std::enable_if_t<!std::is_void_v<T>, T> initialState);
 
         // Default constructor
-        StateManager();
+        StateManager() = default;  // _currentState{} handles initialization above
 
         // Register onStateEnter callback
         template<typename T = StateEnum>

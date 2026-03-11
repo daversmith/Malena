@@ -10,7 +10,7 @@
 
 namespace ml
 {
-	class Grid final : public ComponentsManager, public UIComponent
+	class Grid final : public ComponentsManager<Positionable>, public Core
 	{
 		float max_height = 0, max_width = 0, spacing = 10;
 		unsigned int row = 1, col = 1;
@@ -30,22 +30,22 @@ namespace ml
 
 		void setRow(int row);
 
-		void addComponent(UIComponent &component);
+		void addComponent(Core &component);
 
 		// void addToApp(Application &app) const;
 		//
 		// void addToApp(Controller &app) const;
 
-	protected:
-		void draw(sf::RenderTarget &target, sf::RenderStates states) const; //override;
+	// protected:
+	// 	void draw(sf::RenderTarget &target, sf::RenderStates states) const; //override;
 
 	public:
-		void setPosition(const sf::Vector2f &position) override;
+		void setPosition(const sf::Vector2f &position) ;//override;
 
-		[[nodiscard]] sf::Vector2f getPosition() const override;
+		[[nodiscard]] sf::Vector2f getPosition() const;// override;
 
 
-		[[nodiscard]] sf::FloatRect getGlobalBounds() const override;
+		[[nodiscard]] sf::FloatRect getGlobalBounds() const;// override;
 	};
 } // namespace ml
 #endif // GRID_H

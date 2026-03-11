@@ -18,9 +18,9 @@ namespace ml
 	{
 	}
 
-	void Application::addComponent(UIComponent &component)
+	void Application::addComponent(Core &component)
 	{
-		ComponentsManager::addComponent(component);
+		ComponentsManager<Core>::addComponent(component);
 	}
 
 } // namespace ml

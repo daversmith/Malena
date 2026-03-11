@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 
 namespace ml
 {
-	class UIComponentAdapter : public UIComponent
+	class CoreAdapter : public Core
 	{
 	protected:
 		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const ;//override;

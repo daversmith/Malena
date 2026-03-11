@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <Malena/Adapters/UIComponentAdapter.h>
+#include <Malena/Adapters/CoreAdapter.h>
 #include <Malena/Controllers/Controller.h>
 
 namespace ml
 {
 	class UIController : public Controller
 	{
-		UIComponentAdapter proxy;
+		CoreAdapter proxy;
 
 	public:
 		using Controller::Controller;

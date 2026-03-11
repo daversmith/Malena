@@ -4,7 +4,7 @@
 #pragma once
 
 #include <SFML/Graphics/Text.hpp>
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 #include <Malena/Managers/FontManager.h>
 #include <string>
 
@@ -13,7 +13,7 @@ namespace ml
 	template<typename T, typename S>
 	class Button : public T//, public sf::Text //, public virtual UIComponentWith
 	{
-		static_assert(std::is_base_of_v<UIComponent, T>, "T must be derived from UIComponent");
+		static_assert(std::is_base_of_v<Core, T>, "T must be derived from UIComponent");
 		sf::Text _text;
 	public:
 		Button(const sf::Font &font = FontManager<>::getDefault(),

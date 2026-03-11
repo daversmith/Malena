@@ -15,8 +15,11 @@ namespace ml
         FOCUSED,
         ENABLED,
         DRAGGABLE,
+        DRAGGING,
+        VERTICAL,
+        HORIZONTAL,
         //// do not add states below
-        LAST_STATE
+        LAST_FLAG
     };
 }
 

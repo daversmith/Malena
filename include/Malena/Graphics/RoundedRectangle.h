@@ -8,7 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-#include <Malena/Graphics/Core.h>
+#include <Malena/Graphics/Graphic.h>
 #include <Malena/Traits/Customizable.h>
 
 

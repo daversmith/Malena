@@ -7,7 +7,7 @@
 #pragma once
 
 #include <SFML/Graphics/Text.hpp>
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 #include <Malena/Managers/FontManager.h>
 #include <string>
 

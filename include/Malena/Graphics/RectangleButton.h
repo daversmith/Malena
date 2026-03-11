@@ -16,7 +16,7 @@ namespace ml
 	};
 
 	template <typename MANIFEST>
-	class RectangleButtonWith: public virtual Customizable<RectangleButton, MANIFEST>{};
+	class RectangleButtonWith: public RectangleButton, public Customizable<MANIFEST>{};
 
 } // namespace ml
 

@@ -14,7 +14,7 @@ namespace ml
 	template<typename StateEnum>
 	FlagManager<StateEnum>::FlagManager()
 	{
-		for (int i = 0; i < static_cast<int>(ml::Flag::LAST_STATE); i++)
+		for (int i = 0; i < static_cast<int>(ml::Flag::LAST_FLAG); i++)
 		{
 			// _states[static_cast<Flag>(i)] = false;
 			_states.insert({static_cast<State>(i), false});

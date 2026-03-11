@@ -5,16 +5,16 @@
 #pragma once
 
 #include <Malena/Managers/FontManager.h>
-#include <Malena/Graphics/Core.h>
+#include <Malena/Graphics/Graphic.h>
 
 namespace ml
 {
-	class Typer : public virtual Core<sf::Text>
+	class Typer : public virtual Graphic<sf::Text>
 	{
 		void registerEvents();
 
 	public:
-		using Core::Core;
+		using Graphic::Graphic;
 		Typer(const sf::Font &font = FontManager<>::getDefault());
 	};
 

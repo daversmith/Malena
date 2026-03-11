@@ -2,10 +2,25 @@
 // Created by Dave Smith on 11/3/25.
 //
 
+#include <Malena/Managers/EventsManager.h>
 #include <Malena/Traits/Draggable.h>
+#include <Malena/Traits/Positionable.h>
+#include <Malena/Traits/Flaggable.h>
+#include <Malena/Traits/Subscribable.h>
+
 namespace ml
 {
 
+    Draggable::Draggable()
+    {
+        auto* s = dynamic_cast<Subscribable*>(this);
+        EventsManager::subscribe("draggable", s, [this](const std::optional<sf::Event>& event)
+        {
+            auto* f = dynamic_cast<Flaggable*>(this);
+            if (f && f->checkFlag(Flag::DRAGGABLE))
+                handleDragEvent(event);
+        });
+    }
     void Draggable::handleDragEvent(const std::optional<sf::Event>& event)
     {
 

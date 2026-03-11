@@ -9,7 +9,7 @@
 
 namespace ml
 {
-    std::optional<std::map<UIComponent *, std::function<void(const std::optional<sf::Event> &)>> *>
+    std::optional<std::map<Subscribable *, std::function<void(const std::optional<sf::Event> &)>> *>
     EventsManager::getEvent(const std::string &event)
     {
         auto it = events.find(event);
@@ -22,10 +22,10 @@ namespace ml
 
     void EventsManager::setEvent(const std::string &event)
     {
-        events.insert({event, std::map<UIComponent *, std::function<void(const std::optional<sf::Event> &)>>()});
+        events.insert({event, std::map<Subscribable *, std::function<void(const std::optional<sf::Event> &)>>()});
     }
 
-    void EventsManager::fire(const std::string &event, std::function<bool(UIComponent &)> filter,
+    void EventsManager::fire(const std::string &event, std::function<bool(Subscribable &)> filter,
                              std::function<void()> system, const std::optional<sf::Event> &e)
     {
         auto event_map = getEvent(event);
@@ -34,16 +34,16 @@ namespace ml
             return;
         }
 
-        beginBusy();  // ✅ Using base class method
+        beginBusy();
 
         // Make a copy of the callbacks to avoid iterator invalidation
         auto callbacksCopy = *event_map.value();
 
         for (auto &[component, callback] : callbacksCopy)
         {
-            auto &c = *static_cast<UIComponent *>(component);
+            auto &ep = *component;
 
-            if (!filter || filter(c))
+            if (!filter || filter(ep))
             {
                 // Check if component still exists (might have been unsubscribed)
                 auto currentEventMap = getEvent(event);
@@ -59,24 +59,24 @@ namespace ml
             system();
         }
 
-        endBusy();  // ✅ Using base class method - auto-processes pending
+        endBusy();
     }
 
-    void EventsManager::unsubscribe(const std::string &event, UIComponent *component)
+    void EventsManager::unsubscribe(const std::string &event, Subscribable *component)
     {
-        deferOrExecute([=]() {  // ✅ Using base class method
+        deferOrExecute([=]() {
             doUnsubscribe(event, component);
         });
     }
 
-    void EventsManager::unsubscribeAll(UIComponent *component)
+    void EventsManager::unsubscribeAll(Subscribable *component)
     {
-        deferOrExecute([=]() {  // ✅ Using base class method
+        deferOrExecute([=]() {
             doUnsubscribeAll(component);
         });
     }
 
-    void EventsManager::subscribe(const std::string &event, UIComponent *component,
+    void EventsManager::subscribe(const std::string &event, Subscribable *component,
                                   std::function<void(const std::optional<sf::Event> &event)> f)
     {
         auto opt_map = getEvent(event);
@@ -93,13 +93,11 @@ namespace ml
     {
         deferOrExecute([]() {
             events.clear();
-            DeferredOperationsManager<EventsManager>::clearPending();  // Clear any pending operations too
+            DeferredOperationsManager<EventsManager>::clearPending();
         });
     }
 
-    // Internal implementation methods
-
-    void EventsManager::doUnsubscribe(const std::string &event, UIComponent *component)
+    void EventsManager::doUnsubscribe(const std::string &event, Subscribable *component)
     {
         auto it = events.find(event);
         if (it == events.end())
@@ -115,7 +113,7 @@ namespace ml
         }
     }
 
-    void EventsManager::doUnsubscribeAll(UIComponent *component)
+    void EventsManager::doUnsubscribeAll(Subscribable *component)
     {
         for (auto it = events.begin(); it != events.end();)
         {
@@ -132,9 +130,8 @@ namespace ml
         }
     }
 
-    void EventsManager::forceUnsubscribeAll(UIComponent *component)
+    void EventsManager::forceUnsubscribeAll(Subscribable *component)
     {
-        // Force immediate - bypass deferral (for plugin unloading)
         doUnsubscribeAll(component);
     }
 

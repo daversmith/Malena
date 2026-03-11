@@ -5,13 +5,13 @@
 #pragma once
 
 #include <Malena/Managers/FontManager.h>
-#include <Malena/Graphics/Core.h>
+#include <Malena/Graphics/Graphic.h>
 #include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
 
-	class Text : public virtual Core<sf::Text>
+	class Text : public virtual Graphic<sf::Text>
 	{
 	public:
 		void setWordWrap(bool word_wrap);
@@ -23,13 +23,13 @@ namespace ml
 		float maxWidth = 0.f;
 
 	public:
-		using Core::Core;
+		using Graphic::Graphic;
 		explicit Text(const sf::Font &font = FontManager<>::getDefault());
 		void setString(const sf::String &text);
 	};
 
 	template<typename Manifest>
-	class TextWidth: public Customizable<Text, Manifest>{};
+	class TextWidth: public Text, public Customizable<Manifest>{};
 
 
 } // namespace ml

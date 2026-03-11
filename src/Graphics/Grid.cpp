@@ -31,7 +31,7 @@ namespace ml
 		this->row = row;
 	}
 
-	void Grid::addComponent(UIComponent &component)
+	void Grid::addComponent(Core &component)
 	{
 		const auto c = reinterpret_cast<sf::Shape *>(&component);
 		const auto h = c->getLocalBounds().size.y;
@@ -44,7 +44,7 @@ namespace ml
 
 	void Grid::reposition()
 	{
-		const auto &components = getUIComponents(); // Store reference to avoid repeated calls
+		const auto &components = getComponents(); // Store reference to avoid repeated calls
 		if (components.empty())
 			return; // Avoid accessing empty vector
 
@@ -59,24 +59,24 @@ namespace ml
 		}
 	}
 
-	void Grid::draw(sf::RenderTarget &target, sf::RenderStates states) const
-	{
-		for (auto &c : getUIComponents())
-			// c->draw(target, states);
-			target.draw(*dynamic_cast<sf::Drawable*>(c));
-	}
+	// void Grid::draw(sf::RenderTarget &target, sf::RenderStates states) const
+	// {
+	// 	for (auto &c : getComponents())
+	// 		// c->draw(target, states);
+	// 		target.draw(*dynamic_cast<sf::Drawable*>(c));
+	// }
 
 	void Grid::setPosition(const sf::Vector2f &position)
 	{
-		if (!getUIComponents().empty())
-			getUIComponents().front()->setPosition(position);
+		if (!getComponents().empty())
+			getComponents().front()->setPosition(position);
 		reposition();
 	}
 
 	sf::Vector2f Grid::getPosition() const
 	{
-		if (!getUIComponents().empty())
-			return getUIComponents().front()->getPosition();
+		if (!getComponents().empty())
+			return getComponents().front()->getPosition();
 		return {};
 	}
 

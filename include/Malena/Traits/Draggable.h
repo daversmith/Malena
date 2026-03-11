@@ -14,8 +14,7 @@
 
 #include <Malena/Managers/WindowManager.h>
 
-#include "Flaggable.h"
-#include "Positionable.h"
+
 
 namespace ml {
 
@@ -25,6 +24,7 @@ namespace ml {
         sf::Vector2f dragOffset;
         void handleDragEvent(const std::optional<sf::Event>& event);
     public:
+        Draggable();
         virtual ~Draggable() = default;
         friend class UIComponent;
     };

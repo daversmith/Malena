@@ -1,28 +1,27 @@
-#ifndef SHAPE_H
-#define SHAPE_H
+#ifndef GRAPHIC_H
+#define GRAPHIC_H
 
 #pragma once
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 #include <Malena/Managers/FontManager.h>
-
 namespace ml
 {
 
 	template<typename T>
-	class Core : public T, public virtual UIComponent
+	class Graphic : public T, public virtual Core
 	{
 	public:
 		using T::T;
 		operator const sf::Drawable&() const ;
 		static T isItText();
 
-		Core();
+		Graphic();
 
 		template <typename U>
-		explicit Core(const U &obj);
+		explicit Graphic(const U &obj);
 
 		void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
@@ -35,5 +34,5 @@ namespace ml
 
 } // namespace ml
 
-#include "../../../src/Graphics/Core.tpp"
+#include "../../../src/Graphics/Graphic.tpp"
 #endif // SHAPE_H

@@ -1,7 +1,7 @@
 
 #include <Malena/Graphics/Cursor.h>
 
-ml::Cursor::Cursor(const sf::Font &font) : Core(font), ml::Text(font)
+ml::Cursor::Cursor(const sf::Font &font) : Graphic(font), ml::Text(font)
 {
 	Text::setString('|');
 	enableFlag(State::BLINKING);

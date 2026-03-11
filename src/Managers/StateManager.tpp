@@ -13,10 +13,6 @@ namespace ml {
         : _currentState(initialState) {}
 
     template<typename StateEnum>
-    StateManager<StateEnum>::StateManager()
-        : _currentState(StateEnum{}) {}
-
-    template<typename StateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
     StateManager<StateEnum>::onStateEnter(std::function<void(T)> callback) {
@@ -35,13 +31,11 @@ namespace ml {
     std::enable_if_t<!std::is_void_v<T>>
     StateManager<StateEnum>::setState(T newState) {
         if (_currentState != newState) {
-            if (_onExitCallback) {
+            if (_onExitCallback)
                 _onExitCallback(_currentState);
-            }
             _currentState = newState;
-            if (_onEnterCallback) {
+            if (_onEnterCallback)
                 _onEnterCallback(newState);
-            }
         }
     }
 

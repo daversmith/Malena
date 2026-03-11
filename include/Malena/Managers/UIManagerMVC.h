@@ -9,7 +9,7 @@
 // #include <SFML/Graphics.hpp>
 // #include "WindowManager.h"
 // #include "../Controllers/UIController.h"
-// #include "../Adapters/UIComponentAdapter.h"
+// #include "../Adapters/CoreAdapter.h"
 // #include "Manager.h"
 //
 // namespace ml {

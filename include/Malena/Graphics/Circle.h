@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include <Malena/Graphics/Core.h>
+#include <Malena/Graphics/Graphic.h>
 #include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
-	class Circle : public Core<sf::CircleShape>
+	class Circle : public Graphic<sf::CircleShape>
 	{
 	public:
-		using Core::Core;
+		using Graphic::Graphic;
 	};
 
 	template <typename MANIFEST>

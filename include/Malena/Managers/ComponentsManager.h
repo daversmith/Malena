@@ -8,23 +8,26 @@
 #pragma once
 
 #include <vector>
-#include <Malena/Interfaces/UIComponent.h>
+#include <Malena/Interfaces/Core.h>
 #include <Malena/Managers/DeferredOperationsManager.h>
 
 namespace ml
 {
-	class ComponentsManager : public DeferredOperationsManager<ComponentsManager>
+	// template<t?
+
+	template<typename T>
+	class ComponentsManager : public DeferredOperationsManager<ComponentsManager<T>>
 	{
-		inline static std::vector<UIComponent *> uiComponents;
+		inline static std::vector<T *> _components;
 
 	public:
-		[[nodiscard]] static const std::vector<UIComponent *> &getUIComponents();
+		[[nodiscard]] static const std::vector<T *> &getComponents();
 
-		static void addComponent(UIComponent &component);
+		static void addComponent(T &component);
 
 		// Safe to call anytime - defers removal if currently iterating
-		static bool removeComponent(UIComponent &component);
-		static bool removeComponent(UIComponent *component);
+		static bool removeComponent(T &component);
+		static bool removeComponent(T *component);
 
 		// Clear all (deferred if busy)
 		static void clearComponents();
@@ -33,9 +36,9 @@ namespace ml
 
 	private:
 		// Internal method for actual removal
-		static void doRemoveComponent(UIComponent *component);
+		static void doRemoveComponent(T *component);
 	};
 
 } // namespace ml
-
+#include "../../../src/Managers/ComponentsManager.cpp"
 #endif // COMPONENTSMANAGER_H

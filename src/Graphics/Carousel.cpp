@@ -26,7 +26,7 @@ namespace ml
 	    });
 	}
 
-	void Carousel::add(ml::UIComponent &component)
+	void Carousel::add(ml::Core &component)
 	{
 	    if (_components.empty())
 	    {
@@ -44,7 +44,7 @@ namespace ml
 	    updateRenderTextureSize();
 	}
 
-	void Carousel::remove(ml::UIComponent &component)
+	void Carousel::remove(ml::Core &component)
 	{
 	    _components.remove(&component);
 	    updateRenderTextureSize();

@@ -12,14 +12,16 @@
 #include <string>
 namespace ml
 {
-	class ComponentsManager;
-	class EventPublisher
+	// class ComponentsManager;
+	class Core;
+	class Subscribable
 	{
 
 
 	public:
 		typedef const std::optional<sf::Event> &Event;
-		~EventPublisher();
+		virtual ~Subscribable();
+		Subscribable();
 		void onClick(std::function<void()>);
 		void onUpdate(std::function<void()>);
 		void onHover(std::function<void()>);
@@ -38,14 +40,16 @@ namespace ml
 		void onKeypress(std::function<void()> f);
 		void onMouseMoved(std::function<void(const std::optional<sf::Event> &event)>);
 		void onMouseMoved(std::function<void()> f);
+		void onMouseWheel(std::function<void()> f);
 		void subscribe(const std::string &event, std::function<void(const std::optional<sf::Event> &event)>);
 		void subscribe(const std::string &event, std::function<void()>);
 		void unsubscribe(const std::string &event);
 		void unsubscribeAll();
 		static void publish(
-				const std::string &event,
-				std::function<bool(UIComponent &)> filter = [](UIComponent &) { return true; });
-	};
+			const std::string &event,
+			std::function<bool(Subscribable &)> filter = [](Subscribable &) { return true; });
+
+		};
 
 
 } // namespace ml

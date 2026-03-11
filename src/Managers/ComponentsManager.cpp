@@ -2,56 +2,61 @@
 // ComponentsManager.cpp
 //
 
+
+#ifndef COMPONENTSMANAGER_TPP
+#define COMPONENTSMANAGER_TPP
+
 #include <Malena/Managers/ComponentsManager.h>
 #include <algorithm>
-
 namespace ml
 {
-	void ComponentsManager::addComponent(UIComponent &component)
+	template<typename T>
+	void ComponentsManager<T>::addComponent(T &component)
 	{
-		uiComponents.push_back(&component);
+		_components.push_back(&component);
 	}
-
-	const std::vector<UIComponent *> &ComponentsManager::getUIComponents()
+	template<typename T>
+	const std::vector<T *> &ComponentsManager<T>::getComponents()
 	{
-		return uiComponents;
+		return _components;
 	}
-
-	bool ComponentsManager::removeComponent(UIComponent &component)
+	template<typename T>
+	bool ComponentsManager<T>::removeComponent(T &component)
 	{
 		return removeComponent(&component);
 	}
-
-	bool ComponentsManager::removeComponent(UIComponent *component)
+	template<typename T>
+	bool ComponentsManager<T>::removeComponent(T *component)
 	{
-		deferOrExecute([component]() {  // ✅ Using base class method
-			ComponentsManager::doRemoveComponent(component);
+		DeferredOperationsManager<ComponentsManager<T>>::deferOrExecute([component]() {  // ✅ Using base class method
+			ComponentsManager<T>::doRemoveComponent(component);
 		});
 		return true;
 	}
-
-	void ComponentsManager::doRemoveComponent(UIComponent *component)
+	template<typename T>
+	void ComponentsManager<T>::doRemoveComponent(T *component)
 	{
-		auto it = std::find(uiComponents.begin(), uiComponents.end(), component);
-		if (it != uiComponents.end())
+		auto it = std::find(_components.begin(), _components.end(), component);
+		if (it != _components.end())
 		{
-			uiComponents.erase(it);
+			_components.erase(it);
 		}
 	}
-
-	void ComponentsManager::clearComponents()
+	template<typename T>
+	void ComponentsManager<T>::clearComponents()
 	{
 		deferOrExecute([]() {  // ✅ Using base class method
-			ComponentsManager::uiComponents.clear();
-			clearPending();
+			ComponentsManager<T>::_components.clear();
+			DeferredOperationsManager<ComponentsManager<T>>::clearPending();
 		});
 	}
-
-	ComponentsManager::~ComponentsManager()
+	template<typename T>
+	ComponentsManager<T>::~ComponentsManager()
 	{
 		// Force immediate - we're destructing
-		uiComponents.clear();
-		clearPending();
+		_components.clear();
+		DeferredOperationsManager<ComponentsManager<T>>::clearPending();
 	}
 
 } // namespace ml
+#endif

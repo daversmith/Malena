@@ -9,7 +9,7 @@
 
 namespace ml
 {
-    using Flaggable = FlagManager<Flag>;
+    class Flaggable : public FlagManager<Flag>{};
 }
 
 #endif //STATEFUL_H

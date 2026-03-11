@@ -10,7 +10,7 @@
 
 namespace ml
 {
-	class TextInput : public ml::UIComponent
+	class TextInput : public ml::Core
 	{
 
 		ml::Typer typer;

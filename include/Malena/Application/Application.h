@@ -17,7 +17,7 @@ namespace ml
 		Application(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth, const std::string& title);
 		Application(const sf::VideoMode &videoMode, const std::string &title);
 
-		void addComponent(UIComponent &component);
+		void addComponent(Core &component);
 		// using UIManager::UIManager;
 	};
 } // namespace ml
