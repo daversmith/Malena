@@ -5,28 +5,50 @@
 #ifndef DRAGGABLE_H
 #define DRAGGABLE_H
 
-
-
 #pragma once
-#include <iostream>
 #include <SFML/Graphics.hpp>
-#include <Malena/Utilities/MouseEvents.h>
-
 #include <Malena/Managers/WindowManager.h>
+#include <Malena/Traits/Customizable.h>
+#include <Malena/Manifests/Manifest.h>
 
+#include "Trait.h"
 
-
-namespace ml {
-
-    class Draggable {
-    private:
-        bool isDragging = false;
-        sf::Vector2f dragOffset;
-        void handleDragEvent(const std::optional<sf::Event>& event);
+namespace ml
+{
+    class DraggableManifest : public Manifest
+    {
     public:
-        Draggable();
+        enum class Flags { DRAGGING };
+    };
+
+    /**
+     * @brief Opt-in trait that gives a component drag behaviour.
+     *
+     * Inherits Customizable<DraggableManifest> so its flags are
+     * automatically gathered into the component's MultiCustomFlaggable.
+     *
+     * Enable dragging via the system flag:
+     * @code
+     * _carousel.enableFlag(ml::Flag::DRAGGABLE);
+     * @endcode
+     *
+     * Check drag state via the nested alias:
+     * @code
+     * _carousel.checkFlag(ml::Draggable::Flag::DRAGGING);
+     * @endcode
+     */
+    class Draggable : public TraitWith<DraggableManifest>
+    {
+    public:
+        using Flag = DraggableManifest::Flags;
+
+        Draggable() = default;
         virtual ~Draggable() = default;
-        friend class UIComponent;
+
+        void handleDragEvent(const std::optional<sf::Event>& event);
+
+    private:
+        sf::Vector2f _dragOffset;
     };
 
 } // namespace ml

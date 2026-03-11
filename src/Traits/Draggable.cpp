@@ -2,43 +2,22 @@
 // Created by Dave Smith on 11/3/25.
 //
 
-#include <Malena/Managers/EventsManager.h>
 #include <Malena/Traits/Draggable.h>
 #include <Malena/Traits/Positionable.h>
-#include <Malena/Traits/Flaggable.h>
-#include <Malena/Traits/Subscribable.h>
+#include <Malena/Managers/WindowManager.h>
+#include <Malena/Traits/MultiCustomFlaggable.h>
 
 namespace ml
 {
-
-    Draggable::Draggable()
-    {
-        auto* s = dynamic_cast<Subscribable*>(this);
-        EventsManager::subscribe("draggable", s, [this](const std::optional<sf::Event>& event)
-        {
-            auto* f = dynamic_cast<Flaggable*>(this);
-            if (f && f->checkFlag(Flag::DRAGGABLE))
-                handleDragEvent(event);
-        });
-    }
     void Draggable::handleDragEvent(const std::optional<sf::Event>& event)
     {
-
-        if (!event.has_value())
-        {
-            return;
-        }
-        auto* flaggable = dynamic_cast<Flaggable*>(this);
-        if (!flaggable->checkFlag(Flag::DRAGGABLE))
-        {
-            return;
-        }
+        if (!event.has_value()) return;
 
         auto* positionable = dynamic_cast<Positionable*>(this);
-        if (!positionable)
-        {
-            return;
-        }
+        if (!positionable) return;
+
+        auto* f = dynamic_cast<SingleFlaggable<DraggableManifest::Flags>*>(this);
+        if (!f) return;
 
         sf::Vector2f mousePos = WindowManager::getWindow().mapPixelToCoords(
             sf::Mouse::getPosition(WindowManager::getWindow())
@@ -51,8 +30,8 @@ namespace ml
             {
                 if (positionable->getGlobalBounds().contains(mousePos))
                 {
-                    isDragging = true;
-                    dragOffset = positionable->getPosition() - mousePos;
+                    f->enableFlag(Flag::DRAGGING);
+                    _dragOffset = positionable->getPosition() - mousePos;
                 }
             }
         }
@@ -60,15 +39,12 @@ namespace ml
         {
             auto* mouseRelease = event->getIf<sf::Event::MouseButtonReleased>();
             if (mouseRelease && mouseRelease->button == sf::Mouse::Button::Left)
-            {
-                isDragging = false;
-            }
+                f->disableFlag(Flag::DRAGGING);
         }
         else if (event->is<sf::Event::MouseMoved>())
         {
-            if (isDragging) {
-                positionable->setPosition(mousePos + dragOffset);
-            }
+            if (f->checkFlag(Flag::DRAGGING))
+                positionable->setPosition(mousePos + _dragOffset);
         }
     }
 }

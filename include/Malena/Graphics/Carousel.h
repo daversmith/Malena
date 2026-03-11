@@ -23,7 +23,7 @@ namespace ml
 	    using Style = ShaderLibrary::Style;
 	};
 
-	class Carousel : public ComponentWith<CarouselManifest, Draggable>
+	class Carousel : public ComponentWith<CarouselManifest>
 	{
 	public:
 	    typedef CarouselManifest::Flags Flag;

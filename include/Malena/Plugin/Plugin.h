@@ -8,6 +8,7 @@
 	#define PLUGIN_EXPORT
 #endif
 
+#include <Malena/Traits/Customizable.h>
 #include <Malena/Traits/Messenger.h>
 namespace ml {
 
@@ -36,6 +37,10 @@ namespace ml {
 		}
 	};
 
+	template<typename Manifest>
+	class PluginWith : public Plugin,
+				   public Customizable<Manifest>
+	{};
 } // namespace ml
 
 #define REGISTER_PLUGIN(GameClass) \

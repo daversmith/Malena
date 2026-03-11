@@ -4,12 +4,12 @@
 
 #ifndef STATEFUL_H
 #define STATEFUL_H
-#include "../Managers/FlagManager.h"
-#include "Malena/Utilities/Flag.h"
-
+#include <Malena/Managers/FlagManager.h>
+#include <Malena/Utilities/Flag.h>
+#include <Malena/Traits/Trait.h>
 namespace ml
 {
-    class Flaggable : public FlagManager<Flag>{};
+    class Flaggable : public Trait, public FlagManager<Flag>{};
 }
 
 #endif //STATEFUL_H

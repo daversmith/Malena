@@ -11,7 +11,8 @@
 #include <cmath>
 #include <float.h>
 #include <queue>
-#include "Malena/Utilities/Align.h"
+#include <Malena/Utilities/Align.h>
+#include <Malena/Traits/Trait.h>
 
 
 #include "../Utilities/Helper.h"
@@ -20,7 +21,7 @@
 namespace ml
 {
 
-	class Positionable
+	class Positionable : public Trait
 	{
 	private:
 		float velocityX{}, velocityY{}, framerate = 60.f;

@@ -66,6 +66,13 @@ namespace ml {
         isState(T state) const;
     };
 
+    /**
+     * @brief No-op specialization — used when Manifest has no State enum.
+     * Declares no methods so there is no ambiguity in multiple inheritance.
+     */
+    template<>
+    class StateManager<void> {};
+
 } // namespace ml
 
 #include "../../../src/Managers/StateManager.tpp"

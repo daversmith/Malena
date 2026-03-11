@@ -6,17 +6,16 @@
 #define COMPONENT_H
 
 #include <Malena/Interfaces/Core.h>
-#include <Malena/Traits/Customizable.h>
-#include <Malena/Manifests/Manifest.h>
+#include <Malena/Traits/MultiCustomFlaggable.h>
+#include <Malena/Managers/StateManager.h>
+#include <Malena/Managers/FlagManager.h>
+#include <Malena/Utilities/Flag.h>
+#include <Malena/Utilities/TypeExtraction.h>
 #include "SFML/Graphics/Drawable.hpp"
 #include <type_traits>
 
 namespace ml
 {
-    /**
-     * @brief Checks if any of Traits is already provided by Core.
-     * Used to give a clear compile error if user adds redundant traits.
-     */
     template<typename... Traits>
     struct HasCoreTraits : std::disjunction<
         std::is_same<Traits, Subscribable>...,
@@ -25,41 +24,73 @@ namespace ml
     > {};
 
     /**
-     * @brief Internal base — Core + sf::Drawable + opt-in traits.
-     * @tparam Traits Optional traits e.g. Draggable, Messenger
+     * @brief Internal base — Core + sf::Drawable + traits + flags + state.
+     *
+     * Gathers all flag enums from ComponentManifest and each trait's
+     * manifest_type into one MultiCustomFlaggable. Adds StateManager
+     * for the component manifest's State enum.
+     *
+     * @tparam ComponentManifest The component's own manifest (or void)
+     * @tparam Traits            Optional opt-in traits
      */
-    template<typename... Traits>
-    struct ComponentBase : public sf::Drawable, public Core, public Traits...
+    template<typename ComponentManifest, typename... Traits>
+    struct ComponentBase : public sf::Drawable,
+                           public Core,
+                           public Draggable,
+                           public Traits...,
+                           public GatherFlags<ComponentManifest, Draggable, Traits...>::type,
+                           public StateManager<typename extract_State<ComponentManifest>::type>
     {
         static_assert(
             !HasCoreTraits<Traits...>::value,
             "Subscribable, Flaggable, and Positionable are already included in Component via Core. "
             "Remove them from the trait list."
         );
+
+        ComponentBase() {
+            EventsManager::subscribe("draggable", this, [this](const std::optional<sf::Event>& event)
+            {
+                if (checkFlag(ml::Flag::DRAGGABLE))
+                    Draggable::handleDragEvent(event);
+            });
+        }
+
+        // System flags — FlagManager<ml::Flag> is always unique in hierarchy
+        using FlagManager<ml::Flag>::enableFlag;
+        using FlagManager<ml::Flag>::disableFlag;
+        using FlagManager<ml::Flag>::checkFlag;
+        using FlagManager<ml::Flag>::setFlag;
+        using FlagManager<ml::Flag>::toggleFlag;
+
+        // Custom flags — restore visibility hidden by system flag using declarations
+        using GatherFlags<ComponentManifest, Draggable, Traits...>::type::enableFlag;
+        using GatherFlags<ComponentManifest, Draggable, Traits...>::type::disableFlag;
+        using GatherFlags<ComponentManifest, Draggable, Traits...>::type::checkFlag;
+        using GatherFlags<ComponentManifest, Draggable, Traits...>::type::setFlag;
+        using GatherFlags<ComponentManifest, Draggable, Traits...>::type::toggleFlag;
     };
 
     /**
-     * @brief Base component class for all Malena components.
-     *
-     * Use Component<> for a plain component with no traits and no manifest.
-     * Use Component<Trait1, Trait2> to opt into additional traits.
-     *
-     * To add a manifest, inherit Customizable<MyManifest> alongside:
+     * @brief Plain component — no manifest, optional traits.
      * @code
-     * class Carousel : public ml::Component<Draggable>,
-     *                  public ml::Customizable<CarouselManifest> {};
+     * class HUD   : public ml::Component<> {};
+     * class Panel : public ml::Component<Draggable> {};
      * @endcode
-     *
-     * @tparam Traits Optional opt-in traits (e.g. Draggable, Messenger)
      */
     template<typename First = void, typename... Rest>
-    class Component : public ComponentBase<First, Rest...> {};
+    class Component : public ComponentBase<void, First, Rest...> {};
+
+    template<>
+    class Component<void> : public ComponentBase<void> {};
 
     /**
-     * @brief Specialization for no traits — plain component with Core only.
+     * @brief Component with manifest and optional traits.
+     * @code
+     * class Carousel : public ml::ComponentWith<CarouselManifest, Draggable> {};
+     * @endcode
      */
-    template<>
-    class Component<void> : public ComponentBase<> {};
+    template<typename Manifest, typename... Traits>
+    class ComponentWith : public ComponentBase<Manifest, Traits...> {};
 
 } // namespace ml
 

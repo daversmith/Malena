@@ -2,7 +2,6 @@
 // Created by Dave R. Smith on 3/4/25.
 //
 
-
 #ifndef FLAGGABLE_CPP
 #define FLAGGABLE_CPP
 
@@ -15,43 +14,46 @@ namespace ml
 	FlagManager<StateEnum>::FlagManager()
 	{
 		for (int i = 0; i < static_cast<int>(ml::Flag::LAST_FLAG); i++)
-		{
-			// _states[static_cast<Flag>(i)] = false;
 			_states.insert({static_cast<State>(i), false});
-		}
 	}
+
 	template<typename StateEnum>
 	FlagManager<StateEnum>::FlagManager(const FlagManager& stateful)
 	{
-		for(auto & state : stateful._states)
+		for (auto& state : stateful._states)
 			_states.insert(state);
 	}
+
 	template<typename StateEnum>
 	bool FlagManager<StateEnum>::checkFlag(const State state) const
 	{
-		return _states.at(state);
+		auto it = _states.find(state);
+		return it != _states.end() && it->second;
 	}
+
 	template<typename StateEnum>
 	void FlagManager<StateEnum>::enableFlag(const State state)
 	{
-		_states.at(state)= true;
+		_states[state] = true;
 	}
+
 	template<typename StateEnum>
 	void FlagManager<StateEnum>::disableFlag(const State state)
 	{
-		_states.at(state) = false;
+		_states[state] = false;
 	}
+
 	template<typename StateEnum>
 	void FlagManager<StateEnum>::toggleFlag(const State state)
 	{
-		_states.at(state) = !_states.at(state);
+		_states[state] = !checkFlag(state);
 	}
+
 	template<typename StateEnum>
 	void FlagManager<StateEnum>::setFlag(const State state, const bool status)
 	{
-		_states.at(state) = status;
+		_states[state] = status;
 	}
-
 
 } // namespace ml
 #endif

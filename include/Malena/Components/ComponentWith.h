@@ -1,35 +1,46 @@
+// //
+// // Created by Dave Smith on 3/8/26.
+// //
 //
-// Created by Dave Smith on 3/8/26.
+// #ifndef COMPONENTWITH_H
+// #define COMPONENTWITH_H
 //
-
-#ifndef COMPONENTWITH_H
-#define COMPONENTWITH_H
-
 #include <Malena/Components/Component.h>
-#include <Malena/Traits/Customizable.h>
-
-namespace ml
-{
-    /**
-     * @brief Alias for Customizable<Manifest, Component<Traits...>>.
-     *
-     * System flags (ml::Flag) and custom manifest flags both work
-     * from a single call site with no ambiguity or using declarations.
-     *
-     * @code
-     * class Carousel : public ml::ComponentWith<CarouselManifest> {};
-     * class Carousel : public ml::ComponentWith<CarouselManifest, Draggable> {};
-     *
-     * _carousel.enableFlag(ml::Flag::DRAGGABLE);              // system flag
-     * _carousel.enableFlag(CarouselManifest::Flags::LOOPING); // custom flag
-     * @endcode
-     *
-     * @tparam Manifest A class inheriting ml::Manifest
-     * @tparam Traits   Optional opt-in traits (e.g. Draggable, Messenger)
-     */
-    template<typename Manifest, typename... Traits>
-    using ComponentWith = Customizable<Manifest, Component<Traits...>>;
-
-} // namespace ml
-
-#endif //COMPONENTWITH_H
+//
+// namespace ml
+// {
+//     /**
+//      * @brief Component with a manifest and optional traits.
+//      *
+//      * Automatically gathers flag enums from the component manifest
+//      * and all trait manifests into one MultiCustomFlaggable.
+//      * All three flag types work with zero ambiguity:
+//      *
+//      * @code
+//      * class Carousel : public ml::ComponentWith<CarouselManifest, Draggable> {};
+//      *
+//      * _carousel.enableFlag(ml::Flag::DRAGGABLE);                  // system flag
+//      * _carousel.enableFlag(CarouselManifest::Flags::SCROLLING);   // component flag
+//      * _carousel.enableFlag(DraggableManifest::Flags::DRAGGING);   // trait flag
+//      * @endcode
+//      *
+//      * Traits expose their manifest via Customizable:
+//      * @code
+//      * class Draggable : public ml::Customizable<DraggableManifest> {};
+//      * @endcode
+//      *
+//      * Traits access their own flags via dynamic_cast:
+//      * @code
+//      * auto* f = dynamic_cast<ml::SingleFlaggable<DraggableManifest::Flags>*>(this);
+//      * f->enableFlag(DraggableManifest::Flags::DRAGGING);
+//      * @endcode
+//      *
+//      * @tparam Manifest A class with optional Flags and State enums
+//      * @tparam Traits   Optional opt-in traits
+//      */
+//     template<typename Manifest, typename... Traits>
+//     class ComponentWith : public ComponentBase<Manifest, Traits...> {};
+//
+// } // namespace ml
+//
+// #endif //COMPONENTWITH_H

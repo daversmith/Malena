@@ -7,14 +7,14 @@
 
 #pragma once
 
-#include "../Managers/EventsManager.h"
-#include "../Managers/FlagManager.h"
+#include <Malena/Managers/EventsManager.h>
+#include <Malena/Managers/FlagManager.h>
 #include <string>
 namespace ml
 {
 	// class ComponentsManager;
 	class Core;
-	class Subscribable
+	class Subscribable : public Trait
 	{
 
 
