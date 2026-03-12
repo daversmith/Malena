@@ -4,13 +4,15 @@
 #include <Malena/Managers/MessageManager.h>
 #include <functional>
 
+#include "Trait.h"
+
 namespace ml {
 
   /**
    * Messenger - Trait for sending/receiving type-safe messages
    * Wraps EventBus static service similar to how old Messenger wraps EventsManager
    */
-  class Messenger {
+  class Messenger : public Trait {
   public:
 
     /**
