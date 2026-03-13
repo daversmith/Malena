@@ -10,6 +10,9 @@
 #include <Malena/Managers/EventsManager.h>
 #include <Malena/Managers/FlagManager.h>
 #include <string>
+
+#include <Malena/Traits/Trait.h>
+
 namespace ml
 {
 	// class ComponentsManager;

@@ -58,8 +58,8 @@ namespace ml
     struct extract_ManifestFlags { using type = void; };
 
     template<typename M>
-    struct extract_ManifestFlags<M, std::void_t<typename M::Flags>>
-    { using type = typename M::Flags; };
+    struct extract_ManifestFlags<M, std::void_t<typename M::Flag>>
+    { using type = typename M::Flag; };
 
     // ── Void filtering ────────────────────────────────────────────────────────
     template<typename T, typename Acc>

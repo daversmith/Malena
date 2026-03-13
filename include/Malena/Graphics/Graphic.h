@@ -4,18 +4,24 @@
 #pragma once
 
 #include <SFML/Graphics/RenderTarget.hpp>
-
-#include <Malena/Interfaces/Core.h>
+#include <Malena/Components/Component.h>
 #include <Malena/Managers/FontManager.h>
+
 namespace ml
 {
-
+	/**
+	 * @brief Base for all Malena graphics.
+	 *
+	 * Inherits T (an SFML shape/text which provides sf::Drawable)
+	 * and ComponentCore<> (Draggable, flags, states, subscriptions)
+	 * without adding a second sf::Drawable — no diamond conflict.
+	 */
 	template<typename T>
-	class Graphic : public T, public virtual Core
+	class Graphic : public T, public virtual ComponentCore<>
 	{
 	public:
 		using T::T;
-		operator const sf::Drawable&() const ;
+		operator const sf::Drawable&() const;
 		static T isItText();
 
 		Graphic();

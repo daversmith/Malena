@@ -7,48 +7,57 @@
 
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <Malena/Managers/WindowManager.h>
+#include <optional>
 #include <Malena/Traits/Customizable.h>
 #include <Malena/Manifests/Manifest.h>
-
-#include "Trait.h"
 
 namespace ml
 {
     class DraggableManifest : public Manifest
     {
     public:
-        enum class Flags { DRAGGING };
+        enum class State { FREE, LOCK_X, LOCK_Y };
+        enum class Flag  { DRAGGING };
     };
 
     /**
-     * @brief Opt-in trait that gives a component drag behaviour.
+     * @brief Built-in drag trait — always present on every Component.
      *
-     * Inherits Customizable<DraggableManifest> so its flags are
-     * automatically gathered into the component's MultiCustomFlaggable.
-     *
-     * Enable dragging via the system flag:
+     * Enable dragging:
      * @code
-     * _carousel.enableFlag(ml::Flag::DRAGGABLE);
+     * component.enableFlag(ml::Flag::DRAGGABLE);
      * @endcode
      *
-     * Check drag state via the nested alias:
+     * Axis locking via state:
      * @code
-     * _carousel.checkFlag(ml::Draggable::Flag::DRAGGING);
+     * component.setState(ml::Draggable::State::LOCK_X);  // Y axis only
+     * component.setState(ml::Draggable::State::LOCK_Y);  // X axis only
+     * component.setState(ml::Draggable::State::FREE);     // any direction
+     * @endcode
+     *
+     * Drag bounds:
+     * @code
+     * component.setDragBounds(sf::FloatRect{position, size});
+     * component.clearDragBounds();
      * @endcode
      */
-    class Draggable : public TraitWith<DraggableManifest>
+    class Draggable : public Customizable<DraggableManifest>
     {
     public:
-        using Flag = DraggableManifest::Flags;
+        using Flag  = DraggableManifest::Flag;
+        using State = DraggableManifest::State;
 
         Draggable() = default;
         virtual ~Draggable() = default;
 
+        void setDragBounds(const sf::FloatRect& bounds);
+        void clearDragBounds();
+
         void handleDragEvent(const std::optional<sf::Event>& event);
 
     private:
-        sf::Vector2f _dragOffset;
+        sf::Vector2f                 _dragOffset;
+        std::optional<sf::FloatRect> _dragBounds;
     };
 
 } // namespace ml

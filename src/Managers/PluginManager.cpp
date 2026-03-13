@@ -86,11 +86,9 @@ namespace ml
         for (const auto& entry : fs::directory_iterator(directory)) {
             if (entry.is_regular_file()) {
                 std::string path = entry.path().string();
-
                 if (!extension.empty()) {
-                    if (entry.path().extension() == extension) {
+                    if (entry.path().extension() == extension)
                         files.push_back(path);
-                    }
                 } else {
                     files.push_back(path);
                 }
@@ -103,27 +101,25 @@ namespace ml
     std::vector<Plugin*> PluginManager::getPlugins() {
         std::vector<Plugin*> result;
         result.reserve(_plugins.size());
-        for (const auto& pd : _plugins) {
+        for (const auto& pd : _plugins)
             result.push_back(pd.plugin);
-        }
         return result;
     }
 
     void PluginManager::unloadPlugin(Plugin* plugin) {
-        if (auto *component = plugin->getIf<Core>())
-        {
-            ComponentsManager<Core>::removeComponent(component);
-            delete component;
-        }
-        deferOrExecute([this, plugin]() {  //  Using base class method
+        // Remove from draw loop immediately — safe, doesn't touch plugin RTTI
+        if (auto* core = dynamic_cast<Core*>(plugin))
+            ComponentsManager<Core>::removeComponent(core);
+
+        // Defer everything else — plugin pointer may be mid-callback
+        deferOrExecute([this, plugin]() {
             doUnloadPlugin(plugin);
         });
     }
 
     void PluginManager::doUnloadPlugin(Plugin* plugin) {
-        //  Don't unload if ANY manager is busy - FORCE queue it
+        // Re-queue if any manager is still busy
         if (EventsManager::isBusy() || MessageManager::isBusy()) {
-            // Force add to pending queue, don't execute
             pendingOperations.push_back([this, plugin]() {
                 doUnloadPlugin(plugin);
             });
@@ -143,19 +139,16 @@ namespace ml
         }
 
         if (toDelete) {
-            // Force immediate unsubscribe
-            if (auto* uiComp = dynamic_cast<Core*>(toDelete)) {
-                EventsManager::forceUnsubscribeAll(uiComp);
-                delete uiComp;
-                std::cout << "remove component";
-            }
+            // Unsubscribe from event system — removeComponent already done in unloadPlugin
+            if (auto* core = dynamic_cast<Core*>(toDelete))
+                EventsManager::forceUnsubscribeAll(core);
 
-            if (auto* messenger = dynamic_cast<Messenger*>(toDelete)) {
+            // Unsubscribe from message system
+            if (auto* messenger = dynamic_cast<Messenger*>(toDelete))
                 MessageManager::forceUnsubscribeAll(messenger);
-            }
 
             toDelete->onUnload();
-            delete toDelete;
+            delete toDelete;  // single delete — no double free
             CLOSE_LIB(handle);
         }
     }
