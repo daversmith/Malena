@@ -12,11 +12,11 @@
 #include <float.h>
 #include <queue>
 #include <Malena/Utilities/Align.h>
-#include <Malena/Traits/Trait.h>
+#include <Malena/Traits/Base/Trait.h>
 
 
-#include "../Utilities/Helper.h"
-#include "../Utilities/Tween.h"
+#include <Malena/Utilities/Helper.h>
+#include <Malena/Utilities/Tween.h>
 
 namespace ml
 {

@@ -6,7 +6,7 @@
 #include <utility>
 #include <iostream>
 
-#include <Malena/Managers/ComponentsManager.h>
+#include <Malena/Core/CoreManager.h>
 #include <Malena/Traits/Subscribable.h>
 
 namespace ml

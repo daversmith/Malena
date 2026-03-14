@@ -50,5 +50,5 @@ namespace ml
         static auto& getConfigs();
     };
 }
-#include "../../../src/Manifest/Manifest.tpp"
+#include "../../../src/Manifests/Manifest.tpp"
 #endif //MANIFEST_H

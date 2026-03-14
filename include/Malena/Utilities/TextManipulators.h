@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "SFML/Graphics/Text.hpp"
+#include <SFML/Graphics/Text.hpp>
 namespace ml
 {
 	class TextManipulators

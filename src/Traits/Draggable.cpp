@@ -4,9 +4,9 @@
 
 #include <Malena/Traits/Draggable.h>
 #include <Malena/Traits/Positionable.h>
-#include <Malena/Managers/WindowManager.h>
-#include <Malena/Traits/MultiCustomFlaggable.h>
-#include <Malena/Traits/MultiCustomStateManager.h>
+#include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Traits/Base/MultiCustomFlaggable.h>
+#include <Malena/Traits/Base/MultiCustomStateManager.h>
 
 namespace ml
 {

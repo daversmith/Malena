@@ -1,10 +1,10 @@
 #ifndef MALENA_MESSENGER_NEW_H
 #define MALENA_MESSENGER_NEW_H
 
-#include <Malena/Managers/MessageManager.h>
+#include <Malena/Engine/Messaging/MessageManager.h>
 #include <functional>
 
-#include "Trait.h"
+#include "Base/Trait.h"
 
 namespace ml {
 

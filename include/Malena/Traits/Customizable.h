@@ -1,7 +1,7 @@
 #ifndef UICOMPONENT_H
 #define UICOMPONENT_H
 
-#include <Malena/Managers/StateManager.h>
+#include <Malena/Resources/StateManager.h>
 #include <Malena/Utilities/TypeExtraction.h>
 
 namespace ml

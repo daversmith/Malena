@@ -6,7 +6,7 @@
 #define TEXTURESLICER_H
 
 #include <SFML/Graphics.hpp>
-#include "ImageRects.h"
+#include <Malena/Utilities/ImageRects.h>
 namespace ml
 {
 	class TextureSlicer

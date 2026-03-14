@@ -4,9 +4,9 @@
 
 #ifndef CONTEXT_H
 #define CONTEXT_H
-#include <Malena/Managers/AssetsManager.h>
-#include <Malena/Managers/ConfigManager.h>
-#include <Malena/Managers/StateManager.h>
+#include <Malena/Resources/AssetsManager.h>
+#include <Malena/Resources/ConfigManager.h>
+#include <Malena/Resources/StateManager.h>
 #include <Malena/Manifests/ManifestAliases.h>
 namespace ml
 {

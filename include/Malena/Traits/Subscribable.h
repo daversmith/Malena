@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <Malena/Managers/EventsManager.h>
-#include <Malena/Managers/FlagManager.h>
+#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Resources/FlagManager.h>
 #include <string>
 
-#include <Malena/Traits/Trait.h>
+#include <Malena/Traits/Base/Trait.h>
 
 namespace ml
 {

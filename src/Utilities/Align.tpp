@@ -4,7 +4,7 @@
 
 #ifndef ALIGN_TPP
 #define ALIGN_TPP
-#include "../../include/Malena/Utilities/Align.h"
+#include <Malena/Utilities/Align.h>
 namespace ml
 {
     template<class T>
