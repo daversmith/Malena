@@ -18,8 +18,8 @@ namespace ml
         this->window->clear();
         for (auto &c : ComponentsManager<Core>::getComponents())
         {
-            if (!c->checkFlag(Flag::HIDDEN))
-                window->draw(*dynamic_cast<sf::Drawable*>(c), c->getRenderStates());
+           	if (!c->checkFlag(Flag::HIDDEN))
+                 window->draw(*dynamic_cast<sf::Drawable*>(c), c->getRenderStates());
         }
         this->window->display();
     }
