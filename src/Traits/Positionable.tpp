@@ -34,5 +34,16 @@ namespace ml
 		Align::centerOn(obj, *this);
 	}
 
+	template<class T>
+	void Positionable::centerHorizonally(T &obj)
+	{
+		Align::centerHorizontally(obj.getGlobalBounds(), *this);
+	}
+
+	template<class T>
+	void Positionable::centerVertically(T &obj)
+	{
+		Align::centerVertically(obj.getGlobalBounds(), *this);
+	}
 }
 #endif

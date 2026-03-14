@@ -8,7 +8,7 @@
 #include <Malena/Application/Application.h>
 #include <Malena/Plugin/Plugin.h>
 #include <Malena/Managers/DeferredOperationsManager.h>
-
+#include <Malena/Plugin/PluginInfo.h>
 #ifdef _WIN32
 	#include <windows.h>
 	#define LIB_HANDLE HMODULE
@@ -47,6 +47,7 @@ namespace ml
 		std::vector<Plugin*> getPlugins();
 
 		void unloadPlugin(Plugin* plugin);
+		std::vector<PluginInfo> scanPlugins(const std::string& dir);
 
 	private:
 		void doUnloadPlugin(Plugin* plugin);

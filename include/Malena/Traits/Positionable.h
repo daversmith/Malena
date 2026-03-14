@@ -60,6 +60,12 @@ namespace ml
 		template<class T>
 		void center(T &obj);
 
+		template<class T>
+		void centerHorizonally(T &obj);
+
+		template<class T>
+		void centerVertically(T &obj);
+
 		void centerText(sf::Text &obj);
 
 		virtual sf::FloatRect getGlobalBounds() const = 0;
