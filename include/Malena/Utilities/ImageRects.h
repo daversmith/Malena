@@ -4,20 +4,70 @@
 
 #ifndef IMAGERECTS_H
 #define IMAGERECTS_H
+
 #include <SFML/Graphics/Rect.hpp>
 #include <vector>
-namespace ml {
 
-class ImageRects {
-private:
-	std::vector<sf::IntRect> _intRects;
-	int _rows, _cols;
-public:
-	ImageRects(int cols);
-	const sf::IntRect& getIntRect(int row, int col);
-	void push(const sf::IntRect& int_rect);
-};
+namespace ml
+{
+    /**
+     * @brief A grid-indexed collection of @c sf::IntRect regions.
+     *
+     * @c ImageRects stores the sub-rectangle regions produced by
+     * @c TextureSlicer::getImageRects when a texture is divided into a
+     * uniform grid of rows and columns. Each rect describes the pixel
+     * bounds of one cell within the source texture, ready to be passed
+     * to @c sf::Sprite::setTextureRect for sprite-sheet animation or
+     * tile-based rendering.
+     *
+     * Rects are stored in row-major order and accessed by (row, col) index.
+     *
+     * ### Usage
+     * @code
+     * ml::ImageRects rects = ml::TextureSlicer::getImageRects(spriteSheet, 4, 8);
+     *
+     * // Access frame (row 1, col 3)
+     * sprite.setTextureRect(rects.getIntRect(1, 3));
+     * @endcode
+     *
+     * @see TextureSlicer
+     */
+    class ImageRects
+    {
+    private:
+        std::vector<sf::IntRect> _intRects;
+        int _rows;
+        int _cols;
 
-} // ml
+    public:
+        /**
+         * @brief Construct an empty @c ImageRects with a known column count.
+         *
+         * @param cols Number of columns in the source grid. Used to convert
+         *             (row, col) indices to a flat vector position.
+         */
+        ImageRects(int cols);
 
-#endif //IMAGERECTS_H
+        /**
+         * @brief Return the rect for a given row and column.
+         *
+         * @param row Zero-based row index.
+         * @param col Zero-based column index.
+         * @return Const reference to the @c sf::IntRect for that cell.
+         */
+        const sf::IntRect& getIntRect(int row, int col);
+
+        /**
+         * @brief Append a rect to the collection.
+         *
+         * Called by @c TextureSlicer to populate the collection in
+         * row-major order. Direct use is uncommon outside of framework internals.
+         *
+         * @param int_rect The rect to append.
+         */
+        void push(const sf::IntRect& int_rect);
+    };
+
+} // namespace ml
+
+#endif // IMAGERECTS_H

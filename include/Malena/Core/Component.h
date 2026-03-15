@@ -13,6 +13,16 @@
 
 namespace ml
 {
+    /**
+     * @brief Compile-time guard that rejects traits already provided by @c Core.
+     *
+     * @c Core already inherits @c Subscribable, @c Flaggable, and @c Positionable.
+     * If any of those are passed as extra @c Traits to @c ComponentCore, this
+     * predicate evaluates to @c true and the @c static_assert in @c ComponentCore
+     * fires with a clear error message.
+     *
+     * @tparam Traits The extra trait types to check.
+     */
     template<typename... Traits>
     struct HasCoreTraits : std::disjunction<
         std::is_same<Traits, Subscribable>...,
@@ -21,15 +31,42 @@ namespace ml
     > {};
 
     /**
-     * @brief Internal core — everything except sf::Drawable.
+     * @brief Internal non-drawable layer of the component hierarchy.
      *
-     * Used by both ComponentBase (standard components) and Graphic
-     * (which provides its own sf::Drawable via the shape type T).
+     * @c ComponentCore assembles everything a Malena component needs except
+     * @c sf::Drawable. It is used by two different paths:
      *
-     * Does NOT register onClick/onHover — Graphic members should not
-     * participate in click/hover detection unless explicitly subscribed.
-     * Only the draggable subscription is registered here, gated by
-     * ml::Flag::DRAGGABLE so it's a no-op unless dragging is enabled.
+     * - @c ComponentBase (standard components) inherits @c ComponentCore and
+     *   then adds @c sf::Drawable, giving a full drawable component.
+     * - Graphics primitives (e.g., @c Graphic<sf::RectangleShape>) inherit
+     *   @c ComponentCore directly and supply drawable behavior through their
+     *   own SFML shape type, deliberately bypassing click/hover registration.
+     *
+     * ### What @c ComponentCore provides
+     * - Everything in @c Core (@c Subscribable, @c Flaggable, @c Positionable)
+     * - @c Draggable — drag handling gated by @c ml::Flag::DRAGGABLE
+     * - Any extra @c Traits passed as template parameters
+     * - @c GatherFlags — a @c MultiCustomFlaggable that collects the @c Flags
+     *   enum from the manifest and from each trait that declares one
+     * - @c GatherStates — a @c MultiCustomStateManager that does the same for
+     *   @c State enums
+     * - Unified @c using declarations that bring both system-flag (@c ml::Flag)
+     *   and custom-flag APIs into the same overload set
+     *
+     * ### Drag subscription
+     * The constructor subscribes to the @c "draggable" event. The callback
+     * checks @c ml::Flag::DRAGGABLE at runtime, so it is a no-op until
+     * dragging is explicitly enabled:
+     * @code
+     * myComponent.setFlag(ml::Flag::DRAGGABLE);
+     * @endcode
+     *
+     * @tparam ComponentManifest Manifest struct declaring @c Flags/@c State enums
+     *                           and resource lists. Defaults to @c void (no manifest).
+     * @tparam Traits            Additional trait types to mix in (must not include
+     *                           @c Subscribable, @c Flaggable, or @c Positionable).
+     *
+     * @see ComponentBase, Component, Draggable, GatherFlags, GatherStates
      */
     template<typename ComponentManifest = void, typename... Traits>
     struct ComponentCore : public Core,
@@ -52,21 +89,21 @@ namespace ml
             });
         }
 
-        // System flags
+        // ── System flags (ml::Flag) ──────────────────────────────────────────
         using FlagManager<ml::Flag>::enableFlag;
         using FlagManager<ml::Flag>::disableFlag;
         using FlagManager<ml::Flag>::checkFlag;
         using FlagManager<ml::Flag>::setFlag;
         using FlagManager<ml::Flag>::toggleFlag;
 
-        // Custom flags
+        // ── Custom flags from manifest + traits ──────────────────────────────
         using GatherFlags<ComponentManifest, Draggable, Traits...>::type::enableFlag;
         using GatherFlags<ComponentManifest, Draggable, Traits...>::type::disableFlag;
         using GatherFlags<ComponentManifest, Draggable, Traits...>::type::checkFlag;
         using GatherFlags<ComponentManifest, Draggable, Traits...>::type::setFlag;
         using GatherFlags<ComponentManifest, Draggable, Traits...>::type::toggleFlag;
 
-        // Custom states
+        // ── Custom states from manifest + traits ─────────────────────────────
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::setState;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::getState;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::isState;
@@ -75,10 +112,22 @@ namespace ml
     };
 
     /**
-     * @brief Internal component base — adds sf::Drawable to ComponentCore.
-     * Registers empty onClick/onHover so this component participates in
-     * EventsManager iteration. Internal Graphic members inherit ComponentCore
-     * directly and intentionally skip this — they must not intercept events.
+     * @brief Intermediate layer that adds @c sf::Drawable and event participation.
+     *
+     * @c ComponentBase inherits @c ComponentCore and @c sf::Drawable, then
+     * registers empty @c onClick and @c onHover callbacks in its constructor.
+     * These empty registrations ensure the component appears in
+     * @c EventsManager's subscriber map, so it receives hit-test checks from
+     * @c UIManager even before user code attaches meaningful handlers.
+     *
+     * @note Internal graphics primitives (e.g., @c ml::Rectangle's background
+     *       shape) inherit @c ComponentCore directly and intentionally skip
+     *       this step — they must @b not intercept click/hover events.
+     *
+     * @tparam ComponentManifest Manifest struct, forwarded to @c ComponentCore.
+     * @tparam Traits            Extra traits, forwarded to @c ComponentCore.
+     *
+     * @see ComponentCore, Component
      */
     template<typename ComponentManifest, typename... Traits>
     struct ComponentBase : public sf::Drawable,
@@ -92,12 +141,33 @@ namespace ml
     };
 
     /**
-     * @brief Base class for all Malena components.
+     * @brief Primary base class for all user-facing Malena components.
      *
+     * @c Component is the type most framework users and students will inherit
+     * from when creating custom components. It dispatches to @c ComponentBase
+     * based on whether the first template argument is a @c Manifest subclass:
+     *
+     * - If @c First derives from @c Manifest, it is treated as the manifest
+     *   and forwarded as @c ComponentManifest.
+     * - Otherwise, @c First is treated as the first extra trait and
+     *   @c ComponentManifest defaults to @c void.
+     *
+     * This lets both forms work without user disambiguation:
      * @code
-     * class HUD      : public ml::Component<> {};
-     * class Carousel : public ml::Component<CarouselManifest> {};
+     * class HUD      : public ml::Component<> {};                      // no manifest
+     * class Carousel : public ml::Component<CarouselManifest> {};      // with manifest
+     * class Widget   : public ml::Component<WidgetManifest, Draggable> {}; // manifest + trait
      * @endcode
+     *
+     * The convenience alias @c ml::ComponentWith<M, Traits...> is equivalent
+     * to @c ml::Component<M, Traits...> and may read more clearly at the
+     * call site.
+     *
+     * @tparam First  Either a @c Manifest subclass or the first extra trait.
+     *                Defaults to @c void (no manifest, no extra traits).
+     * @tparam Rest   Additional traits (only meaningful when @c First is a manifest).
+     *
+     * @see ComponentBase, ComponentCore, ComponentWith
      */
     template<typename First = void, typename... Rest>
     class Component : public std::conditional_t<
@@ -106,12 +176,26 @@ namespace ml
         ComponentBase<void, First, Rest...>
     > {};
 
+    /// @cond INTERNAL
     template<>
     class Component<void> : public ComponentBase<void> {};
+    /// @endcond
 
+    /**
+     * @brief Alias for @c Component<M, Traits...>.
+     *
+     * Provided as a more expressive alternative when the intent is clearly
+     * "component with this manifest":
+     * @code
+     * class MyWidget : public ml::ComponentWith<MyManifest> {};
+     * @endcode
+     *
+     * @tparam M      The manifest type.
+     * @tparam Traits Optional additional traits.
+     */
     template<typename M, typename... Traits>
     using ComponentWith = Component<M, Traits...>;
 
 } // namespace ml
 
-#endif //COMPONENT_H
+#endif // COMPONENT_H

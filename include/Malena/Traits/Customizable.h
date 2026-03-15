@@ -7,34 +7,56 @@
 namespace ml
 {
     /**
-     * @brief Tags a class with a manifest and adds StateManager.
+     * @brief Tags a class with a manifest type and wires in its @c State manager.
      *
-     * Does NOT own CustomFlaggable — flag storage is owned by
-     * ComponentBase via MultiCustomFlaggable, which gathers all
-     * manifests from the component and its traits automatically.
+     * @c Customizable<Manifest> is the base class for any framework type that
+     * needs to declare a manifest — traits, graphics components, and plugins
+     * all inherit from it directly or indirectly through the @c With<Manifest>
+     * pattern.
      *
-     * Traits access their flags via dynamic_cast to SingleFlaggable:
+     * ### What @c Customizable does
+     * - Exposes @c manifest_type so that @c GatherFlags and @c GatherStates
+     *   can find this class's manifest when building the multi-flag and
+     *   multi-state inheritance chains in @c ComponentCore.
+     * - Inherits @c StateManager<State> where @c State is extracted from the
+     *   manifest via @c extract_State<Manifest>::type. If the manifest has no
+     *   @c State enum, @c extract_State yields @c void and @c StateManager
+     *   becomes a no-op.
+     *
+     * ### What @c Customizable does NOT do
+     * @c Customizable does @b not own @c CustomFlaggable. Flag storage is
+     * managed by @c MultiCustomFlaggable inside @c ComponentBase, which
+     * gathers flags from the component manifest @e and from every trait
+     * that also declares a @c Flags enum. This prevents duplicate base
+     * classes and ensures a single flag map per enum type.
+     *
+     * Traits that need to read or write their own flags do so by casting to
+     * the appropriate @c SingleFlaggable base:
      * @code
      * auto* f = dynamic_cast<SingleFlaggable<DraggableManifest::Flags>*>(this);
-     * f->enableFlag(DraggableManifest::Flags::DRAGGING);
+     * if (f) f->enableFlag(DraggableManifest::Flags::DRAGGING);
      * @endcode
      *
-     * Usage:
+     * ### Usage
      * @code
-     * // Trait with manifest
+     * // A trait with its own manifest
      * class Draggable : public ml::Customizable<DraggableManifest> {};
      *
-     * // Component with manifest + traits
+     * // A component with a manifest and an extra trait
      * class Carousel : public ml::ComponentWith<CarouselManifest, Draggable> {};
      * @endcode
      *
-     * @tparam Manifest A class with optional Flags and State enums
+     * @tparam Manifest A struct with optional @c Flags and @c State enums
+     *                  and optional resource list inner types.
+     *
+     * @see ComponentCore, GatherFlags, GatherStates, StateManager, MultiCustomFlaggable
      */
     template<typename Manifest>
     class Customizable : public StateManager<typename extract_State<Manifest>::type>
     {
     public:
-        // Exposes manifest type for ComponentWith to gather
+        /// @brief The manifest type, used by @c GatherFlags and @c GatherStates
+        ///        to locate this class's flag and state declarations.
         using manifest_type = Manifest;
 
         Customizable() = default;

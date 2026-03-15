@@ -1,5 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
+
 #pragma once
 
 #include <Malena/Engine/App/UIController.h>
@@ -10,16 +11,17 @@
 namespace ml
 {
     /**
-     * @class Application
-     * @brief Combines application logic and the engine loop into a single class.
+     * @brief Primary entry point for Malena applications.
      *
-     * `Application` serves as the main entry point for simple Malena programs.
-     * It inherits from both `AppManager` and `UIController`, allowing a subclass
-     * to define application behavior directly by overriding `initialization()`
-     * and `registerEvents()`.
+     * @c Application combines @c AppManager (the main loop runner) and
+     * @c UIController (the initialization and event-registration contract)
+     * into a single class. For most programs, this is the only framework
+     * base class you need to inherit from.
      *
-     * For projects that prefer a cleaner separation between the application runner
-     * and the UI logic, use the constructor that accepts a separate `UIController`.
+     * ### Simple subclassing pattern
+     * Override @c initialization() to create and register components, then
+     * override @c registerEvents() to attach callbacks. @c run() starts the
+     * main loop.
      *
      * @code
      * class MyApp : public ml::Application
@@ -29,16 +31,18 @@ namespace ml
      *
      *     void initialization() override
      *     {
-     *         addComponent(mySprite);
+     *         _box.setSize({200.f, 100.f});
+     *         _box.setPosition({100.f, 100.f});
+     *         addComponent(_box);
      *     }
      *
      *     void registerEvents() override
      *     {
-     *         mySprite.onClick([]{ std::cout << "clicked!\n"; });
+     *         _box.onClick([]{ std::cout << "clicked!\n"; });
      *     }
      *
      * private:
-     *     ml::Sprite mySprite;
+     *     ml::Rectangle _box;
      * };
      *
      * int main()
@@ -47,60 +51,84 @@ namespace ml
      *     app.run();
      * }
      * @endcode
+     *
+     * ### Separate controller pattern
+     * For larger projects where you want to keep the runner and the UI logic
+     * in separate classes, pass a @c UIController reference to the constructor
+     * that accepts one. @c Application then delegates @c initialization() and
+     * @c registerEvents() to that controller.
+     *
+     * @code
+     * MyController controller;
+     * ml::Application app(sf::VideoMode({1280, 720}), "My App", controller);
+     * app.run();
+     * @endcode
+     *
+     * @see AppManager, UIController, Controller
      */
     class Application : public AppManager, public UIController
     {
     public:
         /**
-         * @brief Creates an application that uses a separate UI controller.
+         * @brief Construct with a separate @c UIController and an explicit video mode.
          *
-         * Use this constructor when the application's event registration and
-         * initialization logic are implemented in a dedicated `UIController`
-         * object rather than directly in a subclass of `Application`.
+         * Use this constructor when the initialization and event-registration
+         * logic live in a dedicated @c UIController subclass rather than in
+         * @c Application itself.
          *
-         * @param videoMode The video mode used to create the render window.
-         * @param title The title displayed in the application window.
-         * @param appLogic The controller responsible for initialization and event registration.
-         * @param window The render window used by the application.
+         * @param videoMode  SFML video mode (resolution + bit depth).
+         * @param title      Window title string.
+         * @param appLogic   Controller that provides the @c initialization() and
+         *                   @c registerEvents() implementations.
+         * @param window     Render window to use. Defaults to the framework
+         *                   window managed by @c WindowManager.
          */
-        Application(const sf::VideoMode &videoMode, const std::string &title, UIController &appLogic,
-                    sf::RenderWindow &window = WindowManager::getWindow());
+        Application(const sf::VideoMode& videoMode,
+                    const std::string& title,
+                    UIController& appLogic,
+                    sf::RenderWindow& window = WindowManager::getWindow());
 
         /**
-         * @brief Creates an application from width, height, and bit depth.
+         * @brief Construct from pixel dimensions and bit depth.
          *
-         * This constructor is intended for subclasses of `Application` that
-         * implement `initialization()` and `registerEvents()` directly.
+         * The most common constructor for subclasses that implement
+         * @c initialization() and @c registerEvents() directly.
          *
-         * @param screenWidth The width of the application window in pixels.
-         * @param screenHeight The height of the application window in pixels.
-         * @param bitDepth The color depth of the window.
-         * @param title The title displayed in the application window.
+         * @param screenWidth  Window width in pixels.
+         * @param screenHeight Window height in pixels.
+         * @param bitDepth     Color depth (typically 32).
+         * @param title        Window title string.
          */
-        Application(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth,
-                    const std::string &title);
+        Application(unsigned int screenWidth,
+                    unsigned int screenHeight,
+                    unsigned int bitDepth,
+                    const std::string& title);
 
         /**
-         * @brief Creates an application from an SFML video mode.
+         * @brief Construct from an SFML video mode, using @c *this as the controller.
          *
-         * This constructor uses the current `Application` object as the UI
-         * controller, making it suitable for subclasses that define their
-         * own initialization and event registration behavior.
+         * Suitable for @c Application subclasses that implement their own
+         * @c initialization() and @c registerEvents(). The current object is
+         * passed as the @c UIController to @c AppManager.
          *
-         * @param videoMode The video mode used to create the render window.
-         * @param title The title displayed in the application window.
+         * @param videoMode  SFML video mode (resolution + bit depth).
+         * @param title      Window title string.
          */
-        Application(const sf::VideoMode &videoMode, const std::string &title);
+        Application(const sf::VideoMode& videoMode,
+                    const std::string& title);
 
         /**
-         * @brief Registers a core component with the application.
+         * @brief Register a @c Core object with the application's component manager.
          *
-         * Registered components are managed by `CoreManager` and become part of
-         * the application's update and render flow.
+         * After registration the component is included in the framework's
+         * update and draw loop. Call this from @c initialization().
+         *
+         * @note Do not copy or move a component after it has been registered —
+         *       the manager stores a pointer to the original object.
          *
          * @param component The component to register.
          */
-        void addComponent(Core &component);
+        void addComponent(Core& component);
     };
 
 } // namespace ml
