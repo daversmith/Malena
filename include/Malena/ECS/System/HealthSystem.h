@@ -12,30 +12,32 @@
 #include "Core/ECSManager.h"
 #include "Core/EventManagerECS.h"
 
-
-class HealthSystem
+namespace ml
 {
-public:
-	void applyDamage(EventManagerECS &eventManager, ECSManager &ecs, Entity entity, int damage)
+	class HealthSystem
 	{
-		if (ecs.healths.find(entity) != ecs.healths.end())
+	public:
+		void applyDamage(EventManagerECS &eventManager, ECSManager &ecs, Entity entity, int damage)
 		{
-			eventManager.pushEvent([&, entity, damage]() {
-				ecs.healths[entity].health -= damage;
-				std::cout << "Entity " << entity << " took " << damage
-						  << " damage! Health: " << ecs.healths[entity].health << std::endl;
+			if (ecs.healths.find(entity) != ecs.healths.end())
+			{
+				eventManager.pushEvent([&, entity, damage]() {
+					ecs.healths[entity].health -= damage;
+					std::cout << "Entity " << entity << " took " << damage
+							  << " damage! Health: " << ecs.healths[entity].health << std::endl;
 
-				if (ecs.healths[entity].health <= 0)
-				{
-					std::cout << "Entity " << entity << " has died!\n";
-					ecs.healths.erase(entity);
-					ecs.positions.erase(entity);
-					ecs.velocities.erase(entity);
-				}
-			});
+					if (ecs.healths[entity].health <= 0)
+					{
+						std::cout << "Entity " << entity << " has died!\n";
+						ecs.healths.erase(entity);
+						ecs.positions.erase(entity);
+						ecs.velocities.erase(entity);
+					}
+				});
+			}
 		}
-	}
-};
+	};
+}
 
 
 #endif // HEALTHSYSTEM_H

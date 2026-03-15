@@ -53,7 +53,9 @@ namespace ml
             }
             else
             {
-                std::cerr << "Plugin not found: " << path_ << std::endl;
+                const char* err = dlerror();
+                std::cerr << "Plugin failed to load: " << path_ << "\n";
+                std::cerr << "  reason: " << (err ? err : "(no error message)") << "\n";
                 return nullptr;
             }
         }

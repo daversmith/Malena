@@ -49,6 +49,7 @@ namespace ml
             fireUpdateEvents();
             draw();
         }
+        delete window;
     }
 
     void AppManager::fireInputEvents(const std::optional<sf::Event> &event)

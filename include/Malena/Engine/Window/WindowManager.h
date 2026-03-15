@@ -15,8 +15,8 @@ namespace ml::WindowManager
 {
 	inline sf::RenderWindow& getWindow()
 	{
-		static sf::RenderWindow window;
-		return window;
+		static sf::RenderWindow* window = new sf::RenderWindow;
+		return *window;
 	}
 } // namespace ml::WindowManager
 

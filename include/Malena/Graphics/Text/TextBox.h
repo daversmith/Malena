@@ -4,10 +4,11 @@
 
 #pragma once
 
-
-class TextBox
+namespace ml
 {
-};
-
+	class TextBox
+	{
+	};
+}
 
 #endif // TEXTBOX_H

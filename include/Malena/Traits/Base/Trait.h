@@ -5,11 +5,13 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 #include <Malena/Traits/Customizable.h>
+namespace ml
+{
+	class Trait {};
 
-class Trait {};
-
-template<typename Manifest>
-class TraitWith : public Trait,
-                  public ml::Customizable<Manifest>
-{};
+	template<typename Manifest>
+	class TraitWith : public Trait,
+					  public ml::Customizable<Manifest>
+	{};
+}
 #endif //TRAIT_H

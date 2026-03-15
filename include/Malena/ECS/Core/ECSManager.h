@@ -10,18 +10,19 @@
 #include <unordered_map>
 
 #include "EntitiesAndComponents.h"
-
-// Entity is just an integer ID
-using Entity = int;
-
-class ECSManager
+namespace ml
 {
-public:
-	std::unordered_map<Entity, PositionComponent> positions;
-	std::unordered_map<Entity, VelocityComponent> velocities;
-	std::unordered_map<Entity, HealthComponent> healths;
-	std::unordered_map<Entity, HealthComponent> size;
-};
+	// Entity is just an integer ID
+	using Entity = int;
 
+	class ECSManager
+	{
+	public:
+		std::unordered_map<Entity, PositionComponent> positions;
+		std::unordered_map<Entity, VelocityComponent> velocities;
+		std::unordered_map<Entity, HealthComponent> healths;
+		std::unordered_map<Entity, HealthComponent> size;
+	};
+}
 
 #endif // ECSMANAGER_H

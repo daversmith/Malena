@@ -12,21 +12,22 @@
 
 #include "Core/ECSManager.h"
 #include "Core/EntitiesAndComponents.h"
-
-class MovementSystem
+namespace ml
 {
-public:
-	static void update(ECSManager &ecs, const float deltaTime)
+	class MovementSystem
 	{
-		for (auto &[entity, velocity] : ecs.velocities)
+	public:
+		static void update(ECSManager &ecs, const float deltaTime)
 		{
-			if (ecs.positions.find(entity) != ecs.positions.end())
+			for (auto &[entity, velocity] : ecs.velocities)
 			{
-				ecs.positions[entity].x += velocity.vx * deltaTime;
-				ecs.positions[entity].y += velocity.vy * deltaTime;
+				if (ecs.positions.find(entity) != ecs.positions.end())
+				{
+					ecs.positions[entity].x += velocity.vx * deltaTime;
+					ecs.positions[entity].y += velocity.vy * deltaTime;
+				}
 			}
 		}
-	}
-};
-
+	};
+}
 #endif // MOVEMENTSYSTEM_H

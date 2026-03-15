@@ -1,6 +1,7 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-add_library(Malena ${MALENA_SOURCES})
+add_library(Malena ${MALENA_SOURCES}
+        ../include/Malena/MALENA_MODULES.h)
 
 add_library(Malena::Malena ALIAS Malena)
 

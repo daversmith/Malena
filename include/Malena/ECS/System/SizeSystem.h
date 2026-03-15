@@ -7,10 +7,11 @@
 
 #pragma once
 
-
-class SizeSystem
+namespace ml
 {
-};
-
+	class SizeSystem
+	{
+	};
+}
 
 #endif // SIZESYSTEM_H

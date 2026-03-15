@@ -5,14 +5,14 @@
 #ifndef DEFAULTMANIFEST_H
 #define DEFAULTMANIFEST_H
 
-
-
-class DefaultManifest {
-public:
-    enum class Asset { DUMMY };
-    DefaultManifest() {}
-};
-
+namespace ml
+{
+	class DefaultManifest {
+	public:
+		enum class Asset { DUMMY };
+		DefaultManifest() {}
+	};
+}
 
 
 #endif //DEFAULTMANIFEST_H

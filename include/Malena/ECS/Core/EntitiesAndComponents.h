@@ -7,28 +7,30 @@
 
 #pragma once
 
-// Define an Entity type (just an ID)
-using Entity = int;
-
-// Component store only data
-struct PositionComponent
+namespace ml
 {
-	float x, y;
-};
+	// Define an Entity type (just an ID)
+	using Entity = int;
 
-struct VelocityComponent
-{
-	float vx, vy;
-};
+	// Component store only data
+	struct PositionComponent
+	{
+		float x, y;
+	};
 
-struct HealthComponent
-{
-	int health;
-};
+	struct VelocityComponent
+	{
+		float vx, vy;
+	};
 
-struct SizeComponent
-{
-	float radius;
-};
+	struct HealthComponent
+	{
+		int health;
+	};
 
+	struct SizeComponent
+	{
+		float radius;
+	};
+}
 #endif // ENTITIESANDCOMPONENTS_H

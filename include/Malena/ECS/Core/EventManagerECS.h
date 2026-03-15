@@ -10,27 +10,28 @@
 #include <functional>
 #include <queue>
 #include <unordered_map>
-
-class EventManagerECS
+namespace ml
 {
-private:
-	std::queue<std::function<void()>> eventQueue; // Queue of events to process
-
-public:
-	void pushEvent(const std::function<void()> &event)
+	class EventManagerECS
 	{
-		eventQueue.push(event); // Add event to queue
-	}
+	private:
+		std::queue<std::function<void()>> eventQueue; // Queue of events to process
 
-	void processEvents()
-	{
-		while (!eventQueue.empty())
+	public:
+		void pushEvent(const std::function<void()> &event)
 		{
-			eventQueue.front()(); // Execute event
-			eventQueue.pop(); // Remove event from queue
+			eventQueue.push(event); // Add event to queue
 		}
-	}
-};
 
+		void processEvents()
+		{
+			while (!eventQueue.empty())
+			{
+				eventQueue.front()(); // Execute event
+				eventQueue.pop(); // Remove event from queue
+			}
+		}
+	};
+}
 
 #endif // EVENTMANAGERECS_H
