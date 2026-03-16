@@ -7,6 +7,8 @@
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
+#include <algorithm>
+
 
 namespace ml
 {
