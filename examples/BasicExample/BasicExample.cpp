@@ -33,24 +33,24 @@ void BasicExample::initialization()
 	subscribeBtn.setString("Subscribe MyEvent");
 
 	// position unsubscribeBtn below box1
-	box1.bottom(unsubscribeBtn, 20);
+	box1.setBelow(unsubscribeBtn, 20);
 	// position subscribeBtn below box2
-	box2.bottom(subscribeBtn, 20);
+	box2.setBelow(subscribeBtn, 20);
 
 	unsubscribeAll.setSize(subscribeBtn.getSize());
 	unsubscribeAll.setFillColor(sf::Color(125u, 125u, 125u));
 	unsubscribeAll.setString("Unsubscribe All");
 	// position unsubscribeAll below unsubscribeBtn;
-	unsubscribeBtn.bottom(unsubscribeAll, 20);
+	unsubscribeBtn.setBelow(unsubscribeAll, 20);
 
 	clearAll.setSize(subscribeBtn.getSize());
 	clearAll.setFillColor(sf::Color(125u, 0, 125u));
 	clearAll.setString("Clear All");
 	// position unsubscribeAll below unsubscribeBtn;
-	unsubscribeAll.right(clearAll, 10);
+	unsubscribeAll.setRightOf(clearAll, 10);
 
-	typer.enableState(ml::ENABLED);
-	typer.enableState(ml::HIDDEN);
+	typer.enableFlag(ml::Flag::ENABLED);
+	typer.enableFlag(ml::Flag::HIDDEN);
 
 	addComponent(box1);
 	addComponent(box2);
@@ -84,9 +84,9 @@ void BasicExample::registerEvents()
 	/// Here, when a key is pressed, which ever box is focused whill get the text typed in Typer
 	typer.onKeypress([this]() {
 		std::string str = typer.getString();
-		if (box1.checkFlag(ml::FOCUSED))
+		if (box1.checkFlag(ml::Flag::FOCUSED))
 			box1.setString(str);
-		else if (box2.checkFlag(ml::FOCUSED))
+		else if (box2.checkFlag(ml::Flag::FOCUSED))
 			box2.setString(str);
 	});
 
@@ -101,7 +101,7 @@ void BasicExample::registerEvents()
 	/// use update to check states and update component accourding to their state
 	/// HThe example here is saying when box1 is in a hovered state, change the color of myEventButton
 	box2.onUpdate([this]() {
-		if (box1.checkFlag(ml::HOVERED))
+		if (box1.checkFlag(ml::Flag::HOVERED))
 			myEventButton.setFillColor(sf::Color::Magenta);
 		else
 			myEventButton.setFillColor(sf::Color::Blue);
@@ -132,6 +132,6 @@ void BasicExample::registerEvents()
 	/// In this example, we are publishing "myEvent" when myEventButton is clicked
 	myEventButton.onClick([this]() {
 		myEventButton.publish("myEvent",
-							  [this](ml::UIComponent&) -> bool { return !box1.checkFlag(ml::HIDDEN); });
+							  [this](ml::UIComponent&) -> bool { return !box1.checkFlag(ml::Flag::HIDDEN); });
 	});
 }

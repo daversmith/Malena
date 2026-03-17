@@ -4,7 +4,7 @@
 
 #ifndef CUSTOMFLAGGABLE_CPP
 #define CUSTOMFLAGGABLE_CPP
-#include "../../include/Malena/Traits/CustomFlaggable.h"
+#include <Malena/Traits/CustomFlaggable.h>
 
 namespace ml {
     template<typename CustomStateEnum>

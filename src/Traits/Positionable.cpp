@@ -8,6 +8,7 @@
 #include <Malena/Traits/Positionable.h>
 
 
+
 namespace ml
 {
 
@@ -40,7 +41,7 @@ namespace ml
 
 	void Positionable::centerText(sf::Text &obj)
 	{
-		centerText(*this, obj);
+		Align::centerText(*this, obj);
 	}
 
 	void Positionable::moveTo(sf::Vector2f position, float seconds)
