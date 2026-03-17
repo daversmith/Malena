@@ -1,7 +1,9 @@
 //
 // PluginManager.cpp
 //
-
+#ifndef _WIN32
+#include <dlfcn.h>
+#endif
 #include <Malena/Engine/Plugins/PluginManager.h>
 #include <Malena/Engine/Plugins/PluginInfo.h>
 #include <Malena/Engine/Events/EventsManager.h>
@@ -53,9 +55,9 @@ namespace ml
             }
             else
             {
-                const char* err = dlerror();
-                std::cerr << "Plugin failed to load: " << path_ << "\n";
-                std::cerr << "  reason: " << (err ? err : "(no error message)") << "\n";
+                // const char* err = dlerror();
+                // std::cerr << "Plugin failed to load: " << path_ << "\n";
+                // std::cerr << "  reason: " << (err ? err : "(no error message)") << "\n";
                 return nullptr;
             }
         }
