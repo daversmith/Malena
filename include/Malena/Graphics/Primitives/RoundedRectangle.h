@@ -14,6 +14,7 @@ namespace ml
 {
     /**
      * @brief An @c sf::Shape subclass that draws a rectangle with rounded corners.
+      * @ingroup GraphicsPrimitives
      *
      * @c RoundedRectangle extends @c sf::Shape by generating vertex geometry
      * for a rectangle whose corners are replaced by circular arcs. The number

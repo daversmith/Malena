@@ -22,6 +22,7 @@ namespace ml
 
     /**
      * @brief Centralized string-keyed publish-subscribe event bus.
+      * @ingroup EngineEvents
      *
      * @c EventsManager is the backbone of Malena's input-driven event system.
      * Components subscribe to named events; @c UIManager fires those events

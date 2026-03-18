@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief Concrete @c Controller base with a per-frame update hook.
+      * @ingroup EngineApp
      *
      * @c UIController extends @c Controller with two additions:
      *

@@ -13,6 +13,7 @@ namespace ml
 {
     /**
      * @brief Built-in GLSL shaders and uniform parameters for @c Carousel effects.
+      * @ingroup Utilities
      *
      * @c ShaderLibrary provides a catalogue of pre-written fragment shaders
      * that can be applied to a @c Carousel's render texture, along with a

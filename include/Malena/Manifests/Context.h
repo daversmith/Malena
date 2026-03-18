@@ -56,6 +56,10 @@ namespace ml
      * @see AssetsManager, ConfigManager, StateManager, ManifestAliases, Resources
      */
     template<typename Manifest>
+    /**
+     * @brief Context.
+     * @ingroup Manifests
+     */
     struct Context : public ManifestAliases<Manifest>
     {
         /// @c AssetsManager typed to this manifest — access textures, fonts, sounds.

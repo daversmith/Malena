@@ -30,6 +30,7 @@ namespace ml
 {
     /**
      * @brief Loads, manages, and safely unloads dynamically linked plugins.
+      * @ingroup EnginePlugins
      *
      * @c PluginManager handles the full plugin lifecycle:
      *

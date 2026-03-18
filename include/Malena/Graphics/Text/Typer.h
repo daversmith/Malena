@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief An animated text object that accepts keyboard input.
+      * @ingroup GraphicsText
      *
      * @c Typer extends @c Graphic<sf::Text> with keyboard event handling,
      * making it the editable text layer inside @c TextInput. It registers

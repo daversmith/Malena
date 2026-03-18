@@ -4,6 +4,10 @@
 
 #ifndef TYPEEXTRACTION_H
 #define TYPEEXTRACTION_H
+/**
+ * @file TypeExtraction.h
+ * @ingroup Utilities
+ */
 
 namespace ml
 {

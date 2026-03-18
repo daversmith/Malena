@@ -9,6 +9,10 @@
 
 namespace ml
 {
+	/**
+	 * @brief SizeSystem.
+	 * @ingroup ECSSystem
+	 */
 	class SizeSystem
 	{
 	};

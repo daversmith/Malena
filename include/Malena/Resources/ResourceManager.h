@@ -58,6 +58,10 @@ namespace ml
     template<typename Manifest,
              typename Resource,
              bool (*loadFunction)(Resource&, const std::string&) = &fileLoader>
+    /**
+     * @brief ResourceManager.
+     * @ingroup Resources
+     */
     class ResourceManager
     {
     public:

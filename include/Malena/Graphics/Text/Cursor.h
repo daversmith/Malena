@@ -8,6 +8,7 @@ namespace ml
 {
     /**
      * @brief A blinking text cursor used inside @c TextInput.
+      * @ingroup GraphicsText
      *
      * @c Cursor extends @c ml::Text with a time-driven blink animation,
      * rendering a visible caret character that alternates between visible

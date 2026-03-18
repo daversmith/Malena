@@ -15,6 +15,10 @@ namespace ml
 	// Entity is just an integer ID
 	using Entity = int;
 
+	/**
+	 * @brief ECSManager.
+	 * @ingroup ECSCore
+	 */
 	class ECSManager
 	{
 	public:

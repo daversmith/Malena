@@ -85,6 +85,10 @@ namespace ml
      * @see TextureManager, FontManager, SoundManager, Context, Manifest
      */
     template<typename Manifest>
+    /**
+     * @brief AssetsManager.
+     * @ingroup Resources
+     */
     class AssetsManager
     {
     private:

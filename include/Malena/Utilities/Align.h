@@ -18,6 +18,7 @@ namespace ml
 {
     /**
      * @brief Static layout helpers for positioning objects relative to one another.
+      * @ingroup Utilities
      *
      * @c Align provides a uniform set of spatial operations that work against
      * three kinds of reference:

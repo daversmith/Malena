@@ -124,6 +124,10 @@ namespace ml
      * @see SingleStateManager, GatherStates, ComponentCore
      */
     template<typename... StateEnums>
+    /**
+     * @brief MultiCustomStateManager.
+     * @ingroup TraitsBase
+     */
     class MultiCustomStateManager : public SingleStateManager<StateEnums>...
     {
     public:

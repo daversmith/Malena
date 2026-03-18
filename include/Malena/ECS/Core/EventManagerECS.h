@@ -12,6 +12,10 @@
 #include <unordered_map>
 namespace ml
 {
+	/**
+	 * @brief EventManagerECS.
+	 * @ingroup ECSCore
+	 */
 	class EventManagerECS
 	{
 	private:

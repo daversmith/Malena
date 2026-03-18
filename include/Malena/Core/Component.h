@@ -87,6 +87,8 @@ namespace ml
                 if (checkFlag(ml::Flag::DRAGGABLE))
                     Draggable::handleDragEvent(event);
             });
+        	this->onClick([](){});
+        	this->onHover([](){});
         }
 
         // ── System flags (ml::Flag) ──────────────────────────────────────────
@@ -135,8 +137,8 @@ namespace ml
     {
         ComponentBase()
         {
-            this->onClick([](){});
-            this->onHover([](){});
+            // this->onClick([](){});
+            // this->onHover([](){});
         }
     };
 
@@ -170,6 +172,10 @@ namespace ml
      * @see ComponentBase, ComponentCore, ComponentWith
      */
     template<typename First = void, typename... Rest>
+    /**
+     * @brief Component.
+     * @ingroup Core
+     */
     class Component : public std::conditional_t<
         std::is_base_of_v<Manifest, First>,
         ComponentBase<First, Rest...>,

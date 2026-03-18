@@ -13,6 +13,10 @@ namespace ml
 	using Entity = int;
 
 	// Component store only data
+	/**
+	 * @brief PositionComponent.
+	 * @ingroup ECSCore
+	 */
 	struct PositionComponent
 	{
 		float x, y;

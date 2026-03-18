@@ -18,6 +18,7 @@ namespace ml
 {
     /**
      * @brief Drives the application main loop and coordinates all framework managers.
+      * @ingroup EngineApp
      *
      * @c AppManager owns the SFML render window and runs the core application
      * lifecycle:

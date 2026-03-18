@@ -38,6 +38,10 @@ namespace ml
      * @see ResourceManager, AssetsManager, DefaultManifest
      */
     template<typename Manifest = DefaultManifest>
+    /**
+     * @brief FontManager.
+     * @ingroup Resources
+     */
     class FontManager : public ResourceManager<Manifest, sf::Font, &fileOpener>
     {
     public:

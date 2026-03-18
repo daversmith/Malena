@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief A rectangular button with a centered text label.
+      * @ingroup GraphicsControls
      *
      * @c RectangleButton is @c Button<Rectangle, sf::Vector2f> — a
      * @c Rectangle background shape with an @c sf::Text label rendered on

@@ -49,6 +49,10 @@ namespace ml
      * @see MultiCustomFlaggable, Flaggable, ComponentCore
      */
     template<typename CustomFlagEnum>
+    /**
+     * @brief CustomFlaggable.
+     * @ingroup Traits
+     */
     class CustomFlaggable
     {
         std::conditional_t<

@@ -16,6 +16,7 @@ namespace ml
 {
     /**
      * @brief Static helpers for text layout and string manipulation.
+      * @ingroup Utilities
      *
      * @c TextManipulators provides the word-wrapping logic used internally
      * by @c ml::Text when @c setWordWrap(true) is enabled. Both overloads

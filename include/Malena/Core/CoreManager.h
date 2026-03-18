@@ -48,6 +48,10 @@ namespace ml
      * @see DeferredOperationsManager, Core, Application
      */
     template<typename T>
+    /**
+     * @brief CoreManager.
+     * @ingroup Core
+     */
     class CoreManager : public DeferredOperationsManager<CoreManager<T>>
     {
         inline static std::vector<T*> _components;

@@ -9,6 +9,7 @@ namespace ml
 {
     /**
      * @brief System-level boolean flags available on every @c ml::Core object.
+      * @ingroup Utilities
      *
      * @c ml::Flag is the enum type managed by @c FlagManager<ml::Flag>, which
      * is inherited by every @c Core object through the @c Flaggable trait.

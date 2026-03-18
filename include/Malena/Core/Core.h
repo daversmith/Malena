@@ -22,6 +22,7 @@ namespace ml
 {
     /**
      * @brief Virtual base class for all Malena framework objects.
+      * @ingroup Core
      *
      * @c Core combines the three fundamental traits that every framework
      * object is expected to support:

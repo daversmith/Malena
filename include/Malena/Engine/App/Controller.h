@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief Abstract interface for application initialization and event registration.
+      * @ingroup EngineApp
      *
      * @c Controller defines the two-phase lifecycle contract that every Malena
      * application entry point must fulfill:

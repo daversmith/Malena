@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief A framework-integrated rectangle with optional rounded corners.
+      * @ingroup GraphicsPrimitives
      *
      * @c Rectangle wraps @c ml::RoundedRectangle inside @c Graphic<>, giving
      * it the full framework trait set: @c Subscribable (click, hover, update),

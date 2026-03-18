@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief Empty marker base class for all Malena traits.
+      * @ingroup TraitsBase
      *
      * @c Trait serves as the common root of the trait hierarchy. It carries
      * no data or virtual methods — its purpose is to give every trait a

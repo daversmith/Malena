@@ -77,6 +77,10 @@ namespace ml
      * @see Customizable, MultiCustomStateManager, GatherStates
      */
     template<typename StateEnum = void>
+    /**
+     * @brief StateManager.
+     * @ingroup Resources
+     */
     class StateManager
     {
     private:

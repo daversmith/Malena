@@ -12,6 +12,7 @@ namespace ml
 {
     /**
      * @brief Primary entry point for Malena applications.
+      * @ingroup EngineApp
      *
      * @c Application combines @c AppManager (the main loop runner) and
      * @c UIController (the initialization and event-registration contract)

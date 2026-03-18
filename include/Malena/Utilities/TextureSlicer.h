@@ -12,6 +12,7 @@ namespace ml
 {
     /**
      * @brief Divides a texture into a uniform grid of sub-rectangles.
+      * @ingroup Utilities
      *
      * @c TextureSlicer calculates the pixel bounds of each cell when a
      * texture is divided into @p rows rows and @p cols columns of equal

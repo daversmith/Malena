@@ -92,6 +92,10 @@ namespace ml
      * @see Manifest, Context, AssetsManager
      */
     template<typename Manifest>
+    /**
+     * @brief ConfigManager.
+     * @ingroup Resources
+     */
     class ConfigManager
     {
     public:

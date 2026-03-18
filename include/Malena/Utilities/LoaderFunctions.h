@@ -4,6 +4,10 @@
 
 #ifndef LOADERFUNCTIONS_H
 #define LOADERFUNCTIONS_H
+/**
+ * @file LoaderFunctions.h
+ * @ingroup Utilities
+ */
 #include <string>
 namespace ml
 {

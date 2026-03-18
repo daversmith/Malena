@@ -14,6 +14,10 @@
 #include "Core/EntitiesAndComponents.h"
 namespace ml
 {
+	/**
+	 * @brief MovementSystem.
+	 * @ingroup ECSSystem
+	 */
 	class MovementSystem
 	{
 	public:

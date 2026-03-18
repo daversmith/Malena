@@ -13,6 +13,7 @@ namespace ml
 {
     /**
      * @brief Static helpers for mouse hit-testing against framework objects.
+      * @ingroup Utilities
      *
      * @c MouseEvents provides the low-level spatial queries that @c UIManager
      * uses each frame to determine which component the mouse is hovering over

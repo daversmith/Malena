@@ -51,6 +51,10 @@ namespace ml
      * @see Flaggable, CustomFlaggable, MultiCustomFlaggable, ml::Flag
      */
     template<typename StateEnum>
+    /**
+     * @brief FlagManager.
+     * @ingroup Resources
+     */
     class FlagManager
     {
     public:
