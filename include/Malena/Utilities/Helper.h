@@ -6,6 +6,10 @@
 #define PORTFOLIO_HELPER_H
 
 #pragma once
+/**
+ * @file Helper.h
+ * @ingroup Utilities
+ */
 
 #include <SFML/Graphics.hpp>
 

@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief A convex polygon button with a centered text label.
+      * @ingroup GraphicsControls
      *
      * @c ConvexButton is @c Button<Convex, std::size_t> — a @c Convex
      * polygon background with an @c sf::Text label rendered on top.

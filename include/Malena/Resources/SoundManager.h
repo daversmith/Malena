@@ -42,6 +42,10 @@ namespace ml
      * @see ResourceManager, AssetsManager, Manifest
      */
     template<typename Manifest>
+    /**
+     * @brief SoundManager.
+     * @ingroup Resources
+     */
     class SoundManager : public ml::ResourceManager<Manifest, sf::SoundBuffer>
     {};
 

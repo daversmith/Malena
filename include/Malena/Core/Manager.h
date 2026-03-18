@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief Abstract base class for all Malena managers.
+      * @ingroup Core
      *
      * A @c Manager is responsible for driving one subsystem through the
      * application main loop. Every concrete manager must implement the four

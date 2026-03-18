@@ -115,6 +115,10 @@ namespace ml
      * @see Context, Resources, Manifest
      */
     template<typename Manifest>
+    /**
+     * @brief ManifestAliases.
+     * @ingroup Manifests
+     */
     struct ManifestAliases :
         ExtractImages<Manifest>,
         ExtractFonts<Manifest>,

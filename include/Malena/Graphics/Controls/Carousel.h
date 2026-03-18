@@ -19,6 +19,7 @@ namespace ml
 {
     /**
      * @brief Manifest for the @c Carousel component.
+      * @ingroup GraphicsControls
      *
      * Declares the flags, states, and supporting enums that drive
      * carousel behavior. These are gathered automatically into the

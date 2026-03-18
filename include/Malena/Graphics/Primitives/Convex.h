@@ -4,19 +4,23 @@
 
 #pragma once
 
-#include <Malena/Graphics/Core.h>
+#include <Malena/Core/Core.h>
 #include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
 
-	class Convex : public Core<sf::ConvexShape>
+	/**
+	 * @brief Convex.
+	 * @ingroup GraphicsPrimitives
+	 */
+	class Convex : public Graphic<sf::ConvexShape>
 	{
 	public:
-		using Core::Core;
+		using Graphic::Graphic;
 	};
 
 	template <typename MANIFEST>
-	class ConvexWith: public Customizable<Convex, MANIFEST>{};
+	class ConvexWith: public Convex, public Customizable<MANIFEST>{};
 } // namespace ml
 #endif // CONVEX_H

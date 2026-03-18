@@ -7,6 +7,7 @@ namespace ml
 {
     /**
      * @brief Multi-line text display area. (Currently a stub — not yet implemented.)
+      * @ingroup GraphicsText
      *
      * @c TextBox is intended to provide a scrollable, multi-line text
      * display built on top of @c ml::Text, suitable for log output,

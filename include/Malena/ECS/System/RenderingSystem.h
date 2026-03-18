@@ -12,6 +12,10 @@
 
 namespace ml
 {
+	/**
+	 * @brief RenderingSystem.
+	 * @ingroup ECSSystem
+	 */
 	class RenderingSystem
 	{
 	public:

@@ -87,6 +87,10 @@ namespace ml
      * @see SingleFlaggable, GatherFlags, ComponentCore
      */
     template<typename... Enums>
+    /**
+     * @brief MultiCustomFlaggable.
+     * @ingroup TraitsBase
+     */
     class MultiCustomFlaggable : public SingleFlaggable<Enums>...
     {
     public:

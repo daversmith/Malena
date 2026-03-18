@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief Easing curve selection for animated movement.
+      * @ingroup Utilities
      *
      * @c Tween is passed to @c Positionable::moveTo and related animation
      * methods to control how intermediate positions are interpolated between

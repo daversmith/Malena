@@ -46,6 +46,10 @@ namespace ml
      * @see Context, ManifestAliases, AssetsManager, ConfigManager
      */
     template<typename Manifest>
+    /**
+     * @brief Resources.
+     * @ingroup Manifests
+     */
     struct Resources : public Context<Manifest>, public ManifestAliases<Manifest>
     {};
 

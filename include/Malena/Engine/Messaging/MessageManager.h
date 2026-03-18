@@ -18,6 +18,7 @@ namespace ml
 {
     /**
      * @brief Typed, enum-keyed message bus for structured inter-object communication.
+      * @ingroup EngineMessaging
      *
      * @c MessageManager is the engine behind the @c Messenger trait. It
      * provides a completely separate communication channel from @c EventsManager:

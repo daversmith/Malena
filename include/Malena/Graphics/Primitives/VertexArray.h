@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief Framework-integrated vertex array. (Currently a stub — not yet implemented.)
+      * @ingroup GraphicsPrimitives
      *
      * @c VertexArray is intended to wrap @c sf::VertexArray inside
      * @c Graphic<> in the same way @c Circle and @c Rectangle do, giving

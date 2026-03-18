@@ -13,6 +13,7 @@ namespace ml
 {
     /**
      * @brief Trait that provides system-level boolean flag management.
+      * @ingroup Traits
      *
      * @c Flaggable layers @c FlagManager<ml::Flag> onto the @c Trait base,
      * giving any inheriting class the ability to read and write the

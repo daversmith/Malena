@@ -70,6 +70,10 @@ namespace ml
      * @see Core, CoreManager, CoreAdapter
      */
     template<typename ENTITY>
+    /**
+     * @brief DrawableWrapper.
+     * @ingroup Core
+     */
     class DrawableWrapper : public ENTITY, public ml::Core
     {
     public:

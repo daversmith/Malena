@@ -9,6 +9,7 @@ namespace ml
 {
     /**
      * @brief Trait for sending and receiving typed, enum-keyed messages.
+      * @ingroup Traits
      *
      * @c Messenger wraps @c MessageManager with a clean per-object API for
      * structured communication between framework objects and plugins.

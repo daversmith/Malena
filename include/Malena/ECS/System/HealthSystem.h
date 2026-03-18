@@ -14,6 +14,10 @@
 
 namespace ml
 {
+	/**
+	 * @brief HealthSystem.
+	 * @ingroup ECSSystem
+	 */
 	class HealthSystem
 	{
 	public:

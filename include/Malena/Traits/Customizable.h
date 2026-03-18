@@ -52,6 +52,10 @@ namespace ml
      * @see ComponentCore, GatherFlags, GatherStates, StateManager, MultiCustomFlaggable
      */
     template<typename Manifest>
+    /**
+     * @brief Customizable.
+     * @ingroup Traits
+     */
     class Customizable : public StateManager<typename extract_State<Manifest>::type>
     {
     public:

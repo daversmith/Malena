@@ -32,6 +32,10 @@ namespace ml
      * @see ResourceManager, AssetsManager, Manifest
      */
     template<typename Manifest>
+    /**
+     * @brief TextureManager.
+     * @ingroup Resources
+     */
     class TextureManager : public ml::ResourceManager<Manifest, sf::Texture>
     {};
 

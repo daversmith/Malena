@@ -20,6 +20,7 @@ namespace ml
 {
     /**
      * @brief Trait that provides position, bounds, and animated movement.
+      * @ingroup Traits
      *
      * @c Positionable is one of the three core traits on every @c ml::Core
      * object. It serves two purposes:

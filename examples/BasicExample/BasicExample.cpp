@@ -33,21 +33,23 @@ void BasicExample::initialization()
 	subscribeBtn.setString("Subscribe MyEvent");
 
 	// position unsubscribeBtn below box1
-	box1.setBelow(unsubscribeBtn, 20);
+	unsubscribeBtn.setBelow(box1, 20);
+
 	// position subscribeBtn below box2
-	box2.setBelow(subscribeBtn, 20);
+	subscribeBtn.setBelow(box2, 20);
 
 	unsubscribeAll.setSize(subscribeBtn.getSize());
 	unsubscribeAll.setFillColor(sf::Color(125u, 125u, 125u));
 	unsubscribeAll.setString("Unsubscribe All");
+
 	// position unsubscribeAll below unsubscribeBtn;
-	unsubscribeBtn.setBelow(unsubscribeAll, 20);
+	unsubscribeAll.setBelow(unsubscribeBtn, 20);
 
 	clearAll.setSize(subscribeBtn.getSize());
 	clearAll.setFillColor(sf::Color(125u, 0, 125u));
 	clearAll.setString("Clear All");
 	// position unsubscribeAll below unsubscribeBtn;
-	unsubscribeAll.setRightOf(clearAll, 10);
+	clearAll.setRightOf(unsubscribeAll, 10);
 
 	typer.enableFlag(ml::Flag::ENABLED);
 	typer.enableFlag(ml::Flag::HIDDEN);
@@ -75,7 +77,8 @@ void BasicExample::registerEvents()
 
 	/// Preset events
 	/// In this example, the text in the boxes will show whether or not the boxes ar focused or blurred (unfocused)
-	box1.onFocus(f(box1, "Box 1 is focused try typing"));
+	// box1.onFocus([&f, this](){std::cout<<"Box 1 focused"; f(box1, "Box 1 is focused try typing");});
+	box1.onFocus(f(box1, "Box 1 focused"));
 	box1.onBlur(f(box1, "Box 1 is blurred you cannot type"));
 	box2.onFocus(f(box2, "Box 2 is focused try typing"));
 	box2.onBlur(f(box2, "Box 2 is blurred you cannot type"));
@@ -132,6 +135,6 @@ void BasicExample::registerEvents()
 	/// In this example, we are publishing "myEvent" when myEventButton is clicked
 	myEventButton.onClick([this]() {
 		myEventButton.publish("myEvent",
-							  [this](ml::UIComponent&) -> bool { return !box1.checkFlag(ml::Flag::HIDDEN); });
+							  [this](ml::Subscribable&) -> bool { return !box1.checkFlag(ml::Flag::HIDDEN); });
 	});
 }

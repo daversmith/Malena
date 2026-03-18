@@ -55,6 +55,7 @@ namespace ml
 
     /**
      * @brief Abstract base class for all Malena plugins.
+      * @ingroup EnginePlugins
      *
      * @c Plugin defines the lifecycle interface and identity methods that
      * @c PluginManager needs to load, query, and unload any plugin regardless

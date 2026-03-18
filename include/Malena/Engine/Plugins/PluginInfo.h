@@ -12,6 +12,7 @@ namespace ml
 {
     /**
      * @brief Lightweight metadata record for a discovered plugin.
+      * @ingroup EnginePlugins
      *
      * @c PluginInfo is populated by @c PluginManager::scanPlugins() when it
      * probes a directory for plugin shared libraries. Each record holds

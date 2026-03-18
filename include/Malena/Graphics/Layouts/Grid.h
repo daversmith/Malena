@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief A layout container that arranges @c Positionable objects in a grid.
+      * @ingroup GraphicsLayouts
      *
      * @c Grid acts as both a @c CoreManager<Positionable> (it owns and manages
      * a collection of positioned objects) and a @c Core (it has its own

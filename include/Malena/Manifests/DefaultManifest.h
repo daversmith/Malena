@@ -9,6 +9,7 @@ namespace ml
 {
     /**
      * @brief Placeholder manifest used when no custom manifest is provided.
+      * @ingroup Manifests
      *
      * @c DefaultManifest satisfies the manifest interface for template
      * parameters that require a manifest type but where the class has no

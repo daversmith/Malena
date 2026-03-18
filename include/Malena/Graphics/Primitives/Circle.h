@@ -3,13 +3,14 @@
 
 #pragma once
 
-#include <Malena/Graphics/Graphic.h>
+#include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Customizable.h>
 
 namespace ml
 {
     /**
      * @brief A framework-integrated circle shape.
+      * @ingroup GraphicsPrimitives
      *
      * @c Circle wraps @c sf::CircleShape inside @c Graphic<>, giving it
      * the full framework trait set: @c Subscribable (click, hover, update),
@@ -48,7 +49,7 @@ namespace ml
      * @see Circle, Customizable
      */
     template<typename MANIFEST>
-    class CircleWith : public Customizable<Circle, MANIFEST> {};
+    class CircleWith : public Circle, public Customizable<MANIFEST> {};
 
 } // namespace ml
 

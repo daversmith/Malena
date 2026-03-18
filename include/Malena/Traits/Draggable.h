@@ -16,6 +16,7 @@ namespace ml
 {
     /**
      * @brief Manifest for the @c Draggable trait.
+      * @ingroup Traits
      *
      * Declares the @c State and @c Flag enums that @c Draggable needs.
      * These are gathered automatically into any @c ComponentWith that

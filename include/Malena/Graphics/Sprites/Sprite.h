@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief A framework-integrated sprite.
+      * @ingroup GraphicsSprites
      *
      * @c Sprite wraps @c sf::Sprite inside @c Graphic<>, giving it the full
      * framework trait set: @c Subscribable (click, hover, update),

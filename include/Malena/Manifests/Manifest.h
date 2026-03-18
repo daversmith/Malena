@@ -14,6 +14,7 @@ namespace ml
 {
     /**
      * @brief Base class for all Malena manifests.
+      * @ingroup Manifests
      *
      * A manifest is a static registry that maps enum keys to file paths or
      * configuration values. Subclasses declare inner enum types (@c Images,

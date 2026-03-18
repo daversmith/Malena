@@ -4,6 +4,10 @@
 
 #ifndef ENUMCLASSHASH_H
 #define ENUMCLASSHASH_H
+/**
+ * @file EnumClassHash.h
+ * @ingroup Utilities
+ */
 
 namespace ml{
     struct EnumClassHash {

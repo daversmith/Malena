@@ -60,7 +60,40 @@ namespace ml
         {
             EventsManager::fire("draggable", nullptr, nullptr, event);
         }
-
+    //
+    // 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+    // 	{
+    // 		for (auto &c : CoreManager<Core>::getComponents())
+    // 		{
+    // 			bool isClicked = MouseEvents::isClicked(*c, *window);
+    // 			bool isFocused = c->checkFlag(Flag::FOCUSED);
+    //
+    // 			if (isClicked)
+    // 			{
+    // 				if (!isFocused)
+    // 				{
+    // 					c->enableFlag(Flag::FOCUSED);
+    // 					Subscribable* subPtr = c;
+    // 					EventsManager::fire(
+				// 			"focus",
+				// 			[subPtr](Subscribable &ep2) -> bool { return &ep2 == subPtr; },
+				// 			nullptr, event);
+    // 				}
+    // 			}
+    // 			else
+    // 			{
+    // 				if (isFocused)
+    // 				{
+    // 					Subscribable* subPtr = c;
+    // 					EventsManager::fire(
+				// 			"blur",
+				// 			[subPtr](Subscribable &ep2) -> bool { return &ep2 == subPtr; },
+				// 			nullptr, event);
+    // 					c->disableFlag(Flag::FOCUSED);
+    // 				}
+    // 			}
+    // 		}
+    // 	}
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
         {
             EventsManager::fire(
@@ -76,6 +109,7 @@ namespace ml
                     {
                         if (!isFocused)
                         {
+
                             c->enableFlag(Flag::FOCUSED);
                             EventsManager::fire(
                                 "focus",

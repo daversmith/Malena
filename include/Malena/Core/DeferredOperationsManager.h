@@ -58,6 +58,10 @@ namespace ml
      * @see CoreManager, EventsManager, MessageManager, PluginManager
      */
     template<typename Derived>
+    /**
+     * @brief DeferredOperationsManager.
+     * @ingroup Core
+     */
     class DeferredOperationsManager
     {
     protected:

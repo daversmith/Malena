@@ -12,6 +12,7 @@ namespace ml
 {
     /**
      * @brief A grid-indexed collection of @c sf::IntRect regions.
+      * @ingroup Utilities
      *
      * @c ImageRects stores the sub-rectangle regions produced by
      * @c TextureSlicer::getImageRects when a texture is divided into a

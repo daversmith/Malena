@@ -13,6 +13,7 @@ namespace ml::WindowManager
 {
     /**
      * @brief Return the framework's shared @c sf::RenderWindow.
+      * @ingroup EngineWindow
      *
      * @c WindowManager provides a single, lazily-created @c sf::RenderWindow
      * that is shared across the entire Malena framework. Because the window

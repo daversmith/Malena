@@ -18,6 +18,7 @@ namespace ml
 
     /**
      * @brief Trait that exposes the full @c EventsManager subscription API.
+      * @ingroup Traits
      *
      * @c Subscribable wraps @c EventsManager with named convenience methods
      * for every framework-level event. It is one of the three traits

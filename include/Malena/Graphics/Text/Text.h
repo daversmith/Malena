@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief A framework-integrated text object with word-wrap support.
+      * @ingroup GraphicsText
      *
      * @c Text wraps @c sf::Text inside @c Graphic<>, giving it the full
      * framework trait set: @c Subscribable (click, hover, update),

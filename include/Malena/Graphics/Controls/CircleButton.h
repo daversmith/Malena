@@ -10,6 +10,7 @@ namespace ml
 {
     /**
      * @brief A circular button with a centered text label.
+      * @ingroup GraphicsControls
      *
      * @c CircleButton is @c Button<Circle, float> — a @c Circle background
      * shape with an @c sf::Text label rendered on top. The size parameter
@@ -45,7 +46,7 @@ namespace ml
      * @see CircleButton, Customizable
      */
     template<typename MANIFEST>
-    class CircleButtonWith : public virtual Customizable<CircleButton, MANIFEST> {};
+    class CircleButtonWith : public CircleButton, public virtual Customizable<MANIFEST> {};
 
 } // namespace ml
 

@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief A ready-to-use single-line text input field.
+      * @ingroup GraphicsText
      *
      * @c TextInput composes a @c Typer (the editable text content) and a
      * @c Cursor (the blinking caret) into a single @c Core-derived object.

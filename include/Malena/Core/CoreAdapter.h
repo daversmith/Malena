@@ -9,6 +9,7 @@ namespace ml
 {
     /**
      * @brief Concrete adapter that gives @c Core a default virtual interface.
+      * @ingroup Core
      *
      * @c CoreAdapter extends @c Core with virtual implementations of the
      * methods that SFML and the framework expect from a drawable, updatable
