@@ -86,6 +86,11 @@ namespace ml
 
         Plugin* plugin = createPlugin();
         _plugins.push_back({plugin, handle});
+
+        // If this plugin is also a Fireable, register it as an event dispatcher
+        if (auto* fireable = dynamic_cast<Fireable*>(plugin))
+            Fireable::_register(fireable);  // same instance, no new construction
+
         plugin->onLoad();
 
         return plugin;
@@ -160,6 +165,9 @@ namespace ml
 
     void PluginManager::unloadPlugin(Plugin* plugin)
     {
+        if (auto* fireable = dynamic_cast<Fireable*>(plugin))
+            Fireable::_unregister(fireable);  // need to add this method
+
         // Remove from draw loop immediately — safe, doesn't touch plugin RTTI
         if (auto* core = dynamic_cast<Core*>(plugin))
             CoreManager<Core>::removeComponent(core);

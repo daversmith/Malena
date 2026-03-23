@@ -4,6 +4,9 @@
 
 #include <Malena/Engine/App/AppManager.h>
 
+#include "Malena/Engine/Events/_EventsManager.h"
+#include "Malena/Traits/Base/Fireable.h"
+
 namespace ml
 {
     AppManager::AppManager(const sf::VideoMode &videoMode, const std::string &title, UIController &uiController,
@@ -18,15 +21,23 @@ namespace ml
         this->window->clear();
         for (auto &c : CoreManager<Core>::getComponents())
         {
-           	if (!c->checkFlag(Flag::HIDDEN))
-                 window->draw(*dynamic_cast<sf::Drawable*>(c), c->getRenderStates());
+        	if (!c->checkFlag(Flag::HIDDEN))
+        	{
+        		auto* drawable = dynamic_cast<sf::Drawable*>(c);
+        		if (drawable)
+        			window->draw(*drawable, c->getRenderStates());
+        	}
         }
         this->window->display();
     }
 
     void AppManager::fireUpdateEvents()
     {
-        EventsManager::fire("update");
+        for (auto* dispatcher : Fireable::_fireables_frame)
+        {
+            if (dispatcher->occurred())
+                dispatcher->fire();
+        }
     }
 
     void AppManager::run()
@@ -54,128 +65,16 @@ namespace ml
 
     void AppManager::fireInputEvents(const std::optional<sf::Event> &event)
     {
-        if (event->is<sf::Event::MouseButtonPressed>() ||
-            event->is<sf::Event::MouseButtonReleased>() ||
-            event->is<sf::Event::MouseMoved>())
-        {
-            EventsManager::fire("draggable", nullptr, nullptr, event);
-        }
-    //
-    // 	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-    // 	{
-    // 		for (auto &c : CoreManager<Core>::getComponents())
-    // 		{
-    // 			bool isClicked = MouseEvents::isClicked(*c, *window);
-    // 			bool isFocused = c->checkFlag(Flag::FOCUSED);
-    //
-    // 			if (isClicked)
-    // 			{
-    // 				if (!isFocused)
-    // 				{
-    // 					c->enableFlag(Flag::FOCUSED);
-    // 					Subscribable* subPtr = c;
-    // 					EventsManager::fire(
-				// 			"focus",
-				// 			[subPtr](Subscribable &ep2) -> bool { return &ep2 == subPtr; },
-				// 			nullptr, event);
-    // 				}
-    // 			}
-    // 			else
-    // 			{
-    // 				if (isFocused)
-    // 				{
-    // 					Subscribable* subPtr = c;
-    // 					EventsManager::fire(
-				// 			"blur",
-				// 			[subPtr](Subscribable &ep2) -> bool { return &ep2 == subPtr; },
-				// 			nullptr, event);
-    // 					c->disableFlag(Flag::FOCUSED);
-    // 				}
-    // 			}
-    // 		}
-    // 	}
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-        {
-            EventsManager::fire(
-                "click",
-                [this, &event](Subscribable &ep) -> bool {
-                    auto *c = dynamic_cast<Core*>(&ep);
-                    if (!c) return false;
-
-                    bool isClicked = MouseEvents::isClicked(*c, *window);
-                    bool isFocused = c->checkFlag(Flag::FOCUSED);
-
-                    if (isClicked)
-                    {
-                        if (!isFocused)
-                        {
-
-                            c->enableFlag(Flag::FOCUSED);
-                            EventsManager::fire(
-                                "focus",
-                                [c](Subscribable &ep2) -> bool {
-                                    auto* c2 = dynamic_cast<Core*>(&ep2);
-                                    return c2 && c2 == c;
-                                },
-                                nullptr, event);
-                        }
-                    }
-                    else
-                    {
-                        if (isFocused)
-                        {
-                            EventsManager::fire(
-                                "blur",
-                                [c](Subscribable &ep2) -> bool {
-                                    auto* c2 = dynamic_cast<Core*>(&ep2);
-                                    return c2 && c2 == c;
-                                },
-                                nullptr, event);
-                            c->disableFlag(Flag::FOCUSED);
-                        }
-                    }
-                    return isClicked;
-                },
-                nullptr, event);
-        }
-
-        if (event->is<sf::Event::MouseMoved>())
-        {
-            EventsManager::fire(
-                "hover",
-                [this, &event](Subscribable &ep) -> bool {
-                    auto *c = dynamic_cast<Core*>(&ep);
-                    if (!c) return false;
-
-                    bool isHovered = MouseEvents::isHovered(*c, *window);
-                    if (isHovered)
-                        c->enableFlag(ml::Flag::HOVERED);
-                    else
-                    {
-                        c->disableFlag(ml::Flag::HOVERED);
-                        EventsManager::fire(
-                            "unhover",
-                            [](Subscribable &ep2) -> bool {
-                                auto* c2 = dynamic_cast<Core*>(&ep2);
-                                return c2 && !c2->checkFlag(Flag::HOVERED);
-                            },
-                            nullptr, event);
-                    }
-                    return isHovered;
-                },
-                nullptr, event);
-        }
-        else if (event->is<sf::Event::TextEntered>())
-        {
-            EventsManager::fire("textentered", nullptr, nullptr, event);
-        }
-        else if (event->is<sf::Event::KeyPressed>())
-        {
-            EventsManager::fire("keypress", nullptr, nullptr, event);
-        }
-        else if (event->is<sf::Event::MouseWheelScrolled>())
-        {
-            EventsManager::fire("mousewheel", nullptr, nullptr, event);
-        }
+        // if (event->is<sf::Event::MouseButtonPressed>() ||
+        //     event->is<sf::Event::MouseButtonReleased>() ||
+        //     event->is<sf::Event::MouseMoved>())
+        // {
+        //     EventsManager::fire("draggable", nullptr, nullptr, event);
+        // }
+    	for (auto* dispatcher : Fireable::_fireables)
+    	{
+    		if (dispatcher->occurred(event))
+    			dispatcher->fire(event);
+    	}
     }
 } // namespace ml

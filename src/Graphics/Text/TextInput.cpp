@@ -7,8 +7,8 @@ namespace ml
 {
 	TextInput::TextInput()
 	{
-		cursor.enableFlag(State::BLINKING);
-		enableState(State::FOCUSED);
+		cursor.enableFlag(ml::Flag::BLINKING);
+		// enableState(ml::Flag::FOCUSED);
 	}
 
 	void TextInput::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -32,10 +32,10 @@ namespace ml
 		return cursor.getGlobalBounds();
 	}
 
-	void TextInput::enableState(const State state)
-	{
-		Flaggable::enableFlag(state);
-		typer.enableFlag(state);
-		cursor.enableFlag(state);
-	}
+	// void TextInput::enableState(const ml::State state)
+	// {
+	// 	Flaggable::enableFlag(state);
+	// 	typer.enableFlag(state);
+	// 	cursor.enableFlag(state);
+	// }
 } // namespace ml

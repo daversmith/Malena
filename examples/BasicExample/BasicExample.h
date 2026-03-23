@@ -11,6 +11,7 @@ class BasicExample : public ml::Application
 	ml::RectangleButton box1, box2, myEventButton, unsubscribeBtn, subscribeBtn, unsubscribeAll, clearAll;
 	ml::Typer typer;
 
+	enum Event {MY_EVENT};
 public:
 	BasicExample();
 	void initialization() override;

@@ -10,6 +10,7 @@ namespace ml
 
     Core::~Core()
     {
+        _EventsManager::unsubscribeAll(this);
     }
 
 } // namespace ml

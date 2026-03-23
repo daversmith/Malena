@@ -82,11 +82,7 @@ namespace ml
 
         ComponentCore()
         {
-            EventsManager::subscribe("draggable", this, [this](const std::optional<sf::Event>& event)
-            {
-                if (checkFlag(ml::Flag::DRAGGABLE))
-                    Draggable::handleDragEvent(event);
-            });
+            _EventsManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this));
         	this->onClick([](){});
         	this->onHover([](){});
         }

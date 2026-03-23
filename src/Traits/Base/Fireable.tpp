@@ -1,0 +1,21 @@
+#include <Malena/Traits/Base/Fireable.h>
+#include <Malena/Engine/Events/_EventsManager.h>
+#ifndef FIREABLE_TPP
+#define FIREABLE_TPP
+namespace ml
+{
+	template<typename EnumType>
+	void Fireable::addCallback(EnumType eventEnum,
+						 EventReceiver* component,
+						 EventCallback callback)
+	{
+		static_assert(std::is_enum_v<EnumType>,
+			"[Malena] Fireable::addCallback — first argument must be an enum value.");
+
+		std::string key = EnumKey::get(eventEnum);
+		component->getCallbacks(key).push_back(std::move(callback));
+		_EventsManager::subscribe(eventEnum, component);  // enum passed directly
+	}
+
+}
+#endif

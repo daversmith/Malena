@@ -63,7 +63,7 @@ namespace ml
      *
      * @see Controller, Application, AppManager, CoreAdapter
      */
-    class UIController : public Controller
+    class UIController : public Controller//, public virtual Updatable
     {
         CoreAdapter proxy;
 

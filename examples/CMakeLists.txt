@@ -3,3 +3,4 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Add subdirectories
 add_subdirectory(BasicExample)
+add_subdirectory(SignalBoard)

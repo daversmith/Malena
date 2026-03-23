@@ -18,6 +18,7 @@
 namespace ml
 {
     class Subscribable;
+	class Core;
     class Controller;
 
     /**

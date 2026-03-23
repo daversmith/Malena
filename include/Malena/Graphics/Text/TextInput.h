@@ -95,7 +95,7 @@ namespace ml
          * @note The parameter type @c Flaggable::State may be a naming
          *       artefact. Verify against the current @c Flaggable definition.
          */
-        void enableState(Flaggable::State state);
+        // void enableState(Flaggable::State state);
     };
 
 } // namespace ml

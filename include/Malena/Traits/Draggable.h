@@ -1,5 +1,5 @@
 //
-// Created by Dave Smith on 11/3/25.
+// Draggable.h
 //
 
 #ifndef DRAGGABLE_H
@@ -11,122 +11,94 @@
 #include <optional>
 #include <Malena/Traits/Customizable.h>
 #include <Malena/Manifests/Manifest.h>
+#include <Malena/Engine/Events/EventReceiver.h>
+#include <Malena/Traits/Base/Fireable.h>
+
+#include "Malena/Engine/Events/EventDispatcher.h"
 
 namespace ml
 {
     /**
      * @brief Manifest for the @c Draggable trait.
-      * @ingroup Traits
-     *
-     * Declares the @c State and @c Flag enums that @c Draggable needs.
-     * These are gathered automatically into any @c ComponentWith that
-     * mixes in @c Draggable, so they appear alongside the component's
-     * own manifest flags and states in a single overload set.
+     * @ingroup Traits
      */
     class DraggableManifest : public Manifest
     {
     public:
-        /// Controls which axes mouse drag is allowed on.
         enum class State
         {
             FREE,   ///< Drag freely on both axes (default).
-            LOCK_X, ///< Lock horizontal movement — drag on Y axis only.
-            LOCK_Y  ///< Lock vertical movement — drag on X axis only.
+            LOCK_X, ///< Lock horizontal — drag Y axis only.
+            LOCK_Y  ///< Lock vertical — drag X axis only.
         };
 
-        /// Runtime flags owned by the @c Draggable trait.
         enum class Flag
         {
-            DRAGGING ///< Set while the user is actively dragging this component.
+            DRAGGING ///< Set while the user is actively dragging.
         };
     };
 
     /**
-     * @brief Trait that adds mouse-drag behavior to any @c Component.
+     * @brief Receiver trait that adds mouse-drag behavior to any @c Component.
+     * @ingroup Traits
      *
-     * @c Draggable is mixed into every @c ComponentCore automatically — it
-     * does not need to be listed explicitly as a trait. Dragging is disabled
-     * by default and must be enabled via the system @c ml::Flag:
-     *
+     * Dragging is disabled by default. Enable via:
      * @code
      * myComponent.setFlag(ml::Flag::DRAGGABLE);
      * @endcode
      *
      * ### Axis locking
-     * Constrain movement to one axis via the @c DraggableManifest::State enum:
      * @code
      * myComponent.setState(ml::Draggable::State::LOCK_X); // Y axis only
      * myComponent.setState(ml::Draggable::State::LOCK_Y); // X axis only
-     * myComponent.setState(ml::Draggable::State::FREE);   // both axes (default)
+     * myComponent.setState(ml::Draggable::State::FREE);   // both axes
      * @endcode
      *
      * ### Drag bounds
-     * Optionally constrain the drag area to a rectangle:
      * @code
      * myComponent.setDragBounds(sf::FloatRect{{50.f, 50.f}, {400.f, 300.f}});
-     * myComponent.clearDragBounds(); // remove the constraint
+     * myComponent.clearDragBounds();
      * @endcode
      *
-     * ### How it works internally
-     * @c ComponentCore subscribes to the @c "draggable" event in its
-     * constructor. Each frame @c UIManager fires that event; the callback
-     * checks @c ml::Flag::DRAGGABLE and, if set, delegates to
-     * @c handleDragEvent. This means the drag subscription exists on every
-     * component but is effectively a no-op until dragging is enabled.
-     *
-     * @see DraggableManifest, ComponentCore, Positionable
+     * @see DraggableManifest, DraggableDispatcher
      */
-    class Draggable : public Customizable<DraggableManifest>
+    class Draggable : public EventReceiver,
+                      public Customizable<DraggableManifest>
     {
     public:
-        /// Convenience alias — allows @c setState(Draggable::State::LOCK_X).
         using Flag  = DraggableManifest::Flag;
-
-        /// Convenience alias — allows @c setState(Draggable::State::LOCK_X).
         using State = DraggableManifest::State;
 
         Draggable() = default;
         virtual ~Draggable() = default;
 
-        /**
-         * @brief Constrain dragging to a world-space rectangle.
-         *
-         * While a drag bound is active, @c handleDragEvent clamps the
-         * component's position so it cannot be dragged outside @p bounds.
-         *
-         * @param bounds The allowed drag area in world coordinates.
-         */
         void setDragBounds(const sf::FloatRect& bounds);
-
-        /**
-         * @brief Remove any previously set drag bounds.
-         *
-         * After this call the component can be dragged anywhere in the window.
-         */
         void clearDragBounds();
 
-        /**
-         * @brief Process one drag event tick.
-         *
-         * Called internally by the @c "draggable" event subscription registered
-         * in @c ComponentCore. Reads the SFML mouse state, updates the drag
-         * offset, respects axis locks and drag bounds, and calls
-         * @c setPosition accordingly.
-         *
-         * @note This method is part of the framework's internal event plumbing.
-         *       User code should interact with @c Draggable through
-         *       @c setFlag(ml::Flag::DRAGGABLE), @c setState, and
-         *       @c setDragBounds rather than calling this directly.
-         *
-         * @param event The current SFML event, may be empty.
-         */
-        void handleDragEvent(const std::optional<sf::Event>& event);
-
     private:
-        sf::Vector2f                 _dragOffset;  ///< Offset from component origin to mouse at drag start.
-        std::optional<sf::FloatRect> _dragBounds;  ///< Optional world-space drag constraint.
+        sf::Vector2f                 _dragOffset;
+        std::optional<sf::FloatRect> _dragBounds;
+
+        friend class DraggableDispatcher;
+    };
+
+    /**
+     * @brief Dispatcher singleton for drag events.
+     * @ingroup Traits
+     *
+     * Fires drag handling for all components that have @c ml::Flag::DRAGGABLE
+     * set. Registered automatically via @c ML_EXPORT(DraggableDispatcher).
+     */
+    class DraggableDispatcher : public EventDispatcher
+    {
+    public:
+        bool occurred(const std::optional<sf::Event>& event) override;
+        bool filter(const std::optional<sf::Event>& event, Core* component) override;
+        void fire(const std::optional<sf::Event>& event) override;
     };
 
 } // namespace ml
+
+ML_EXPORT(DraggableDispatcher)
 
 #endif // DRAGGABLE_H

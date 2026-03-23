@@ -115,26 +115,26 @@ void BasicExample::registerEvents()
 													  box1.getSize().x * .75f));
 
 		// this removes a specific event from a component
-		box2.unsubscribe("update");
+		box2.unsubscribe(ml::Event::UPDATE);
 	};
 	//// User created event
 	/// Here you can register to your own event
-	box1.subscribe("myEvent", myEvent);
+	box1.subscribe(MY_EVENT, myEvent);
 
 	unsubscribeBtn.onClick([this]() {
 		// This removes all events registered by a component
-		box1.unsubscribe("myEvent");
+		box1.unsubscribe(MY_EVENT);
 	});
 
-	subscribeBtn.onClick([this, myEvent]() { box1.subscribe("myEvent", myEvent); });
+	subscribeBtn.onClick([this, myEvent]() { box1.subscribe(MY_EVENT, myEvent); });
 	unsubscribeAll.onClick([this]() { box1.unsubscribeAll(); });
 
-	/// you can also remove all events
+	/// todo: add this to _EventsManager you can also remove all events
 	clearAll.onClick([this]() { ml::EventsManager::clearAllEvents(); });
 	/// when you register your own event, it's up to you to publish the event
 	/// In this example, we are publishing "myEvent" when myEventButton is clicked
 	myEventButton.onClick([this]() {
-		myEventButton.publish("myEvent",
-							  [this](ml::Subscribable&) -> bool { return !box1.checkFlag(ml::Flag::HIDDEN); });
+		myEventButton.publish(MY_EVENT,
+							  [this](ml::EventReceiver&) -> bool { return !box1.checkFlag(ml::Flag::HIDDEN); });
 	});
 }
