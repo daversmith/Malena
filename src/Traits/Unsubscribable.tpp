@@ -1,5 +1,5 @@
 #include <Malena/Core/Core.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Traits/Unsubscribable.h>
 namespace ml
 {

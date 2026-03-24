@@ -1,5 +1,5 @@
 #include <Malena/Engine/Events/Fireable.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #ifndef FIREABLE_TPP
 #define FIREABLE_TPP
 namespace ml

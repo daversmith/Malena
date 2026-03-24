@@ -5,7 +5,7 @@
 #include <Malena/Engine/App/AppManager.h>
 
 #include "../../../include/Malena/Engine/Events/Fireable.h"
-#include "Malena/Engine/Events/EventsManager.h"
+#include "Malena/Engine/Events/EventManager.h"
 
 namespace ml
 {

@@ -6,7 +6,7 @@
 #endif
 #include <Malena/Engine/Plugins/PluginManager.h>
 #include <Malena/Engine/Plugins/PluginInfo.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Messaging/MessageManager.h>
 #include <iostream>
 

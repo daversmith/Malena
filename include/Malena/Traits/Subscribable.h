@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/Callback.h>

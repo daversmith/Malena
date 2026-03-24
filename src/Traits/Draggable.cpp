@@ -4,7 +4,7 @@
 
 #include <Malena/Core/Core.h>
 #include <Malena/Engine/Events/Event.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>
 #include <Malena/Traits/Base/MultiCustomStateManager.h>

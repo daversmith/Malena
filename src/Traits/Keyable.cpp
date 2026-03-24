@@ -3,7 +3,7 @@
 //
 
 #include <Malena/Core/Core.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Traits/Keyable.h>
 #include <Malena/Utilities/Flag.h>
 

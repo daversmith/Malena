@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "Malena/Engine/Events/EventsManager.h"
+#include "Malena/Engine/Events/EventManager.h"
 
 #include <Malena/Core/Core.h>
 
