@@ -6,7 +6,7 @@
 #define CAROUSEL_H
 
 #include <Malena/Core/Core.h>
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Resources/FontManager.h>

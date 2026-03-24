@@ -1,5 +1,5 @@
-#include <Malena/Traits/Base/Fireable.h>
-#include <Malena/Engine/Events/_EventsManager.h>
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Engine/Events/EventsManager.h>
 #ifndef FIREABLE_TPP
 #define FIREABLE_TPP
 namespace ml
@@ -14,7 +14,7 @@ namespace ml
 
 		std::string key = EnumKey::get(eventEnum);
 		component->getCallbacks(key).push_back(std::move(callback));
-		_EventsManager::subscribe(eventEnum, component);  // enum passed directly
+		EventsManager::subscribe(eventEnum, component);  // enum passed directly
 	}
 
 }

@@ -76,6 +76,14 @@ namespace ml
 
     /// @endcond
 
+	template<typename Manifest, typename = void>
+	struct ExtractEvent {};
+
+	template<typename Manifest>
+	struct ExtractEvent<Manifest, std::void_t<typename Manifest::Event>>
+	{
+		using Event = typename Manifest::Event;
+	};
     /**
      * @brief Pulls manifest inner type aliases into a class's scope.
      *
@@ -124,7 +132,8 @@ namespace ml
         ExtractFonts<Manifest>,
         ExtractSounds<Manifest>,
         ExtractState<Manifest>,
-        ExtractFlags<Manifest>
+        ExtractFlags<Manifest>,
+		ExtractEvent<Manifest>
     {};
 
 } // namespace ml

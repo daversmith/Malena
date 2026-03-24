@@ -2,9 +2,9 @@
 // Updatable.cpp
 //
 
-#include <iostream>
+#include <Malena/Engine/Events/EventsManager.h>
 #include <Malena/Traits/Updatable.h>
-#include <Malena/Engine/Events/_EventsManager.h>
+#include <iostream>
 
 namespace ml
 {
@@ -58,7 +58,7 @@ namespace ml
     void UpdatableDispatcher::fire()
     {
         // Always fire update every frame
-        _EventsManager::fire(Event::UPDATE, this, std::optional<sf::Event>());
+        EventsManager::fire(Event::UPDATE, this, std::optional<sf::Event>());
 
     }
 

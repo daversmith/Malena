@@ -4,7 +4,7 @@
 
 #ifndef FRAMEDISPATCHER_H
 #define FRAMEDISPATCHER_H
-#include "Malena/Traits/Base/Fireable.h"
+#include "Fireable.h"
 
 
 class FrameDispatcher : public ml::Fireable {

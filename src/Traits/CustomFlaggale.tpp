@@ -4,13 +4,13 @@
 
 #ifndef CUSTOMFLAGGABLE_CPP
 #define CUSTOMFLAGGABLE_CPP
-#include <Malena/Traits/CustomFlaggable.h>
+#include <Malena/Traits/CustomFlaggale.h>
 
 namespace ml {
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>, bool>
-    CustomFlaggable<CustomStateEnum>::checkFlag(T state) const
+    CustomFlaggale<CustomStateEnum>::checkFlag(T state) const
     {
         auto it = _custom_states.find(state);
         return it != _custom_states.end() && it->second;
@@ -18,28 +18,28 @@ namespace ml {
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
-    CustomFlaggable<CustomStateEnum>::enableFlag(T state)
+    CustomFlaggale<CustomStateEnum>::enableFlag(T state)
     {
         _custom_states[state] = true;
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
-    CustomFlaggable<CustomStateEnum>::disableFlag(T state)
+    CustomFlaggale<CustomStateEnum>::disableFlag(T state)
     {
         _custom_states[state] = false;
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
-    CustomFlaggable<CustomStateEnum>::toggleFlag(T state)
+    CustomFlaggale<CustomStateEnum>::toggleFlag(T state)
     {
         _custom_states[state] = !_custom_states[state];
     }
     template<typename CustomStateEnum>
     template<typename T>
     std::enable_if_t<!std::is_void_v<T>>
-    CustomFlaggable<CustomStateEnum>::setFlag(T state, bool status)
+    CustomFlaggale<CustomStateEnum>::setFlag(T state, bool status)
     {
         _custom_states[state] = status;
     }

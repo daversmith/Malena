@@ -62,6 +62,8 @@ namespace ml
     private:
         UIController*    uiController;
         sf::RenderWindow* window = nullptr;
+    	inline static bool _isDrawing = false;
+    	inline static std::vector<std::function<void()>> _deferredUnloads;
 
     public:
         /**
@@ -112,6 +114,20 @@ namespace ml
         void run() override;
 
         virtual ~AppManager() = default;
+    	/**
+		 * @brief Returns true while draw() is actively rendering components.
+		 * Used by ResourceManager::unload() to prevent mid-frame resource eviction.
+		 */
+    	static bool isDrawing() { return _isDrawing; }
+
+    	/**
+		 * @brief Queue a resource unload to execute after draw() completes.
+		 * Called automatically by ResourceManager::unload() when isDrawing() is true.
+		 */
+    	static void deferUnload(std::function<void()> op)
+    	{
+    		_deferredUnloads.push_back(std::move(op));
+    	}
 
     private:
         /**

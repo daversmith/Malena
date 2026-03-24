@@ -2,6 +2,7 @@ add_executable(BasicExample
         BasicExample.cpp
         BasicExample.h
         main.cpp
+        BasicExampleManifest.h
 )
 
 target_link_libraries(BasicExample PRIVATE Malena::Malena)

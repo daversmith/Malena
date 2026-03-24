@@ -7,7 +7,7 @@
 #include "../../include/Malena/Traits/Flaggable.h"
 #include "../../include/Malena/Traits/Positionable.h"
 #include "Malena/Core/Core.h"
-#include "Malena/Engine/Events/_EventsManager.h"
+#include "Malena/Engine/Events/EventsManager.h"
 #include "Malena/Engine/Window/WindowManager.h"
 #include "Malena/Utilities/MouseEvents.h"
 
@@ -48,7 +48,7 @@ namespace ml
 
 	void HoverableDispatcher::fire(const std::optional<sf::Event>& event)
 	{
-		_EventsManager::fire(Event::HOVER, this, event,
+		EventsManager::fire(Event::HOVER, this, event,
 			[](EventReceiver* component, const std::optional<sf::Event>& e)
 			{
 				// Component is now hovered — set flag

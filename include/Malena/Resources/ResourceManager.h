@@ -23,35 +23,11 @@ namespace ml
      * access and caching it for subsequent calls.
      *
      * The load function is a compile-time parameter, allowing each resource
-     * type to use the appropriate SFML loading API (e.g., @c sf::Texture::loadFromFile
-     * vs @c sf::Font::openFromFile) without virtual dispatch.
-     *
-     * ### How it works
-     * 1. @c Manifest::set(key, "path/to/file") registers the file path at
-     *    program startup (typically in an inline static initializer).
-     * 2. On the first call to @c get(key), @c ResourceManager looks up the
-     *    path via @c Manifest::getFilepath(key), calls @c loadFunction to
-     *    populate a @c Resource object, stores it in a static cache, and
-     *    returns a const reference.
-     * 3. Subsequent calls to @c get(key) return the cached reference
-     *    immediately.
-     *
-     * ### Concrete subclasses
-     * Do not instantiate @c ResourceManager directly. Use the typed subclasses:
-     *
-     * | Subclass | Resource type |
-     * |----------|--------------|
-     * | @c TextureManager<Manifest> | @c sf::Texture |
-     * | @c FontManager<Manifest>   | @c sf::Font    |
-     * | @c SoundManager<Manifest>  | @c sf::SoundBuffer |
-     *
-     * Or access all three through @c AssetsManager<Manifest>::get().
+     * type to use the appropriate SFML loading API without virtual dispatch.
      *
      * @tparam Manifest       A @c Manifest subclass whose enum keys map to file paths.
      * @tparam Resource       The SFML resource type to load and cache.
-     * @tparam loadFunction   Function pointer @c bool(Resource&, const std::string&)
-     *                        that loads the resource from a file path.
-     *                        Defaults to @c fileLoader.
+     * @tparam loadFunction   Function pointer @c bool(Resource&, const std::string&).
      *
      * @see TextureManager, FontManager, SoundManager, AssetsManager, Manifest
      */
@@ -68,12 +44,10 @@ namespace ml
         /**
          * @brief Retrieve the cached resource for an asset enum value.
          *
-         * If the resource for @p asset has not been loaded yet, it is loaded
-         * now using the registered file path and @c loadFunction. Throws
-         * @c std::runtime_error if the path is not registered or loading fails.
+         * Loads and caches on first access. Throws @c std::runtime_error
+         * if the path is not registered or loading fails.
          *
-         * @tparam Asset  An enum type declared inside @c Manifest (e.g.,
-         *                @c Manifest::Images, @c Manifest::Fonts).
+         * @tparam Asset  An enum type declared inside @c Manifest.
          * @param  asset  The specific enum value to load.
          * @return Const reference to the cached @c Resource.
          */
@@ -83,15 +57,26 @@ namespace ml
         /**
          * @brief Remove a resource from the cache.
          *
-         * After this call, the next @c get(asset) will reload the resource
-         * from disk. Use to free GPU or memory when an asset is no longer
-         * needed.
+         * The next @c get(asset) call will reload from disk.
+         * If called during @c draw(), the unload is deferred until
+         * after the frame completes to prevent mid-frame dangling references.
          *
          * @tparam Asset  The enum type of the key to remove.
          * @param  asset  The specific enum value to evict from the cache.
          */
         template<typename Asset>
         static void unload(Asset asset);
+
+    private:
+        /**
+         * @brief Shared cache — used by both get() and unload().
+         *
+         * A static local inside a static function gives a single instance
+         * per (Manifest, Resource, Asset) combination, accessible from
+         * anywhere without a class-level static member.
+         */
+        template<typename Asset>
+        static std::unordered_map<Asset, Resource, EnumClassHash>& cache();
     };
 
 } // namespace ml

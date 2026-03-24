@@ -2,11 +2,11 @@
 // Created by Dave Smith on 3/20/26.
 //
 
-#include "../../../include/Malena/Traits/Base/Fireable.h"
+#include "../../../include/Malena/Engine/Events/Fireable.h"
 
 #include <iostream>
 
-#include "Malena/Engine/Events/_EventsManager.h"
+#include "Malena/Engine/Events/EventsManager.h"
 
 #include <Malena/Core/Core.h>
 

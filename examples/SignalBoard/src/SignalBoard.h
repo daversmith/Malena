@@ -13,17 +13,17 @@
 //
 // ============================================================
 
+#include <Malena/Manifests/ManifestResources.h>
 #include <Malena/common.hpp>
-#include <Malena/Manifests/Resources.h>
 #include <memory>
 #include <vector>
-#include "SignalBoardManifest.h"
-#include "SignalTower.h"
 #include "EventLog.h"
 #include "ScoreDisplay.h"
+#include "SignalBoardManifest.h"
+#include "SignalTower.h"
 
 class SignalBoard : public ml::Application,
-                    public ml::Resources<SignalBoardManifest>
+                    public ml::ManifestResources<SignalBoardManifest>
 {
 public:
     SignalBoard();

@@ -5,7 +5,7 @@
 
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Graphics/Base/Graphic.h>
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
 {

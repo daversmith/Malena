@@ -145,5 +145,5 @@ namespace ml::exports
     };
     /** @endcond */
 }
-#include "../../../../src/Traits/Base/Fireable.tpp"
+#include "../../../../src/Engine/Events/Fireable.tpp"
 #endif // FIREABLE_H

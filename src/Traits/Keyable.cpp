@@ -2,9 +2,9 @@
 // Keyable.cpp
 //
 
-#include <Malena/Traits/Keyable.h>
 #include <Malena/Core/Core.h>
-#include <Malena/Engine/Events/_EventsManager.h>
+#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Traits/Keyable.h>
 #include <Malena/Utilities/Flag.h>
 
 namespace ml
@@ -67,13 +67,13 @@ namespace ml
         if (!event.has_value()) return;
 
         if (event->is<sf::Event::KeyPressed>())
-            _EventsManager::fire(Event::KEYPRESS, this, event);
+            EventsManager::fire(Event::KEYPRESS, this, event);
 
         if (event->is<sf::Event::KeyReleased>())
-            _EventsManager::fire(Event::KEY_RELEASE, this, event);
+            EventsManager::fire(Event::KEY_RELEASE, this, event);
 
         if (event->is<sf::Event::TextEntered>())
-            _EventsManager::fire(Event::TEXT_ENTERED, this, event);
+            EventsManager::fire(Event::TEXT_ENTERED, this, event);
     }
 
 } // namespace ml

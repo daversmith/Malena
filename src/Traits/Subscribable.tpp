@@ -32,7 +32,7 @@ void Subscribable::publish(ENUM_TYPE event, FilterCallback filter,
     	static SubscribableDispatcher dispatcher;  // persistent singleton
 
     	if (filter(*this))
-    		_EventsManager::fire(event, &dispatcher, std::nullopt, resolve, reject);
+    		EventsManager::fire(event, &dispatcher, std::nullopt, resolve, reject);
     }
 
 } // namespace ml

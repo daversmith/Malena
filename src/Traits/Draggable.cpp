@@ -2,15 +2,15 @@
 // Draggable.cpp
 //
 
-#include <Malena/Traits/Draggable.h>
-#include <Malena/Traits/Positionable.h>
-#include <Malena/Traits/Flaggable.h>
-#include <Malena/Engine/Events/_EventsManager.h>
+#include <Malena/Core/Core.h>
 #include <Malena/Engine/Events/Event.h>
+#include <Malena/Engine/Events/EventsManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
-#include <Malena/Core/Core.h>
+#include <Malena/Traits/Draggable.h>
+#include <Malena/Traits/Flaggable.h>
+#include <Malena/Traits/Positionable.h>
 #include <Malena/Utilities/Flag.h>
 #include <algorithm>
 
@@ -43,7 +43,7 @@ namespace ml
     {
         if (!event.has_value()) return;
 
-        _EventsManager::fire(ml::Event::DRAG, this, event,
+        EventsManager::fire(ml::Event::DRAG, this, event,
             [this](EventReceiver* receiver, const std::optional<sf::Event>& e)
             {
                 auto* draggable   = dynamic_cast<Draggable*>(receiver);

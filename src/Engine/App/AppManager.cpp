@@ -4,8 +4,8 @@
 
 #include <Malena/Engine/App/AppManager.h>
 
-#include "Malena/Engine/Events/_EventsManager.h"
-#include "Malena/Traits/Base/Fireable.h"
+#include "../../../include/Malena/Engine/Events/Fireable.h"
+#include "Malena/Engine/Events/EventsManager.h"
 
 namespace ml
 {
@@ -18,6 +18,7 @@ namespace ml
 
     void AppManager::draw()
     {
+    	_isDrawing = true;
         this->window->clear();
         for (auto &c : CoreManager<Core>::getComponents())
         {
@@ -29,6 +30,7 @@ namespace ml
         	}
         }
         this->window->display();
+    	_isDrawing = false;
     }
 
     void AppManager::fireUpdateEvents()

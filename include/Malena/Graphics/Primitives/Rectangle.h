@@ -4,7 +4,7 @@
 #pragma once
 
 #include <Malena/Graphics/Base/Graphic.h>
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Graphics/Primitives/RoundedRectangle.h>
 
 namespace ml

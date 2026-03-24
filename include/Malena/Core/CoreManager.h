@@ -108,7 +108,7 @@ namespace ml
          * After this call (or after the deferred clear executes), @c getComponents()
          * returns an empty vector.
          */
-        static void clearComponents();
+        static void clear();
 
         virtual ~CoreManager();
 

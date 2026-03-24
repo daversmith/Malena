@@ -4,7 +4,7 @@
 
 #ifndef EVENTDISPATCHER_H
 #define EVENTDISPATCHER_H
-#include "Malena/Traits/Base/Fireable.h"
+#include "Fireable.h"
 
 namespace ml {
 

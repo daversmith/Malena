@@ -43,9 +43,9 @@ namespace ml
 		}
 	}
 	template<typename T>
-	void CoreManager<T>::clearComponents()
+	void CoreManager<T>::clear()
 	{
-		deferOrExecute([]() {  // ✅ Using base class method
+		DeferredOperationsManager<CoreManager<T>>::deferOrExecute([]() {
 			CoreManager<T>::_components.clear();
 			DeferredOperationsManager<CoreManager<T>>::clearPending();
 		});

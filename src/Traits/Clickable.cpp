@@ -4,7 +4,7 @@
 #include <Malena/Traits/Clickable.h>
 
 #include "Malena/Core/Core.h"
-#include "Malena/Engine/Events/_EventsManager.h"
+#include "Malena/Engine/Events/EventsManager.h"
 #include "Malena/Engine/Window/WindowManager.h"
 #include "Malena/Utilities/MouseEvents.h"
 
@@ -33,7 +33,7 @@ void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)>
 }
 void ml::ClickableDispatcher::fire(const std::optional<sf::Event>& event)
 {
-	_EventsManager::fire(Event::CLICK, this, event,
+	EventsManager::fire(Event::CLICK, this, event,
 		[this](EventReceiver* component, const std::optional<sf::Event>& e)
 		{
 			auto* core = dynamic_cast<Core*>(component);

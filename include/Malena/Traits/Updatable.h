@@ -3,8 +3,8 @@
 //
 
 #pragma once
+#include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventReceiver.h>
-#include <Malena/Traits/Base/Fireable.h>
 
 #include <Malena/Engine/Events/FrameDispatcher.h>
 

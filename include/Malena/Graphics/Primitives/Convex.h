@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Malena/Core/Core.h>
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
 {

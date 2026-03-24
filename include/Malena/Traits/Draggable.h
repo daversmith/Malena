@@ -7,12 +7,12 @@
 
 #pragma once
 
+#include <Malena/Traits/Base/Customizable.h>
+#include <Malena/Engine/Events/EventReceiver.h>
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Manifests/Manifest.h>
 #include <SFML/Graphics.hpp>
 #include <optional>
-#include <Malena/Traits/Customizable.h>
-#include <Malena/Manifests/Manifest.h>
-#include <Malena/Engine/Events/EventReceiver.h>
-#include <Malena/Traits/Base/Fireable.h>
 
 #include "Malena/Engine/Events/EventDispatcher.h"
 

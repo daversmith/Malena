@@ -2,10 +2,10 @@
 // Scrollable.cpp
 //
 
-#include <Malena/Traits/Scrollable.h>
 #include <Malena/Core/Core.h>
-#include <Malena/Engine/Events/_EventsManager.h>
+#include <Malena/Engine/Events/EventsManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Traits/Scrollable.h>
 #include <Malena/Utilities/MouseEvents.h>
 
 namespace ml
@@ -84,16 +84,16 @@ namespace ml
         if (!event.has_value()) return;
 
         if (event->is<sf::Event::MouseWheelScrolled>())
-            _EventsManager::fire(Event::SCROLL, this, event);
+            EventsManager::fire(Event::SCROLL, this, event);
 
         if (event->is<sf::Event::MouseMoved>())
-            _EventsManager::fire(Event::MOUSE_MOVED, this, event);
+            EventsManager::fire(Event::MOUSE_MOVED, this, event);
 
         if (event->is<sf::Event::MouseButtonPressed>())
-            _EventsManager::fire(Event::MOUSE_PRESSED, this, event);
+            EventsManager::fire(Event::MOUSE_PRESSED, this, event);
 
         if (event->is<sf::Event::MouseButtonReleased>())
-            _EventsManager::fire(Event::MOUSE_RELEASED, this, event);
+            EventsManager::fire(Event::MOUSE_RELEASED, this, event);
     }
 
 } // namespace ml

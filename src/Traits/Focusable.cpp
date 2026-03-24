@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "Malena/Traits/Base/Fireable.h"
+#include "../../include/Malena/Engine/Events/Fireable.h"
 
 namespace ml {
 	// Focusable.cpp

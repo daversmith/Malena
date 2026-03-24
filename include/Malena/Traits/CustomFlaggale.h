@@ -53,7 +53,7 @@ namespace ml
      * @brief CustomFlaggable.
      * @ingroup Traits
      */
-    class CustomFlaggable
+    class CustomFlaggale
     {
         std::conditional_t<
             !std::is_void_v<CustomFlagEnum>,
@@ -121,9 +121,9 @@ namespace ml
      * public API.
      */
     template<>
-    class CustomFlaggable<void> {};
+    class CustomFlaggale<void> {};
 
 } // namespace ml
 
-#include "../../../src/Traits/CustomFlaggable.tpp"
+#include "../../../src/Traits/CustomFlaggale.tpp"
 #endif // CUSTOMSTATEFUL_H

@@ -6,7 +6,7 @@
 #define CLICKABLE_H
 
 
-#include <Malena/Traits/Base/Fireable.h>
+#include <Malena/Engine/Events/Fireable.h>
 
 #include "Malena/Engine/Events/EventDispatcher.h"
 
