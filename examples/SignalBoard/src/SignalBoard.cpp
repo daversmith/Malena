@@ -173,14 +173,14 @@ void SignalBoard::initialization()
 void SignalBoard::registerEvents()
 {
     // Individual tower buttons — publish targeted string event
-    _btnA.onClick([]() { ml::Subscribable::publish(Events::towerFire(0)); });
-    _btnB.onClick([]() { ml::Subscribable::publish(Events::towerFire(1)); });
-    _btnC.onClick([]() { ml::Subscribable::publish(Events::towerFire(2)); });
-    _btnD.onClick([]() { ml::Subscribable::publish(Events::towerFire(3)); });
-
-    // Broadcast buttons
-    _btnFireAll.onClick([]() { ml::Subscribable::publish(Events::FIRE_ALL);  });
-    _btnReset.onClick  ([]() { ml::Subscribable::publish(Events::RESET_ALL); });
+    // _btnA.onClick([]() { ml::EventManager::fire(Events::towerFire(0)); });
+    // _btnB.onClick([]() { ml::Subscribable::publish(Events::towerFire(1)); });
+    // _btnC.onClick([]() { ml::Subscribable::publish(Events::towerFire(2)); });
+    // _btnD.onClick([]() { ml::Subscribable::publish(Events::towerFire(3)); });
+    //
+    // // Broadcast buttons
+    // _btnFireAll.onClick([]() { ml::Subscribable::publish(Events::FIRE_ALL);  });
+    // _btnReset.onClick  ([]() { ml::Subscribable::publish(Events::RESET_ALL); });
 
     // Hover feedback — highlight each button in its tower's colour on hover
     auto addHover = [](ml::RectangleButton& btn, sf::Color accent)

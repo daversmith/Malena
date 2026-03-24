@@ -15,6 +15,7 @@ namespace ml
 {
     /**
      * @brief Static, type-safe collection manager for @c Core-derived objects.
+     * @ingroup Core
      *
      * @c CoreManager<T> owns a static list of @c T* pointers and provides
      * add, remove, and query operations. It inherits
@@ -48,10 +49,6 @@ namespace ml
      * @see DeferredOperationsManager, Core, Application
      */
     template<typename T>
-    /**
-     * @brief CoreManager.
-     * @ingroup Core
-     */
     class CoreManager : public DeferredOperationsManager<CoreManager<T>>
     {
         inline static std::vector<T*> _components;
@@ -113,15 +110,9 @@ namespace ml
         virtual ~CoreManager();
 
     private:
-        /**
-         * @brief Execute the actual pointer removal from the collection.
-         *
-         * Called directly when the collection is idle, or scheduled as a
-         * pending operation by @c DeferredOperationsManager when it is busy.
-         *
-         * @param component Pointer to the object to erase.
-         */
+        /// @cond INTERNAL
         static void doRemoveComponent(T* component);
+        /// @endcond
     };
 
 } // namespace ml

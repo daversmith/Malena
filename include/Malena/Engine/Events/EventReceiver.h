@@ -13,44 +13,66 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <Malena/Engine/Events/Event.h>
+
 namespace ml
 {
     /**
-     * @brief Base class for all event receiver traits.
-     * @ingroup Traits
+     * @brief Base class for all event-receiving traits.
+     * @ingroup EngineEvents
      *
-     * Stores callbacks keyed by @c std::string — generated from any enum
-     * value via @c EnumKey::get(). Both @c ml::Event built-in values and
-     * user manifest event enums use the same storage transparently.
+     * @c EventReceiver is the storage layer shared by every trait that handles
+     * events (@c Clickable, @c Hoverable, @c Keyable, etc.). It maintains a map
+     * of string keys to callback vectors, where each key is produced by
+     * @c EnumKey::get() from any @c ml::Event or manifest event enum value.
      *
-     * Traits call @c getCallbacks() to store callbacks.
-     * @c _EventsManager calls @c process() to invoke them.
+     * Framework dispatchers call @c process() to invoke stored callbacks.
+     * Traits call @c getCallbacks() to register them. User code interacts with
+     * @c EventReceiver only indirectly through the trait convenience methods
+     * (@c onClick, @c onHover, @c onUpdate, etc.).
      *
      * @see Clickable, Hoverable, Focusable, Keyable, Updatable, Scrollable,
-     *      Unsubscribable, _EventsManager, EnumKey
+     *      Unsubscribable, EventsManager, EnumKey
      */
     class EventReceiver
     {
     public:
         /**
          * @brief Invoke all callbacks registered for @p key.
-         * @param key   @c EnumKey::get(eventEnum)
+         *
+         * Called by framework dispatchers. @p key is the string produced by
+         * @c EnumKey::get(eventEnum).
+         *
+         * @param key   String key identifying the event.
          * @param event SFML event forwarded to each callback.
          */
         virtual void process(const std::string& key,
                              const std::optional<sf::Event>& event);
 
-    	template <typename ENUM_TYPE>
-		void process(ENUM_TYPE eventName, const std::optional<sf::Event>& event);
-
         /**
-         * @brief Return the callback vector for @p key, creating if needed.
+         * @brief Invoke all callbacks registered for @p eventName.
+         *
+         * Template overload that accepts any enum value directly, converting
+         * to a string key via @c EnumKey::get() internally.
+         *
+         * @tparam ENUM_TYPE Any enum type.
+         * @param  eventName The enum value identifying the event.
+         * @param  event     SFML event forwarded to each callback.
+         */
+        template<typename ENUM_TYPE>
+        void process(ENUM_TYPE eventName, const std::optional<sf::Event>& event);
+
+        virtual ~EventReceiver() = default;
+
+        /// @cond INTERNAL
+        /**
+         * @brief Return the callback vector for @p key, creating it if needed.
+         *
+         * Used by trait implementations to store callbacks during subscribe calls.
+         *
          * @param key @c EnumKey::get(eventEnum)
          */
         std::vector<EventCallback>& getCallbacks(const std::string& key);
-
-        virtual ~EventReceiver() = default;
+        /// @endcond
 
     private:
         std::map<std::string, std::vector<EventCallback>> _callbacks;

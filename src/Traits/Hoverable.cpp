@@ -48,7 +48,7 @@ namespace ml
 
 	void HoverableDispatcher::fire(const std::optional<sf::Event>& event)
 	{
-		EventsManager::fire(Event::HOVER, this, event,
+		EventManager::fire(Event::HOVER, this, event,
 			[](EventReceiver* component, const std::optional<sf::Event>& e)
 			{
 				// Component is now hovered — set flag

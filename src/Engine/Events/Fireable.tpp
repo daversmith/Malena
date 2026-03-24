@@ -14,7 +14,7 @@ namespace ml
 
 		std::string key = EnumKey::get(eventEnum);
 		component->getCallbacks(key).push_back(std::move(callback));
-		EventsManager::subscribe(eventEnum, component);  // enum passed directly
+		EventManager::subscribe(eventEnum, component);  // enum passed directly
 	}
 
 }

@@ -16,17 +16,19 @@
 
 namespace ml
 {
+    /// @cond INTERNAL
     template<typename... Traits>
     struct HasCoreTraits : std::disjunction<
         std::is_same<Traits, Subscribable>...,
         std::is_same<Traits, Flaggable>...,
         std::is_same<Traits, Positionable>...
     > {};
+    /// @endcond
 
     /**
      * @brief Internal non-drawable layer of the component hierarchy.
      * @ingroup Core
-     * @see ComponentBase, Component, Draggable, GatherFlags, GatherStates
+     * @see Component, Draggable, GatherFlags, GatherStates
      */
     template<typename ComponentManifest = void, typename... Traits>
     struct ComponentCore : public Core,
@@ -42,7 +44,7 @@ namespace ml
 
         ComponentCore()
         {
-            EventsManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this));
+            EventManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this));
             this->onClick([](){});
             this->onHover([](){});
         }
@@ -80,26 +82,21 @@ namespace ml
      *
      * @tparam ComponentManifest Manifest struct forwarded to @c ComponentCore.
      * @tparam Traits            Extra traits forwarded to @c ComponentCore.
-     * @see ComponentCore, Component, Resources
+     * @see ComponentCore, Component, ManifestResources
      */
     template<typename ComponentManifest, typename... Traits>
     struct ComponentBase : public sf::Drawable,
                            public ComponentCore<ComponentManifest, Traits...>,
                            public ManifestResources<ComponentManifest>
     {
-        // Resources is both inherited (for ManifestAliases in scope)
-        // AND exposed as a using alias for the clean static call syntax
         using Resources = ml::ManifestResources<ComponentManifest>;
     };
-
-    // ── void specialization — no manifest, no Resources ──────────────────────
 
     /// @cond INTERNAL
     template<typename... Traits>
     struct ComponentBase<void, Traits...> : public sf::Drawable,
-                                             public ComponentCore<void, Traits...>
+                                            public ComponentCore<void, Traits...>
     {
-        // No manifest — no Resources, no aliases
     };
     /// @endcond
 

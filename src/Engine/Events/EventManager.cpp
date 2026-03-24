@@ -9,7 +9,7 @@
 
 namespace ml
 {
-    void EventsManager::doSubscribe(const std::string& key, EventReceiver* component)
+    void EventManager::doSubscribe(const std::string& key, EventReceiver* component)
     {
         _subscribers[key].push_back({
             component,
@@ -17,7 +17,7 @@ namespace ml
         });
     }
 
-    void EventsManager::doFire(const std::string& key,
+    void EventManager::doFire(const std::string& key,
                                  Fireable* dispatcher,
                                  const std::optional<sf::Event>& event,
                                  SystemCallback resolve,
@@ -47,26 +47,26 @@ namespace ml
         endBusy();
     }
 
-    void EventsManager::unsubscribeAll(Core* core)
+    void EventManager::unsubscribeAll(Core* core)
     {
         deferOrExecute([core]() { doUnsubscribeAll(core); });
     }
 
-    void EventsManager::forceUnsubscribeAll(Core* core)
+    void EventManager::forceUnsubscribeAll(Core* core)
     {
         doUnsubscribeAll(core);
     }
 
-    void EventsManager::clear()
+    void EventManager::clear()
     {
         deferOrExecute([]()
         {
             _subscribers.clear();
-            DeferredOperationsManager<EventsManager>::clearPending();
+            DeferredOperationsManager<EventManager>::clearPending();
         });
     }
 
-    void EventsManager::doUnsubscribe(const std::string& key, Core* core)
+    void EventManager::doUnsubscribe(const std::string& key, Core* core)
     {
         auto it = _subscribers.find(key);
         if (it == _subscribers.end()) return;
@@ -81,7 +81,7 @@ namespace ml
             _subscribers.erase(it);
     }
 
-    void EventsManager::doUnsubscribeAll(Core* core)
+    void EventManager::doUnsubscribeAll(Core* core)
     {
         for (auto it = _subscribers.begin(); it != _subscribers.end();)
         {

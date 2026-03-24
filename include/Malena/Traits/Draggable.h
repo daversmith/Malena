@@ -72,7 +72,28 @@ namespace ml
         Draggable() = default;
         virtual ~Draggable() = default;
 
+        /**
+         * @brief Constrain drag movement to an axis-aligned bounding rectangle.
+         *
+         * While bounds are set, the component's position is clamped so that
+         * its top-left corner never moves outside @p bounds during a drag
+         * gesture. Bounds are applied in world coordinates.
+         *
+         * Call @c clearDragBounds() to remove the constraint and allow
+         * free movement again.
+         *
+         * @param bounds The world-space rectangle within which the component
+         *               may be dragged.
+         */
         void setDragBounds(const sf::FloatRect& bounds);
+
+        /**
+         * @brief Remove any previously set drag bounds.
+         *
+         * After this call the component can be dragged freely across the
+         * window with no position clamping. Has no effect if no bounds
+         * were set.
+         */
         void clearDragBounds();
 
     private:

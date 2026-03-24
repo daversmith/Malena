@@ -84,16 +84,16 @@ namespace ml
         if (!event.has_value()) return;
 
         if (event->is<sf::Event::MouseWheelScrolled>())
-            EventsManager::fire(Event::SCROLL, this, event);
+            EventManager::fire(Event::SCROLL, this, event);
 
         if (event->is<sf::Event::MouseMoved>())
-            EventsManager::fire(Event::MOUSE_MOVED, this, event);
+            EventManager::fire(Event::MOUSE_MOVED, this, event);
 
         if (event->is<sf::Event::MouseButtonPressed>())
-            EventsManager::fire(Event::MOUSE_PRESSED, this, event);
+            EventManager::fire(Event::MOUSE_PRESSED, this, event);
 
         if (event->is<sf::Event::MouseButtonReleased>())
-            EventsManager::fire(Event::MOUSE_RELEASED, this, event);
+            EventManager::fire(Event::MOUSE_RELEASED, this, event);
     }
 
 } // namespace ml

@@ -136,7 +136,7 @@ void BasicExample::registerEvents()
 	unsubscribeAll.onClick([this]() { box1.unsubscribeAll(); });
 
 
-	clearAll.onClick([this]() { ml::EventsManager::clear(); });
+	clearAll.onClick([this]() { ml::EventManager::clear(); });
 	/// when you register your own event, it's up to you to publish the event
 	/// In this example, we are publishing "myEvent" when myEventButton is clicked
 	myEventButton.onClick([this]() {

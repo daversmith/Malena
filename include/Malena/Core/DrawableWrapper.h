@@ -8,8 +8,6 @@
 namespace ml
 {
     // ── Detection traits ─────────────────────────────────────────────────────
-    // Used by DrawableWrapper to conditionally delegate position and bounds
-    // queries to ENTITY when the type supports them.
 
     /// @cond INTERNAL
 
@@ -43,6 +41,7 @@ namespace ml
 
     /**
      * @brief Adapts any @c sf::Drawable into a first-class @c ml::Core object.
+     * @ingroup Core
      *
      * @c DrawableWrapper<ENTITY> inherits from both @c ENTITY and @c ml::Core,
      * bridging the gap between raw SFML drawables (which know nothing about
@@ -52,28 +51,17 @@ namespace ml
      * detection:
      * - If @c ENTITY provides @c setPosition / @c getPosition, they are delegated.
      * - If @c ENTITY provides @c getGlobalBounds, it is delegated.
-     * - If @c ENTITY has no @c getGlobalBounds (e.g., a raw vertex array with no
-     *   fixed size), the fallback returns the full window rect so the object is
-     *   never accidentally excluded from hit-testing.
+     * - If @c ENTITY has no @c getGlobalBounds, the fallback returns the full
+     *   window rect so the object is never accidentally excluded from hit-testing.
      *
      * All constructors of @c ENTITY are forwarded via @c using @c ENTITY::ENTITY,
      * so @c DrawableWrapper can be constructed exactly like the wrapped type.
-     *
-     * ### Typical use
-     * This class is used internally by DaveStation's plugin system to wrap
-     * student-provided @c sf::Drawable subclasses so they can be registered
-     * with @c CoreManager and participate in the Malena draw loop. Students
-     * and most framework users will not interact with @c DrawableWrapper directly.
      *
      * @tparam ENTITY An @c sf::Drawable-derived type to wrap.
      *
      * @see Core, CoreManager, CoreAdapter
      */
     template<typename ENTITY>
-    /**
-     * @brief DrawableWrapper.
-     * @ingroup Core
-     */
     class DrawableWrapper : public ENTITY, public ml::Core
     {
     public:

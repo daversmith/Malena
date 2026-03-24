@@ -8,44 +8,57 @@
 namespace ml
 {
     /**
-     * @brief Trait for sending and receiving typed, enum-keyed messages.
-      * @ingroup Traits
+     * @brief Trait that adds typed, enum-keyed message sending and receiving
+     *        to any class.
+     * @ingroup Traits
      *
-     * @c Messenger wraps @c MessageManager with a clean per-object API for
-     * structured communication between framework objects and plugins.
-     * It is distinct from @c Subscribable, which handles string-keyed
-     * input events fired by @c UIManager.
+     * @c Messenger is a self-contained trait — it has no dependency on
+     * @c Subscribable, @c Core, or any other framework base class. Any class
+     * can gain message-bus participation simply by inheriting it:
      *
-     * Where @c Subscribable is for reacting to @e input (@c "click",
-     * @c "hover", @c "update"), @c Messenger is for reacting to
-     * @e application-level signals — for example, a loading plugin telling
-     * the launcher it has finished, or a game plugin broadcasting a score
-     * change. Messages are keyed by a user-defined enum and carry a
-     * strongly-typed payload.
+     * - @c ml::Plugin inherits @c Messenger directly, so every plugin is a
+     *   first-class message-bus participant out of the box.
+     * - Components gain it by mixing it in:
+     *   @c ComponentWith<MyManifest, ml::Messenger>.
+     * - Plain application objects can inherit @c Messenger directly.
      *
-     * The destructor calls @c offAllMessages() automatically, so subscriptions
-     * are always cleaned up when the owning object is destroyed.
+     * ### What it provides
+     * A thin, per-object wrapper over @c MessageManager. Each @c Messenger
+     * instance tracks which messages @e it has subscribed to, so that
+     * @c offAllMessages() (called automatically by the destructor) only
+     * removes @e this object's subscriptions — never anyone else's.
+     *
+     * Messages are keyed by a user-defined @c enum @c class value and carry
+     * a strongly-typed payload. The sender and receiver only need to share the
+     * enum header — neither needs to know about the other's class.
      *
      * ### Usage
      * @code
      * enum class GameEvent { Started, ScoreChanged, Stopped };
      *
-     * // Subscribe
+     * // Subscribe — callback receives a const T& payload
      * onMessage<int>(GameEvent::ScoreChanged, [](const int& score) {
      *     updateScoreDisplay(score);
      * });
      *
-     * // Publish
+     * // Send — all subscribers for this key are notified immediately
      * sendMessage<int>(GameEvent::ScoreChanged, 42);
      *
-     * // Unsubscribe from one event
+     * // Unsubscribe from one key
      * offMessage<int>(GameEvent::ScoreChanged);
      *
-     * // Unsubscribe from everything
+     * // Unsubscribe from everything this object has registered
      * offAllMessages();
      * @endcode
      *
-     * @see MessageManager, Subscribable, Plugin
+     * ### Lifetime safety
+     * The destructor calls @c offAllMessages() automatically. Subscriptions
+     * are always cleaned up when the owning object is destroyed, with no
+     * manual teardown required. It is also safe to call @c offMessage or
+     * @c offAllMessages from inside a callback — removals are deferred by
+     * @c MessageManager until the current delivery pass completes.
+     *
+     * @see MessageManager, Plugin, PluginWith
      */
     class Messenger : public Trait
     {

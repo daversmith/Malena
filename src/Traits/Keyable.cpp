@@ -67,13 +67,13 @@ namespace ml
         if (!event.has_value()) return;
 
         if (event->is<sf::Event::KeyPressed>())
-            EventsManager::fire(Event::KEYPRESS, this, event);
+            EventManager::fire(Event::KEYPRESS, this, event);
 
         if (event->is<sf::Event::KeyReleased>())
-            EventsManager::fire(Event::KEY_RELEASE, this, event);
+            EventManager::fire(Event::KEY_RELEASE, this, event);
 
         if (event->is<sf::Event::TextEntered>())
-            EventsManager::fire(Event::TEXT_ENTERED, this, event);
+            EventManager::fire(Event::TEXT_ENTERED, this, event);
     }
 
 } // namespace ml

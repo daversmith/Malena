@@ -1,5 +1,5 @@
 //
-// _EventsManager.h
+// EventsManager.h
 //
 
 #ifndef _EVENTSMANAGER_H
@@ -37,8 +37,9 @@ namespace ml
      *
      * @see Fireable, EventReceiver, EnumKey, DeferredOperationsManager
      */
-    class EventsManager : public DeferredOperationsManager<EventsManager>
+    class EventManager : public DeferredOperationsManager<EventManager>
     {
+        /// @cond INTERNAL
         struct Subscriber
         {
             EventReceiver* receiver;  ///< trait subobject — for process()
@@ -46,9 +47,10 @@ namespace ml
         };
 
         inline static std::map<
-            std::string,              ///< EnumKey::get(eventEnum)
+            std::string,
             std::vector<Subscriber>
         > _subscribers;
+        /// @endcond
 
     public:
         /**
@@ -66,6 +68,7 @@ namespace ml
 
         /**
          * @brief Remove a component's subscription to one event.
+         *
          * Deferred if called during @c fire().
          *
          * @tparam EnumType Any enum type.
@@ -81,12 +84,9 @@ namespace ml
             });
         }
 
-    	static void unsubscribe(const std::string& key, Core* core)
-        {
-        	deferOrExecute([key, core]() { doUnsubscribe(key, core); });
-        }
         /**
          * @brief Remove all subscriptions for a component.
+         *
          * Called by @c Core::~Core() and @c Unsubscribable::unsubscribeAll().
          * Deferred if called during @c fire().
          *
@@ -95,14 +95,8 @@ namespace ml
         static void unsubscribeAll(Core* core);
 
         /**
-         * @brief Unconditionally remove all subscriptions for a component.
-         * Bypasses deferred mechanism — only for @c PluginManager unload.
-         * @warning Do not call from user code or inside a callback.
-         */
-        static void forceUnsubscribeAll(Core* core);
-
-        /**
          * @brief Remove all subscriptions for all events.
+         *
          * Deferred if called during @c fire().
          */
         static void clear();
@@ -133,7 +127,14 @@ namespace ml
         friend class Unsubscribable;
 
     private:
-        // Internal implementations taking raw string keys
+        /// @cond INTERNAL
+        static void unsubscribe(const std::string& key, Core* core)
+        {
+            deferOrExecute([key, core]() { doUnsubscribe(key, core); });
+        }
+
+
+
         static void doSubscribe(const std::string& key, EventReceiver* component);
         static void doFire(const std::string& key,
                            Fireable* dispatcher,
@@ -142,8 +143,12 @@ namespace ml
                            SystemCallback reject);
         static void doUnsubscribe(const std::string& key, Core* core);
         static void doUnsubscribeAll(Core* core);
+
+    public:
+    	static void forceUnsubscribeAll(Core* core);
+        /// @endcond
     };
 
 } // namespace ml
 
-#endif //_EVENTSMANAGER_H
+#endif // _EVENTSMANAGER_H

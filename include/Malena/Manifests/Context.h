@@ -15,6 +15,7 @@ namespace ml
     /**
      * @brief Combines @c AssetsManager, @c ConfigManager, and @c StateManager
      *        for a manifest into one convenience struct.
+     * @ingroup Manifests
      *
      * @c Context<Manifest> is the highest-level manifest grouping. It also
      * inherits @c ManifestAliases so that inner enum types (@c Images,
@@ -48,18 +49,13 @@ namespace ml
      * | One asset type only | @c TextureManager / @c FontManager / @c SoundManager directly |
      * | Multiple media types | @c AssetsManager<Manifest> |
      * | Media + configuration | @c Context<Manifest> (this struct) |
-     * | All of the above + manifest aliases | @c Resources<Manifest> |
      *
      * @tparam Manifest A @c Manifest subclass declaring the resource and
      *                  config enums.
      *
-     * @see AssetsManager, ConfigManager, StateManager, ManifestAliases, Resources
+     * @see AssetsManager, ConfigManager, StateManager, ManifestAliases
      */
     template<typename Manifest>
-    /**
-     * @brief Context.
-     * @ingroup Manifests
-     */
     struct Context : public ManifestAliases<Manifest>
     {
         /// @c AssetsManager typed to this manifest — access textures, fonts, sounds.

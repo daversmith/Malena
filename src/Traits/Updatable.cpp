@@ -58,7 +58,7 @@ namespace ml
     void UpdatableDispatcher::fire()
     {
         // Always fire update every frame
-        EventsManager::fire(Event::UPDATE, this, std::optional<sf::Event>());
+        EventManager::fire(Event::UPDATE, this, std::optional<sf::Event>());
 
     }
 

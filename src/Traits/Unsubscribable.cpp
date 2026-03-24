@@ -6,11 +6,11 @@ namespace ml
 {
 	void Unsubscribable::doUnsubscribe(const std::string& key)
 	{
-		EventsManager::unsubscribe(key, dynamic_cast<Core*>(this));
+		EventManager::unsubscribe(key, dynamic_cast<Core*>(this));
 	}
 
 	void Unsubscribable::unsubscribeAll()
 	{
-		EventsManager::unsubscribeAll(dynamic_cast<Core*>(this));
+		EventManager::unsubscribeAll(dynamic_cast<Core*>(this));
 	}
 }

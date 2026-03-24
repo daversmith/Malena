@@ -43,7 +43,7 @@ namespace ml
     {
         if (!event.has_value()) return;
 
-        EventsManager::fire(ml::Event::DRAG, this, event,
+        EventManager::fire(ml::Event::DRAG, this, event,
             [this](EventReceiver* receiver, const std::optional<sf::Event>& e)
             {
                 auto* draggable   = dynamic_cast<Draggable*>(receiver);

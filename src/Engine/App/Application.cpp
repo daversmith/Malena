@@ -25,12 +25,12 @@ namespace ml
 
 	void ApplicationBase::clearEvents()
 	{
-		EventsManager::clear();
+		EventManager::clear();
 	}
 
 	void ApplicationBase::reset()
 	{
-		EventsManager::clear();
+		EventManager::clear();
 		MessageManager::clear();
 		CoreManager<Core>::clear();
 	}

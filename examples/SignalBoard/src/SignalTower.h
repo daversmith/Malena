@@ -45,10 +45,10 @@ public:
         setPosition(position);
         updateVisuals();
 
-        // ── String-event subscriptions ────────────────────────────────────────
-        subscribe(Events::FIRE_ALL,       [this]() { activate(); });
-        subscribe(Events::towerFire(_id), [this]() { activate(); });
-        subscribe(Events::RESET_ALL,      [this]() { deactivate(); });
+        // // ── String-event subscriptions ────────────────────────────────────────
+        // subscribe(Events::FIRE_ALL,       [this]() { activate(); });
+        // subscribe(Events::towerFire(_id), [this]() { activate(); });
+        // subscribe(Events::RESET_ALL,      [this]() { deactivate(); });
 
         onUpdate([this]()
         {

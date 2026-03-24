@@ -181,7 +181,7 @@ namespace ml
     void PluginManager::doUnloadPlugin(Plugin* plugin)
     {
         // Re-queue if any manager is still busy
-        if (EventsManager::isBusy() || MessageManager::isBusy())
+        if (EventManager::isBusy() || MessageManager::isBusy())
         {
             pendingOperations.push_back([this, plugin]() {
                 doUnloadPlugin(plugin);
@@ -206,7 +206,7 @@ namespace ml
         if (toDelete)
         {
             if (auto* core = dynamic_cast<Core*>(toDelete))
-                EventsManager::forceUnsubscribeAll(core);
+                EventManager::forceUnsubscribeAll(core);
 
             if (auto* messenger = dynamic_cast<Messenger*>(toDelete))
                 MessageManager::forceUnsubscribeAll(messenger);
