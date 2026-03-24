@@ -7,7 +7,9 @@
 #include <Malena/Engine/Events/EventReceiver.h>
 
 #include <Malena/Engine/Events/FrameDispatcher.h>
-
+#include <functional>
+#include <optional>
+#include <SFML/Window/Event.hpp>
 namespace ml
 {
 	/**
