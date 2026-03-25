@@ -1,50 +1,38 @@
-# CMake SFML Project Licenses
+# Malena Framework â€” Proprietary Software License
 
-*This software is available under 2 licenses -- choose whichever you prefer.*
+Copyright (c) 2025 Dave R. Smith. All rights reserved.
 
-## Public Domain
+## Terms and Conditions
 
-This is free and unencumbered software released into the public domain.
+### 1. Grant of License
+Subject to the terms of this License, Dave R. Smith ("Licensor") grants you ("Licensee") a limited, non-exclusive, non-transferable, non-sublicensable license to use the Malena Framework software and its source code (the "Software") solely for your own private, internal, non-commercial purposes.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+### 2. Restrictions
+Licensee shall NOT, without the prior written consent of the Licensor:
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+- Distribute, publish, release, sublicense, sell, rent, lease, transfer, or otherwise make the Software or any portion of it available to any third party, whether in source code form, compiled/binary form, or any other form;
+- Use the Software, in whole or in part, as the basis for any product or service offered to third parties;
+- Remove, alter, or obscure any proprietary notices, labels, or markings on or within the Software;
+- Use the Software for any commercial purpose, including but not limited to internal business operations that generate revenue.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+### 3. Ownership
+The Software is proprietary to Dave R. Smith. This License does not transfer any ownership rights. All rights, title, and interest in and to the Software, including all intellectual property rights, remain exclusively with the Licensor.
 
-## MIT License
+### 4. No Warranty
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
 
-Copyright (c) 2022 Lukas Dürrenberger
+### 5. Limitation of Liability
+IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING BUT NOT LIMITED TO LOSS OF DATA, LOSS OF PROFITS, OR BUSINESS INTERRUPTION) ARISING OUT OF OR RELATED TO THE USE OR INABILITY TO USE THE SOFTWARE, EVEN IF THE LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+### 6. Termination
+This License is effective until terminated. It will terminate automatically, without notice, if Licensee breaches any of its terms. Upon termination, Licensee must immediately cease all use of the Software and destroy all copies in their possession.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### 7. Governing Law
+This License shall be governed by and construed in accordance with the laws of the jurisdiction in which Dave R. Smith resides, without regard to its conflict of law provisions.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+### 8. Entire Agreement
+This License constitutes the entire agreement between the parties with respect to the Software and supersedes all prior or contemporaneous agreements, representations, or understandings.
+
+---
+
+For licensing inquiries or to request permissions beyond the scope of this License, contact: Dave R. Smith.

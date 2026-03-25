@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Dave R. Smith. All rights reserved.
+// Malena Framework — Proprietary Software. See LICENSE for terms.
+
 //
 // Created by Dave R. Smith on 3/3/25.
 //
