@@ -7,7 +7,7 @@
 
 #include <functional>
 #include <SFML/Window/Event.hpp>
-
+#include <optional>
 namespace ml
 {
 	class EventReceiver;

@@ -6,7 +6,7 @@
 #define MANAGER_H
 
 #pragma once
-
+#include <optional>
 namespace ml
 {
     /**

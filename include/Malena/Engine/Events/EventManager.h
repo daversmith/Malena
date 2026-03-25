@@ -11,7 +11,8 @@
 #include <Malena/Engine/Events/Callback.h>
 #include <Malena/Core/DeferredOperationsManager.h>
 #include <Malena/Utilities/EnumKey.h>
-#include "SFML/Window/Event.hpp"
+#include <SFML/Window/Event.hpp>
+#include <optional>
 
 namespace ml
 {

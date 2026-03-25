@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Malena/Traits/Base/Trait.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Utilities/Tween.h>
 #include <functional>
 #include <optional>

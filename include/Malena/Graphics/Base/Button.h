@@ -7,7 +7,7 @@
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>
 #include <string>
-
+#include <optional>
 namespace ml
 {
     /**

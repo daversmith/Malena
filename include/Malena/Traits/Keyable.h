@@ -6,7 +6,7 @@
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
-
+#include <optional>
 namespace ml
 {
     /**

@@ -13,6 +13,7 @@
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <string>
+#include <optional>
 namespace ml
 {
     /**

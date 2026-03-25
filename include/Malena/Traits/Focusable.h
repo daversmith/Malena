@@ -6,7 +6,7 @@
 #define FOCUSABLE_H
 
 #include "Malena/Engine/Events/EventReceiver.h"
-
+#include <optional>
 namespace ml
 {
     /**

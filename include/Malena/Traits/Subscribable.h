@@ -11,6 +11,7 @@
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/Callback.h>
+#include <optional>
 namespace ml
 {
     /**

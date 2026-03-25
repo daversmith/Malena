@@ -94,7 +94,7 @@ include(FetchContent)
 FetchContent_Declare(
     malena
     GIT_REPOSITORY https://github.com/daversmith/Malena.git
-    GIT_TAG        "v0.3.4"
+    GIT_TAG        master
 )
 FetchContent_MakeAvailable(malena)
 

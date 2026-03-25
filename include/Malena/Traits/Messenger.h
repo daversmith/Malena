@@ -3,7 +3,7 @@
 
 #include <Malena/Engine/Messaging/MessageManager.h>
 #include <functional>
-#include "Base/Trait.h"
+#include <Malena/Traits/Base/Trait.h>
 
 namespace ml
 {
