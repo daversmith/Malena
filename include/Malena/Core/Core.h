@@ -9,14 +9,23 @@
 
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Traits/Draggable.h>
-#include <Malena/Traits/Subscribable.h>
 #include <Malena/Traits/Flaggable.h>
 #include <Malena/Traits/Messenger.h>
 #include <Malena/Traits/Positionable.h>
+#include <Malena/Traits/Subscribable.h>
 #include <Malena/Utilities/MouseEvents.h>
-#include <iostream>
 #include <SFML/Graphics/Sprite.hpp>
+#include <iostream>
 #include <list>
+
+#include <Malena/Traits/Keyable.h>
+#include <Malena/Traits/Scrollable.h>
+#include <Malena/Traits/Updatable.h>
+#include "Malena/Traits/Clickable.h"
+#include "Malena/Traits/Focusable.h"
+#include "Malena/Traits/Hoverable.h"
+
+#include "../Traits/Unsubscribable.h"
 
 namespace ml
 {
@@ -45,7 +54,16 @@ namespace ml
      */
     class Core : public virtual Subscribable,
                  public virtual Flaggable,
-                 public virtual Positionable
+                 public virtual Positionable,
+                 public virtual Clickable,
+				 public virtual Hoverable,
+				 public virtual Focusable,
+                 public virtual Keyable,
+                 public virtual Scrollable,
+                 // public virtual Draggable,
+                 public virtual Updatable,
+				 public Unsubscribable
+
     {
     public:
         virtual ~Core();

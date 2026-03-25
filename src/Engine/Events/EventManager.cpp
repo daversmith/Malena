@@ -1,138 +1,101 @@
 //
-// EventsManager.cpp
+// _EventsManager.cpp
 //
 
-#include <functional>
-#include <iostream>
-#include <optional>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Core/Core.h>
+#include <algorithm>
 
 namespace ml
 {
-    std::optional<std::map<Subscribable *, std::function<void(const std::optional<sf::Event> &)>> *>
-    EventsManager::getEvent(const std::string &event)
+    void EventManager::doSubscribe(const std::string& key, EventReceiver* component)
     {
-        auto it = events.find(event);
-        if (it != events.end())
-        {
-            return &it->second;
-        }
-        return std::nullopt;
+        _subscribers[key].push_back({
+            component,
+            dynamic_cast<Core*>(component)  // cast once — zero per-frame overhead
+        });
     }
 
-    void EventsManager::setEvent(const std::string &event)
+    void EventManager::doFire(const std::string& key,
+                                 Fireable* dispatcher,
+                                 const std::optional<sf::Event>& event,
+                                 SystemCallback resolve,
+                                 SystemCallback reject)
     {
-        events.insert({event, std::map<Subscribable *, std::function<void(const std::optional<sf::Event> &)>>()});
-    }
-
-    void EventsManager::fire(const std::string &event, std::function<bool(Subscribable &)> filter,
-                             std::function<void()> system, const std::optional<sf::Event> &e)
-    {
-        auto event_map = getEvent(event);
-        if (!event_map)
-        {
-            return;
-        }
+        auto it = _subscribers.find(key);
+        if (it == _subscribers.end()) return;
 
         beginBusy();
 
-        // Make a copy of the callbacks to avoid iterator invalidation
-        auto callbacksCopy = *event_map.value();
+        // Copy — safe against unsubscribe calls during iteration
+        auto copy = it->second;
 
-        for (auto &[component, callback] : callbacksCopy)
+        for (auto& sub : copy)
         {
-            auto &ep = *component;
-
-            if (!filter || filter(ep))
+            if (dispatcher->filter(event, sub.core))
             {
-                // Check if component still exists (might have been unsubscribed)
-                auto currentEventMap = getEvent(event);
-                if (currentEventMap && currentEventMap.value()->count(component))
-                {
-                    callback(e);
-                }
+                sub.receiver->process(key, event);
+                if (resolve) resolve(sub.receiver, event);
             }
-        }
-
-        if (system)
-        {
-            system();
+            else
+            {
+                if (reject) reject(sub.receiver, event);
+            }
         }
 
         endBusy();
     }
 
-    void EventsManager::unsubscribe(const std::string &event, Subscribable *component)
+    void EventManager::unsubscribeAll(Core* core)
     {
-        deferOrExecute([=]() {
-            doUnsubscribe(event, component);
+        deferOrExecute([core]() { doUnsubscribeAll(core); });
+    }
+
+    void EventManager::forceUnsubscribeAll(Core* core)
+    {
+        doUnsubscribeAll(core);
+    }
+
+    void EventManager::clear()
+    {
+        deferOrExecute([]()
+        {
+            _subscribers.clear();
+            DeferredOperationsManager<EventManager>::clearPending();
         });
     }
 
-    void EventsManager::unsubscribeAll(Subscribable *component)
+    void EventManager::doUnsubscribe(const std::string& key, Core* core)
     {
-        deferOrExecute([=]() {
-            doUnsubscribeAll(component);
-        });
+        auto it = _subscribers.find(key);
+        if (it == _subscribers.end()) return;
+
+        auto& subs = it->second;
+        subs.erase(
+            std::remove_if(subs.begin(), subs.end(),
+                [core](const Subscriber& s){ return s.core == core; }),
+            subs.end());
+
+        if (subs.empty())
+            _subscribers.erase(it);
     }
 
-    void EventsManager::subscribe(const std::string &event, Subscribable *component,
-                                  std::function<void(const std::optional<sf::Event> &event)> f)
+    void EventManager::doUnsubscribeAll(Core* core)
     {
-        auto opt_map = getEvent(event);
-        if (!opt_map)
+        for (auto it = _subscribers.begin(); it != _subscribers.end();)
         {
-            setEvent(event);
-            opt_map = getEvent(event);
-        }
-        auto &event_map = *opt_map.value();
-        event_map[component] = f;
-    }
+            auto& subs = it->second;
+            subs.erase(
+                std::remove_if(subs.begin(), subs.end(),
+                    [core](const Subscriber& s){ return s.core == core; }),
+                subs.end());
 
-    void EventsManager::clearAllEvents()
-    {
-        deferOrExecute([]() {
-            events.clear();
-            DeferredOperationsManager<EventsManager>::clearPending();
-        });
-    }
-
-    void EventsManager::doUnsubscribe(const std::string &event, Subscribable *component)
-    {
-        auto it = events.find(event);
-        if (it == events.end())
-        {
-            return;
-        }
-
-        it->second.erase(component);
-
-        if (it->second.empty())
-        {
-            events.erase(it);
-        }
-    }
-
-    void EventsManager::doUnsubscribeAll(Subscribable *component)
-    {
-        for (auto it = events.begin(); it != events.end();)
-        {
-            it->second.erase(component);
-
-            if (it->second.empty())
-            {
-                it = events.erase(it);
-            }
+            if (subs.empty())
+                it = _subscribers.erase(it);
             else
-            {
                 ++it;
-            }
         }
-    }
-
-    void EventsManager::forceUnsubscribeAll(Subscribable *component)
-    {
-        doUnsubscribeAll(component);
     }
 
 } // namespace ml

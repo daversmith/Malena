@@ -5,7 +5,7 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
 {

@@ -29,75 +29,147 @@ namespace ml
             drawTexture();
         });
 
-        // Arrow clicks — use raw subscribe so it fires even when mouse is outside
-        // the carousel content area (e.g. SIDES placement)
-        subscribe("click", [this](const std::optional<sf::Event>& event)
+    //     // Arrow clicks — use raw subscribe so it fires even when mouse is outside
+    //     // the carousel content area (e.g. SIDES placement)
+    //     subscribe("click", [this](const std::optional<sf::Event>& event)
+    //     {
+    //         if (!event || !checkFlag(Flag::SHOW_ARROWS)) return;
+    //         const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
+    //         if (!pressed || pressed->button != sf::Mouse::Button::Left) return;
+    //
+    //         sf::Vector2f screenPos = {
+    //             static_cast<float>(pressed->position.x),
+    //             static_cast<float>(pressed->position.y)
+    //         };
+    //
+    //         if (isOnLeftArrow(screenPos))  { previous(); return; }
+    //         if (isOnRightArrow(screenPos)) { next();     return; }
+    //     });
+    //
+    //     // Click — forward to children
+    //     onClick([this](const std::optional<sf::Event>& event)
+    //     {
+    //         if (!event) return;
+    //         const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
+    //         if (!pressed) return;
+    //
+    //         sf::Vector2f screenPos = {
+    //             static_cast<float>(pressed->position.x),
+    //             static_cast<float>(pressed->position.y)
+    //         };
+    //
+    //         float localX = screenPos.x - _position.x + _viewX;
+    //         float localY = screenPos.y - _position.y;
+    //
+    //         for (auto* child : _components)
+    //         {
+    //             if (child->getGlobalBounds().contains({localX, localY}))
+    //             {
+    //                 auto* sub = dynamic_cast<Subscribable*>(child);
+    //                 if (sub) EventsManager::fire("click",
+    //                     [sub](Subscribable& ep) { return &ep == sub; },
+    //                     nullptr, event);
+    //             }
+    //         }
+    //     });
+    //
+    //     // Hover — forward to children in carousel-local space
+    //     onHover([this](const std::optional<sf::Event>& event)
+    //     {
+    //         if (!event) return;
+    //         const auto* moved = event->getIf<sf::Event::MouseMoved>();
+    //         if (!moved) return;
+    //
+    //         float localX = static_cast<float>(moved->position.x) - _position.x + _viewX;
+    //         float localY = static_cast<float>(moved->position.y) - _position.y;
+    //
+    //         for (auto* child : _components)
+    //         {
+    //             auto* sub = dynamic_cast<Subscribable*>(child);
+    //             if (!sub) continue;
+    //
+    //             if (child->getGlobalBounds().contains({localX, localY}))
+    //                 EventsManager::fire("hover",
+    //                     [sub](Subscribable& ep) { return &ep == sub; },
+    //                     nullptr, event);
+    //             else
+    //                 EventsManager::fire("unhover",
+    //                     [sub](Subscribable& ep) { return &ep == sub; },
+    //                     nullptr, event);
+    //         }
+    //     });
+
+
+    // ── Arrow clicks ──────────────────────────────────────────────────────────
+    // Use onClick — fires when mouse is released over the carousel bounds.
+    // Arrow hit-test is done manually inside the callback.
+    onClick([this](const std::optional<sf::Event>& event)
+    {
+        if (!event || !checkFlag(Flag::SHOW_ARROWS)) return;
+        const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
+        if (!pressed || pressed->button != sf::Mouse::Button::Left) return;
+
+        sf::Vector2f screenPos = {
+            static_cast<float>(pressed->position.x),
+            static_cast<float>(pressed->position.y)
+        };
+
+        if (isOnLeftArrow(screenPos))  { previous(); return; }
+        if (isOnRightArrow(screenPos)) { next();     return; }
+    });
+
+    // ── Click — forward to children ───────────────────────────────────────────
+    onClick([this](const std::optional<sf::Event>& event)
+    {
+        if (!event) return;
+        const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
+        if (!pressed) return;
+
+        sf::Vector2f screenPos = {
+            static_cast<float>(pressed->position.x),
+            static_cast<float>(pressed->position.y)
+        };
+
+        float localX = screenPos.x - _position.x + _viewX;
+        float localY = screenPos.y - _position.y;
+
+        for (auto* child : _components)
         {
-            if (!event || !checkFlag(Flag::SHOW_ARROWS)) return;
-            const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
-            if (!pressed || pressed->button != sf::Mouse::Button::Left) return;
+            if (!child->getGlobalBounds().contains({localX, localY})) continue;
 
-            sf::Vector2f screenPos = {
-                static_cast<float>(pressed->position.x),
-                static_cast<float>(pressed->position.y)
-            };
+            // Forward click directly to the child's Clickable subobject
+            auto* clickable = dynamic_cast<Clickable*>(child);
+            if (clickable)
+                clickable->process(EnumKey::get(ml::Event::CLICK), event);
 
-            if (isOnLeftArrow(screenPos))  { previous(); return; }
-            if (isOnRightArrow(screenPos)) { next();     return; }
-        });
+            // Handle focus — blur previously focused, focus this child
+            auto* focusable = dynamic_cast<Focusable*>(child);
+            if (focusable)
+                focusable->process(EnumKey::get(ml::Event::FOCUS), event);
+        }
+    });
 
-        // Click — forward to children
-        onClick([this](const std::optional<sf::Event>& event)
+    // ── Hover — forward to children in carousel-local space ───────────────────
+    onHover([this](const std::optional<sf::Event>& event)
+    {
+        if (!event) return;
+        const auto* moved = event->getIf<sf::Event::MouseMoved>();
+        if (!moved) return;
+
+        float localX = static_cast<float>(moved->position.x) - _position.x + _viewX;
+        float localY = static_cast<float>(moved->position.y) - _position.y;
+
+        for (auto* child : _components)
         {
-            if (!event) return;
-            const auto* pressed = event->getIf<sf::Event::MouseButtonPressed>();
-            if (!pressed) return;
+            auto* hoverable = dynamic_cast<Hoverable*>(child);
+            if (!hoverable) continue;
 
-            sf::Vector2f screenPos = {
-                static_cast<float>(pressed->position.x),
-                static_cast<float>(pressed->position.y)
-            };
-
-            float localX = screenPos.x - _position.x + _viewX;
-            float localY = screenPos.y - _position.y;
-
-            for (auto* child : _components)
-            {
-                if (child->getGlobalBounds().contains({localX, localY}))
-                {
-                    auto* sub = dynamic_cast<Subscribable*>(child);
-                    if (sub) EventsManager::fire("click",
-                        [sub](Subscribable& ep) { return &ep == sub; },
-                        nullptr, event);
-                }
-            }
-        });
-
-        // Hover — forward to children in carousel-local space
-        onHover([this](const std::optional<sf::Event>& event)
-        {
-            if (!event) return;
-            const auto* moved = event->getIf<sf::Event::MouseMoved>();
-            if (!moved) return;
-
-            float localX = static_cast<float>(moved->position.x) - _position.x + _viewX;
-            float localY = static_cast<float>(moved->position.y) - _position.y;
-
-            for (auto* child : _components)
-            {
-                auto* sub = dynamic_cast<Subscribable*>(child);
-                if (!sub) continue;
-
-                if (child->getGlobalBounds().contains({localX, localY}))
-                    EventsManager::fire("hover",
-                        [sub](Subscribable& ep) { return &ep == sub; },
-                        nullptr, event);
-                else
-                    EventsManager::fire("unhover",
-                        [sub](Subscribable& ep) { return &ep == sub; },
-                        nullptr, event);
-            }
-        });
+            if (child->getGlobalBounds().contains({localX, localY}))
+                hoverable->process(EnumKey::get(ml::Event::HOVER), event);
+            else
+                hoverable->process(EnumKey::get(ml::Event::UNHOVER), event);
+        }
+    });
     }
 
     // ── Arrow Setup ───────────────────────────────────────────────────────────

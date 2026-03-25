@@ -13,8 +13,9 @@ namespace ml
 {
     /**
      * @brief Provides enum-keyed boolean flag storage for a single flag set.
+     * @ingroup Traits
      *
-     * @c CustomFlaggable<CustomFlagEnum> maintains an @c unordered_map from
+     * @c CustomFlaggale<CustomFlagEnum> maintains an @c unordered_map from
      * enum values to @c bool, exposing a consistent API for querying and
      * mutating those flags. It is the low-level storage layer used by
      * @c MultiCustomFlaggable to hold each individual flag set gathered from
@@ -22,11 +23,11 @@ namespace ml
      *
      * All methods are guarded by @c std::enable_if so they exist in the
      * overload set only when @c CustomFlagEnum is not @c void. This allows
-     * @c CustomFlaggable to be safely used as a base class even when the
+     * @c CustomFlaggale to be safely used as a base class even when the
      * manifest declares no flags — see the @c void specialization below.
      *
      * ### Typical use (via @c ComponentWith)
-     * You will rarely instantiate @c CustomFlaggable directly. Instead, declare
+     * You will rarely instantiate @c CustomFlaggale directly. Instead, declare
      * a @c Flags enum in your manifest and call the flag methods on your
      * component:
      * @code
@@ -49,10 +50,6 @@ namespace ml
      * @see MultiCustomFlaggable, Flaggable, ComponentCore
      */
     template<typename CustomFlagEnum>
-    /**
-     * @brief CustomFlaggable.
-     * @ingroup Traits
-     */
     class CustomFlaggable
     {
         std::conditional_t<

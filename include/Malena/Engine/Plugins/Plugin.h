@@ -7,40 +7,36 @@
     #define PLUGIN_EXPORT
 #endif
 
-#include <Malena/Traits/Customizable.h>
-#include <Malena/Traits/Messenger.h>
-#include <Malena/Traits/Base/MultiCustomFlaggable.h>
-#include <Malena/Traits/Base/MultiCustomStateManager.h>
+#include <Malena/Traits/Base/Customizable.h>
+#include <Malena/Core/Core.h>
+#include <Malena/Core/Export.h>
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Engine/Events/FireableHelper.h>
 #include <Malena/Resources/FlagManager.h>
 #include <Malena/Resources/TextureManager.h>
+#include <Malena/Traits/Base/MultiCustomFlaggable.h>
+#include <Malena/Traits/Base/MultiCustomStateManager.h>
+#include <Malena/Traits/Messenger.h>
 #include <Malena/Utilities/Flag.h>
-#include <Malena/Core/Core.h>
 #include <SFML/Graphics/Texture.hpp>
 #include <type_traits>
 
 namespace ml
 {
-    // =========================================================================
-    // Manifest validation traits
-    // =========================================================================
-
     /// @cond INTERNAL
 
-    /** @brief Detects @c static @c constexpr @c const @c char* @c name on a manifest. */
     template<typename M, typename = void>
     struct HasPluginName : std::false_type {};
     template<typename M>
     struct HasPluginName<M, std::void_t<decltype(M::name)>>
         : std::is_convertible<decltype(M::name), const char*> {};
 
-    /** @brief Detects @c static @c constexpr @c const @c char* @c version on a manifest. */
     template<typename M, typename = void>
     struct HasPluginVersion : std::false_type {};
     template<typename M>
     struct HasPluginVersion<M, std::void_t<decltype(M::version)>>
         : std::is_convertible<decltype(M::version), const char*> {};
 
-    /** @brief Detects @c Images::THUMBNAIL on a manifest, enabling auto-thumbnail. */
     template<typename M, typename = void>
     struct HasThumbnail : std::false_type {};
     template<typename M>
@@ -49,42 +45,33 @@ namespace ml
 
     /// @endcond
 
-    // =========================================================================
-    // Plugin — virtual base class
-    // =========================================================================
-
     /**
      * @brief Abstract base class for all Malena plugins.
-      * @ingroup EnginePlugins
+     * @ingroup EnginePlugins
      *
-     * @c Plugin defines the lifecycle interface and identity methods that
-     * @c PluginManager needs to load, query, and unload any plugin regardless
-     * of its concrete type. It inherits @c Messenger so that plugins can
-     * participate in typed message passing out of the box.
+     * @c Plugin defines the lifecycle interface that every plugin must implement.
+     * Subclass via @c PluginWith<Manifest> rather than @c Plugin directly —
+     * @c PluginWith wires in the manifest, flag/state machinery, and resource
+     * accessors automatically.
      *
-     * ### Lifecycle hooks
-     * - @c onLoad()   — called by @c PluginManager immediately after the plugin
-     *                   is constructed. Initialize resources here.
-     * - @c onUnload() — called by @c PluginManager immediately before the plugin
-     *                   is destroyed. Release resources and unsubscribe here.
+     * ### Lifecycle
+     * - @c onLoad() — called immediately after the plugin is constructed and
+     *   registered. Use this to set up components, subscribe to events, etc.
+     * - @c onUnload() — called just before the plugin is destroyed. Use this
+     *   to clean up any state the plugin owns.
      *
-     * ### Interface queries
-     * Because plugins cross dylib boundaries, @c dynamic_cast between
-     * unrelated plugin types is unreliable. Use the provided helpers instead:
+     * ### Type queries
      * @code
-     * if (plugin->is<ml::UIComponent>()) { ... }
+     * // Check if a plugin implements a specific interface
+     * if (plugin->is<IScorePlugin>()) { ... }
      *
-     * if (auto* drawable = plugin->getIf<ml::UIComponent>()) {
-     *     addComponent(*drawable);
+     * // Get a typed pointer (returns nullptr if not that type)
+     * if (auto* score = plugin->getIf<IScorePlugin>()) {
+     *     score->addPoints(10);
      * }
      * @endcode
      *
-     * ### Direct use
-     * Most plugins should use @c PluginWith<Manifest> rather than inheriting
-     * @c Plugin directly. @c PluginWith adds manifest support, static assertions
-     * that enforce required manifest fields, and automatic thumbnail wiring.
-     *
-     * @see PluginWith, PluginManager, Messenger
+     * @see PluginWith, PluginManager, ML_EXPORT
      */
     class Plugin : public Messenger
     {
@@ -93,130 +80,81 @@ namespace ml
 
         /**
          * @brief Return the plugin's display name.
-         *
-         * Overridden automatically by @c PluginWith to return
-         * @c Manifest::name. Default returns @c "Unnamed Plugin".
-         *
-         * @return Null-terminated display name string.
+         * @return Null-terminated name string. Defaults to @c "Unnamed Plugin".
          */
-        virtual const char* getName()    const { return "Unnamed Plugin"; }
+        virtual const char* getName() const { return "Unnamed Plugin"; }
 
         /**
          * @brief Return the plugin's version string.
-         *
-         * Overridden automatically by @c PluginWith to return
-         * @c Manifest::version. Default returns @c "1.0.0".
-         *
-         * @return Null-terminated version string (e.g., @c "1.0.0").
+         * @return Null-terminated version string. Defaults to @c "1.0.0".
          */
         virtual const char* getVersion() const { return "1.0.0"; }
 
         /**
-         * @brief Return the plugin's thumbnail texture, or @c nullptr.
+         * @brief Return a pointer to this plugin's thumbnail texture, or @c nullptr.
          *
-         * Overridden automatically by @c PluginWith when the manifest
-         * declares @c Images::THUMBNAIL. Used by @c PluginManager::scanPlugins
-         * to copy the texture before the probe dylib is closed.
+         * Used by @c PluginManager::scanPlugins() to populate @c PluginInfo
+         * records for display in a carousel or menu. Return @c nullptr if the
+         * plugin has no thumbnail.
          *
          * @return Pointer to the thumbnail @c sf::Texture, or @c nullptr.
          */
         virtual const sf::Texture* getThumbnail() const { return nullptr; }
 
         /**
-         * @brief Called immediately after the plugin is constructed.
+         * @brief Called immediately after the plugin is loaded and constructed.
          *
-         * Override to load textures, register components, or subscribe to
-         * messages. The @c PluginManager and application infrastructure are
-         * fully initialized before this is called.
+         * Override to initialise components, subscribe to events, load resources,
+         * and perform any other startup work.
          */
-        virtual void onLoad()   {}
+        virtual void onLoad() {}
 
         /**
-         * @brief Called immediately before the plugin is destroyed.
+         * @brief Called just before the plugin is destroyed and unloaded.
          *
-         * Override to release resources, remove components, or perform any
-         * cleanup that cannot happen in the destructor. After this returns,
-         * the plugin object is deleted and its dylib is closed.
+         * Override to clean up any state the plugin owns. All event and message
+         * subscriptions are removed automatically after this call, so explicit
+         * unsubscription is not required.
          */
         virtual void onUnload() {}
 
         /**
-         * @brief Return a @c ml::Plugin* to this object.
+         * @brief Return @c true if this plugin is an instance of @c T.
          *
-         * Provided so that @c ds::GamePlugin and other intermediate bases
-         * can bridge back to @c ml::Plugin* for @c PluginManager without
-         * requiring a @c dynamic_cast. @c PluginWith overrides this to
-         * satisfy both @c ml::Plugin::asPlugin() and any pure-virtual
-         * @c asPlugin() declared in a DaveStation interface.
-         *
-         * @return @c this, typed as @c ml::Plugin*.
-         */
-        virtual Plugin* asPlugin() { return this; }
-
-        /**
-         * @brief Return @c true if this plugin implements interface @c T.
-         *
-         * Uses @c dynamic_cast internally. Prefer @c getIf when you also
-         * need the typed pointer.
-         *
-         * @tparam T Interface type to test for.
-         * @return @c true if the cast succeeds.
+         * @tparam T The type to check against.
          */
         template<typename T>
         bool is() const { return dynamic_cast<const T*>(this) != nullptr; }
 
         /**
-         * @brief Return a pointer to this plugin as interface @c T, or @c nullptr.
+         * @brief Return a @c T* if this plugin is an instance of @c T,
+         *        or @c nullptr otherwise.
          *
-         * Use this instead of a raw @c dynamic_cast when querying optional
-         * plugin interfaces across dylib boundaries:
-         * @code
-         * if (auto* ui = plugin->getIf<ml::UIComponent>()) {
-         *     addComponent(*ui);
-         * }
-         * @endcode
-         *
-         * @tparam T Interface type to cast to.
-         * @return Typed pointer if the cast succeeds, @c nullptr otherwise.
+         * @tparam T The type to cast to.
          */
         template<typename T>
         T* getIf() { return dynamic_cast<T*>(this); }
 
-        /** @brief Const overload of @c getIf(). */
+        /**
+         * @brief Const overload of @c getIf.
+         *
+         * @tparam T The type to cast to.
+         */
         template<typename T>
         const T* getIf() const { return dynamic_cast<const T*>(this); }
-    };
 
-    // =========================================================================
-    // TraitsHaveCore detection
-    // =========================================================================
+        /// @cond INTERNAL
+        virtual Plugin* asPlugin() { return this; }
+        /// @endcond
+    };
 
     /// @cond INTERNAL
 
-    /**
-     * @brief Detects whether any type in @c Traits inherits @c ml::Core.
-     *
-     * Used by @c PluginWith to select between @c PluginBase (no Core) and
-     * @c PluginBaseWithCore (Core present via a trait such as a graphics component).
-     */
     template<typename... Traits>
     struct TraitsHaveCore : std::disjunction<
         std::is_base_of<Core, Traits>...
     > {};
 
-    // =========================================================================
-    // PluginBase — no Core in traits
-    // =========================================================================
-
-    /**
-     * @brief Internal base for plugins whose traits do not include @c ml::Core.
-     *
-     * Assembles @c Plugin, @c Customizable<Manifest>, the extra @c Traits, and
-     * gathered flag/state stores into a single class. Enforces manifest validity
-     * at compile time via @c static_assert.
-     *
-     * Do not inherit from this directly — use @c PluginWith<Manifest, Traits...>.
-     */
     template<typename Manifest, typename... Traits>
     struct PluginBase : public Plugin,
                         public Customizable<Manifest>,
@@ -256,20 +194,6 @@ namespace ml
         using GatherStates<Manifest, Traits...>::type::onStateExit;
     };
 
-    // =========================================================================
-    // PluginBaseWithCore — Core present via traits
-    // =========================================================================
-
-    /**
-     * @brief Internal base for plugins that include @c ml::Core through a trait.
-     *
-     * Identical to @c PluginBase but also exposes the system @c ml::Flag API
-     * (@c FlagManager<ml::Flag>) alongside the custom flag API, resolving the
-     * ambiguity that arises when @c Core's @c Flaggable and @c GatherFlags
-     * both contribute @c enableFlag overloads.
-     *
-     * Do not inherit from this directly — use @c PluginWith<Manifest, Traits...>.
-     */
     template<typename Manifest, typename... Traits>
     struct PluginBaseWithCore : public Plugin,
                                 public Customizable<Manifest>,
@@ -296,14 +220,12 @@ namespace ml
                 return nullptr;
         }
 
-        // System flags (from ml::Core → ml::Flaggable → FlagManager<ml::Flag>)
         using FlagManager<ml::Flag>::enableFlag;
         using FlagManager<ml::Flag>::disableFlag;
         using FlagManager<ml::Flag>::checkFlag;
         using FlagManager<ml::Flag>::setFlag;
         using FlagManager<ml::Flag>::toggleFlag;
 
-        // Custom flags from manifest + traits
         using GatherFlags<Manifest, Traits...>::type::enableFlag;
         using GatherFlags<Manifest, Traits...>::type::disableFlag;
         using GatherFlags<Manifest, Traits...>::type::checkFlag;
@@ -319,57 +241,28 @@ namespace ml
 
     /// @endcond
 
-    // =========================================================================
-    // PluginWith — primary user-facing alias
-    // =========================================================================
-
     /**
      * @brief Primary base class for manifest-driven plugins.
+     * @ingroup EnginePlugins
      *
-     * @c PluginWith<Manifest, Traits...> is the type plugin authors inherit
-     * from. It automatically selects @c PluginBase or @c PluginBaseWithCore
-     * depending on whether any @c Trait introduces @c ml::Core into the
-     * hierarchy (e.g., when the plugin is also a drawable component).
+     * @c PluginWith<Manifest> is the recommended way to create a Malena plugin.
+     * It wires in the manifest's resource enums, flag/state machinery, and
+     * satisfies the @c Plugin interface automatically.
      *
-     * ### Manifest requirements
-     * The manifest must declare @c name and @c version as static constexpr
-     * strings. The framework enforces this at compile time:
-     * @code
-     * class MyManifest : public ml::Manifest {
-     * public:
-     *     static constexpr const char* name    = "My Plugin";
-     *     static constexpr const char* version = "1.0.0";
-     *
-     *     // Optional: enables automatic thumbnail support
-     *     enum class Images { THUMBNAIL };
-     *
-     *     // Optional: custom flags and states
-     *     enum class Flag  { Active };
-     *     enum class State { Idle, Running };
-     *
-     * private:
-     *     inline static const auto _ = [](){
-     *         set(Images::THUMBNAIL, "assets/thumb.png");
-     *         return 0;
-     *     }();
-     * };
-     * @endcode
-     *
-     * ### Plugin implementation
      * @code
      * class MyPlugin : public ml::PluginWith<MyManifest>
      * {
      * public:
-     *     void onLoad()   override { /* load resources *\/ }
-     *     void onUnload() override { /* cleanup *\/ }
+     *     void onLoad()   override { /* set up components *\/ }
+     *     void onUnload() override { /* clean up *\/ }
      * };
-     * REGISTER_PLUGIN(MyPlugin)
+     * ML_EXPORT(MyPlugin)
      * @endcode
      *
-     * @tparam Manifest A @c Manifest subclass with @c name and @c version.
-     * @tparam Traits   Optional extra traits (e.g., a graphics component base).
-     *
-     * @see Plugin, PluginManager, REGISTER_PLUGIN
+     * @tparam Manifest A @c Manifest subclass with @c name and @c version
+     *                  static constexpr members.
+     * @tparam Traits   Optional extra traits (e.g. @c Messenger, @c Fadeable).
+     * @see Plugin, PluginManager, ML_EXPORT
      */
     template<typename Manifest, typename... Traits>
     using PluginWith = std::conditional_t<
@@ -381,59 +274,86 @@ namespace ml
 } // namespace ml
 
 // =============================================================================
-// REGISTER_PLUGIN macro
+//  PluginHelper
 // =============================================================================
 
-/**
- * @defgroup PluginRegistration Plugin Registration
- * @{
- */
+namespace ml::exports
+{
+    /// @cond INTERNAL
 
-/**
- * @brief Export the factory and destructor functions required by @c PluginManager.
- *
- * Every plugin shared library must call this macro exactly once at file scope
- * in its @c .cpp file. It generates two @c extern @c "C" functions:
- * - @c createPlugin()  — constructs the plugin and returns @c ml::Plugin*
- * - @c destroyPlugin() — deletes the plugin
- *
- * ### Single-argument form (recommended for @c PluginWith plugins)
- * Name and version are read from the manifest automatically:
- * @code
- * // MyPlugin.cpp
- * #include "MyPlugin.h"
- * REGISTER_PLUGIN(MyPlugin)
- * @endcode
- *
- * ### Three-argument form (for plugins without @c PluginWith)
- * Supply name and version explicitly:
- * @code
- * REGISTER_PLUGIN(MyPlugin, "My Plugin", "2.0.0")
- * @endcode
- *
- * @param GameClass The concrete plugin class to instantiate.
- */
-#define REGISTER_PLUGIN_1(GameClass) \
-extern "C" { \
-PLUGIN_EXPORT ml::Plugin* createPlugin() \
-    { return (new GameClass())->asPlugin(); } \
-PLUGIN_EXPORT void destroyPlugin(ml::Plugin* p) \
-    { delete p; } \
+    template<typename T, typename = void>
+    struct PluginHelper
+    {
+        static ml::Plugin* create()             { return nullptr; }
+        static void        destroy(ml::Plugin*) {}
+    };
+
+    template<typename T>
+    struct PluginHelper<T, std::enable_if_t<std::is_base_of_v<ml::Plugin, T>>>
+    {
+        static ml::Plugin* create()               { return (new T())->asPlugin(); }
+        static void        destroy(ml::Plugin* p) { delete p; }
+    };
+
+    /// @endcond
 }
 
-#define REGISTER_PLUGIN_3(GameClass, name, version) \
-extern "C" { \
-PLUGIN_EXPORT ml::Plugin* createPlugin() \
-    { return (new GameClass())->asPlugin(); } \
-PLUGIN_EXPORT void destroyPlugin(ml::Plugin* p) \
-    { delete p; } \
-}
+// =============================================================================
+//  ML_EXPORT — full version (Plugin + Fireable both complete)
+// =============================================================================
 
-/// @cond INTERNAL
-#define REGISTER_PLUGIN_PICK(_1, _2, _3, NAME, ...) NAME
-/// @endcond
+#undef ML_EXPORT
 
-#define REGISTER_PLUGIN(...) \
-    REGISTER_PLUGIN_PICK(__VA_ARGS__, REGISTER_PLUGIN_3, _UNUSED, REGISTER_PLUGIN_1)(__VA_ARGS__)
-
-/** @} */
+/**
+ * @def ML_EXPORT(ClassName)
+ * @brief Register a Malena type with the framework at program startup.
+ * @ingroup EnginePlugins
+ *
+ * Place @c ML_EXPORT(ClassName) in the same header or translation unit as the
+ * class definition. It handles two distinct registration paths:
+ *
+ * - **Plugin** — emits @c extern @c "C" factory symbols (@c createPlugin /
+ *   @c destroyPlugin) so that @c PluginManager can load the class from a
+ *   shared library via @c dlopen / @c LoadLibrary.
+ * - **Fireable** — registers a singleton dispatcher instance with
+ *   @c Fireable::_register so that @c AppManager dispatches events to it.
+ * - **Plugin + Fireable** — the plugin path takes precedence; @c PluginManager
+ *   registers the @c Fireable aspect at load time.
+ * - **Neither** — a @c static_assert fires at compile time.
+ *
+ * @param ClassName The class to register. Must be fully defined at the point
+ *                  where @c ML_EXPORT appears.
+ *
+ * @see PluginWith, Fireable, PluginManager
+ */
+#define ML_EXPORT(ClassName)                                                        \
+                                                                                    \
+    extern "C" {                                                                    \
+        PLUGIN_EXPORT ml::Plugin* createPlugin()                                    \
+        {                                                                           \
+            return ml::exports::PluginHelper<ClassName>::create();                  \
+        }                                                                           \
+        PLUGIN_EXPORT void destroyPlugin(ml::Plugin* p)                             \
+        {                                                                           \
+            ml::exports::PluginHelper<ClassName>::destroy(p);                       \
+        }                                                                           \
+    }                                                                               \
+                                                                                    \
+    namespace ml::exports {                                                         \
+        /** @cond INTERNAL */                                                       \
+        inline struct _Register_##ClassName                                         \
+        {                                                                           \
+            _Register_##ClassName()                                                 \
+            {                                                                       \
+                ml::exports::FireableHelper<ClassName>::doRegister();               \
+                                                                                    \
+                static_assert(                                                      \
+                    std::is_base_of_v<ml::Plugin,   ClassName> ||                  \
+                    std::is_base_of_v<ml::Fireable, ClassName>,                    \
+                    "[Malena] ML_EXPORT: '" #ClassName "' is not a "               \
+                    "recognised exportable Malena type. "                           \
+                    "Must derive from ml::Plugin or ml::Fireable.");                \
+            }                                                                       \
+        } _instance_##ClassName;                                                    \
+        /** @endcond */                                                             \
+    }

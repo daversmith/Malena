@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Malena/Graphics/Button.h>
-#include <Malena/Graphics/Convex.h>
-#include <Malena/Traits/Customizable.h>
+#include <Malena/Graphics/Base/Button.h>
+#include <Malena/Graphics/Primitives/Convex.h>
+#include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
 {

@@ -18,7 +18,7 @@ namespace ml
 {
     /**
      * @brief Typed, enum-keyed message bus for structured inter-object communication.
-      * @ingroup EngineMessaging
+     * @ingroup EngineMessaging
      *
      * @c MessageManager is the engine behind the @c Messenger trait. It
      * provides a completely separate communication channel from @c EventsManager:
@@ -26,7 +26,7 @@ namespace ml
      * | @c EventsManager | @c MessageManager |
      * |------------------|-------------------|
      * | String keys (@c "click", @c "hover") | Enum keys (@c GameEvent::Started) |
-     * | Fired by @c UIManager based on SFML input | Fired explicitly by application code |
+     * | Fired by dispatchers based on SFML input | Fired explicitly by application code |
      * | Delivers to @c Subscribable objects | Delivers to any @c void* subscriber |
      * | Used for input and UI lifecycle events | Used for application-level signals |
      *
@@ -68,8 +68,7 @@ namespace ml
      */
     class MessageManager : public DeferredOperationsManager<MessageManager>
     {
-    private:
-        /// Composite key: (enum type, enum value as int, data type).
+        /// @cond INTERNAL
         using EventKey = std::tuple<std::type_index, int, std::type_index>;
 
         struct KeyHash
@@ -91,11 +90,9 @@ namespace ml
 
         static std::unordered_map<EventKey, std::vector<Subscription>, KeyHash> subscribers;
 
-        /// Execute the actual removal of one subscriber from one key.
         static void doUnsubscribe(const EventKey& key, void* subscriber);
-
-        /// Execute the actual removal of a subscriber from all keys.
         static void doUnsubscribeAll(void* subscriber);
+        /// @endcond
 
     public:
         /**
@@ -106,13 +103,13 @@ namespace ml
          * registered a callback for this exact key, the new callback replaces
          * the old one.
          *
-         * @tparam DataType  Expected payload type.
-         * @tparam Enum      Enum type identifying the message.
-         * @param  event     The specific enum value to subscribe to.
+         * @tparam DataType   Expected payload type.
+         * @tparam Enum       Enum type identifying the message.
+         * @param  event      The specific enum value to subscribe to.
          * @param  subscriber Opaque pointer identifying the subscribing object
-         *                   (typically @c this). Used for targeted unsubscription.
-         * @param  callback  Called with a const reference to the payload when
-         *                   the message is published.
+         *                    (typically @c this). Used for targeted unsubscription.
+         * @param  callback   Called with a const reference to the payload when
+         *                    the message is published.
          */
         template<typename DataType, typename Enum>
         static void subscribe(Enum event, void* subscriber,
@@ -166,6 +163,7 @@ namespace ml
          */
         static void clear();
 
+        /// @cond INTERNAL
         /**
          * @brief Unconditionally remove all subscriptions for @p subscriber.
          *
@@ -175,10 +173,9 @@ namespace ml
          * dangling pointer.
          *
          * @warning Do not call from user code or inside a @c publish() callback.
-         *
-         * @param subscriber The subscribing object to remove immediately.
          */
         static void forceUnsubscribeAll(void* subscriber);
+        /// @endcond
     };
 
 } // namespace ml

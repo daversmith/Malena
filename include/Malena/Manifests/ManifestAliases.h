@@ -74,16 +74,30 @@ namespace ml
         using Flags = typename Manifest::Flags;
     };
 
+    /**
+     * @brief Conditionally exposes @c Event type alias from a manifest.
+     * Empty when the manifest has no @c Event enum.
+     */
+    template<typename Manifest, typename = void>
+    struct ExtractEvent {};
+
+    template<typename Manifest>
+    struct ExtractEvent<Manifest, std::void_t<typename Manifest::Event>>
+    {
+        using Event = typename Manifest::Event;
+    };
+
     /// @endcond
 
     /**
      * @brief Pulls manifest inner type aliases into a class's scope.
+     * @ingroup Manifests
      *
-     * @c ManifestAliases<Manifest> inherits from the five @c Extract*
-     * helpers above, each of which conditionally introduces one @c using
-     * alias. Only the aliases whose corresponding enum exists in @c Manifest
-     * are injected — missing enums simply produce an empty base class with
-     * no ambiguity or compile error.
+     * @c ManifestAliases<Manifest> inherits from the @c Extract* helpers
+     * above, each of which conditionally introduces one @c using alias. Only
+     * the aliases whose corresponding enum exists in @c Manifest are injected —
+     * missing enums simply produce an empty base class with no ambiguity or
+     * compile error.
      *
      * The result is that any class inheriting @c ManifestAliases can write
      * @c Images::Background, @c Fonts::Main, etc. directly, without fully
@@ -91,40 +105,36 @@ namespace ml
      *
      * ### Which aliases are injected
      *
-     * | Manifest member | Alias introduced |
-     * |-----------------|-----------------|
+     * | Manifest member     | Alias introduced |
+     * |---------------------|-----------------|
      * | @c Manifest::Images | @c Images |
      * | @c Manifest::Fonts  | @c Fonts  |
      * | @c Manifest::Sounds | @c Sounds |
      * | @c Manifest::State  | @c State  |
      * | @c Manifest::Flags  | @c Flags  |
+     * | @c Manifest::Event  | @c Event  |
      *
      * ### Usage
-     * @c ManifestAliases is inherited automatically through @c Context and
-     * @c Resources. Direct use is uncommon outside of framework internals.
+     * @c ManifestAliases is inherited automatically through @c ManifestResources.
+     * Direct use is uncommon outside framework internals.
      * @code
-     * struct MyContext : public ml::ManifestAliases<MyManifest> {};
-     *
-     * // Now usable unqualified:
-     * MyContext::Images::Background
-     * MyContext::Fonts::Main
+     * // Within a ComponentWith<MyManifest>, enum values can be used unqualified:
+     * auto& tex = Resources::get(Images::Background);
+     * auto& fnt = Resources::get(Fonts::Main);
      * @endcode
      *
      * @tparam Manifest A manifest struct, typically a @c Manifest subclass.
      *
-     * @see Context, Resources, Manifest
+     * @see ManifestResources, Manifest
      */
     template<typename Manifest>
-    /**
-     * @brief ManifestAliases.
-     * @ingroup Manifests
-     */
     struct ManifestAliases :
         ExtractImages<Manifest>,
         ExtractFonts<Manifest>,
         ExtractSounds<Manifest>,
         ExtractState<Manifest>,
-        ExtractFlags<Manifest>
+        ExtractFlags<Manifest>,
+        ExtractEvent<Manifest>
     {};
 
 } // namespace ml

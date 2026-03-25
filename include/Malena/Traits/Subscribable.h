@@ -2,271 +2,128 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#ifndef MESSAGEMANAGER_H
-#define MESSAGEMANAGER_H
+#ifndef SUBSCRIBABLE_H
+#define SUBSCRIBABLE_H
 
 #pragma once
 
-#include <Malena/Engine/Events/EventsManager.h>
-#include <Malena/Resources/FlagManager.h>
-#include <string>
-#include <Malena/Traits/Base/Trait.h>
-
+#include <Malena/Engine/Events/EventManager.h>
+#include <Malena/Engine/Events/EventDispatcher.h>
+#include <Malena/Engine/Events/EventReceiver.h>
+#include <Malena/Engine/Events/Callback.h>
+#include <optional>
 namespace ml
 {
-    class Core;
-
     /**
-     * @brief Trait that exposes the full @c EventsManager subscription API.
-      * @ingroup Traits
+     * @brief Trait that allows a component to subscribe to and publish framework events.
+     * @ingroup Traits
      *
-     * @c Subscribable wraps @c EventsManager with named convenience methods
-     * for every framework-level event. It is one of the three traits
-     * automatically included in every @c ml::Core object and is the primary
-     * way user code reacts to input, updates, and lifecycle events.
+     * @c Subscribable is one of the three core traits automatically included in
+     * every @c ml::Core object (@c Subscribable, @c Flaggable, @c Positionable).
+     * It is the low-level event subscription layer — most user code will interact
+     * with the higher-level trait convenience methods (@c onClick, @c onHover,
+     * @c onUpdate, etc.) rather than calling @c subscribe and @c publish directly.
      *
-     * ### How it works
-     * Each named method (e.g., @c onClick, @c onHover) registers a callback
-     * against a string event key in @c EventsManager. @c UIManager fires those
-     * keys each frame based on SFML input. The deferred-removal mechanism in
-     * @c EventsManager ensures that unsubscribing inside a callback is safe.
+     * Both @c ml::Event built-in values and user-defined manifest event enums
+     * work identically — any enum value is accepted.
      *
-     * The destructor calls @c unsubscribeAll(), so callbacks are always
-     * cleaned up when the owning object is destroyed — no manual teardown needed.
-     *
-     * ### Callback overloads
-     * Every method has two overloads:
-     * - `void()` — use when you do not need the raw SFML event data
-     * - `void(const std::optional<sf::Event>&)` — use when you need key codes,
-     *   mouse position, scroll delta, etc.
-     *
-     * ### Usage
+     * ### Subscribing to a built-in event
      * @code
-     * // Simple click handler
-     * myRect.onClick([] { std::cout << "clicked\n"; });
+     * // Preferred — use the trait convenience methods
+     * myRect.onClick([]{ std::cout << "clicked\n"; });
+     * myRect.onUpdate([]{ /* per-frame logic *\/ });
      *
-     * // Hover with SFML event data
-     * myRect.onHover([](const std::optional<sf::Event>& e) {
-     *     // e contains the raw MouseMoved event
+     * // Advanced — subscribe with a raw ml::Event value
+     * myRect.subscribe(ml::Event::CLICK, [](const std::optional<sf::Event>& e){
+     *     // handle click with SFML event data
      * });
-     *
-     * // Per-frame update
-     * myRect.onUpdate([this] { _angle += 1.f; });
-     *
-     * // Raw subscription to a custom event name
-     * myRect.subscribe("my_custom_event", [] { /* ... *\/ });
      * @endcode
      *
-     * @see EventsManager, Core, Messenger
+     * ### Publishing a custom event
+     * @code
+     * enum class MyEvent { GameStarted, ScoreChanged };
+     *
+     * // Publish to all subscribers of MyEvent::GameStarted
+     * myRect.publish(MyEvent::GameStarted);
+     *
+     * // Publish with a filter — only deliver to components within a rect
+     * myRect.publish(MyEvent::ScoreChanged,
+     *     [&](ml::EventReceiver& r){
+     *         auto* c = dynamic_cast<ml::Core*>(&r);
+     *         return c && zone.contains(c->getPosition());
+     *     });
+     * @endcode
+     *
+     * @see Clickable, Hoverable, Updatable, Unsubscribable, EventsManager
      */
-    class Subscribable : public Trait
+    class Subscribable : public EventReceiver
     {
     public:
-        /// Convenience typedef for the event parameter type used in callbacks.
-        typedef const std::optional<sf::Event>& Event;
-
-        virtual ~Subscribable();
-        Subscribable();
-
-        // ── Input events ─────────────────────────────────────────────────────
-
         /**
-         * @brief Register a callback fired when the mouse button is released
-         *        over this component.
-         * @param callback Invoked with no arguments.
-         */
-        void onClick(std::function<void()>);
-
-        /**
-         * @brief Register a callback fired when the mouse button is released
-         *        over this component.
-         * @param callback Invoked with the raw SFML event.
-         */
-        void onClick(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when the mouse enters this
-         *        component's bounds.
-         * @param callback Invoked with no arguments.
-         */
-        void onHover(std::function<void()>);
-
-        /**
-         * @brief Register a callback fired when the mouse enters this
-         *        component's bounds.
-         * @param callback Invoked with the raw SFML event.
-         */
-        void onHover(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when the mouse leaves this
-         *        component's bounds.
-         * @param callback Invoked with no arguments.
-         */
-        void onUnhover(std::function<void()>);
-
-        /**
-         * @brief Register a callback fired when the mouse leaves this
-         *        component's bounds.
-         * @param callback Invoked with the raw SFML event.
-         */
-        void onUnhover(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when a key is pressed while
-         *        this component has focus.
-         * @param callback Invoked with no arguments.
-         */
-        void onKeypress(std::function<void()> f);
-
-        /**
-         * @brief Register a callback fired when a key is pressed while
-         *        this component has focus.
-         * @param callback Invoked with the raw SFML event (contains key code).
-         */
-        void onKeypress(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when a Unicode character is
-         *        entered (i.e., @c sf::Event::TextEntered).
-         * @param callback Invoked with no arguments.
-         */
-        void onTextEntered(std::function<void()> f);
-
-        /**
-         * @brief Register a callback fired when a Unicode character is
-         *        entered.
-         * @param callback Invoked with the raw SFML event (contains Unicode value).
-         */
-        void onTextEntered(const std::function<void(const std::optional<sf::Event>& event)>&);
-
-        /**
-         * @brief Register a callback fired when the mouse moves anywhere
-         *        in the window.
-         * @param callback Invoked with no arguments.
-         */
-        void onMouseMoved(std::function<void()> f);
-
-        /**
-         * @brief Register a callback fired when the mouse moves anywhere
-         *        in the window.
-         * @param callback Invoked with the raw SFML event (contains new position).
-         */
-        void onMouseMoved(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when the mouse wheel is scrolled.
-         * @param callback Invoked with no arguments.
-         */
-        void onMouseWheel(std::function<void()> f);
-
-        // ── Focus / blur ─────────────────────────────────────────────────────
-
-        /**
-         * @brief Register a callback fired when this component gains
-         *        keyboard focus.
-         * @param callback Invoked with no arguments.
-         */
-        void onFocus(std::function<void()> f);
-
-        /**
-         * @brief Register a callback fired when this component gains
-         *        keyboard focus.
-         * @param callback Invoked with the raw SFML event.
-         */
-        void onFocus(std::function<void(const std::optional<sf::Event>& event)>);
-
-        /**
-         * @brief Register a callback fired when this component loses
-         *        keyboard focus.
-         * @param callback Invoked with no arguments.
-         */
-        void onBlur(std::function<void()> f);
-
-        /**
-         * @brief Register a callback fired when this component loses
-         *        keyboard focus.
-         * @param callback Invoked with the raw SFML event.
-         */
-        void onBlur(std::function<void(const std::optional<sf::Event>& event)>);
-
-        // ── Per-frame update ─────────────────────────────────────────────────
-
-        /**
-         * @brief Register a callback fired every frame during the update tick.
-         * @param callback Invoked with no arguments.
-         */
-        void onUpdate(std::function<void()>);
-
-        /**
-         * @brief Register a callback fired every frame during the update tick.
-         * @param callback Invoked with the raw SFML event (may be empty optional
-         *                 on update-only ticks with no pending SFML event).
-         */
-        void onUpdate(std::function<void(const std::optional<sf::Event>& event)>);
-
-        // ── Raw subscription ─────────────────────────────────────────────────
-
-        /**
-         * @brief Subscribe to an arbitrary named event.
+         * @brief Subscribe to an enum-keyed event with a full SFML event callback.
          *
-         * Use this to react to custom events fired via @c EventsManager::fire()
-         * or @c publish(). The event name can be any string; the framework
-         * fires its built-in events by convention (e.g., @c "click",
-         * @c "draggable", @c "update").
+         * The callback is invoked each time the event fires and the framework's
+         * filter (defined by the associated @c EventDispatcher) passes this
+         * component. The @c std::optional<sf::Event> parameter carries the raw
+         * SFML event when one is available, or @c std::nullopt for frame events.
          *
-         * @param event    The event name to subscribe to.
-         * @param callback Invoked with the raw SFML event when fired.
+         * @tparam ENUM_TYPE Any enum type — @c ml::Event for built-in events,
+         *                   or a manifest event enum for custom events.
+         * @param  event     The enum value identifying the event to subscribe to.
+         * @param  callback  Function invoked with the SFML event when the event fires.
          */
-        void subscribe(const std::string& event,
-                       std::function<void(const std::optional<sf::Event>& event)>);
+        template<typename ENUM_TYPE>
+        void subscribe(ENUM_TYPE event, EventCallback callback);
 
         /**
-         * @brief Subscribe to an arbitrary named event (no-argument overload).
+         * @brief Subscribe to an enum-keyed event with a no-argument callback.
          *
-         * @param event    The event name to subscribe to.
-         * @param callback Invoked with no arguments when fired.
+         * Convenience overload for callbacks that do not need access to the
+         * raw SFML event.
+         *
+         * @tparam ENUM_TYPE Any enum type.
+         * @param  event     The enum value identifying the event to subscribe to.
+         * @param  callback  Function invoked with no arguments when the event fires.
          */
-        void subscribe(const std::string& event, std::function<void()>);
+        template<typename ENUM_TYPE>
+        void subscribe(ENUM_TYPE event, Callback callback);
 
         /**
-         * @brief Unsubscribe from a single named event.
+         * @brief Fire an enum-keyed event to all matching subscribers.
          *
-         * Safe to call from within a callback for that same event —
-         * the removal is deferred until the current @c EventsManager
-         * iteration completes.
+         * Iterates all subscribers registered for @p event and invokes their
+         * callbacks for each subscriber that passes the optional @p filter.
+         * Optional @p resolve and @p reject system callbacks are called after
+         * each component passes or fails the filter respectively.
          *
-         * @param event The event name to unsubscribe from.
+         * @tparam ENUM_TYPE  Any enum type.
+         * @param  event      The enum value identifying the event to fire.
+         * @param  filter     Optional predicate; only subscribers for which
+         *                    this returns @c true receive the event. Defaults
+         *                    to accepting all subscribers.
+         * @param  resolve    Optional callback invoked for each subscriber that
+         *                    passes the filter.
+         * @param  reject     Optional callback invoked for each subscriber that
+         *                    fails the filter.
          */
-        void unsubscribe(const std::string& event);
-
-        /**
-         * @brief Unsubscribe from all events this object is registered for.
-         *
-         * Called automatically by the @c Core destructor chain, so explicit
-         * calls are only needed in unusual teardown scenarios.
-         */
-        void unsubscribeAll();
-
-        // ── Static publish ───────────────────────────────────────────────────
-
-        /**
-         * @brief Fire a named event to all matching subscribers.
-         *
-         * Delegates directly to @c EventsManager::fire(). The optional
-         * @p filter predicate allows the caller to restrict delivery to a
-         * subset of subscribers (e.g., only the currently focused component).
-         *
-         * @param event  The event name to fire.
-         * @param filter Predicate called for each registered @c Subscribable;
-         *               the callback is invoked only when the predicate returns
-         *               @c true. Defaults to delivering to all subscribers.
-         */
-        static void publish(
-            const std::string& event,
-            std::function<bool(Subscribable&)> filter = [](Subscribable&) { return true; });
+        template<typename ENUM_TYPE>
+        void publish(ENUM_TYPE event,
+                     FilterCallback filter = [](EventReceiver&){ return true; },
+                     SystemCallback resolve = nullptr,
+                     SystemCallback reject  = nullptr);
     };
 
-} // namespace ml
+    /// @cond INTERNAL
+    class SubscribableDispatcher : public EventDispatcher
+    {
+    public:
+        void fire(const std::optional<sf::Event>& event) override {};
+        bool occurred(const std::optional<sf::Event>& event) override {return false;};
+    };
+    /// @endcond
 
+} // namespace ml
+#include "../../../src/Traits/Subscribable.tpp"
+
+ML_EXPORT(SubscribableDispatcher)
 #endif // MESSAGEMANAGER_H

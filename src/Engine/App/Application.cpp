@@ -3,24 +3,35 @@
 
 namespace ml
 {
-	Application::Application(const sf::VideoMode &videoMode, const std::string &title, UIController &appLogic,
+	ApplicationBase::ApplicationBase(const sf::VideoMode &videoMode, const std::string &title, UIController &appLogic,
 							 sf::RenderWindow &window) : AppManager(videoMode, title, appLogic, window)
 	{
 	}
 
-	Application::Application(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth,
-		const std::string &title) : Application(sf::VideoMode({screenWidth, screenHeight}, bitDepth), title, *this)
+	ApplicationBase::ApplicationBase(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth,
+		const std::string &title) : ApplicationBase(sf::VideoMode({screenWidth, screenHeight}, bitDepth), title, *this)
 	{
 	}
 
-	Application::Application(const sf::VideoMode &videoMode, const std::string &title)
-		: Application(videoMode, title, *this)
+	ApplicationBase::ApplicationBase(const sf::VideoMode &videoMode, const std::string &title)
+		: ApplicationBase(videoMode, title, *this)
 	{
 	}
 
-	void Application::addComponent(Core &component)
+	void ApplicationBase::addComponent(Core &component)
 	{
 		CoreManager<Core>::addComponent(component);
 	}
 
+	void ApplicationBase::clearEvents()
+	{
+		EventManager::clear();
+	}
+
+	void ApplicationBase::reset()
+	{
+		EventManager::clear();
+		MessageManager::clear();
+		CoreManager<Core>::clear();
+	}
 } // namespace ml

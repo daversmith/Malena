@@ -13,4 +13,5 @@
 #include <Malena/Engine/App/Application.h>
 #include <Malena/Graphics/Controls/RectangleButton.h>
 #include <Malena/Graphics/Primitives/VertexArray.h>
+#include <Malena/Engine/Plugins/Plugin.h>
 #endif

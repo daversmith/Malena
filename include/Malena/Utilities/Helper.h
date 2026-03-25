@@ -15,10 +15,43 @@
 
 namespace ml
 {
+	/**
+	 * @brief Static debug helpers for printing SFML value types.
+	 * @ingroup Utilities
+	 *
+	 * @c Helper provides lightweight console-output utilities for the two
+	 * SFML types most commonly inspected during development: @c sf::Vector2f
+	 * and @c sf::FloatRect. Both methods write to @c stdout via
+	 * @c std::cout and are intended for debugging only — they are not
+	 * used by the framework at runtime.
+	 *
+	 * ### Usage
+	 * @code
+	 * ml::Helper::output(myRect.getPosition());
+	 * ml::Helper::output(myRect.getGlobalBounds());
+	 * @endcode
+	 *
+	 * @note For production logging, prefer a dedicated logging library.
+	 */
 	class Helper
 	{
 	public:
+		/**
+		 * @brief Print a @c sf::Vector2f to stdout.
+		 *
+		 * Outputs the vector in the form @c "(x, y)\n".
+		 *
+		 * @param vector The vector to print.
+		 */
 		static void output(sf::Vector2f vector);
+
+		/**
+		 * @brief Print a @c sf::FloatRect to stdout.
+		 *
+		 * Outputs the rect in the form @c "(left, top, width, height)\n".
+		 *
+		 * @param floatRect The rect to print.
+		 */
 		static void output(sf::FloatRect floatRect);
 	};
 

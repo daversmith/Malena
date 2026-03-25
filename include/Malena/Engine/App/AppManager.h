@@ -13,12 +13,12 @@
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <string>
-
+#include <optional>
 namespace ml
 {
     /**
      * @brief Drives the application main loop and coordinates all framework managers.
-      * @ingroup EngineApp
+     * @ingroup EngineApp
      *
      * @c AppManager owns the SFML render window and runs the core application
      * lifecycle:
@@ -34,8 +34,7 @@ namespace ml
      *
      * ### Architecture modes
      * The @c Architecture enum lets the framework know which structural style
-     * the application uses. This may influence how managers initialize or
-     * which subsystems are activated.
+     * the application uses.
      *
      * | Value | Meaning |
      * |-------|---------|
@@ -60,8 +59,13 @@ namespace ml
     class AppManager : public Manager
     {
     private:
-        UIController*    uiController;
+        UIController*     uiController;
         sf::RenderWindow* window = nullptr;
+
+        /// @cond INTERNAL
+        inline static bool _isDrawing = false;
+        inline static std::vector<std::function<void()>> _deferredUnloads;
+        /// @endcond
 
     public:
         /**
@@ -113,31 +117,17 @@ namespace ml
 
         virtual ~AppManager() = default;
 
+        /// @cond INTERNAL
+        static bool isDrawing() { return _isDrawing; }
+        static void deferUnload(std::function<void()> op)
+        {
+            _deferredUnloads.push_back(std::move(op));
+        }
+        /// @endcond
+
     private:
-        /**
-         * @brief Distribute one SFML event to all registered managers and components.
-         *
-         * Called once per polled event. Forwards the event through
-         * @c EventsManager so that subscribed components can react to
-         * input, window resize, focus changes, etc.
-         *
-         * @param event The current SFML event.
-         */
         void fireInputEvents(const std::optional<sf::Event>& event) override;
-
-        /**
-         * @brief Fire the per-frame @c "update" event to all subscribers.
-         *
-         * Called once per frame after all input events have been processed.
-         */
         void fireUpdateEvents() override;
-
-        /**
-         * @brief Draw all registered components to the render window.
-         *
-         * Iterates @c CoreManager and calls @c draw() on each registered
-         * component in registration order.
-         */
         void draw() override;
     };
 

@@ -26,15 +26,7 @@ namespace ml
     template<typename T>
     struct has_Floats<T, std::void_t<typename T::Floats>> : std::true_type {};
 
-    /**
-     * @brief Detects whether @c T declares a @c Booleans enum (bool config).
-     *
-     * @warning The specialization currently checks for @c T::Floats instead
-     *          of @c T::Booleans, which means @c has_Booleans<T>::value is
-     *          @c true whenever the manifest has a @c Floats enum — not a
-     *          @c Booleans enum. This should be corrected to
-     *          @c std::void_t<typename T::Booleans>.
-     */
+    /** @brief Detects whether @c T declares a @c Booleans enum (bool config). */
     template<typename T, typename = void>
     struct has_Booleans : std::false_type {};
     template<typename T>
@@ -44,6 +36,7 @@ namespace ml
 
     /**
      * @brief Manifest-driven accessor for typed configuration values.
+     * @ingroup Resources
      *
      * @c ConfigManager<Manifest> provides typed @c get() overloads for each
      * configuration enum declared in a manifest. Each overload is enabled only
@@ -92,10 +85,6 @@ namespace ml
      * @see Manifest, Context, AssetsManager
      */
     template<typename Manifest>
-    /**
-     * @brief ConfigManager.
-     * @ingroup Resources
-     */
     class ConfigManager
     {
     public:
@@ -147,10 +136,6 @@ namespace ml
          * @brief Retrieve a boolean config value.
          *
          * Only available when @c Manifest declares a @c Booleans enum.
-         *
-         * @note Due to a bug in @c has_Booleans, this overload is currently
-         *       enabled whenever the manifest has a @c Floats enum rather than
-         *       a @c Booleans enum. See @c has_Booleans for details.
          *
          * @param config The @c Booleans enum value to look up.
          * @return The registered @c bool value.
