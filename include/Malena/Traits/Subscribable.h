@@ -118,7 +118,7 @@ namespace ml
     {
     public:
         void fire(const std::optional<sf::Event>& event) override {};
-        bool occurred(const std::optional<sf::Event>& event) override {};
+        bool occurred(const std::optional<sf::Event>& event) override {return false;};
     };
     /// @endcond
 

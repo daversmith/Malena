@@ -90,7 +90,7 @@ private:
     /// Sealed — frame-tick path is not used by EventDispatcher subclasses.
     void fire() final override{};
     /// Sealed — frame-tick path is not used by EventDispatcher subclasses.
-    bool occurred() final override{};
+    bool occurred() final override{return false;};
 
 public:
     /**
