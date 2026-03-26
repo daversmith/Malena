@@ -10,7 +10,7 @@ option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
 # SFML handling
 if(MALENA_USE_SYSTEM_SFML)
-    find_package(SFML 3.0 COMPONENTS Graphics REQUIRED)
+    find_package(SFML 3.0 COMPONENTS Graphics Audio Window System REQUIRED)
 else()
     include(FetchContent)
     FetchContent_Declare(SFML

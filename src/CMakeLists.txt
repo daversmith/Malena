@@ -17,7 +17,9 @@ target_include_directories(Malena
 target_compile_features(Malena PUBLIC cxx_std_17)
 
 # Link with SFML
-target_link_libraries(Malena PUBLIC SFML::Graphics)
+target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
+        SFML::Window
+        SFML::System)
 
 # Install the library
 install(TARGETS Malena
