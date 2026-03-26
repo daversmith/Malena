@@ -9,7 +9,7 @@
 #define SOUNDMANAGER_H
 
 #include <Malena/Resources/ResourceManager.h>
-#include "SFML/Audio/SoundBuffer.hpp"
+#include <SFML/Audio/SoundBuffer.hpp>
 
 namespace ml
 {
