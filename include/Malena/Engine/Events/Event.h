@@ -1,6 +1,3 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
-
 //
 // Event.h
 //
@@ -31,7 +28,8 @@ namespace ml
      * myRect.unsubscribeAll();
      * @endcode
      *
-     * @see Clickable, Hoverable, Focusable, Keyable, Updatable, Scrollable
+     * @see Clickable, Hoverable, Focusable, Keyable, Updatable, Scrollable,
+     *      Selectable
      */
     enum class Event
     {
@@ -42,7 +40,7 @@ namespace ml
         MOUSE_PRESSED,   ///< Raw mouse button pressed over component
         MOUSE_RELEASED,  ///< Raw mouse button released over component
         MOUSE_MOVED,     ///< Mouse moved anywhere in window
-    	DRAG,            ///< Component is being dragged
+        DRAG,            ///< Component is being dragged
 
         // ── Scroll ────────────────────────────────────────────────────────
         SCROLL,          ///< Mouse wheel scrolled over component
@@ -56,8 +54,16 @@ namespace ml
         KEY_RELEASE,     ///< Key released while component has focus
         TEXT_ENTERED,    ///< Unicode character entered while component has focus
 
+        // ── Selection ─────────────────────────────────────────────────────
+        SELECTED,        ///< Component was programmatically selected
+        DESELECTED,      ///< Component was programmatically deselected
+
         // ── Frame ─────────────────────────────────────────────────────────
         UPDATE,          ///< Every frame, before drawing
+
+        // ── Lifecycle ─────────────────────────────────────────────────────
+        INIT,            ///< Fired once before the first frame — use to configure properties and register components
+        READY,           ///< Fired once after INIT — all components are registered and the object is ready to run
 
         // ── Window ────────────────────────────────────────────────────────
         WINDOW_RESIZED,       ///< Application window was resized

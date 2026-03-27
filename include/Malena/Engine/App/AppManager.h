@@ -5,18 +5,18 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#ifndef UIMANAGER_H
-#define UIMANAGER_H
+#ifndef APPMANAGER_H
+#define APPMANAGER_H
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <Malena/Engine/App/UIController.h>
-#include <Malena/Core/Manager.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
-#include <string>
+#include <SFML/Graphics.hpp>
 #include <optional>
+#include <string>
+
+#include <Malena/Engine/App/Lifecycle.h>
 namespace ml
 {
     /**
@@ -59,10 +59,9 @@ namespace ml
      *
      * @see Application, UIController, Manager, WindowManager
      */
-    class AppManager : public Manager
+    class AppManager : public Lifecycle
     {
     private:
-        UIController*     uiController;
         sf::RenderWindow* window = nullptr;
 
         /// @cond INTERNAL
@@ -71,39 +70,24 @@ namespace ml
         /// @endcond
 
     public:
-        /**
-         * @brief Architectural style hint passed at construction.
-         *
-         * Informs the framework which structural pattern the application
-         * follows. Defaults to @c MVC.
-         */
-        enum Architecture
-        {
-            MVC, ///< Model-View-Controller
-            EDA, ///< Event-Driven Architecture
-            ECS  ///< Entity-Component-System
-        };
-
-        /**
-         * @brief Construct an @c AppManager with an explicit controller and window.
-         *
-         * Calls @c controller.initialization() then @c controller.registerEvents()
-         * before returning. The @p window parameter defaults to
-         * @c WindowManager::getWindow() so that the framework's centralized
-         * window is used unless you explicitly provide your own.
-         *
-         * @param videoMode     SFML video mode (resolution + bit depth).
-         * @param title         Window title string.
-         * @param appLogic      Controller that provides @c initialization() and
-         *                      @c registerEvents() implementations.
-         * @param window        Render window to use. Defaults to the framework window.
-         * @param architecture  Structural pattern hint. Defaults to @c MVC.
-         */
-        AppManager(const sf::VideoMode& videoMode,
-                   const std::string& title,
-                   UIController& appLogic,
-                   sf::RenderWindow& window = WindowManager::getWindow(),
-                   Architecture architecture = MVC);
+    	/**
+			  * @brief Construct an @c AppManager with an explicit controller and window.
+			  *
+			  * Calls @c controller.initialization() then @c controller.registerEvents()
+			  * before returning. The @p window parameter defaults to
+			  * @c WindowManager::getWindow() so that the framework's centralized
+			  * window is used unless you explicitly provide your own.
+			  *
+			  * @param videoMode     SFML video mode (resolution + bit depth).
+			  * @param title         Window title string.
+			  * @param appLogic      Controller that provides @c initialization() and
+			  *                      @c registerEvents() implementations.
+			  * @param window        Render window to use. Defaults to the framework window.
+			  * @param architecture  Structural pattern hint. Defaults to @c MVC.
+			  */
+    	AppManager(const sf::VideoMode& videoMode,
+				   const std::string& title,
+				   sf::RenderWindow& window = WindowManager::getWindow());
 
         /**
          * @brief Enter the main loop and run until the window is closed.
@@ -116,7 +100,7 @@ namespace ml
          *
          * Returns when the SFML window is closed or @c window.close() is called.
          */
-        void run() override;
+        void run();
 
         virtual ~AppManager() = default;
 
@@ -129,9 +113,9 @@ namespace ml
         /// @endcond
 
     private:
-        void fireInputEvents(const std::optional<sf::Event>& event) override;
-        void fireUpdateEvents() override;
-        void draw() override;
+        void fireInputEvents(const std::optional<sf::Event>& event);
+        void fireUpdateEvents();
+        void draw();
     };
 
 } // namespace ml

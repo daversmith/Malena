@@ -47,7 +47,7 @@ namespace ml
          * every object you plan to subscribe to will already exist by the time
          * callbacks are attached.
          */
-        virtual void initialization() = 0;
+        virtual void initialization() = {};
 
         /**
          * @brief Attach event callbacks to components and framework objects.
@@ -56,7 +56,7 @@ namespace ml
          * @c onMessage, and any other subscriptions. Called immediately after
          * @c initialization() by @c AppManager before the main loop begins.
          */
-        virtual void registerEvents() = 0;
+        virtual void registerEvents() = {};
 
         virtual ~Controller() = default;
     };

@@ -12,11 +12,10 @@
 
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
-#include <Malena/Engine/App/UIController.h>
 #include <Malena/Manifests/Manifest.h>
 #include <string>
 #include <type_traits>
-
+#include <Malena/Traits/Updatable.h>
 #include <Malena/Manifests/ManifestResources.h>
 
 namespace ml
@@ -31,7 +30,7 @@ namespace ml
      *
      * @see Application, ApplicationWith
      */
-    class ApplicationBase : public AppManager, public UIController
+    class ApplicationBase : public AppManager, public Updatable
     {
     public:
         /**
@@ -39,7 +38,6 @@ namespace ml
          */
         ApplicationBase(const sf::VideoMode& videoMode,
                         const std::string& title,
-                        UIController& appLogic,
                         sf::RenderWindow& window = WindowManager::getWindow());
 
         /**
@@ -50,11 +48,6 @@ namespace ml
                         unsigned int bitDepth,
                         const std::string& title);
 
-        /**
-         * @brief Construct from an SFML video mode, using @c *this as the controller.
-         */
-        ApplicationBase(const sf::VideoMode& videoMode,
-                        const std::string& title);
 
         /**
          * @brief Register a @c Core object with the application's component manager.
@@ -120,8 +113,6 @@ namespace ml
     public:
         using ApplicationBase::ApplicationBase;
 
-        void initialization() override = 0;
-        void registerEvents() override = 0;
     };
 
     // ── ApplicationWith — with manifest ───────────────────────────────────────
@@ -189,8 +180,6 @@ namespace ml
 
         using ApplicationBase::ApplicationBase;
 
-        void initialization() override = 0;
-        void registerEvents() override = 0;
     };
 
 } // namespace ml

@@ -4,13 +4,13 @@
 
 #include <Malena/Engine/App/AppManager.h>
 
-#include "../../../include/Malena/Engine/Events/Fireable.h"
-#include "Malena/Engine/Events/EventManager.h"
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Engine/Events/EventManager.h>
 
 namespace ml
 {
-    AppManager::AppManager(const sf::VideoMode &videoMode, const std::string &title, UIController &uiController,
-                         sf::RenderWindow &window, Architecture archType) : uiController(&uiController), window(&window)
+    AppManager::AppManager(const sf::VideoMode &videoMode, const std::string &title,
+                         sf::RenderWindow &window) : window(&window)
     {
         window.create(videoMode, title);
         this->window->setFramerateLimit(60);
@@ -44,8 +44,8 @@ namespace ml
 
     void AppManager::run()
     {
-        uiController->initialization();
-        uiController->registerEvents();
+        onInit();
+    	onReady();
 
         while (this->window->isOpen())
         {
@@ -67,12 +67,6 @@ namespace ml
 
     void AppManager::fireInputEvents(const std::optional<sf::Event> &event)
     {
-        // if (event->is<sf::Event::MouseButtonPressed>() ||
-        //     event->is<sf::Event::MouseButtonReleased>() ||
-        //     event->is<sf::Event::MouseMoved>())
-        // {
-        //     EventsManager::fire("draggable", nullptr, nullptr, event);
-        // }
     	for (auto* dispatcher : Fireable::_fireables)
     	{
     		if (dispatcher->occurred(event))

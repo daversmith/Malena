@@ -17,8 +17,8 @@ class BasicExample : public ml::ApplicationWith<BasicExampeManifest>
 	enum Event {MY_EVENT};
 public:
 	BasicExample();
-	void initialization() override;
-	void registerEvents() override;
+	void onInit();
+	void onReady();
 };
 
 #endif // TEXTINPUTTEST_H

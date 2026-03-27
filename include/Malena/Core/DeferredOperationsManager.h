@@ -139,5 +139,5 @@ namespace ml
 
 } // namespace ml
 
-#include "../../../src/ECS/Core/DeferredOperationsManager.tpp"
+#include "../../../src/Core/DeferredOperationsManager.tpp"
 #endif // MALENA_DEFERREDOPERATIONSMANAGER_H

@@ -18,6 +18,8 @@
 #include <memory>
 #include <vector>
 #include "EventLog.h"
+#include "Malena/Graphics/Controls/List.h"
+#include "Malena/Graphics/Controls/ScrollPane.h"
 #include "ScoreDisplay.h"
 #include "SignalBoardManifest.h"
 #include "SignalTower.h"
@@ -27,8 +29,8 @@ class SignalBoard : public ml::Application,
 {
 public:
     SignalBoard();
-    void initialization() override;
-    void registerEvents()  override;
+    void onInit();
+    void onReady();
 
 private:
     // No sf::Font member — FontManager owns font lifetime.
@@ -41,4 +43,7 @@ private:
     // Built-in Malena widgets — member variables, no heap allocation needed
     ml::RectangleButton _btnA, _btnB, _btnC, _btnD;
     ml::RectangleButton _btnFireAll, _btnReset;
+
+	ml::ScrollPane pane;
+	ml::List list, list2;
 };

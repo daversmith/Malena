@@ -6,11 +6,11 @@
 
 #include <Malena/Utilities/TextManipulators.h>
 
-BasicExample::BasicExample() : ml::ApplicationWith<BasicExampeManifest>(sf::VideoMode({720, 420}, 32), "Text Input", *this)
+BasicExample::BasicExample() : ml::ApplicationWith<BasicExampeManifest>(sf::VideoMode({720, 420}, 32), "Text Input")
 {
 }
 
-void BasicExample::initialization()
+void BasicExample::onInit()
 {
 	box1.setSize({300, 200});
 	box1.setFillColor(sf::Color::Red);
@@ -70,7 +70,7 @@ void BasicExample::initialization()
 	addComponent(typer);
 }
 
-void BasicExample::registerEvents()
+void BasicExample::onReady()
 {
 	auto f = [this](ml::RectangleButton &box, const std::string &text) {
 		return [&box, this, text]() {
