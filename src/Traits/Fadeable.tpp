@@ -18,7 +18,7 @@ Fadeable::Fadeable()
     // Subscribe to the framework's per-frame update event.
     // `this` is used as the subscriber identity so unsubscription
     // on destruction is automatic (EventsManager cleans up by pointer).
-    EventsManager::subscribe("update", this,
+    EventManager::subscribe("update", this,
         [this](const std::optional<sf::Event>&)
         {
             tick();
@@ -27,7 +27,7 @@ Fadeable::Fadeable()
 
 Fadeable::~Fadeable()
 {
-    EventsManager::unsubscribeAll(this);
+    EventManager::unsubscribeAll(this);
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
