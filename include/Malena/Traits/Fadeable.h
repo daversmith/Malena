@@ -3,6 +3,8 @@
 
 #pragma once
 
+#ifndef FADEABLE_H
+#define FADEABLE_H
 #include <Malena/Traits/Base/Trait.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Utilities/Tween.h>
@@ -163,3 +165,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Traits/Fadeable.tpp"
+#endif

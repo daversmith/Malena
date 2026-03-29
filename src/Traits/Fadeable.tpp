@@ -2,7 +2,8 @@
 // ============================================================
 //  src/Traits/Fadeable.tpp
 // ============================================================
-
+#ifndef FADEABLE_TPP
+#define FADEABLE_TPP
 #include <Malena/Traits/Fadeable.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <algorithm>
@@ -137,3 +138,4 @@ float Fadeable::applyTween(float t, Tween tween)
 }
 
 } // namespace ml
+#endif
