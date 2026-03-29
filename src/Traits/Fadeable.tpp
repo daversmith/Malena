@@ -4,7 +4,7 @@
 // ============================================================
 
 #include <Malena/Traits/Fadeable.h>
-#include <Malena/Engine/Events/EventsManager.h>
+#include <Malena/Engine/Events/EventManager.h>
 #include <algorithm>
 #include <cmath>
 
