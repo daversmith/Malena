@@ -52,6 +52,17 @@ namespace ml
         : _font(&font)
     {}
 
+    ToggleGroup::~ToggleGroup()
+    {
+        // Explicitly clear _items first — before _ownedPills member destructor
+        // runs and destroys PillToggle objects. This ensures list nodes
+        // (and their std::string key members) are freed cleanly while the
+        // PillToggle objects they reference are still alive.
+        _items.clear();
+        _ownedPills.clear();
+        // Member destructors now run on already-empty containers — no-ops.
+    }
+
     void ToggleGroup::relayout()
     {
         float y = _position.y;

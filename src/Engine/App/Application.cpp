@@ -1,6 +1,8 @@
 
 #include <Malena/Engine/App/Application.h>
 
+#include "Malena/Resources/ThemeManager.h"
+
 namespace ml
 {
 	ApplicationBase::ApplicationBase(const sf::VideoMode &videoMode, const std::string &title,
@@ -29,5 +31,9 @@ namespace ml
 		EventManager::clear();
 		MessageManager::clear();
 		CoreManager<Core>::clear();
+	}
+	ApplicationBase::~ApplicationBase()
+	{
+		ml::ThemeManager::shutdown();
 	}
 } // namespace ml

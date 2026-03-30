@@ -9,13 +9,13 @@
 
 #include <Malena/Manifests/Theme.h>
 #include <Malena/Manifests/Manifest.h>
+#include <Malena/Core/DeferredOperationsManager.h>
 #include <vector>
 #include <memory>
 #include <algorithm>
 
 namespace ml
 {
-    // Forward declare so Themeable can be a subscriber without a circular include
     class Themeable;
 
     // ── ThemeManager ─────────────────────────────────────────────────────────
@@ -28,9 +28,13 @@ namespace ml
      * subscribed @c Themeable components when it changes. Components subscribe
      * automatically by inheriting @c Themeable — no manual registration needed.
      *
+     * Inherits @c DeferredOperationsManager so that @c subscribe() and
+     * @c unsubscribe() calls made during a theme notification (e.g. a component
+     * creating children inside @c onThemeApplied()) are safely deferred until
+     * the current iteration completes.
+     *
      * ### Switching themes at runtime
      * @code
-     * // All Themeable components update automatically
      * ml::ThemeManager::apply<GameManifest>(GameManifest::Themes::GameOver);
      * @endcode
      *
@@ -43,38 +47,33 @@ namespace ml
      * ### Setting a theme directly (without a manifest)
      * @code
      * ml::ThemeManager::set(ml::DarkTheme());
-     * ml::ThemeManager::set(NeonTheme());
      * @endcode
      *
-     * @see Theme, Themeable, DarkTheme, LightTheme
+     * @see Theme, Themeable, DarkTheme, LightTheme, DeferredOperationsManager
      */
-    class ThemeManager
+    class ThemeManager : public DeferredOperationsManager<ThemeManager>
     {
     public:
-        // ── Reading the active theme ──────────────────────────────────────────
+        // ── Reading ───────────────────────────────────────────────────────────
 
         /**
          * @brief Return a const reference to the currently active theme.
          *
-         * Safe to call at any time, including during component construction.
-         * Returns the @c DarkTheme default if no theme has been applied yet.
+         * Safe to call at any time including during component construction.
+         * Defaults to @c DarkTheme before any theme has been applied.
          */
-        static const Theme& get()
-        {
-            return *_active;
-        }
+        static const Theme& get();
 
         // ── Applying themes ───────────────────────────────────────────────────
 
         /**
          * @brief Apply a theme stored in a @c Manifest enum.
          *
-         * Retrieves the theme registered under @p themeKey from the manifest,
-         * sets it as the active theme, and notifies all subscribed
-         * @c Themeable components.
+         * Retrieves the theme registered under @p themeKey, sets it as the
+         * active theme, and notifies all subscribed @c Themeable components.
          *
-         * @tparam MANIFEST  A @c Manifest subclass that declares a @c Themes enum.
-         * @param  themeKey  The enum value identifying the theme to apply.
+         * @tparam MANIFEST  A @c Manifest subclass declaring a @c Themes enum.
+         * @param  themeKey  Enum value identifying which theme to apply.
          *
          * @code
          * ml::ThemeManager::apply<GameManifest>(GameManifest::Themes::Home);
@@ -91,10 +90,8 @@ namespace ml
         /**
          * @brief Apply a theme instance directly without a manifest.
          *
-         * Useful for prototyping or when the theme is constructed inline.
-         * Notifies all subscribed @c Themeable components.
-         *
-         * @param theme  The theme to apply. Copied internally.
+         * @tparam T    A type derived from @c Theme.
+         * @param  theme The theme instance to apply. Copied internally.
          *
          * @code
          * ml::ThemeManager::set(NeonTheme());
@@ -109,57 +106,50 @@ namespace ml
             notify();
         }
 
-        // ── Subscription (called by Themeable, not by users) ──────────────────
+        // ── Subscription (called by Themeable — not for user code) ────────────
 
         /**
-         * @brief Subscribe a @c Themeable component to theme change notifications.
+         * @brief Subscribe a component to theme change notifications.
          *
          * Called automatically by the @c Themeable constructor.
-         * Do not call this manually.
-         *
-         * @param component  The component to subscribe.
+         * Safe to call during a theme notification — deferred if necessary.
          */
-        static void subscribe(Themeable* component)
-        {
-            if (std::find(_subscribers.begin(),
-                          _subscribers.end(), component) == _subscribers.end())
-                _subscribers.push_back(component);
-        }
+        static void subscribe(Themeable* component);
 
         /**
-         * @brief Unsubscribe a @c Themeable component from theme change notifications.
+         * @brief Unsubscribe a component from theme change notifications.
          *
          * Called automatically by the @c Themeable destructor.
-         * Do not call this manually.
-         *
-         * @param component  The component to unsubscribe.
+         * Safe to call during a theme notification — deferred if necessary.
          */
-        static void unsubscribe(Themeable* component)
-        {
-            _subscribers.erase(
-                std::remove(_subscribers.begin(),
-                            _subscribers.end(), component),
-                _subscribers.end());
-        }
+        static void unsubscribe(Themeable* component);
+
+        // ── Lifecycle ─────────────────────────────────────────────────────────
+
+        /**
+         * @brief Shut down the theme system.
+         *
+         * Called automatically by @c ApplicationBase::~ApplicationBase().
+         * Clears all subscribers and discards any pending deferred operations.
+         * After this call, @c subscribe() and @c unsubscribe() are no-ops.
+         */
+        static void shutdown();
 
     private:
-        // ── Internal ──────────────────────────────────────────────────────────
+        static void applyTheme(const Theme& theme);
 
-        static void applyTheme(const Theme& theme)
-        {
-            // Store a copy — we own the active theme
-            // Use DarkTheme as the concrete type when storing a base Theme
-            _active = std::make_unique<Theme>(theme);
-            notify();
-        }
-
-        static void notify();  // defined in ThemeManager.cpp — avoids
-                               // including Themeable.h here (breaks circular dep)
-
-        // ── State ─────────────────────────────────────────────────────────────
+        /**
+         * @brief Iterate subscribers and call @c onThemeApplied on each.
+         *
+         * Wrapped in @c beginBusy() / @c endBusy() so that any
+         * subscribe/unsubscribe calls made during notification are safely
+         * deferred and applied once iteration completes.
+         */
+        static void notify();
 
         inline static std::unique_ptr<Theme>  _active      = std::make_unique<DarkTheme>();
         inline static std::vector<Themeable*> _subscribers = {};
+        inline static bool                    _destroyed   = false;
     };
 
 } // namespace ml

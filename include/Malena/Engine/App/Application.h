@@ -73,6 +73,8 @@ namespace ml
          * @note Does NOT close the window or restart the main loop.
          */
         static void reset();
+
+    	~ApplicationBase();
     };
 
     // ── Application — no manifest ─────────────────────────────────────────────

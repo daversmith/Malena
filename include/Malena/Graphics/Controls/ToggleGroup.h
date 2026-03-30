@@ -100,6 +100,7 @@ namespace ml
 
     public:
         explicit ToggleGroup(const sf::Font& font = FontManager<>::getDefault());
+        ~ToggleGroup();
 
         // ── Adding toggles ────────────────────────────────────────────────────
 
