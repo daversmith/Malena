@@ -46,7 +46,6 @@ namespace ml
     {
         onInit();
     	onReady();
-
         while (this->window->isOpen())
         {
             while (const std::optional event = this->window->pollEvent())
@@ -70,7 +69,11 @@ namespace ml
     	for (auto* dispatcher : Fireable::_fireables)
     	{
     		if (dispatcher->occurred(event))
+    		{
     			dispatcher->fire(event);
+    		}
+
     	}
+    	// while (event);
     }
 } // namespace ml

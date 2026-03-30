@@ -62,7 +62,7 @@ namespace ml
     	_ring.setPosition(pos + sf::Vector2f{_radius, _radius});
 
     	// Dot — centered inside ring
-    	const float dotRadius = _radius * std::clamp(_dotScale, 0.1f, 0.9f); std::cout << "Dot radius: " << dotRadius;
+    	const float dotRadius = _radius * std::clamp(_dotScale, 0.1f, 0.9f);
     	_dot.setRadius(dotRadius);
     	_dot.setOrigin({dotRadius, dotRadius});
     	_dot.setPosition(_ring.getPosition());
@@ -294,75 +294,6 @@ namespace ml
         return sf::FloatRect{{left, top}, {width, height}};
     }
 
-    // =========================================================================
-    // RadioGroup
-    // =========================================================================
 
-    void RadioGroup::add(RadioButton& button)
-    {
-        _buttons.push_back(&button);
-
-        button.onClick([this, &button]{
-            handleClick(button);
-        });
-    }
-
-    void RadioGroup::handleClick(RadioButton& clicked)
-    {
-        if (!clicked.isEnabled())
-            return;
-
-        if (_selected == &clicked)
-            return;
-
-        if (_selected)
-            _selected->deselect();
-
-        _selected = &clicked;
-        _selected->select();
-
-        if (_onSelectionChanged)
-            _onSelectionChanged(*_selected);
-    }
-
-    void RadioGroup::select(std::size_t index)
-    {
-        if (index >= _buttons.size())
-            return;
-
-        handleClick(*_buttons[index]);
-    }
-
-    void RadioGroup::selectFirst()
-    {
-        select(0);
-    }
-
-    RadioButton* RadioGroup::getSelected() const
-    {
-        return _selected;
-    }
-
-    std::size_t RadioGroup::getSelectedIndex() const
-    {
-        if (!_selected)
-            return std::string::npos;
-
-        for (std::size_t i = 0; i < _buttons.size(); ++i)
-            if (_buttons[i] == _selected)
-                return i;
-
-        return std::string::npos;
-    }
-
-    std::size_t RadioGroup::size() const
-    {
-        return _buttons.size();
-    }
-
-    void RadioGroup::onSelectionChanged(std::function<void(RadioButton&)> callback)
-    {
-        _onSelectionChanged = std::move(callback);
-    }
 
 } // namespace ml

@@ -19,6 +19,16 @@ namespace ml
 		}();
 		return arialFont;
 	}
+	template<typename Manifest>
+	inline void FontManager<Manifest>::prewarm(const sf::Font& font, unsigned int charSize)
+	{
+		sf::Text warmup(font, "", charSize);
+		sf::String all;
+		for (char32_t c = 32; c < 127; ++c)
+			all += c;
+		warmup.setString(all);
+		warmup.getLocalBounds(); // forces ALL glyphs to load into atlas NOW
+	}
 
 } // namespace ml
 #endif

@@ -10,6 +10,8 @@
 
 #include <Malena/Core/Core.h>
 
+#include "Malena/Engine/App/AppManager.h"
+
 
 ml::Fireable::Fireable(DispatchType type) : _type(type)
 {

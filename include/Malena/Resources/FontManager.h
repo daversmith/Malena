@@ -58,6 +58,17 @@ namespace ml
          * @return Const reference to the built-in @c sf::Font.
          */
         static const sf::Font& getDefault();
+
+    	/**
+ * @brief Pre-populate the glyph atlas for a font at a given character size.
+ *
+ * Call this before rendering any text at @p charSize to prevent mid-render
+ * atlas reorganization, which causes glyph corruption in SFML 3.
+ *
+ * @param font     The font to warm.
+ * @param charSize Character size to load glyphs for.
+ */
+    	static void prewarm(const sf::Font& font, unsigned int charSize);
     };
 
 } // namespace ml

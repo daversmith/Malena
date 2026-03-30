@@ -3,6 +3,7 @@
 //
 
 #include <Malena/Engine/Events/EventReceiver.h>
+#include <iostream>
 
 namespace ml
 {

@@ -31,7 +31,7 @@ namespace ml
 		sf::Vector2f getPosition() const override;
 		sf::FloatRect getGlobalBounds() const override;
 		sf::RenderStates getRenderStates() const override;
-
+		void setSize(float width, float height);
 	protected:
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

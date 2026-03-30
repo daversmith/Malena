@@ -11,10 +11,12 @@ namespace ml
 {
     void EventManager::doSubscribe(const std::string& key, EventReceiver* component)
     {
-        _subscribers[key].push_back({
-            component,
-            dynamic_cast<Core*>(component)  // cast once — zero per-frame overhead
-        });
+    	auto& subs = _subscribers[key];
+    	for (const auto& sub : subs)
+    		if (sub.receiver == component) return;  // already subscribed
+
+    	auto* core = dynamic_cast<Core*>(component);
+    	subs.push_back({component, core});
     }
 
     void EventManager::doFire(const std::string& key,

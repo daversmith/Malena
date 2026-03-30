@@ -4,6 +4,7 @@
 #include <Malena/Traits/Clickable.h>
 
 #include "Malena/Core/Core.h"
+#include "Malena/Engine/App/AppManager.h"
 #include "Malena/Engine/Events/EventManager.h"
 #include "Malena/Engine/Window/WindowManager.h"
 #include "Malena/Utilities/MouseEvents.h"
@@ -11,13 +12,18 @@
 
 bool ml::ClickableDispatcher::occurred(const std::optional<sf::Event> &event)
 {
-	return sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+	if (event->is<sf::Event::MouseButtonReleased>())
+	{
+		if (event->getIf<sf::Event::MouseButtonReleased>()->button == sf::Mouse::Button::Left)
+			return true;
+	}
+	return false;
 }
 bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core *component)
 {
 	auto* positionable = dynamic_cast<Positionable*>(component);
 	if (!positionable) return false;
-	return MouseEvents::isClicked(*positionable, WindowManager::getWindow());
+	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
 }
 
 void ml::Clickable::onClick(std::function<void()> f)
