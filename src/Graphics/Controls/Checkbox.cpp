@@ -8,19 +8,19 @@
 
 namespace ml
 {
-    // ── Constructor ───────────────────────────────────────────────────────────
-
-    Checkbox::Checkbox(const std::string& label, const sf::Font& font)
-        : _label(font),
-          _checkmark(sf::PrimitiveType::LineStrip, 3)
+    Checkbox::Checkbox(const std::string& label, const sf::Font& font_)
+        : _checkmark(sf::PrimitiveType::LineStrip, 3),
+          _label(font_)
     {
-        _box.setOutlineThickness(1.5f);
-        _box.setOutlineColor(_outlineColor);
-        _box.setFillColor(_boxColor);
+        // Seed from active theme, then apply the constructor font
+        CheckboxTheme::applyFrom(ThemeManager::get());
+        this->font = &font_;
 
+        _box.setOutlineThickness(1.5f);
+        _labelStr = label;
         _label.setString(label);
-        _label.setCharacterSize(16);
-        _label.setFillColor(_labelColor);
+        _label.setCharacterSize(fontSize);
+        _label.setFillColor(labelColor);
 
         onHover([this]{
             if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::CHECKED))
@@ -29,7 +29,6 @@ namespace ml
                 applyVisualState();
             }
         });
-
         onUnhover([this]{
             if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::CHECKED))
             {
@@ -37,46 +36,46 @@ namespace ml
                 applyVisualState();
             }
         });
-
-    	onClick([this]{
-			if (!checkFlag(Flag::DISABLED))
-				toggle();
-		});
+        onClick([this]{
+            if (!checkFlag(Flag::DISABLED)) toggle();
+        });
 
         setState(State::IDLE);
         layout();
         applyVisualState();
     }
 
-    // ── Layout ────────────────────────────────────────────────────────────────
+    void Checkbox::onThemeApplied(const Theme& theme)
+    {
+        if (isThemeLocked()) return;
+        CheckboxTheme::applyFrom(theme);
+        _label.setCharacterSize(fontSize);
+        applyVisualState();
+        layout();
+    }
 
     void Checkbox::layout()
     {
-        _box.setSize({_boxSize, _boxSize});
+        _box.setSize({boxSize, boxSize});
         _box.setPosition(_position);
-
         buildCheckmark();
-
-        // Label — vertically centered beside box
-        Align::setRightOf(_box, _label, _labelOffset);
+        _label.setFont(*font);
+        _label.setCharacterSize(fontSize);
+        Align::setRightOf(_box, _label, labelOffset);
         Align::centerVertically(_box, _label);
     }
 
     void Checkbox::buildCheckmark()
     {
-        // Checkmark as a 3-point line strip — forms a tick shape
-        // Points are relative to box position, inset by ~25%
-        const float inset = _boxSize * 0.2f;
+        const float inset = boxSize * 0.2f;
         const float x = _position.x;
         const float y = _position.y;
-
-        _checkmark[0].position = { x + inset,              y + _boxSize * 0.55f };
-        _checkmark[1].position = { x + _boxSize * 0.42f,   y + _boxSize - inset };
-        _checkmark[2].position = { x + _boxSize - inset,   y + inset            };
-
-        _checkmark[0].color = _checkColor;
-        _checkmark[1].color = _checkColor;
-        _checkmark[2].color = _checkColor;
+        _checkmark[0].position = { x + inset,            y + boxSize * 0.55f };
+        _checkmark[1].position = { x + boxSize * 0.42f,  y + boxSize - inset };
+        _checkmark[2].position = { x + boxSize - inset,  y + inset           };
+        _checkmark[0].color = checkColor;
+        _checkmark[1].color = checkColor;
+        _checkmark[2].color = checkColor;
     }
 
     void Checkbox::applyVisualState()
@@ -86,53 +85,45 @@ namespace ml
 
         if (disabled)
         {
-            _box.setFillColor(_boxDisabledColor);
-            _box.setOutlineColor(_boxDisabledColor);
-            _label.setFillColor(_labelDisabledColor);
+            _box.setFillColor(boxDisabledColor);
+            _box.setOutlineColor(boxDisabledColor);
+            _label.setFillColor(labelDisabledColor);
             for (std::size_t i = 0; i < _checkmark.getVertexCount(); ++i)
-                _checkmark[i].color = _checkDisabledColor;
+                _checkmark[i].color = checkDisabledColor;
         }
         else if (checked)
         {
-            _box.setFillColor(_boxCheckedColor);
-            _box.setOutlineColor(_boxCheckedColor);
-            _label.setFillColor(_labelColor);
+            _box.setFillColor(boxCheckedColor);
+            _box.setOutlineColor(boxCheckedColor);
+            _label.setFillColor(labelColor);
             for (std::size_t i = 0; i < _checkmark.getVertexCount(); ++i)
-                _checkmark[i].color = _checkColor;
+                _checkmark[i].color = checkColor;
         }
         else if (isState(State::HOVERED))
         {
-            _box.setFillColor(_boxHoverColor);
-            _box.setOutlineColor(_outlineColor);
-            _label.setFillColor(_labelColor);
+            _box.setFillColor(boxHoverColor);
+            _box.setOutlineColor(outlineColor);
+            _label.setFillColor(labelColor);
         }
         else
         {
-            _box.setFillColor(_boxColor);
-            _box.setOutlineColor(_outlineColor);
-            _label.setFillColor(_labelColor);
+            _box.setFillColor(boxColor);
+            _box.setOutlineColor(outlineColor);
+            _label.setFillColor(labelColor);
         }
     }
-
-    // ── Draw ──────────────────────────────────────────────────────────────────
 
     void Checkbox::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(_box, states);
-
         if (checkFlag(Flag::CHECKED))
             target.draw(_checkmark, states);
-
         target.draw(_label, states);
     }
 
-    // ── Checked state ─────────────────────────────────────────────────────────
-
     void Checkbox::check()
     {
-        if (checkFlag(Flag::DISABLED))
-            return;
-
+        if (checkFlag(Flag::DISABLED)) return;
         enableFlag(Flag::CHECKED);
         setState(State::CHECKED);
         applyVisualState();
@@ -149,166 +140,45 @@ namespace ml
 
     void Checkbox::toggle()
     {
-        if (checkFlag(Flag::CHECKED))
-            uncheck();
-        else
-            check();
+        if (checkFlag(Flag::CHECKED)) uncheck();
+        else                          check();
     }
 
-    bool Checkbox::isChecked() const
-    {
-        return checkFlag(Flag::CHECKED);
-    }
-
-    // ── Enabled / disabled ────────────────────────────────────────────────────
+    bool Checkbox::isChecked() const { return checkFlag(Flag::CHECKED); }
 
     void Checkbox::setEnabled(bool enabled)
     {
-        if (enabled)
-        {
-            disableFlag(Flag::DISABLED);
-            setState(isChecked() ? State::CHECKED : State::IDLE);
-        }
-        else
-        {
-            enableFlag(Flag::DISABLED);
-            setState(State::DISABLED);
-        }
+        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
+        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         applyVisualState();
     }
 
-    bool Checkbox::isEnabled() const
-    {
-        return !checkFlag(Flag::DISABLED);
-    }
-
-    // ── Layout setters ────────────────────────────────────────────────────────
-
-    void Checkbox::setBoxSize(float size)
-    {
-        _boxSize = size;
-        layout();
-    }
-
-    float Checkbox::getBoxSize() const
-    {
-        return _boxSize;
-    }
-
-    void Checkbox::setBoxRadius(float radius)
-    {
-        _boxRadius = radius;
-        // sf::RectangleShape has no built-in radius — would need RoundedRectangle
-        // for rounded checkbox corners. Stored for future use.
-        layout();
-    }
-
-    float Checkbox::getBoxRadius() const
-    {
-        return _boxRadius;
-    }
-
-    void Checkbox::setLabelOffset(float offset)
-    {
-        _labelOffset = offset;
-        layout();
-    }
-
-    float Checkbox::getLabelOffset() const
-    {
-        return _labelOffset;
-    }
-
-    // ── Label ─────────────────────────────────────────────────────────────────
+    bool Checkbox::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void Checkbox::setLabel(const std::string& label)
     {
+        _labelStr = label;
         _label.setString(label);
         layout();
     }
 
-    std::string Checkbox::getLabel() const
-    {
-        return _label.getString();
-    }
+    std::string Checkbox::getLabel() const { return _labelStr; }
 
-    void Checkbox::setCharacterSize(unsigned int size)
+    void Checkbox::setPosition(const sf::Vector2f& pos)
     {
-        _label.setCharacterSize(size);
+        _position = pos;
         layout();
     }
 
-    unsigned int Checkbox::getCharacterSize() const
-    {
-        return _label.getCharacterSize();
-    }
-
-    void Checkbox::setFont(const sf::Font& font)
-    {
-        _label.setFont(font);
-        layout();
-    }
-
-    // ── Colors ────────────────────────────────────────────────────────────────
-
-    void Checkbox::setBoxColor(const sf::Color& color)
-    {
-        _boxColor = color;
-        applyVisualState();
-    }
-
-    void Checkbox::setBoxHoverColor(const sf::Color& color)
-    {
-        _boxHoverColor = color;
-        applyVisualState();
-    }
-
-    void Checkbox::setBoxCheckedColor(const sf::Color& color)
-    {
-        _boxCheckedColor = color;
-        applyVisualState();
-    }
-
-    void Checkbox::setOutlineColor(const sf::Color& color)
-    {
-        _outlineColor = color;
-        applyVisualState();
-    }
-
-    void Checkbox::setCheckColor(const sf::Color& color)
-    {
-        _checkColor = color;
-        buildCheckmark();
-    }
-
-    void Checkbox::setLabelColor(const sf::Color& color)
-    {
-        _labelColor = color;
-        applyVisualState();
-    }
-
-    // ── Positionable overrides ────────────────────────────────────────────────
-
-    void Checkbox::setPosition(const sf::Vector2f& position)
-    {
-        _position = position;
-        layout();
-    }
-
-    sf::Vector2f Checkbox::getPosition() const
-    {
-        return _position;
-    }
+    sf::Vector2f Checkbox::getPosition() const { return _position; }
 
     sf::FloatRect Checkbox::getGlobalBounds() const
     {
-        const sf::FloatRect labelBounds = _label.getGlobalBounds();
-        const float left   = _position.x;
-        const float top    = _position.y;
-        const float width  = labelBounds.position.x + labelBounds.size.x - left;
-        const float height = _boxSize;
-
-        return sf::FloatRect{{left, top}, {width, height}};
+        const sf::FloatRect lb = _label.getGlobalBounds();
+        return sf::FloatRect{
+            {_position.x, _position.y},
+            {lb.position.x + lb.size.x - _position.x, boxSize}
+        };
     }
 
 } // namespace ml

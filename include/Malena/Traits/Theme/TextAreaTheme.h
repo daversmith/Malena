@@ -7,20 +7,25 @@
 
 #pragma once
 
-#include <Malena/Traits/Theme/TextInputTheme.h>
+#include <Malena/Manifests/Theme.h>
+#include <SFML/Graphics/Color.hpp>
 
 namespace ml
 {
     /**
-     * @brief Color tokens for @c TextArea.
+     * @brief Scrollbar color tokens for @c TextArea.
      * @ingroup Traits
      *
-     * Extends @c TextInputTheme with scrollbar colors.
-     * Note: scrollbar width is a geometry value and lives in @c TextInputSettings.
+     * Intentionally does NOT inherit @c TextInputTheme — @c TextArea already
+     * receives those fields through @c TextInput. Keeping this struct standalone
+     * avoids the diamond inheritance that would otherwise occur:
+     *
+     *   TextArea → TextInput    → TextInputTheme → InputTheme → ControlTheme
+     *   TextArea → TextAreaTheme → (standalone — no shared base)
      *
      * @see TextInputTheme, TextInputSettings, TextAreaStyle, TextArea
      */
-    struct TextAreaTheme : TextInputTheme
+    struct TextAreaTheme
     {
         sf::Color scrollBarColor      = sf::Color(100, 100, 100);
         sf::Color scrollBarTrackColor = sf::Color(50,  50,  50);
@@ -28,27 +33,12 @@ namespace ml
 
         // ── applyFrom ─────────────────────────────────────────────────────────
 
-        TextAreaTheme& applyFrom(const Theme& t) override
+        TextAreaTheme& applyFrom(const Theme& t)
         {
-            TextInputTheme::applyFrom(t);
             scrollBarColor      = t.border;
             scrollBarTrackColor = t.surface;
             return *this;
         }
-
-        // ── Assignment from parent levels ─────────────────────────────────────
-
-        TextAreaTheme& operator=(const TextInputTheme& ti)
-        { static_cast<TextInputTheme&>(*this) = ti; return *this; }
-
-        TextAreaTheme& operator=(const InputTheme& i)
-        { static_cast<TextInputTheme&>(*this) = i; return *this; }
-
-        TextAreaTheme& operator=(const ControlTheme& c)
-        { static_cast<TextInputTheme&>(*this) = c; return *this; }
-
-        TextAreaTheme& operator=(const GraphicTheme& g)
-        { static_cast<TextInputTheme&>(*this) = g; return *this; }
 
         // ── Getters / setters ─────────────────────────────────────────────────
 

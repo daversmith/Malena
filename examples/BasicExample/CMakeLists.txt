@@ -3,8 +3,6 @@ add_executable(BasicExample
         BasicExample.h
         main.cpp
         BasicExampleManifest.h
-        "../UIControls/UIControls.cpp"
-        "../UIControls/UIControls.h"
 )
 
 target_link_libraries(BasicExample PRIVATE Malena::Malena)

@@ -171,6 +171,7 @@ namespace ml
 
 	float ScrollPane::getTotalContentHeight() const
 	{
+	    if (_contentHeightOverride > 0.f) return _contentHeightOverride;
 	    float total = 0.f;
 	    for (auto* child : _children)
 	        total += child->getGlobalBounds().size.y;
@@ -217,5 +218,32 @@ namespace ml
 			static_cast<unsigned int>(width),
 			static_cast<unsigned int>(height)
 		});
+	}
+	void ScrollPane::setScrollOffsetY(float y)
+	{
+		const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
+		_scrollOffsetY = std::clamp(y, 0.f, maxScroll);
+		enableFlag(Flag::DIRTY);
+		updateScrollBar();
+	}
+
+	float ScrollPane::getScrollOffsetY() const
+	{
+		return _scrollOffsetY;
+	}
+	void ScrollPane::setContentHeight(float height)
+	{
+	    _contentHeightOverride = height;
+	    enableFlag(Flag::DIRTY);
+	    updateScrollBar();
+	}
+
+
+	void ScrollPane::embed()
+	{
+	    // Silence this pane and its internal thumb from the event system.
+	    // Both are Components with auto-subscriptions from ComponentCore.
+	    this->unsubscribeAll();
+	    _scrollBarThumb.unsubscribeAll();
 	}
 }

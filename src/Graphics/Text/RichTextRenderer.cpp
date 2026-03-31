@@ -103,6 +103,17 @@ namespace ml
         for (std::size_t i = 0; i < text.size(); ++i)
             if (text[i] == '\n') { boundaries.push_back(i); boundaries.push_back(i + 1); }
 
+        // When wrapping is enabled, split at every character so layoutLines()
+        // can wrap at any position — handles both word-wrapped and continuous
+        // text (no spaces). Boundaries adjacent to newlines are skipped since
+        // newlines are already split points.
+        if (_maxWidth > 0.f)
+        {
+            for (std::size_t i = 1; i < text.size(); ++i)
+                if (text[i - 1] != '\n' && text[i] != '\n')
+                    boundaries.push_back(i);
+        }
+
         std::sort(boundaries.begin(), boundaries.end());
         boundaries.erase(std::unique(boundaries.begin(), boundaries.end()), boundaries.end());
 

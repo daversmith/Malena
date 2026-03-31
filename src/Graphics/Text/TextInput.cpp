@@ -11,25 +11,29 @@
 
 namespace ml
 {
-    TextInput::TextInput(const sf::Font& font)
-        : _font(&font),
-          _placeholder(font),
-          _renderer(_buffer, font, 16, sf::Color::White)
+    TextInput::TextInput(const sf::Font& font_)
+        : _placeholder(font_),
+          _renderer(_buffer, font_, 16, sf::Color::White)
     {
-    	for (unsigned int size : {11u, 12u, 14u, 16u, 18u, 20u, 24u})
-    		ml::FontManager<>::prewarm(font, size);
-        _background.setSize(_size);
-        _background.setFillColor(_bgIdle);
-        _background.setOutlineColor(_borderIdle);
-        _background.setOutlineThickness(_borderThick);
+        // Seed from active theme, then apply the constructor font
+        TextInputTheme::applyFrom(ThemeManager::get());
+        this->font = &font_;
 
-        _placeholder.setCharacterSize(_charSize);
-    	FontManager<>::prewarm(font, _charSize);
-        _placeholder.setFillColor(_phColor);
+        for (unsigned int sz : {11u, 12u, 14u, 16u, 18u, 20u, 24u})
+            ml::FontManager<>::prewarm(font_, sz);
+
+        _background.setSize(size);
+        _background.setFillColor(bgIdle);
+        _background.setOutlineColor(borderIdle);
+        _background.setOutlineThickness(borderThickness);
+
+        _placeholder.setCharacterSize(fontSize);
+        FontManager<>::prewarm(font_, fontSize);
+        _placeholder.setFillColor(placeholderColor);
 
         _canvas.resize({
-            static_cast<unsigned int>(_size.x),
-            static_cast<unsigned int>(_size.y)
+            static_cast<unsigned int>(size.x),
+            static_cast<unsigned int>(size.y)
         });
 
         rebuild();
@@ -43,11 +47,8 @@ namespace ml
             _cursorVisible = true;
         });
 
-        onBlur([this]{std::cout << "blur fired, this=" << this << "\n";
-            _dragging      = false;
-            _waitingDouble = false;
-            // DO NOT reset _prevMouseDown here — resetting it causes the
-            // blur/focus cycle on the same field to re-fire a press every frame.
+        onBlur([this]{
+            _dragging = false;
 
             const sf::Vector2f mp =
                 WindowManager::getWindow().mapPixelToCoords(
@@ -55,16 +56,21 @@ namespace ml
 
             if (!getGlobalBounds().contains(mp))
             {
+                // Genuine blur — mouse left the field. Reset double-click
+                // state and clear selection.
+                _waitingDouble = false;
                 _buffer.clearSelection();
-                reflow();   // selection cleared — no content change, reflow only
+                reflow();
             }
+            // If mouse IS still inside, this is the blur/focus cycle that
+            // fires when clicking on an already-focused field. Preserve
+            // _waitingDouble so double-click detection can still succeed.
 
             if (!isState(State::ERROR)) setState(State::IDLE);
             syncColors();
         });
 
         // ── Keyboard ──────────────────────────────────────────────────────────
-        // Use checkFlag(ml::Flag::FOCUSED) — the system flag, proven reliable.
         onKeypress([this](const std::optional<sf::Event>& e){
             if (!checkFlag(ml::Flag::FOCUSED)) return;
             if (checkFlag(Flag::DISABLED))     return;
@@ -82,50 +88,33 @@ namespace ml
                 handleChar(*te);
         });
 
-        // ── Update: cursor blink + drag selection (polling) ───────────────────
-        //
-        // All drag selection is handled here via sf::Mouse::isButtonPressed
-        // polling. This eliminates all event-ordering races between
-        // onMousePressed, onMouseMoved, onMouseReleased, and onClick.
-        //
-        // Edge detection (_prevMouseDown) reliably detects press-start and
-        // release transitions every frame.
+        // ── Update: cursor blink + drag selection ─────────────────────────────
         onUpdate([this]{
             const bool focused = checkFlag(ml::Flag::FOCUSED);
 
-            // ── Cursor blink ──────────────────────────────────────────────────
             if (!focused)
-            {
                 _cursorVisible = false;
-                // Do NOT reset _prevMouseDown here — it must only be updated
-                // at the bottom of this lambda to correctly track transitions.
-            }
             else if (_cursorClock.getElapsedTime().asSeconds() > 0.5f)
             {
                 _cursorVisible = !_cursorVisible;
                 _cursorClock.restart();
             }
 
-            // ── Drag selection ────────────────────────────────────────────────
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
             const sf::Vector2f wp =
                 WindowManager::getWindow().mapPixelToCoords(
                     sf::Mouse::getPosition(WindowManager::getWindow()));
             const bool inBounds = getGlobalBounds().contains(wp);
 
-            // Press started this frame
             if (mouseDown && !_prevMouseDown && inBounds)
             {
                 const std::size_t idx = hitTest(wp);
-
-                // Double-click detection
-                const bool sameSpot  = std::hypot(wp.x - _lastClick.x,
-                                                   wp.y - _lastClick.y) < 5.f;
+                const bool sameSpot   = std::hypot(wp.x - _lastClick.x,
+                                                    wp.y - _lastClick.y) < 5.f;
                 const bool quickClick = _clickClock.getElapsedTime().asMilliseconds() < 400;
 
                 if (_waitingDouble && sameSpot && quickClick)
                 {
-                    // Select word
                     _buffer.setCursor(idx);
                     _buffer.moveCursorByWord(-1, false);
                     const std::size_t ws = _buffer.getCursor();
@@ -144,60 +133,69 @@ namespace ml
                     _dragging      = true;
                 }
             }
-            // Mouse held — update live selection
             else if (mouseDown && _dragging)
             {
-                const std::size_t idx = hitTest(wp);
-                _buffer.setSelection(_dragAnchor, idx);
-                reflow();   // selection change only — no sf::Text rebuild needed
+                _buffer.setSelection(_dragAnchor, hitTest(wp));
+                reflow();
             }
-            // Mouse released this frame
             else if (!mouseDown && _prevMouseDown && _dragging)
             {
                 const std::size_t releaseIdx = hitTest(wp);
-
                 if (releaseIdx != _dragAnchor)
                     _buffer.setSelection(_dragAnchor, releaseIdx);
                 else
                     _buffer.setCursor(releaseIdx);
-
                 _dragging = false;
-                reflow();   // selection change only — no sf::Text rebuild needed
+                reflow();
             }
 
             _prevMouseDown = mouseDown;
         });
     }
 
+    void TextInput::onThemeApplied(const Theme& theme)
+    {
+        if (isThemeLocked()) return;
+        TextInputTheme::applyFrom(theme);
+        _placeholder.setFillColor(placeholderColor);
+        _placeholder.setCharacterSize(fontSize);
+        _placeholder.setFont(*font);
+        _background.setOutlineThickness(borderThickness);
+        syncColors();
+        rebuild();
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     void TextInput::rebuild()
     {
-        // Full rebuild — recreates sf::Text objects from buffer content.
-        // Call this when buffer content or styling changes.
         _renderer.rebuild();
         reflow();
+        onRebuildComplete();
     }
 
     void TextInput::reflow()
     {
-        // Reposition only — never recreates sf::Text objects.
-        // Origin is canvas-local (relative to {0,0}) so glyphs always
-        // rasterize at integer pixel positions, preventing atlas corruption.
-        const float textY = (_size.y - static_cast<float>(_charSize)) / 2.f;
-        _renderer.setOrigin({_padding - _scrollX, textY});
+        // Use the placeholder's actual glyph bounds to centre the text
+        // vertically — this accounts for the font's ascender/descender gap
+        // which differs from the raw fontSize integer.
+        // Falls back to fontSize if the placeholder hasn't been measured yet.
+        const sf::FloatRect lb = _placeholder.getLocalBounds();
+        const float glyphH = lb.size.y > 0.f
+                             ? lb.size.y
+                             : static_cast<float>(fontSize);
+        const float textY  = (size.y - glyphH) / 2.f - lb.position.y;
+        _renderer.setOrigin({padding - _scrollX, textY});
         syncPlaceholder();
     }
 
     void TextInput::rebuildAndScroll()
     {
-        // Step 1 — rebuild sf::Text objects (content changed)
         rebuild();
 
-        // Step 2 — adjust scroll using canvas-local coordinates
         const float cursorX      = _renderer.charIndexToPosition(_buffer.getCursor()).x;
-        const float visibleLeft  = _padding;
-        const float visibleRight = _size.x - _padding;
+        const float visibleLeft  = padding;
+        const float visibleRight = size.x - padding;
         bool changed = false;
 
         if (cursorX < visibleLeft)
@@ -221,7 +219,6 @@ namespace ml
             }
         }
 
-        // Step 3 — reflow only (reposition, no new sf::Text objects)
         if (changed) reflow();
     }
 
@@ -229,23 +226,23 @@ namespace ml
     {
         if (checkFlag(Flag::DISABLED))
         {
-            _background.setFillColor(_bgDisabled);
-            _background.setOutlineColor(_borderDis);
+            _background.setFillColor(bgDisabled);
+            _background.setOutlineColor(borderDisabled);
         }
         else if (isState(State::ERROR))
         {
-            _background.setFillColor(_bgIdle);
-            _background.setOutlineColor(_borderError);
+            _background.setFillColor(bgIdle);
+            _background.setOutlineColor(borderError);
         }
         else if (isState(State::FOCUSED))
         {
-            _background.setFillColor(_bgFocused);
-            _background.setOutlineColor(_borderFocus);
+            _background.setFillColor(bgFocused);
+            _background.setOutlineColor(borderFocused);
         }
         else
         {
-            _background.setFillColor(_bgIdle);
-            _background.setOutlineColor(_borderIdle);
+            _background.setFillColor(bgIdle);
+            _background.setOutlineColor(borderIdle);
         }
     }
 
@@ -254,21 +251,18 @@ namespace ml
         _showPlaceholder = _buffer.empty();
         const sf::FloatRect lb = _placeholder.getLocalBounds();
         _placeholder.setPosition({
-            _position.x + _padding,
-            _position.y + (_size.y - lb.size.y) / 2.f - lb.position.y
+            _position.x + padding,
+            _position.y + (size.y - lb.size.y) / 2.f - lb.position.y
         });
     }
 
     std::size_t TextInput::hitTest(const sf::Vector2f& worldPos) const
     {
-        // Convert world pos to canvas-local space (renderer lives at {0,0})
         return _renderer.positionToCharIndex({
             worldPos.x - _position.x + _scrollX,
             worldPos.y - _position.y
         });
     }
-
-    // ── handleKey ─────────────────────────────────────────────────────────────
 
     void TextInput::handleKey(const sf::Event::KeyPressed& kp)
     {
@@ -340,8 +334,7 @@ namespace ml
     void TextInput::handleChar(const sf::Event::TextEntered& te)
     {
         if (te.unicode < 32 || te.unicode == 127) return;
-        if (_maxLength > 0 && _buffer.size() >= _maxLength) return;
-
+        if (maxLength > 0 && _buffer.size() >= maxLength) return;
         _buffer.insertChar(te.unicode);
         if (_onChange) _onChange(_buffer.getText());
         rebuildAndScroll();
@@ -353,19 +346,13 @@ namespace ml
 
     void TextInput::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        // Background drawn to main target in world space
         target.draw(_background, states);
 
-        // Placeholder drawn directly — no clipping needed, fits by design
         if (_showPlaceholder)
             target.draw(_placeholder, states);
 
-        // Text, selection, and cursor drawn into canvas (canvas-local space).
-        // No transform needed — renderer origin is already at {0,0}-relative.
-        // Canvas then blitted to world space via sprite, providing clean clipping.
         _canvas.clear(sf::Color::Transparent);
-
-        sf::RenderStates cs; // identity — renderer is in canvas-local space
+        sf::RenderStates cs;
 
         if (!_showPlaceholder)
         {
@@ -373,24 +360,21 @@ namespace ml
                 _renderer.drawSelection(_canvas, cs,
                     _buffer.getSelectionStart(),
                     _buffer.getSelectionEnd(),
-                    _selColor);
-
+                    selectionColor);
             _renderer.draw(_canvas, cs);
         }
 
-        // Cursor hidden while dragging so it doesn't follow the selection
         if (_cursorVisible
             && checkFlag(ml::Flag::FOCUSED)
             && !checkFlag(Flag::DISABLED)
             && !_dragging)
         {
-            _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), _cursorColor);
+            _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), cursorColor);
         }
 
         _canvas.display();
-
         sf::Sprite sprite(_canvas.getTexture());
-        sprite.setPosition(_position);  // world-space position applied here only
+        sprite.setPosition(_position);
         target.draw(sprite, states);
     }
 
@@ -414,27 +398,25 @@ namespace ml
         if (_onChange) _onChange("");
     }
 
-    // ── Rich text styling ─────────────────────────────────────────────────────
+    // ── Rich text selection styling ───────────────────────────────────────────
 
     void TextInput::setSelectionFont(const sf::Font& f)
-    { TextAttribute a; a.font = &f;   _buffer.applyAttribute(a); rebuild(); }
+    { TextAttribute a; a.font = &f;    _buffer.applyAttribute(a); rebuild(); }
 
     void TextInput::setSelectionCharSize(unsigned int s)
     { TextAttribute a; a.charSize = s; _buffer.applyAttribute(a); rebuild(); }
 
     void TextInput::setSelectionColor(const sf::Color& c)
-    { TextAttribute a; a.color = c;   _buffer.applyAttribute(a); rebuild(); }
+    { TextAttribute a; a.color = c;    _buffer.applyAttribute(a); rebuild(); }
 
     void TextInput::setSelectionBold(bool b)
-    { TextAttribute a; a.bold = b;    _buffer.applyAttribute(a); rebuild(); }
+    { TextAttribute a; a.bold = b;     _buffer.applyAttribute(a); rebuild(); }
 
     void TextInput::setSelectionItalic(bool i)
-    { TextAttribute a; a.italic = i;  _buffer.applyAttribute(a); rebuild(); }
+    { TextAttribute a; a.italic = i;   _buffer.applyAttribute(a); rebuild(); }
 
     void TextInput::setSelectionUnderline(bool u)
     { TextAttribute a; a.underline = u; _buffer.applyAttribute(a); rebuild(); }
-
-    // ── Selection ─────────────────────────────────────────────────────────────
 
     void TextInput::selectAll()
     { _buffer.selectAll(); rebuild(); }
@@ -444,14 +426,6 @@ namespace ml
 
     std::string TextInput::getSelectedText() const
     { return _buffer.getSelectedText(); }
-
-    // ── Options ───────────────────────────────────────────────────────────────
-
-    void TextInput::setMaxLength(std::size_t l) { _maxLength = l; }
-    std::size_t TextInput::getMaxLength() const { return _maxLength; }
-    void TextInput::setPasswordMode(bool e)     { _passwordMode = e; }
-    bool TextInput::isPasswordMode() const      { return _passwordMode; }
-    void TextInput::setPasswordChar(char32_t c) { _passwordChar = c; }
 
     // ── Placeholder ───────────────────────────────────────────────────────────
 
@@ -488,79 +462,54 @@ namespace ml
 
     bool TextInput::hasError() const { return isState(State::ERROR); }
 
-    // ── Styling ───────────────────────────────────────────────────────────────
+    // ── Size / font ───────────────────────────────────────────────────────────
 
-    void TextInput::setSize(const sf::Vector2f& size)
+    void TextInput::setSize(const sf::Vector2f& sz)
     {
-        _size = size;
-        _background.setSize(size);
+        size = sz;
+        _background.setSize(sz);
         _canvas.resize({
-            static_cast<unsigned int>(size.x),
-            static_cast<unsigned int>(size.y)
+            static_cast<unsigned int>(sz.x),
+            static_cast<unsigned int>(sz.y)
         });
         rebuild();
     }
 
-    sf::Vector2f TextInput::getSize() const { return _size; }
+    sf::Vector2f TextInput::getSize() const { return size; }
 
-    void TextInput::setBackgroundColor(const sf::Color& c)        { _bgIdle      = c; syncColors(); }
-    void TextInput::setBackgroundFocusedColor(const sf::Color& c) { _bgFocused   = c; syncColors(); }
-    void TextInput::setBorderColor(const sf::Color& c)            { _borderIdle  = c; syncColors(); }
-    void TextInput::setBorderFocusedColor(const sf::Color& c)     { _borderFocus = c; syncColors(); }
-    void TextInput::setBorderErrorColor(const sf::Color& c)       { _borderError = c; syncColors(); }
-    void TextInput::setSelectionHighlightColor(const sf::Color& c){ _selColor    = c; }
-    void TextInput::setCursorColor(const sf::Color& c)            { _cursorColor = c; }
-
-    void TextInput::setBorderThickness(float t)
-    { _borderThick = t; _background.setOutlineThickness(t); }
-
-    void TextInput::setDefaultTextColor(const sf::Color& c)
-    { _textColor = c; rebuild(); }
-
-    void TextInput::setPlaceholderColor(const sf::Color& c)
-    { _phColor = c; _placeholder.setFillColor(c); }
-
-    void TextInput::setPadding(float p) { _padding = p; rebuild(); }
-    float TextInput::getPadding() const { return _padding; }
-
-    // ── Font ──────────────────────────────────────────────────────────────────
-
-    void TextInput::setFont(const sf::Font& font)
+    void TextInput::setFont(const sf::Font& f)
     {
-	    _font = &font;
-    	_placeholder.setFont(font);
-    	FontManager<>::prewarm(font, _charSize);
-    	rebuild();
+        font = &f;
+        _placeholder.setFont(f);
+        FontManager<>::prewarm(f, fontSize);
+        rebuild();
     }
 
-    void TextInput::setCharacterSize(unsigned int size)
+    void TextInput::setCharacterSize(unsigned int sz)
     {
-	    _charSize = size;
-    	_placeholder.setCharacterSize(size);
-    	FontManager<>::prewarm(*_font, _charSize);
-    	rebuild();
+        fontSize = sz;
+        _placeholder.setCharacterSize(sz);
+        FontManager<>::prewarm(*font, sz);
+        rebuild();
     }
 
-    unsigned int TextInput::getCharacterSize() const { return _charSize; }
+    unsigned int TextInput::getCharacterSize() const { return fontSize; }
 
     // ── Callbacks ─────────────────────────────────────────────────────────────
 
-    void TextInput::onChange(std::function<void(const std::string&)> cb) { _onChange = std::move(cb); }
-    void TextInput::onSubmit(std::function<void(const std::string&)> cb) { _onSubmit = std::move(cb); }
+    void TextInput::onChange(std::function<void(const std::string&)> cb)
+    { _onChange = std::move(cb); }
+
+    void TextInput::onSubmit(std::function<void(const std::string&)> cb)
+    { _onSubmit = std::move(cb); }
 
     // ── Positionable ──────────────────────────────────────────────────────────
 
-    // void TextInput::setPosition(const sf::Vector2f& pos)
-    // {
-    //     _position = pos;
-    //     _background.setPosition(pos);
-    //     reflow();   // position changed — reflow only, no new sf::Text objects
-    // }
-	void TextInput::setPosition(const sf::Vector2f& pos)
+    void TextInput::setPosition(const sf::Vector2f& pos)
     {
-    	_position = {std::round(pos.x), std::round(pos.y)};
-    	_background.setPosition(_position);
-    	reflow();
+        _position = {std::round(pos.x), std::round(pos.y)};
+        _background.setPosition(_position);
+        reflow();
     }
 
     sf::Vector2f  TextInput::getPosition()     const { return _position; }

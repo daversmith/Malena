@@ -21,7 +21,6 @@ namespace ml
      */
     struct RadioButtonSettings : ControlSettings
     {
-        float radius      = 10.f;
         float dotScale    = 0.5f;
         float labelOffset = 8.f;
 
@@ -35,11 +34,9 @@ namespace ml
 
         // ── Getters / setters ─────────────────────────────────────────────────
 
-        [[nodiscard]] float getRadius()      const { return radius; }
         [[nodiscard]] float getDotScale()    const { return dotScale; }
         [[nodiscard]] float getLabelOffset() const { return labelOffset; }
 
-        void setRadius(float r)      { radius      = r; }
         void setDotScale(float s)    { dotScale    = s; }
         void setLabelOffset(float o) { labelOffset = o; }
     };

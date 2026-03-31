@@ -25,7 +25,6 @@ namespace ml
     struct RadioGroupSettings : RadioButtonSettings
     {
         float spacing            = 28.f;
-        float padding            = 0.f;
         float bgRadius           = 0.f;
         float bgOutlineThickness = 0.f;
         bool  showBackground     = false;
@@ -44,13 +43,11 @@ namespace ml
         // ── Getters / setters ─────────────────────────────────────────────────
 
         [[nodiscard]] float getSpacing()            const { return spacing; }
-        [[nodiscard]] float getPadding()            const { return padding; }
         [[nodiscard]] float getBgRadius()           const { return bgRadius; }
         [[nodiscard]] float getBgOutlineThickness() const { return bgOutlineThickness; }
         [[nodiscard]] bool  getShowBackground()     const { return showBackground; }
 
         void setSpacing(float s)            { spacing            = s; }
-        void setPadding(float p)            { padding            = p; }
         void setBgRadius(float r)           { bgRadius           = r; }
         void setBgOutlineThickness(float t) { bgOutlineThickness = t; }
         void setShowBackground(bool b)      { showBackground     = b; }

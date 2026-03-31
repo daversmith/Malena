@@ -2,33 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <Malena/Graphics/Controls/RadioButton.h>
-#include <Malena/Engine/Events/Event.h>
+#include <Malena/Utilities/Align.h>
 #include <algorithm>
 #include <cmath>
 
 namespace ml
 {
-    // =========================================================================
-    // RadioButton
-    // =========================================================================
-
-    RadioButton::RadioButton(const std::string& label, const sf::Font& font)
-        : _label(font)
+    RadioButton::RadioButton(const std::string& label, const sf::Font& font_)
+        : _label(font_)
     {
-        // Ring — transparent fill, colored outline
-        _ring.setFillColor(sf::Color::Transparent);
-        _ring.setOutlineThickness(2.f);
+        RadioButtonTheme::applyFrom(ThemeManager::get());
+        this->font = &font_;
 
-        // Dot — filled, hidden by default
-        _dot.setFillColor(_dotColor);
+        _ring.setFillColor(sf::Color::Transparent);
+        _ring.setOutlineThickness(ringThickness);
+        _dot.setFillColor(dotColor);
         _dot.setOutlineThickness(0.f);
 
-        // Label
+        _labelStr = label;
         _label.setString(label);
-        _label.setCharacterSize(16);
-        _label.setFillColor(_labelColor);
+        _label.setCharacterSize(fontSize);
+        _label.setFillColor(labelColor);
 
-        // Wire hover events for visual feedback
         onHover([this]{
             if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::SELECTED))
             {
@@ -36,7 +31,6 @@ namespace ml
                 applyVisualState();
             }
         });
-
         onUnhover([this]{
             if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::SELECTED))
             {
@@ -50,28 +44,31 @@ namespace ml
         applyVisualState();
     }
 
-    // ── Layout ────────────────────────────────────────────────────────────────
-
-	void RadioButton::layout()
+    void RadioButton::onThemeApplied(const Theme& theme)
     {
-    	const sf::Vector2f pos = getPosition();
+        if (isThemeLocked()) return;
+        RadioButtonTheme::applyFrom(theme);
+        _label.setCharacterSize(fontSize);
+        applyVisualState();
+        layout();
+    }
 
-    	// Ring
-    	_ring.setRadius(_radius);
-    	_ring.setOrigin({_radius, _radius});
-    	_ring.setPosition(pos + sf::Vector2f{_radius, _radius});
+    void RadioButton::layout()
+    {
+        _ring.setRadius(radius);
+        _ring.setOrigin({radius, radius});
+        _ring.setPosition(_position + sf::Vector2f{radius, radius});
+        _ring.setOutlineThickness(ringThickness);
 
-    	// Dot — centered inside ring
-    	const float dotRadius = _radius * std::clamp(_dotScale, 0.1f, 0.9f);
-    	_dot.setRadius(dotRadius);
-    	_dot.setOrigin({dotRadius, dotRadius});
-    	_dot.setPosition(_ring.getPosition());
+        const float dotRadius = radius * std::clamp(dotScale, 0.1f, 0.9f);
+        _dot.setRadius(dotRadius);
+        _dot.setOrigin({dotRadius, dotRadius});
+        _dot.setPosition(_ring.getPosition());
 
-    	// Label — use Align to place it to the right of the ring
-    	Align::setRightOf(_ring, _label, _labelOffset);
-
-    	// Then vertically center it against the ring
-    	Align::centerVertically(_ring, _label);
+        _label.setFont(*font);
+        _label.setCharacterSize(fontSize);
+        Align::setRightOf(_ring, _label, labelOffset);
+        Align::centerVertically(_ring, _label);
     }
 
     void RadioButton::applyVisualState()
@@ -81,52 +78,42 @@ namespace ml
 
         if (disabled)
         {
-            _ring.setOutlineColor(_ringDisabledColor);
-            _dot.setFillColor(_dotDisabledColor);
-            _label.setFillColor(_labelDisabledColor);
+            _ring.setOutlineColor(ringDisabledColor);
+            _dot.setFillColor(dotDisabledColor);
+            _label.setFillColor(labelDisabledColor);
         }
         else if (selected)
         {
-            _ring.setOutlineColor(_ringSelectedColor);
-            _dot.setFillColor(_dotColor);
-            _label.setFillColor(_labelColor);
+            _ring.setOutlineColor(ringSelectedColor);
+            _dot.setFillColor(dotColor);
+            _label.setFillColor(labelColor);
         }
         else if (isState(State::HOVERED))
         {
-            _ring.setOutlineColor(_ringHoverColor);
-            _label.setFillColor(_labelColor);
+            _ring.setOutlineColor(ringHoverColor);
+            _label.setFillColor(labelColor);
         }
         else
         {
-            _ring.setOutlineColor(_ringColor);
-            _label.setFillColor(_labelColor);
+            _ring.setOutlineColor(ringColor);
+            _label.setFillColor(labelColor);
         }
     }
-
-    // ── Draw ──────────────────────────────────────────────────────────────────
 
     void RadioButton::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(_ring, states);
-
         if (checkFlag(Flag::SELECTED))
             target.draw(_dot, states);
-
         target.draw(_label, states);
     }
 
-    // ── Selection ─────────────────────────────────────────────────────────────
-
     void RadioButton::select()
     {
-        if (checkFlag(Flag::DISABLED))
-            return;
-
+        if (checkFlag(Flag::DISABLED)) return;
         enableFlag(Flag::SELECTED);
         setState(State::SELECTED);
         applyVisualState();
-
-        // Fire Selectable::select() to invoke onSelected callbacks
         Selectable::select();
     }
 
@@ -135,165 +122,44 @@ namespace ml
         disableFlag(Flag::SELECTED);
         setState(State::IDLE);
         applyVisualState();
-
-        // Fire Selectable::deselect() to invoke onDeselected callbacks
         Selectable::deselect();
     }
 
-    bool RadioButton::isSelected() const
-    {
-        return checkFlag(Flag::SELECTED);
-    }
-
-    // ── Enabled / disabled ────────────────────────────────────────────────────
+    bool RadioButton::isSelected() const { return checkFlag(Flag::SELECTED); }
 
     void RadioButton::setEnabled(bool enabled)
     {
-        if (enabled)
-        {
-            disableFlag(Flag::DISABLED);
-            setState(State::IDLE);
-        }
-        else
-        {
-            enableFlag(Flag::DISABLED);
-            setState(State::DISABLED);
-        }
+        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
+        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         applyVisualState();
     }
 
-    bool RadioButton::isEnabled() const
-    {
-        return !checkFlag(Flag::DISABLED);
-    }
-
-    // ── Layout setters ────────────────────────────────────────────────────────
-
-    void RadioButton::setRadius(float radius)
-    {
-        _radius = radius;
-        layout();
-    }
-
-    float RadioButton::getRadius() const
-    {
-        return _radius;
-    }
-
-    void RadioButton::setDotScale(float scale)
-    {
-        _dotScale = std::clamp(scale, 0.1f, 0.9f);
-        layout();
-    }
-
-    float RadioButton::getDotScale() const
-    {
-        return _dotScale;
-    }
-
-    void RadioButton::setLabelOffset(float offset)
-    {
-        _labelOffset = offset;
-        layout();
-    }
-
-    float RadioButton::getLabelOffset() const
-    {
-        return _labelOffset;
-    }
-
-    // ── Label ─────────────────────────────────────────────────────────────────
+    bool RadioButton::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void RadioButton::setLabel(const std::string& label)
     {
+        _labelStr = label;
         _label.setString(label);
         layout();
     }
 
-    std::string RadioButton::getLabel() const
-    {
-        return _label.getString();
-    }
+    std::string RadioButton::getLabel() const { return _labelStr; }
 
-    void RadioButton::setCharacterSize(unsigned int size)
+    void RadioButton::setPosition(const sf::Vector2f& pos)
     {
-        _label.setCharacterSize(size);
+        _position = pos;
         layout();
     }
 
-    unsigned int RadioButton::getCharacterSize() const
-    {
-        return _label.getCharacterSize();
-    }
-
-    void RadioButton::setFont(const sf::Font& font)
-    {
-        _label.setFont(font);
-        layout();
-    }
-
-    // ── Colors ────────────────────────────────────────────────────────────────
-
-    void RadioButton::setRingColor(const sf::Color& color)
-    {
-        _ringColor = color;
-        applyVisualState();
-    }
-
-    void RadioButton::setRingHoverColor(const sf::Color& color)
-    {
-        _ringHoverColor = color;
-        applyVisualState();
-    }
-
-    void RadioButton::setRingSelectedColor(const sf::Color& color)
-    {
-        _ringSelectedColor = color;
-        applyVisualState();
-    }
-
-    void RadioButton::setDotColor(const sf::Color& color)
-    {
-        _dotColor = color;
-        applyVisualState();
-    }
-
-    void RadioButton::setRingThickness(float thickness)
-    {
-        _ring.setOutlineThickness(thickness);
-    }
-
-    void RadioButton::setLabelColor(const sf::Color& color)
-    {
-        _labelColor = color;
-        applyVisualState();
-    }
-
-    // ── Positionable overrides ────────────────────────────────────────────────
-
-    void RadioButton::setPosition(const sf::Vector2f& position)
-    {
-        _position = position;
-        layout();
-    }
-
-    sf::Vector2f RadioButton::getPosition() const
-    {
-        return _position;
-    }
+    sf::Vector2f RadioButton::getPosition() const { return _position; }
 
     sf::FloatRect RadioButton::getGlobalBounds() const
     {
-        // Bounds span from ring left edge to label right edge
-        const sf::FloatRect labelBounds = _label.getGlobalBounds();
-        const float left   = _position.x;
-        const float top    = _position.y;
-        const float width  = labelBounds.position.x + labelBounds.size.x - left;
-        const float height = _radius * 2.f;
-
-        return sf::FloatRect{{left, top}, {width, height}};
+        const sf::FloatRect lb = _label.getGlobalBounds();
+        return sf::FloatRect{
+            {_position.x, _position.y},
+            {lb.position.x + lb.size.x - _position.x, radius * 2.f}
+        };
     }
-
-
 
 } // namespace ml

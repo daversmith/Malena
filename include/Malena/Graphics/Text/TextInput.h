@@ -12,11 +12,15 @@
 #include <Malena/Graphics/Text/RichTextBuffer.h>
 #include <Malena/Graphics/Text/RichTextRenderer.h>
 #include <Malena/Resources/FontManager.h>
+#include <Malena/Traits/Settings/TextInputSettings.h>
+#include <Malena/Traits/Theme/TextInputTheme.h>
+#include <Malena/Traits/Theme/Themeable.h>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include <string>
+#include <type_traits>
 
 namespace ml
 {
@@ -30,8 +34,16 @@ namespace ml
     /**
      * @brief Single-line rich text input with horizontal scrolling.
      * @ingroup GraphicsText
+     *
+     * Inherits @c TextInputSettings (geometry/behaviour) and
+     * @c TextInputTheme (colors/font) as first-class members.
+     *
+     * @see TextInputSettings, TextInputTheme, TextInputStyle, TextArea
      */
-    class TextInput : public ComponentWith<TextInputManifest>
+    class TextInput : public ComponentWith<TextInputManifest>,
+                      public TextInputSettings,
+                      public TextInputTheme,
+                      public Themeable
     {
     public:
         using Flag  = TextInputManifest::Flag;
@@ -43,40 +55,15 @@ namespace ml
         mutable sf::RenderTexture _canvas;
 
         sf::RectangleShape _background;
-        sf::Vector2f       _size     = {200.f, 36.f};
         sf::Vector2f       _position = {0.f, 0.f};
-        float              _padding  = 8.f;
         float              _scrollX  = 0.f;
-
-        sf::Color _bgIdle      = sf::Color(40,  40,  40);
-        sf::Color _bgFocused   = sf::Color(50,  50,  50);
-        sf::Color _bgDisabled  = sf::Color(30,  30,  30);
-        sf::Color _borderIdle  = sf::Color(100, 100, 100);
-        sf::Color _borderFocus = sf::Color(70,  130, 230);
-        sf::Color _borderError = sf::Color(220, 70,  70);
-        sf::Color _borderDis   = sf::Color(60,  60,  60);
-        sf::Color _textColor   = sf::Color::White;
-        sf::Color _phColor     = sf::Color(120, 120, 120);
-        sf::Color _selColor    = sf::Color(70,  130, 230, 120);
-        sf::Color _cursorColor = sf::Color::White;
-        float     _borderThick = 1.5f;
 
         sf::Text _placeholder;
         bool     _showPlaceholder = true;
 
-        const sf::Font* _font     = &FontManager<>::getDefault();
-        unsigned int    _charSize = 16;
-
-        // Cursor blink
         mutable sf::Clock _cursorClock;
         mutable bool      _cursorVisible = false;
 
-        // Options
-        std::size_t _maxLength    = 0;
-        bool        _passwordMode = false;
-        char32_t    _passwordChar = U'\u2022';
-
-        // Drag + double-click — driven by polling in onUpdate
         bool         _dragging      = false;
         bool         _prevMouseDown = false;
         std::size_t  _dragAnchor    = 0;
@@ -87,9 +74,10 @@ namespace ml
         std::function<void(const std::string&)> _onChange;
         std::function<void(const std::string&)> _onSubmit;
 
-        void rebuild();         ///< Full rebuild — recreates sf::Text objects
-        virtual void reflow();          ///< Reposition only — never creates sf::Text objects
-        void rebuildAndScroll();
+        void rebuild();
+        virtual void onRebuildComplete() {}
+        virtual void reflow();
+        virtual void rebuildAndScroll();
         void syncColors();
         virtual void syncPlaceholder();
         std::size_t hitTest(const sf::Vector2f& worldPos) const;
@@ -98,13 +86,53 @@ namespace ml
         void         handleChar(const sf::Event::TextEntered& te);
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onThemeApplied(const Theme& theme) override;
 
     public:
         explicit TextInput(const sf::Font& font = FontManager<>::getDefault());
 
+        // ── Apply ─────────────────────────────────────────────────────────────
+
+        template<typename S>
+        void applySettings(const S& s)
+        {
+            static_assert(std::is_base_of_v<TextInputSettings, S>,
+                "applySettings() requires a type derived from TextInputSettings");
+            static_cast<TextInputSettings&>(*this) = s;
+            syncColors();
+            syncPlaceholder();
+            rebuild();
+        }
+
+        template<typename T>
+        void applyTheme(const T& t)
+        {
+            static_assert(std::is_base_of_v<TextInputTheme, T>,
+                "applyTheme() requires a type derived from TextInputTheme");
+            static_cast<TextInputTheme&>(*this) = t;
+            syncColors();
+        }
+
+        template<typename St>
+        void applyStyle(const St& s)
+        {
+            static_assert(std::is_base_of_v<TextInputSettings, St> &&
+                          std::is_base_of_v<TextInputTheme, St>,
+                "applyStyle() requires TextInputSettings and TextInputTheme");
+            static_cast<TextInputSettings&>(*this) = s;
+            static_cast<TextInputTheme&>(*this)    = s;
+            syncColors();
+            syncPlaceholder();
+            rebuild();
+        }
+
+        // ── Value ─────────────────────────────────────────────────────────────
+
         void setValue(const std::string& value);
         [[nodiscard]] std::string getValue() const;
         void clear();
+
+        // ── Selection styling ─────────────────────────────────────────────────
 
         void setSelectionFont(const sf::Font& font);
         void setSelectionCharSize(unsigned int size);
@@ -117,11 +145,7 @@ namespace ml
         void setSelection(std::size_t start, std::size_t end);
         [[nodiscard]] std::string getSelectedText() const;
 
-        void setMaxLength(std::size_t length);
-        [[nodiscard]] std::size_t getMaxLength() const;
-        void setPasswordMode(bool enabled);
-        [[nodiscard]] bool isPasswordMode() const;
-        void setPasswordChar(char32_t ch);
+        // ── Options ───────────────────────────────────────────────────────────
 
         void setPlaceholder(const std::string& text);
         [[nodiscard]] std::string getPlaceholder() const;
@@ -134,28 +158,22 @@ namespace ml
         void setError(bool error);
         [[nodiscard]] bool hasError() const;
 
+        // ── Size / font ───────────────────────────────────────────────────────
+
         virtual void setSize(const sf::Vector2f& size);
         [[nodiscard]] sf::Vector2f getSize() const;
-        void setBackgroundColor(const sf::Color& color);
-        void setBackgroundFocusedColor(const sf::Color& color);
-        void setBorderColor(const sf::Color& color);
-        void setBorderFocusedColor(const sf::Color& color);
-        void setBorderErrorColor(const sf::Color& color);
-        void setBorderThickness(float thickness);
-        void setDefaultTextColor(const sf::Color& color);
-        void setPlaceholderColor(const sf::Color& color);
-        void setSelectionHighlightColor(const sf::Color& color);
-        void setCursorColor(const sf::Color& color);
-        void setPadding(float padding);
-        [[nodiscard]] float getPadding() const;
 
         virtual void setFont(const sf::Font& font);
         void setFont(const sf::Font&&) = delete;
         virtual void setCharacterSize(unsigned int size);
         [[nodiscard]] unsigned int getCharacterSize() const;
 
+        // ── Callbacks ─────────────────────────────────────────────────────────
+
         void onChange(std::function<void(const std::string&)> callback);
         void onSubmit(std::function<void(const std::string&)> callback);
+
+        // ── Positionable ──────────────────────────────────────────────────────
 
         virtual void  setPosition(const sf::Vector2f& position) override;
         sf::Vector2f  getPosition()     const override;
@@ -164,10 +182,7 @@ namespace ml
 
     template<typename MANIFEST>
     class TextInputWith : public TextInput, public Customizable<MANIFEST>
-    {
-    public:
-        using TextInput::TextInput;
-    };
+    { public: using TextInput::TextInput; };
 
 } // namespace ml
 

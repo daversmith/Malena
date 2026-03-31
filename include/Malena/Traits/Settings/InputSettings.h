@@ -25,7 +25,6 @@ namespace ml
     struct InputSettings : ControlSettings
     {
         sf::Vector2f size         = {200.f, 36.f};
-        float        padding      = 8.f;
         std::size_t  maxLength    = 0;         ///< 0 = unlimited
         bool         passwordMode = false;
         char32_t     passwordChar = U'\u2022'; ///< Bullet •
@@ -41,13 +40,11 @@ namespace ml
         // ── Getters / setters ─────────────────────────────────────────────────
 
         [[nodiscard]] sf::Vector2f getSize()         const { return size; }
-        [[nodiscard]] float        getPadding()       const { return padding; }
         [[nodiscard]] std::size_t  getMaxLength()     const { return maxLength; }
         [[nodiscard]] bool         isPasswordMode()   const { return passwordMode; }
         [[nodiscard]] char32_t     getPasswordChar()  const { return passwordChar; }
 
         void setSize(const sf::Vector2f& s) { size         = s; }
-        void setPadding(float p)            { padding      = p; }
         void setMaxLength(std::size_t n)    { maxLength    = n; }
         void setPasswordMode(bool b)        { passwordMode = b; }
         void setPasswordChar(char32_t c)    { passwordChar = c; }

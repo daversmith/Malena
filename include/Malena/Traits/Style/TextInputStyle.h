@@ -46,37 +46,43 @@ namespace ml
      * @brief Complete style descriptor for @c TextArea.
      * @ingroup Traits
      *
-     * Uses @c TextInputSettings (not TextAreaSettings) for the settings
-     * layer — TextArea scrollbar width lives in @c TextAreaTheme —
-     * to avoid diamond inheritance since @c TextArea extends @c TextInput.
+     * Combines @c TextInputSettings (geometry), @c TextInputTheme (text/cursor/
+     * border colors), and @c TextAreaTheme (scrollbar colors) into one struct.
      *
-     * @see TextInputSettings, TextAreaTheme, TextArea
+     * Note: @c TextAreaTheme is standalone (no base classes) to avoid diamond
+     * inheritance when used in the @c TextArea component hierarchy.
+     *
+     * @see TextInputSettings, TextInputTheme, TextAreaTheme, TextArea
      */
-    struct TextAreaStyle : TextInputSettings, TextAreaTheme
+    struct TextAreaStyle : TextInputSettings, TextInputTheme, TextAreaTheme
     {
         TextAreaStyle& operator=(const TextInputSettings& s)
         { static_cast<TextInputSettings&>(*this) = s; return *this; }
 
+        TextAreaStyle& operator=(const TextInputTheme& t)
+        { static_cast<TextInputTheme&>(*this) = t; return *this; }
+
         TextAreaStyle& operator=(const TextAreaTheme& t)
         { static_cast<TextAreaTheme&>(*this) = t; return *this; }
 
-        TextAreaStyle& operator=(const TextInputTheme& t)
-        { static_cast<TextAreaTheme&>(*this) = t; return *this; }
-
         TextAreaStyle& operator=(const InputTheme& i)
-        { static_cast<TextAreaTheme&>(*this) = i; return *this; }
+        { static_cast<TextInputTheme&>(*this) = i; return *this; }
 
         TextAreaStyle& operator=(const InputSettings& i)
         { static_cast<TextInputSettings&>(*this) = i; return *this; }
 
         TextAreaStyle& operator=(const ControlTheme& c)
-        { static_cast<TextAreaTheme&>(*this) = c; return *this; }
+        { static_cast<TextInputTheme&>(*this) = c; return *this; }
 
         TextAreaStyle& operator=(const ControlSettings& c)
         { static_cast<TextInputSettings&>(*this) = c; return *this; }
 
         TextAreaStyle& applyFrom(const Theme& t)
-        { TextAreaTheme::applyFrom(t); return *this; }
+        {
+            TextInputTheme::applyFrom(t);
+            TextAreaTheme::applyFrom(t);
+            return *this;
+        }
     };
 
 } // namespace ml

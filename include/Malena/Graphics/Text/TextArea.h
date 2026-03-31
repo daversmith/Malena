@@ -9,106 +9,108 @@
 
 #include <Malena/Graphics/Text/TextInput.h>
 #include <Malena/Graphics/Controls/ScrollPane.h>
+#include <Malena/Traits/Theme/TextAreaTheme.h>
+#include <type_traits>
 
 namespace ml
 {
     /**
-     * @brief A multi-line rich text input field with scrolling.
+     * @brief A multi-line rich text input field with vertical scrolling.
      * @ingroup GraphicsText
      *
-     * @c TextArea extends the same rich text model as @c TextInput to
-     * multiple lines. It uses @c ScrollPane internally for overflow scrolling
-     * and supports all the same keyboard shortcuts plus line navigation.
+     * Extends @c TextInput with multiline support. The canvas grows to fit
+     * the full content height — @c ScrollPane clips and scrolls it, and
+     * draws the scrollbar. @c ScrollPane is fully event-silent (@c unsubscribeAll
+     * is called internally) so it never interferes with TextInput's focus or
+     * keyboard handling.
      *
      * @c Enter inserts a newline. @c Ctrl+Enter submits.
-     * @c Up / @c Down arrows move between lines preserving horizontal position.
+     * @c Up / @c Down arrows move between lines.
+     * Mouse wheel scrolls the content.
      *
-     * ### Additional keyboard shortcuts (beyond TextInput)
-     * | Key          | Action                          |
-     * |--------------|---------------------------------|
-     * | Enter        | Insert newline                  |
-     * | Ctrl+Enter   | Submit                          |
-     * | Up / Down    | Move cursor between lines       |
-     * | Shift+Up/Down| Extend selection between lines  |
-     *
-     * ### Usage
-     * @code
-     * ml::TextArea bio;
-     * bio.setSize({400.f, 120.f});
-     * bio.setPosition({100.f, 200.f});
-     * bio.setPlaceholder("Enter your bio...");
-     *
-     * bio.onChange([](const std::string& value){
-     *     std::cout << value << "\n";
-     * });
-     * bio.onSubmit([](const std::string& value){
-     *     std::cout << "submitted\n";
-     * });
-     *
-     * addComponent(bio);
-     * @endcode
-     *
-     * ### Rich text styling
-     * @code
-     * bio.selectAll();
-     * bio.setSelectionColor(sf::Color::Cyan);
-     * bio.setSelectionBold(true);
-     * @endcode
-     *
-     * ### With a manifest
-     * @code
-     * class NotesField : public ml::TextAreaWith<NotesManifest> {};
-     * @endcode
-     *
-     * @see TextInput, TextInputManifest, RichTextBuffer, RichTextRenderer, ScrollPane
+     * @see TextInput, TextAreaTheme, TextAreaStyle, ScrollPane
      */
-    class TextArea : public TextInput
+    class TextArea : public TextInput,
+                     public TextAreaTheme
     {
     private:
         ScrollPane _scrollPane;
 
         void handleTextAreaKeypress(const sf::Event::KeyPressed& kp);
-        void updateScroll();
+        void drawScrollbar(sf::RenderTarget& target, const sf::RenderStates& states) const;
+
+        // ── Scroll / drag state ───────────────────────────────────────────
+        float _prevScrollY          = 0.f;
+        bool  _thumbDragging        = false;
+        float _thumbDragStartMouseY = 0.f;
+        float _thumbDragStartScroll = 0.f;
+        bool  _prevMouseDown        = false;
 
     protected:
+        // ── TextInput hooks ───────────────────────────────────────────────────
+
+        /**
+         * @brief Called after every rebuild(). Grows the canvas to full content
+         *        height and updates ScrollPane's content height.
+         */
+        void onRebuildComplete() override;
+
+        /**
+         * @brief Top-aligned reflow. Reads vertical scroll from ScrollPane.
+         */
+        void reflow() override;
+
+        void syncPlaceholder() override;
+
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onThemeApplied(const Theme& theme) override;
 
     public:
-        /**
-         * @brief Construct a multi-line rich text area.
-         * @param font Default font. Defaults to built-in Arial.
-         */
         explicit TextArea(const sf::Font& font = FontManager<>::getDefault());
+
+        // ── Apply ─────────────────────────────────────────────────────────────
+
+        template<typename T>
+        void applyTheme(const T& t)
+        {
+            static_assert(std::is_base_of_v<TextAreaTheme, T>,
+                "applyTheme() requires a type derived from TextAreaTheme");
+            static_cast<TextAreaTheme&>(*this) = t;
+            _scrollPane.setScrollBarColor(scrollBarColor);
+            _scrollPane.setBackgroundColor(scrollBarTrackColor);
+            _scrollPane.setScrollBarWidth(scrollBarWidth);
+            syncColors();
+        }
+
+        template<typename St>
+        void applyStyle(const St& s)
+        {
+            static_assert(std::is_base_of_v<TextInputSettings, St> &&
+                          std::is_base_of_v<TextAreaTheme, St>,
+                "applyStyle() requires TextInputSettings and TextAreaTheme");
+            static_cast<TextInputSettings&>(*this) = s;
+            static_cast<TextAreaTheme&>(*this)     = s;
+            _scrollPane.setScrollBarColor(scrollBarColor);
+            _scrollPane.setBackgroundColor(scrollBarTrackColor);
+            _scrollPane.setScrollBarWidth(scrollBarWidth);
+            syncColors();
+            syncPlaceholder();
+            rebuild();
+        }
 
         // ── Scrollbar styling ─────────────────────────────────────────────────
 
-        /** @brief Set the scrollbar thumb color. */
         void setScrollBarColor(const sf::Color& color);
-
-        /** @brief Set the scrollbar track color. */
         void setScrollBarTrackColor(const sf::Color& color);
-
-        /** @brief Set the scrollbar width in pixels. */
         void setScrollBarWidth(float width);
 
-        // ── TextInput overrides ───────────────────────────────────────────────
+        // ── Overrides ─────────────────────────────────────────────────────────
 
-        void setSize(const sf::Vector2f& size);
+        void setSize(const sf::Vector2f& size)         override;
         void setPosition(const sf::Vector2f& position) override;
-        sf::FloatRect getGlobalBounds() const override;
+        sf::FloatRect getGlobalBounds()          const override;
+    };
 
-	protected:
-		void reflow() override;
-		void syncPlaceholder() override;
-	};
-
-    // ── TextAreaWith ──────────────────────────────────────────────────────────
-
-    /**
-     * @brief @c TextArea with an attached manifest.
-     * @tparam MANIFEST A @c Manifest subclass declaring @c Flag/@c State enums.
-     * @see TextArea, Customizable
-     */
     template<typename MANIFEST>
     class TextAreaWith : public TextArea, public Customizable<MANIFEST>
     {
