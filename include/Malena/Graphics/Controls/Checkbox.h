@@ -7,14 +7,14 @@
 
 #pragma once
 
+#include <Malena/Traits/Interaction/Selectable.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
-#include <Malena/Traits/Selectable.h>
 #include <Malena/Resources/FontManager.h>
 #include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <functional>
 #include <string>
 

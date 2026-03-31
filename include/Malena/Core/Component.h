@@ -5,6 +5,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <Malena/Traits/Interaction/Draggable.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Manifests/ManifestResources.h>
@@ -12,10 +13,9 @@
 #include <Malena/Resources/FlagManager.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
-#include <Malena/Traits/Draggable.h>
 #include <Malena/Utilities/Flag.h>
 #include <type_traits>
-#include "SFML/Graphics/Drawable.hpp"
+#include <SFML/Graphics/Drawable.hpp>
 
 namespace ml
 {

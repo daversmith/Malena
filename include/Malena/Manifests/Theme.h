@@ -7,9 +7,10 @@
 
 #pragma once
 
-#include <Malena/Resources/FontManager.h>
+// #include <Malena/Resources/FontManager.h>
 #include <SFML/Graphics/Color.hpp>
-
+#include <Malena/Manifests/ThemeTag.h>
+#include <SFML/Graphics/Font.hpp>
 namespace ml
 {
     // ── Theme ─────────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ namespace ml
      *
      * @see ThemeManager, Themeable, DarkTheme, LightTheme
      */
-    struct Theme
+    struct Theme : ThemeTag
     {
         // ── Color roles ───────────────────────────────────────────────────────
 
@@ -113,7 +114,7 @@ namespace ml
         // ── Typography ────────────────────────────────────────────────────────
 
         /** Default font used by all text-bearing components. */
-        const sf::Font* font         = &FontManager<>::getDefault();
+        const sf::Font* font         = nullptr;
 
         /** Base font size in points. */
         unsigned int    fontSize     = 14;

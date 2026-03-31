@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // ToggleDemo — showcases PillToggle, SegmentToggle, ButtonToggle,
-// ToggleGroup, the Theme system, and Manifest/Resources integration.
-//
+// ToggleGroup, the Theme/Settings system, and Manifest integration.
 
 #include <Malena/Engine/App/Application.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Manifests/Theme.h>
 #include <Malena/Resources/ThemeManager.h>
-#include <Malena/Manifests/ManifestResources.h>
 #include <Malena/Graphics/Controls/PillToggle.h>
 #include <Malena/Graphics/Controls/SegmentToggle.h>
 #include <Malena/Graphics/Controls/ButtonToggle.h>
@@ -17,9 +15,8 @@
 #include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Graphics/Text/Text.h>
 #include <Malena/Utilities/Align.h>
-#include <Malena/Settings/PillSettings.h>
-#include <Malena/Settings/SegmentSettings.h>
-#include <Malena/Settings/ButtonSettings.h>
+#include <Malena/Traits/Settings/PillSettings.h>
+#include <Malena/Traits/Style/PillStyle.h>
 
 // ── Custom themes ─────────────────────────────────────────────────────────────
 
@@ -27,16 +24,16 @@ struct NeonTheme : ml::Theme
 {
     NeonTheme()
     {
-        primary            = sf::Color(0,   255, 180);
-        secondary          = sf::Color(0,   200, 140);
-        surface            = sf::Color(10,  15,  30);
-        background         = sf::Color(5,   8,   20);
-        onSurface          = sf::Color(220, 255, 245);
-        onPrimary          = sf::Color(5,   8,   20);
-        border             = sf::Color(0,   140, 100);
-        borderFocus        = sf::Color(0,   255, 180);
-        muted              = sf::Color(80,  160, 130);
-        radius             = 4.f;
+        primary     = sf::Color(0,   255, 180);
+        secondary   = sf::Color(0,   200, 140);
+        surface     = sf::Color(10,  15,  30);
+        background  = sf::Color(5,   8,   20);
+        onSurface   = sf::Color(220, 255, 245);
+        onPrimary   = sf::Color(5,   8,   20);
+        border      = sf::Color(0,   140, 100);
+        borderFocus = sf::Color(0,   255, 180);
+        muted       = sf::Color(80,  160, 130);
+        radius      = 4.f;
     }
 };
 
@@ -44,39 +41,40 @@ struct WarmTheme : ml::Theme
 {
     WarmTheme()
     {
-        primary            = sf::Color(220, 100, 50);
-        secondary          = sf::Color(240, 150, 80);
-        surface            = sf::Color(45,  35,  30);
-        background         = sf::Color(25,  18,  15);
-        onSurface          = sf::Color(255, 240, 220);
-        onPrimary          = sf::Color::White;
-        border             = sf::Color(120, 80,  60);
-        borderFocus        = sf::Color(220, 100, 50);
-        muted              = sf::Color(150, 110, 90);
-        radius             = 12.f;
+        primary     = sf::Color(220, 100, 50);
+        secondary   = sf::Color(240, 150, 80);
+        surface     = sf::Color(45,  35,  30);
+        background  = sf::Color(25,  18,  15);
+        onSurface   = sf::Color(255, 240, 220);
+        onPrimary   = sf::Color::White;
+        border      = sf::Color(120, 80,  60);
+        borderFocus = sf::Color(220, 100, 50);
+        muted       = sf::Color(150, 110, 90);
+        radius      = 12.f;
     }
 };
 
-// ── Custom settings ───────────────────────────────────────────────────────────
+// ── Custom settings / styles ──────────────────────────────────────────────────
 
-struct GreenPillSettings : ml::PillSettings
+// GreenPillStyle — sets both a color (PillTheme) and geometry (PillSettings)
+// so it inherits PillStyle which combines both layers.
+struct GreenPillStyle : ml::PillStyle
 {
-    GreenPillSettings()
+    GreenPillStyle()
     {
-        trackOnColor = sf::Color(70, 200, 100);
-        trackSize    = {56.f, 28.f};
-        pillOnLabel  = "ON";
-        pillOffLabel = "OFF";
+        trackOnColor = sf::Color(70, 200, 100);  // PillTheme
+        trackSize    = {56.f, 28.f};             // PillSettings
+        setPillLabels("OFF", "ON");              // PillSettings
     }
 };
 
+// LargePillSettings — geometry/behaviour only, no colors changed.
 struct LargePillSettings : ml::PillSettings
 {
     LargePillSettings()
     {
         trackSize    = {70.f, 34.f};
-        pillOnLabel  = "YES";
-        pillOffLabel = "NO";
+        setPillLabels("NO", "YES");
         animSpeed    = 6.f;
     }
 };
@@ -87,26 +85,19 @@ class ToggleDemoManifest : public ml::Manifest
 {
 public:
     enum class Themes   { Dark, Neon, Warm, Light };
-    enum class Settings { GreenPill, LargePill };
+    enum class Styles   { GreenPill };
+    enum class Settings { LargePill };
 
-    inline static const auto _ = [](){
-        // Store as base types — derived theme data lives in base struct members
-        ml::Theme dark  = ml::DarkTheme();
-        ml::Theme neon  = NeonTheme();
-        ml::Theme warm  = WarmTheme();
-        ml::Theme light = ml::LightTheme();
-        set(Themes::Dark,  dark);
-        set(Themes::Neon,  neon);
-        set(Themes::Warm,  warm);
-        set(Themes::Light, light);
+	inline static const auto _ = [](){
+		set(Themes::Dark,  ml::DarkTheme());
+		set(Themes::Neon,  NeonTheme());
+		set(Themes::Warm,  WarmTheme());
+		set(Themes::Light, ml::LightTheme());
 
-        ml::PillSettings green = GreenPillSettings();
-        ml::PillSettings large = LargePillSettings();
-        set(Settings::GreenPill, green);
-        set(Settings::LargePill, large);
-
-        return 0;
-    }();
+		set(Styles::GreenPill,   GreenPillStyle());
+		set(Settings::LargePill, LargePillSettings());
+		return 0;
+	}();
 };
 
 // ── ToggleDemoApp ─────────────────────────────────────────────────────────────
@@ -114,6 +105,7 @@ public:
 class ToggleDemoApp : public ml::ApplicationWith<ToggleDemoManifest>
 {
     using Themes   = ToggleDemoManifest::Themes;
+    using Styles   = ToggleDemoManifest::Styles;
     using Settings = ToggleDemoManifest::Settings;
 
     // ── Background ────────────────────────────────────────────────────────────
@@ -128,24 +120,24 @@ class ToggleDemoApp : public ml::ApplicationWith<ToggleDemoManifest>
 
     // ── PILL section ──────────────────────────────────────────────────────────
     ml::Text       _pillHeading;
-    ml::PillToggle _pillDefault;
-    ml::PillToggle _pillGreen;
-    ml::PillToggle _pillLarge;
-    ml::PillToggle _pillInsideLabels;
-    ml::PillToggle _pillDisabled;
-    ml::PillToggle _pillLocked;
+    ml::PillToggle _pillDefault;      // default theme colors
+    ml::PillToggle _pillGreen;        // GreenPillStyle from manifest
+    ml::PillToggle _pillLarge;        // LargePillSettings, starts ON
+    ml::PillToggle _pillInsideLabels; // inside OFF/ON labels
+    ml::PillToggle _pillDisabled;     // disabled state
+    ml::PillToggle _pillLocked;       // locked — ignores theme changes
 
     // ── SEGMENT section ───────────────────────────────────────────────────────
-    ml::Text            _segHeading;
-    ml::SegmentToggle   _segDefault;
-    ml::SegmentToggle   _segHotels;
-    ml::SegmentToggle   _segDisabled;
+    ml::Text          _segHeading;
+    ml::SegmentToggle _segDefault;
+    ml::SegmentToggle _segHotels;
+    ml::SegmentToggle _segDisabled;
 
     // ── BUTTON section ────────────────────────────────────────────────────────
     ml::Text         _btnHeading;
     ml::ButtonToggle _btnSave;
     ml::ButtonToggle _btnMute;
-    ml::ButtonToggle _btnBtnDisabled;
+    ml::ButtonToggle _btnDisabled;
 
     // ── GROUP section ─────────────────────────────────────────────────────────
     ml::Text        _groupHeading;
@@ -169,8 +161,8 @@ class ToggleDemoApp : public ml::ApplicationWith<ToggleDemoManifest>
     void setupThemeBtn(ml::ButtonToggle& btn, const std::string& label, float x)
     {
         btn.setSize({80.f, 28.f});
-        btn.setButtonOffLabel(label);
-        btn.setButtonOnLabel(label);
+        btn.setOffLabel(label);
+        btn.setOnLabel(label);
         btn.setButtonRadius(14.f);
         btn.setPosition({x, 30.f});
         addComponent(btn);
@@ -183,9 +175,6 @@ public:
 
     void onInit() override
     {
-        // Apply initial theme
-        ml::ThemeManager::apply<ToggleDemoManifest>(Themes::Dark);
-
         // Background
         _bg.setSize({860.f, 620.f});
         _bg.setFillColor(sf::Color(18, 18, 24));
@@ -211,20 +200,20 @@ public:
         _pillDefault.setPosition({COL1, 104.f});
         addComponent(_pillDefault);
 
-        _pillGreen.applySettings(
-            ml::Manifest::getConfig<Settings, ml::PillSettings>(Settings::GreenPill));
-        _pillGreen.setRightLabel("Green (manifest settings)");
+        _pillGreen.applyStyle(
+            ml::Manifest::getConfig<Styles, GreenPillStyle>(Styles::GreenPill));
+        _pillGreen.setRightLabel("Green (manifest style)");
         ml::Align::setBelow(_pillDefault, _pillGreen, 16.f);
         addComponent(_pillGreen);
 
         _pillLarge.applySettings(
-            ml::Manifest::getConfig<Settings, ml::PillSettings>(Settings::LargePill));
+            ml::Manifest::getConfig<Settings, LargePillSettings>(Settings::LargePill));
         _pillLarge.setRightLabel("Large (starts ON)");
         _pillLarge.setOn(true);
         ml::Align::setBelow(_pillGreen, _pillLarge, 16.f);
         addComponent(_pillLarge);
 
-        _pillInsideLabels.setInsideLabels("OFF", "ON");
+        _pillInsideLabels.setPillLabels("OFF", "ON");
         _pillInsideLabels.setTrackSize({64.f, 28.f});
         _pillInsideLabels.setRightLabel("Inside labels");
         ml::Align::setBelow(_pillLarge, _pillInsideLabels, 16.f);
@@ -264,37 +253,37 @@ public:
         // ── BUTTON ────────────────────────────────────────────────────────────
         setupHeading(_btnHeading, "BUTTON TOGGLES", COL3, 80.f);
 
-        _btnSave.setButtonOffLabel("Save");
-        _btnSave.setButtonOnLabel("Saved");
+        _btnSave.setOffLabel("Save");
+        _btnSave.setOnLabel("Saved");
         _btnSave.setSize({110.f, 36.f});
         _btnSave.setPosition({COL3, 104.f});
         addComponent(_btnSave);
 
-        _btnMute.setButtonOffLabel("Unmuted");
-        _btnMute.setButtonOnLabel("Muted");
-        _btnMute.setButtonOnColor(sf::Color(200, 60, 60));
-        _btnMute.setButtonOnTextColor(sf::Color::White);
+        _btnMute.setOffLabel("Unmuted");
+        _btnMute.setOnLabel("Muted");
+        _btnMute.setOnColor(sf::Color(200, 60, 60));
+        _btnMute.setOnTextColor(sf::Color::White);
         _btnMute.setSize({110.f, 36.f});
         ml::Align::setBelow(_btnSave, _btnMute, 16.f);
         addComponent(_btnMute);
 
-        _btnBtnDisabled.setButtonOffLabel("Disabled");
-        _btnBtnDisabled.setButtonOnLabel("Disabled");
-        _btnBtnDisabled.setSize({110.f, 36.f});
-        _btnBtnDisabled.setEnabled(false);
-        ml::Align::setBelow(_btnMute, _btnBtnDisabled, 16.f);
-        addComponent(_btnBtnDisabled);
+        _btnDisabled.setOffLabel("Disabled");
+        _btnDisabled.setOnLabel("Disabled");
+        _btnDisabled.setSize({110.f, 36.f});
+        _btnDisabled.setEnabled(false);
+        ml::Align::setBelow(_btnMute, _btnDisabled, 16.f);
+        addComponent(_btnDisabled);
 
         // ── GROUP ─────────────────────────────────────────────────────────────
         setupHeading(_groupHeading, "TOGGLE GROUP", COL1, 370.f);
 
         _group.setPosition({COL1, 394.f});
         _group.setSpacing(14.f);
-        _group.addToggle("Dark mode",   "dark_mode",  true);
-        _group.addToggle("Subtitles",   "subtitles");
-        _group.addToggle("Fullscreen",  "fullscreen");
-        _group.addToggle("Show FPS",    "show_fps",   true);
-        _group.addToggle("VSync",       "vsync",      true);
+        _group.addToggle("Dark mode",  "dark_mode",  true);
+        _group.addToggle("Subtitles",  "subtitles");
+        _group.addToggle("Fullscreen", "fullscreen");
+        _group.addToggle("Show FPS",   "show_fps",   true);
+        _group.addToggle("VSync",      "vsync",      true);
         addComponent(_group);
 
         // ── Status ────────────────────────────────────────────────────────────
@@ -307,7 +296,11 @@ public:
 
     void onReady() override
     {
-        // Theme buttons — mutual exclusion
+        // Apply initial theme — must be here, not onInit(), to ensure
+        // static manifest initialization has fully completed first.
+        ml::ThemeManager::apply<ToggleDemoManifest>(Themes::Dark);
+
+        // Theme buttons — mutual exclusion, no re-entrancy guard needed
         _btnDark.onToggled([&](bool on){
             if (!on) return;
             _btnNeon.setOn(false); _btnWarm.setOn(false); _btnLight.setOn(false);
@@ -341,7 +334,7 @@ public:
         _pillLarge.onToggled([&](bool on){
             setStatus(std::string("Large pill: ") + (on ? "YES" : "NO")); });
         _pillInsideLabels.onToggled([&](bool on){
-            setStatus(std::string("Inside labels pill: ") + (on ? "ON" : "OFF")); });
+            setStatus(std::string("Inside labels: ") + (on ? "ON" : "OFF")); });
         _pillLocked.onToggled([&](bool on){
             setStatus(std::string("Locked pill: ") + (on ? "ON" : "OFF")); });
 

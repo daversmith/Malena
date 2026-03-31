@@ -8,6 +8,7 @@
 #pragma once
 
 #include <Malena/Manifests/Theme.h>
+#include <Malena/Manifests/ThemeTag.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Core/DeferredOperationsManager.h>
 #include <vector>
@@ -79,12 +80,25 @@ namespace ml
          * ml::ThemeManager::apply<GameManifest>(GameManifest::Themes::Home);
          * @endcode
          */
+        /**
+         * @brief Apply a theme registered via @c Manifest::set().
+         *
+         * Retrieves the theme stored in @c ThemeStore by @c Manifest::set(),
+         * casts it back to @c Theme, and notifies all subscribed @c Themeable
+         * components.
+         *
+         * @tparam MANIFEST  A @c Manifest subclass declaring a @c Themes enum.
+         * @param  themeKey  Enum value identifying which theme to apply.
+         *
+         * @code
+         * ml::ThemeManager::apply<GameManifest>(GameManifest::Themes::Home);
+         * @endcode
+         */
         template<typename MANIFEST>
         static void apply(typename MANIFEST::Themes themeKey)
         {
-            const Theme& t = Manifest::getConfig<
-                typename MANIFEST::Themes, Theme>(themeKey);
-            applyTheme(t);
+            const ThemeTag& tag = Manifest::getTheme(themeKey);
+            applyTheme(static_cast<const Theme&>(tag));
         }
 
         /**

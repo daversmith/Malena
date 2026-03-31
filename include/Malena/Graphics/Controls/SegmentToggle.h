@@ -9,12 +9,13 @@
 
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
-#include <Malena/Settings/SegmentSettings.h>
-#include <Malena/Traits/Themeable.h>
+#include <Malena/Traits/Settings/SegmentSettings.h>
+#include <Malena/Traits/Theme/SegmentTheme.h>
+#include <Malena/Traits/Theme/Themeable.h>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Clock.hpp>
 #include <functional>
-#include <string>
+#include <type_traits>
 
 namespace ml
 {
@@ -28,24 +29,11 @@ namespace ml
     /**
      * @brief Two-option segmented selector with animated sliding pill.
      * @ingroup GraphicsControls
-     *
-     * Renders two labelled options side-by-side inside a rounded track.
-     * A pill slides behind the selected option with a lerp animation.
-     *
-     * @code
-     * ml::SegmentToggle view;
-     * view.setSegmentLabels("Hotels", "Apartments");
-     * view.setSize({220.f, 38.f});
-     * view.onToggled([](bool on){
-     *     std::string choice = on ? "Apartments" : "Hotels";
-     * });
-     * addComponent(view);
-     * @endcode
-     *
-     * @see SegmentSettings, Themeable
+     * @see SegmentSettings, SegmentTheme, SegmentStyle
      */
     class SegmentToggle : public ComponentWith<SegmentToggleManifest>,
                           public SegmentSettings,
+                          public SegmentTheme,
                           public Themeable
     {
     public:
@@ -57,7 +45,6 @@ namespace ml
         float             _thumbX      = 0.f;
         float             _thumbTarget = 0.f;
         mutable sf::Clock _animClock;
-
         std::function<void(bool)> _onToggled;
 
         void syncFromSettings();
@@ -75,31 +62,36 @@ namespace ml
         void applySettings(const S& s)
         {
             static_assert(std::is_base_of_v<SegmentSettings, S>,
-                "SegmentToggle::applySettings() requires a type derived from SegmentSettings");
+                "applySettings() requires a type derived from SegmentSettings");
             static_cast<SegmentSettings&>(*this) = s;
+            syncFromSettings();
+        }
+
+        template<typename T>
+        void applyTheme(const T& t)
+        {
+            static_assert(std::is_base_of_v<SegmentTheme, T>,
+                "applyTheme() requires a type derived from SegmentTheme");
+            static_cast<SegmentTheme&>(*this) = t;
+            syncFromSettings();
+        }
+
+        template<typename St>
+        void applyStyle(const St& s)
+        {
+            static_assert(std::is_base_of_v<SegmentSettings, St> &&
+                          std::is_base_of_v<SegmentTheme, St>,
+                "applyStyle() requires a type derived from both SegmentSettings and SegmentTheme");
+            static_cast<SegmentSettings&>(*this) = s;
+            static_cast<SegmentTheme&>(*this)    = s;
             syncFromSettings();
         }
 
         void setOn(bool on);
         void toggle();
-        [[nodiscard]] bool isOn() const;
-
+        [[nodiscard]] bool isOn()      const;
         void setEnabled(bool enabled);
         [[nodiscard]] bool isEnabled() const;
-
-        void setSegmentLabels(const std::string& offLabel, const std::string& onLabel);
-        void setSize(const sf::Vector2f& size);
-        [[nodiscard]] sf::Vector2f getSize() const;
-        void setTrackColor(const sf::Color& color);
-        void setThumbColor(const sf::Color& color);
-        void setActiveTextColor(const sf::Color& color);
-        void setInactiveTextColor(const sf::Color& color);
-        void setSegmentRadius(float radius);
-        void setSegmentPadding(float padding);
-        void setAnimationSpeed(float speed);
-        void setFont(const sf::Font& f);
-        void setFont(const sf::Font&&) = delete;
-        void setCharacterSize(unsigned int size);
 
         void onToggled(std::function<void(bool)> callback);
 

@@ -10,16 +10,16 @@
     #define PLUGIN_EXPORT
 #endif
 
-#include <Malena/Traits/Base/Customizable.h>
+#include <Malena/Traits/Communication/Messenger.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Core/Export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/FireableHelper.h>
 #include <Malena/Resources/FlagManager.h>
 #include <Malena/Resources/TextureManager.h>
+#include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
-#include <Malena/Traits/Messenger.h>
 #include <Malena/Utilities/Flag.h>
 #include <SFML/Graphics/Texture.hpp>
 #include <type_traits>

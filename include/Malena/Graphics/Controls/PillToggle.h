@@ -9,19 +9,17 @@
 
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
-#include <Malena/Settings/PillSettings.h>
-#include <Malena/Traits/Themeable.h>
-#include <SFML/Graphics/RectangleShape.hpp>
+#include <Malena/Traits/Settings/PillSettings.h>
+#include <Malena/Traits/Theme/PillTheme.h>
+#include <Malena/Traits/Theme/Themeable.h>
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/System/Clock.hpp>
 #include <functional>
-#include <string>
+#include <type_traits>
 
 namespace ml
 {
-    // ── PillToggleManifest ────────────────────────────────────────────────────
-
     class PillToggleManifest : public ml::Manifest
     {
     public:
@@ -29,18 +27,16 @@ namespace ml
         enum class State { IDLE, HOVERED, ON, DISABLED };
     };
 
-    // ── PillToggle ────────────────────────────────────────────────────────────
-
     /**
      * @brief iOS-style oval pill switch with animated sliding thumb.
      * @ingroup GraphicsControls
      *
-     * @c PillToggle inherits @c PillSettings directly — all settings variables
-     * are first-class members of the component. The active theme is applied
-     * automatically via @c Themeable. Individual setters update one variable
-     * and immediately re-sync the visual state.
+     * Inherits @c PillSettings (layout/behaviour) and @c PillTheme (colors)
+     * as first-class members. The active theme is applied automatically via
+     * @c Themeable — only the @c PillTheme layer is updated on theme change,
+     * leaving geometry and labels untouched.
      *
-     * ### Usage — defaults (reads active theme)
+     * ### Defaults — reads active theme automatically
      * @code
      * ml::PillToggle t;
      * t.setRightLabel("Dark mode");
@@ -49,35 +45,26 @@ namespace ml
      * addComponent(t);
      * @endcode
      *
-     * ### Usage — applySettings (one-stop)
+     * ### Apply settings only (geometry/labels)
      * @code
-     * struct MyPill : ml::PillSettings {
-     *     MyPill() {
-     *         trackOnColor = sf::Color(70, 200, 100);
-     *         trackSize    = {56.f, 28.f};
-     *         pillOnLabel  = "ON";
-     *         pillOffLabel = "OFF";
-     *         rightLabel   = "Notifications";
-     *     }
-     * };
-     * t.applySettings(MyPill{});
+     * t.applySettings(MyPillSettings{});
      * @endcode
      *
-     * ### Usage — from manifest
+     * ### Apply theme only (colors/font)
      * @code
-     * t.applySettings(Resources::resource(Settings::MainToggle));
+     * t.applyTheme(MyPillTheme{});
      * @endcode
      *
-     * ### Locking from theme/settings changes
+     * ### Apply both at once
      * @code
-     * t.lockTheme();     // keeps current colors regardless of theme changes
-     * t.lockSettings();  // applySettings() has no effect
+     * t.applyStyle(MyPillStyle{});
      * @endcode
      *
-     * @see PillSettings, Themeable, ToggleGroup
+     * @see PillSettings, PillTheme, PillStyle, Themeable, ToggleGroup
      */
     class PillToggle : public ComponentWith<PillToggleManifest>,
                        public PillSettings,
+                       public PillTheme,
                        public Themeable
     {
     public:
@@ -85,65 +72,57 @@ namespace ml
         using State = PillToggleManifest::State;
 
     private:
-        // ── SFML shapes ───────────────────────────────────────────────────────
-        // These are purely visual — all style data lives in PillSettings.
-        sf::CircleShape _thumb;
-
-        // ── Animation state ───────────────────────────────────────────────────
-        float             _thumbX      = 0.f;  ///< current lerp value 0=off 1=on
-        float             _thumbTarget = 0.f;  ///< target lerp value
+        sf::CircleShape   _thumb;
+        float             _thumbX      = 0.f;
+        float             _thumbTarget = 0.f;
         mutable sf::Clock _animClock;
+        sf::Vector2f      _position    = {0.f, 0.f};
 
-        // ── World position ────────────────────────────────────────────────────
-        sf::Vector2f _position = {0.f, 0.f};
-
-        // ── Callback ─────────────────────────────────────────────────────────
         std::function<void(bool)> _onToggled;
 
-        // ── Internal ──────────────────────────────────────────────────────────
-
-        /// Push all PillSettings values to visual state. Called after any
-        /// settings or theme change. This is the ONLY place shapes are styled.
         void syncFromSettings();
-
-        /// Compute and set thumb position from current _thumbX lerp value.
         void updateThumbPosition();
-
-        /// Draw a capsule (pill shape) — used for the track.
-        void drawCapsule(sf::RenderTarget&       target,
-                         const sf::RenderStates& states,
-                         sf::Vector2f            pos,
-                         sf::Vector2f            size,
-                         float                   radius,
-                         sf::Color               fill) const;
+        void drawCapsule(sf::RenderTarget&, const sf::RenderStates&,
+                         sf::Vector2f, sf::Vector2f, float, sf::Color) const;
 
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-        // Themeable — called by ThemeManager when the active theme changes
         void onThemeApplied(const Theme& theme) override;
 
     public:
         explicit PillToggle();
 
-        // ── applySettings ─────────────────────────────────────────────────────
+        // ── Apply ─────────────────────────────────────────────────────────────
 
-        /**
-         * @brief Apply a settings struct in one call.
-         *
-         * Copies all settings values onto this component and re-syncs.
-         * Always takes effect regardless of lock state — this is an
-         * explicit user call, not an automatic update.
-         *
-         * @tparam S  Must derive from @c PillSettings.
-         * @param  s  The settings to apply.
-         */
+        /** @brief Apply layout/behaviour settings. Theme layer is unaffected. */
         template<typename S>
         void applySettings(const S& s)
         {
             static_assert(std::is_base_of_v<PillSettings, S>,
-                "PillToggle::applySettings() requires a type derived from PillSettings");
+                "applySettings() requires a type derived from PillSettings");
             static_cast<PillSettings&>(*this) = s;
+            syncFromSettings();
+        }
+
+        /** @brief Apply color/font theme. Settings layer is unaffected. */
+        template<typename T>
+        void applyTheme(const T& t)
+        {
+            static_assert(std::is_base_of_v<PillTheme, T>,
+                "applyTheme() requires a type derived from PillTheme");
+            static_cast<PillTheme&>(*this) = t;
+            syncFromSettings();
+        }
+
+        /** @brief Apply settings and theme in one call. */
+        template<typename St>
+        void applyStyle(const St& s)
+        {
+            static_assert(std::is_base_of_v<PillSettings, St> &&
+                          std::is_base_of_v<PillTheme, St>,
+                "applyStyle() requires a type derived from both PillSettings and PillTheme");
+            static_cast<PillSettings&>(*this) = s;
+            static_cast<PillTheme&>(*this)    = s;
             syncFromSettings();
         }
 
@@ -151,48 +130,17 @@ namespace ml
 
         void setOn(bool on);
         void toggle();
-        [[nodiscard]] bool isOn() const;
-
+        [[nodiscard]] bool isOn()      const;
         void setEnabled(bool enabled);
         [[nodiscard]] bool isEnabled() const;
 
-        // ── Track styling ─────────────────────────────────────────────────────
+        // ── Convenience ───────────────────────────────────────────────────────
 
-        void setTrackSize(const sf::Vector2f& size);
-        [[nodiscard]] sf::Vector2f getTrackSize() const;
+        /** @brief Alias for @c setFontSize() — matches SFML naming convention. */
+        void setCharacterSize(unsigned int size) { setFontSize(size); }
 
-        void setTrackOnColor(const sf::Color& color);
-        void setTrackOffColor(const sf::Color& color);
-
-        // ── Thumb styling ─────────────────────────────────────────────────────
-
-        void setThumbColor(const sf::Color& color);
-        void setThumbMargin(float margin);
-
-        // ── Inside labels ─────────────────────────────────────────────────────
-
-        void setInsideLabels(const std::string& offLabel, const std::string& onLabel);
-        void setPillLabelColors(const sf::Color& active, const sf::Color& inactive);
-
-        // ── External labels ───────────────────────────────────────────────────
-
-        void setLeftLabel(const std::string& text);
-        void setRightLabel(const std::string& text);
-        [[nodiscard]] std::string getLeftLabel()  const;
-        [[nodiscard]] std::string getRightLabel() const;
-        void setLabelColor(const sf::Color& color);
-        void setLabelOffset(float offset);
-
-        // ── Animation ────────────────────────────────────────────────────────
-
-        void setAnimationSpeed(float speed);
-
-        // ── Font ──────────────────────────────────────────────────────────────
-
-        void setFont(const sf::Font& f);
-        void setFont(const sf::Font&&) = delete;
-        void setCharacterSize(unsigned int size);
-        [[nodiscard]] unsigned int getCharacterSize() const;
+        /** @brief Alias for @c getFontSize() — matches SFML naming convention. */
+        [[nodiscard]] unsigned int getCharacterSize() const { return getFontSize(); }
 
         // ── Callback ─────────────────────────────────────────────────────────
 
@@ -205,14 +153,9 @@ namespace ml
         sf::FloatRect getGlobalBounds() const override;
     };
 
-    // ── PillToggleWith ────────────────────────────────────────────────────────
-
     template<typename MANIFEST>
     class PillToggleWith : public PillToggle, public Customizable<MANIFEST>
-    {
-    public:
-        using PillToggle::PillToggle;
-    };
+    { public: using PillToggle::PillToggle; };
 
 } // namespace ml
 

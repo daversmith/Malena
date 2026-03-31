@@ -285,43 +285,43 @@ void UIControls::layout()
 	difficulty.setBelow(_email);
 	_bio.setBelow(_confirm);
 
-	settings.setRightOf(_testCheck);
-	wifi.setRightOf(settings);
-	sound.setBelow(wifi);
-	terms.setBelow(sound);
+	// settings.setRightOf(_testCheck);
+	// wifi.setRightOf(settings);
+	// sound.setBelow(wifi);
+	// terms.setBelow(sound);
 }
 void UIControls::setupToggles()
 {
-	// PILL with right label
-	wifi.setStyle(ml::Toggle::Style::PILL);
-	wifi.setRightLabel("Wi-Fi");
-	wifi.setLeftLabel("Network:");  // optional left label
-	wifi.onToggled([](bool on){ });
-	addComponent(wifi);
-
-	// CHECKBOX style
-	terms.setStyle(ml::Toggle::Style::CHECKBOX);
-	terms.setRightLabel("Accept terms");
-	terms.setBoxSize({18.f, 18.f});
-	addComponent(terms);
-
-	// BUTTON style
-	sound.setStyle(ml::Toggle::Style::BUTTON);
-	sound.setButtonOnLabel("Sound ON");
-	sound.setButtonOffLabel("Sound OFF");
-	sound.setSize({120.f, 36.f});
-	addComponent(sound);
-
-	// Group
-	settings.setDefaultStyle(ml::Toggle::Style::PILL);
-	settings.addToggle("Dark mode",  "dark_mode");
-	settings.addToggle("Subtitles",  "subtitles");
-	settings.addToggle("Fullscreen", "fullscreen", true); // starts on
-	settings.onAnyToggled([](const std::string& key, bool on){ });
-
-	// Mix styles in a group
-	custom.setStyle(ml::Toggle::Style::BUTTON);
-	settings.add(custom, "custom_key");
-
-	addComponent(settings);
+	// // PILL with right label
+	// wifi.setStyle(ml::Toggle::Style::PILL);
+	// wifi.setRightLabel("Wi-Fi");
+	// wifi.setLeftLabel("Network:");  // optional left label
+	// wifi.onToggled([](bool on){ });
+	// addComponent(wifi);
+	//
+	// // CHECKBOX style
+	// terms.setStyle(ml::Toggle::Style::CHECKBOX);
+	// terms.setRightLabel("Accept terms");
+	// terms.setBoxSize({18.f, 18.f});
+	// addComponent(terms);
+	//
+	// // BUTTON style
+	// sound.setStyle(ml::Toggle::Style::BUTTON);
+	// sound.setButtonOnLabel("Sound ON");
+	// sound.setButtonOffLabel("Sound OFF");
+	// sound.setSize({120.f, 36.f});
+	// addComponent(sound);
+	//
+	// // Group
+	// settings.setDefaultStyle(ml::Toggle::Style::PILL);
+	// settings.addToggle("Dark mode",  "dark_mode");
+	// settings.addToggle("Subtitles",  "subtitles");
+	// settings.addToggle("Fullscreen", "fullscreen", true); // starts on
+	// settings.onAnyToggled([](const std::string& key, bool on){ });
+	//
+	// // Mix styles in a group
+	// custom.setStyle(ml::Toggle::Style::BUTTON);
+	// settings.add(custom, "custom_key");
+	//
+	// addComponent(settings);
 }

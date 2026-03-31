@@ -19,7 +19,7 @@
 #include "Malena/Graphics/Text/TextInput.h"
 #include "Malena/Graphics/Text/TextArea.h"
 #include <Malena/Graphics/Controls/Select.h>
-#include <Malena/Graphics/Controls/Toggle.h>
+// #include <Malena/Graphics/Controls/Toggle.h>
 class UIControlsManifest : public ml::Manifest
 {
 public:
@@ -51,8 +51,8 @@ private:
 	ml::TextInput _email;
 	ml::TextArea  _bio;
 	ml::Select difficulty;
-	ml::Toggle wifi, terms, sound,custom;
-	ml::ToggleGroup settings;
+	// ml::Toggle wifi, terms, sound,custom;
+	// ml::ToggleGroup settings;
 	void setupScrollPane();
 	void setupLists();
 	void setupRadio();

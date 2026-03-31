@@ -1,8 +1,8 @@
 // Copyright 2025 Dave R. Smith
 // SPDX-License-Identifier: Apache-2.0
 
+#include <Malena/Traits/Theme/Themeable.h>
 #include <Malena/Resources/ThemeManager.h>
-#include <Malena/Traits/Themeable.h>
 
 namespace ml
 {

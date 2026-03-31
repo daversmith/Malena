@@ -11,13 +11,13 @@
 //
 // ============================================================
 
+#include <../../../include/Malena/Traits/Communication/Messenger.h>
 #include <Malena/Core/CoreAdapter.h>
-#include <Malena/Traits/Messenger.h>
 #include <Malena/Resources/AssetsManager.h>
 #include <SFML/Graphics.hpp>
 #include <deque>
-#include "SignalBoardManifest.h"
 #include "Messages.h"
+#include "SignalBoardManifest.h"
 
 class EventLog : public ml::Component<ml::Messenger>
 {

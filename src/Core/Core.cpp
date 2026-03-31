@@ -3,8 +3,6 @@
 //
 
 #include <Malena/Core/Core.h>
-#include <Malena/Engine/App/Application.h>
-
 namespace ml
 {
 

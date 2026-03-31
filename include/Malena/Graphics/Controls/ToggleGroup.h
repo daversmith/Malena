@@ -12,10 +12,12 @@
 #include <Malena/Graphics/Controls/PillToggle.h>
 #include <Malena/Graphics/Controls/SegmentToggle.h>
 #include <Malena/Graphics/Controls/ButtonToggle.h>
+#include <Malena/Traits/Style/PillStyle.h>
+#include <Malena/Traits/Style/SegmentStyle.h>
+#include <Malena/Traits/Style/ButtonStyle.h>
 #include <functional>
 #include <string>
 #include <vector>
-#include <list>
 #include <memory>
 
 namespace ml
@@ -35,6 +37,10 @@ namespace ml
      * Supports @c PillToggle, @c SegmentToggle, and @c ButtonToggle items.
      * All toggles are independent — multiple can be on simultaneously.
      *
+     * Toggles created via @c addToggle() inherit the group's default style
+     * for that type. Set defaults before adding, or call @c applySettingsToAll()
+     * / @c applyThemeToAll() / @c applyStyleToAll() to update existing toggles.
+     *
      * @code
      * ml::ToggleGroup settings;
      * settings.setPosition({200.f, 100.f});
@@ -48,7 +54,7 @@ namespace ml
      * addComponent(settings);
      * @endcode
      *
-     * @see PillToggle, SegmentToggle, ButtonToggle
+     * @see PillToggle, SegmentToggle, ButtonToggle, PillStyle
      */
     class ToggleGroup : public ComponentWith<ToggleGroupManifest>
     {
@@ -57,38 +63,40 @@ namespace ml
         using State = ToggleGroupManifest::State;
 
     private:
-        // Flat parallel arrays — avoids complex struct with multiple
-        // base-class pointer casts that cause heap corruption on reallocation
         enum class ItemType { PILL, SEGMENT, BUTTON };
 
         struct Item
         {
-            ItemType    type;
-            std::string key;
-
-            // At most one is non-null
+            ItemType       type;
+            std::string    key;
             PillToggle*    pill    = nullptr;
             SegmentToggle* segment = nullptr;
             ButtonToggle*  button  = nullptr;
+            bool           owned   = false;
 
-            bool owned = false;
-
-            // Convenience accessors
-            bool         isOn()   const;
-            void         setOn(bool on);
-            sf::Vector2f pos()    const;
-            void         setPos(const sf::Vector2f& p);
+            bool          isOn()  const;
+            void          setOn(bool on);
+            sf::Vector2f  pos()   const;
+            void          setPos(const sf::Vector2f& p);
             sf::FloatRect bounds() const;
         };
 
-        std::list<Item>                          _items;
-        std::vector<std::unique_ptr<PillToggle>> _ownedPills;
+        // unique_ptr<Item> keeps Items at stable heap addresses
+        std::vector<std::unique_ptr<Item>>          _items;
+        std::vector<std::unique_ptr<PillToggle>>    _ownedPills;
+        std::vector<std::unique_ptr<SegmentToggle>> _ownedSegments;
+        std::vector<std::unique_ptr<ButtonToggle>>  _ownedButtons;
 
         sf::Vector2f _position = {0.f, 0.f};
         float        _spacing  = 12.f;
 
-        const sf::Font* _font     = &FontManager<>::getDefault();
-        unsigned int    _charSize = 14;
+        // Default styles applied to newly created owned toggles
+        PillSettings    _defaultPillSettings;
+        PillTheme       _defaultPillTheme;
+        SegmentSettings _defaultSegmentSettings;
+        SegmentTheme    _defaultSegmentTheme;
+        ButtonSettings  _defaultButtonSettings;
+        ButtonTheme     _defaultButtonTheme;
 
         std::function<void(const std::string&, bool)> _onAnyToggled;
 
@@ -99,18 +107,39 @@ namespace ml
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
     public:
-        explicit ToggleGroup(const sf::Font& font = FontManager<>::getDefault());
+        explicit ToggleGroup();
         ~ToggleGroup();
 
-        // ── Adding toggles ────────────────────────────────────────────────────
+        // ── Adding owned toggles ──────────────────────────────────────────────
 
         /**
          * @brief Create and add a new @c PillToggle with a right label.
+         *
+         * Inherits the current default @c PillSettings and @c PillTheme.
          * @return Reference to the created toggle for further customisation.
          */
         PillToggle& addToggle(const std::string& label,
                               const std::string& key,
                               bool               on = false);
+
+        /**
+         * @brief Create and add a new @c SegmentToggle.
+         * @return Reference to the created toggle.
+         */
+        SegmentToggle& addSegmentToggle(const std::string& offLabel,
+                                        const std::string& onLabel,
+                                        const std::string& key,
+                                        bool               on = false);
+
+        /**
+         * @brief Create and add a new @c ButtonToggle.
+         * @return Reference to the created toggle.
+         */
+        ButtonToggle& addButtonToggle(const std::string& label,
+                                      const std::string& key,
+                                      bool               on = false);
+
+        // ── Adding external toggles ───────────────────────────────────────────
 
         void add(PillToggle&    toggle, const std::string& key);
         void add(SegmentToggle& toggle, const std::string& key);
@@ -130,12 +159,47 @@ namespace ml
 
         void onAnyToggled(std::function<void(const std::string&, bool)> callback);
 
-        // ── Styling ───────────────────────────────────────────────────────────
+        // ── Default styles ────────────────────────────────────────────────────
 
-        void setSpacing(float spacing);
+        /** @brief Set the default settings applied to new owned PillToggles. */
+        void setDefaultSettings(const PillSettings& s);
+        void setDefaultSettings(const SegmentSettings& s);
+        void setDefaultSettings(const ButtonSettings& s);
+
+        /** @brief Set the default theme applied to new owned PillToggles. */
+        void setDefaultTheme(const PillTheme& t);
+        void setDefaultTheme(const SegmentTheme& t);
+        void setDefaultTheme(const ButtonTheme& t);
+
+        /** @brief Set default settings and theme together. */
+        void setDefaultStyle(const PillStyle& s);
+        void setDefaultStyle(const SegmentStyle& s);
+        void setDefaultStyle(const ButtonStyle& s);
+
+        // ── Bulk apply to owned toggles ───────────────────────────────────────
+
+        void applySettingsToAll(const PillSettings& s);
+        void applySettingsToAll(const SegmentSettings& s);
+        void applySettingsToAll(const ButtonSettings& s);
+
+        void applyThemeToAll(const PillTheme& t);
+        void applyThemeToAll(const SegmentTheme& t);
+        void applyThemeToAll(const ButtonTheme& t);
+
+        void applyStyleToAll(const PillStyle& s);
+        void applyStyleToAll(const SegmentStyle& s);
+        void applyStyleToAll(const ButtonStyle& s);
+
+        // ── Convenience ───────────────────────────────────────────────────────
+
+        /** @brief Set font on the default pill theme and all owned pills. */
         void setFont(const sf::Font& font);
         void setFont(const sf::Font&&) = delete;
+
+        /** @brief Set character size on the default pill theme and all owned pills. */
         void setCharacterSize(unsigned int size);
+
+        void setSpacing(float spacing);
 
         // ── Positionable ──────────────────────────────────────────────────────
 

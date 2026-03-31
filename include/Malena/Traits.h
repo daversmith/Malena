@@ -14,7 +14,6 @@
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
 
 // ── Traits ────────────────────────────────────────────────────────────────────
-#include <Malena/Traits/Clickable.h>
 #include <Malena/Traits/CustomFlaggable.h>
 #include <Malena/Traits/Draggable.h>
 #include <Malena/Traits/Fadeable.h>
@@ -28,5 +27,6 @@
 #include <Malena/Traits/Subscribable.h>
 #include <Malena/Traits/Unsubscribable.h>
 #include <Malena/Traits/Updatable.h>
+#include <Traits/Interaction/Clickable.h>
 
 #endif // MALENA_TRAITS_H

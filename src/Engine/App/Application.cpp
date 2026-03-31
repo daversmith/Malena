@@ -1,6 +1,7 @@
 
 #include <Malena/Engine/App/Application.h>
 
+#include "Malena/Engine/Messaging/MessageManager.h"
 #include "Malena/Resources/ThemeManager.h"
 
 namespace ml

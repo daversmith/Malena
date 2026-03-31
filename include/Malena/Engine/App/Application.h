@@ -10,13 +10,13 @@
 
 #pragma once
 
+#include <Malena/Traits/Lifecycle/Updatable.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
 #include <Malena/Manifests/Manifest.h>
+#include <Malena/Manifests/ManifestResources.h>
 #include <string>
 #include <type_traits>
-#include <Malena/Traits/Updatable.h>
-#include <Malena/Manifests/ManifestResources.h>
 
 namespace ml
 {

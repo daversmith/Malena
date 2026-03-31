@@ -10,6 +10,7 @@ namespace ml
 {
     ButtonToggle::ButtonToggle()
     {
+        ButtonTheme::applyFrom(ThemeManager::get());
         syncFromSettings();
 
         onHover([this]{ if (!checkFlag(Flag::DISABLED)) setState(State::HOVERED); });
@@ -20,42 +21,23 @@ namespace ml
     void ButtonToggle::onThemeApplied(const Theme& theme)
     {
         if (isThemeLocked()) return;
-        ButtonSettings::applyTheme(theme);
+        ButtonTheme::applyFrom(theme);
         syncFromSettings();
     }
 
     void ButtonToggle::syncFromSettings() {}
 
-    void ButtonToggle::drawCapsule(sf::RenderTarget&       target,
-                                    const sf::RenderStates& states,
-                                    sf::Vector2f pos, sf::Vector2f sz,
-                                    float r, sf::Color fill) const
-    {
-        r = std::min(r, sz.y / 2.f);
-        sf::CircleShape cap(r);
-        cap.setFillColor(fill);
-        cap.setOrigin({r, r});
-        cap.setPosition({pos.x + r, pos.y + r});
-        target.draw(cap, states);
-        cap.setPosition({pos.x + sz.x - r, pos.y + r});
-        target.draw(cap, states);
-        sf::RectangleShape mid({sz.x - r * 2.f, sz.y});
-        mid.setFillColor(fill);
-        mid.setPosition({pos.x + r, pos.y});
-        target.draw(mid, states);
-    }
-
     void ButtonToggle::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        const bool on      = checkFlag(Flag::ON);
-        const bool dis     = checkFlag(Flag::DISABLED);
-        const sf::Color bg = dis ? disabledColor : (on ? onColor : offColor);
+        const bool on  = checkFlag(Flag::ON);
+        const bool dis = checkFlag(Flag::DISABLED);
+
+        const sf::Color bg = dis ? disabledColor : (on ? onColor   : offColor);
         const sf::Color tc = dis ? disabledTextColor : (on ? onTextColor : offTextColor);
         const std::string& str = on ? onLabel : offLabel;
         const sf::Texture* iconTex = on ? iconOn : iconOff;
         if (!iconTex) iconTex = iconOn ? iconOn : iconOff;
 
-        // Background — plain rectangle with optional outline
         sf::RectangleShape btn(size);
         btn.setPosition(_position);
         btn.setFillColor(bg);
@@ -63,7 +45,6 @@ namespace ml
         btn.setOutlineThickness(borderThickness);
         target.draw(btn, states);
 
-        // Content
         const bool hasIcon = (iconTex != nullptr);
         const bool hasText = !str.empty() && iconAlign != ButtonSettings::IconAlign::ICON_ONLY;
 
@@ -111,7 +92,7 @@ namespace ml
                 label.setPosition({sx - lb.position.x, cy - lb.size.y / 2.f - lb.position.y});
                 sprite.setPosition({sx + lb.size.x + pad, cy - iSize.y / 2.f});
             }
-            else // ICON_ABOVE
+            else
             {
                 const float totalH = iSize.y + pad + lb.size.y;
                 const float sy = cy - totalH / 2.f;
@@ -139,43 +120,20 @@ namespace ml
         else    { disableFlag(Flag::ON); setState(State::IDLE); }
         if (_onToggled) _onToggled(on);
     }
-
-    void ButtonToggle::toggle()  { setOn(!checkFlag(Flag::ON)); }
-    bool ButtonToggle::isOn() const { return checkFlag(Flag::ON); }
-
+    void ButtonToggle::toggle()          { setOn(!checkFlag(Flag::ON)); }
+    bool ButtonToggle::isOn()      const { return checkFlag(Flag::ON); }
     void ButtonToggle::setEnabled(bool e)
     {
         if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
     }
-
     bool ButtonToggle::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
-    void ButtonToggle::setSize(const sf::Vector2f& s)          { size = s; }
-    sf::Vector2f ButtonToggle::getSize() const                 { return size; }
-    void ButtonToggle::setButtonOnLabel(const std::string& l)  { onLabel = l; }
-    void ButtonToggle::setButtonOffLabel(const std::string& l) { offLabel = l; }
-    void ButtonToggle::setButtonOnColor(const sf::Color& c)    { onColor = c; }
-    void ButtonToggle::setButtonOffColor(const sf::Color& c)   { offColor = c; }
-    void ButtonToggle::setButtonOnTextColor(const sf::Color& c){ onTextColor = c; }
-    void ButtonToggle::setButtonOffTextColor(const sf::Color& c){offTextColor = c; }
-    void ButtonToggle::setBorderColor(const sf::Color& c)      { borderColor = c; }
-    void ButtonToggle::setBorderThickness(float t)             { borderThickness = t; }
-    void ButtonToggle::setButtonRadius(float r)                { buttonRadius = r; }
-    void ButtonToggle::setIcon(const sf::Texture* on, const sf::Texture* off)
-    { iconOn = on; iconOff = off ? off : on; }
-    void ButtonToggle::setIconSize(const sf::Vector2f& s)      { iconSize = s; }
-    void ButtonToggle::setIconAlign(ButtonSettings::IconAlign a){ iconAlign = a; }
-    void ButtonToggle::setIconPadding(float p)                 { iconPadding = p; }
-    void ButtonToggle::setFont(const sf::Font& f)              { font = &f; }
-    void ButtonToggle::setCharacterSize(unsigned int s)        { fontSize = s; }
     void ButtonToggle::onToggled(std::function<void(bool)> cb) { _onToggled = std::move(cb); }
 
     void ButtonToggle::setPosition(const sf::Vector2f& pos)
     { _position = {std::round(pos.x), std::round(pos.y)}; }
-
     sf::Vector2f  ButtonToggle::getPosition()     const { return _position; }
-    sf::FloatRect ButtonToggle::getGlobalBounds() const
-    { return sf::FloatRect{_position, size}; }
+    sf::FloatRect ButtonToggle::getGlobalBounds() const { return sf::FloatRect{_position, size}; }
 
 } // namespace ml
