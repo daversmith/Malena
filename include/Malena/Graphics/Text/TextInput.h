@@ -80,7 +80,7 @@ namespace ml
         virtual void rebuildAndScroll();
         void syncColors();
         virtual void syncPlaceholder();
-        std::size_t hitTest(const sf::Vector2f& worldPos) const;
+        virtual std::size_t hitTest(const sf::Vector2f& worldPos) const;
 
         virtual void handleKey(const sf::Event::KeyPressed& kp);
         void         handleChar(const sf::Event::TextEntered& te);

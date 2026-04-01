@@ -53,7 +53,8 @@ namespace ml
     {
         std::vector<RenderedSegment> segments;
         float       y         = 0.f;
-        float       height    = 0.f;
+        float       height    = 0.f;  ///< Total height including word-wrap rows
+        float       rowHeight = 0.f;  ///< Single visual row height (for cursor/selection)
         std::size_t charStart = 0;
         std::size_t charEnd   = 0;
     };

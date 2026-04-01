@@ -61,7 +61,15 @@ namespace ml
         for (auto& line : _lines)
         {
             line.y = y;
-            float x = _origin.x;
+            float x         = _origin.x;
+            float rowStartY = y;
+            int   wrapCount = 0;
+
+            // Use the base single-row height for wrap stepping
+            const float rowH = line.segments.empty()
+                ? line.height
+                : static_cast<float>(line.segments.front().sfText.getCharacterSize());
+            const float rowStep = rowH > 0.f ? rowH : line.height;
 
             for (auto& seg : line.segments)
             {
@@ -72,8 +80,9 @@ namespace ml
 
                 if (_maxWidth > 0.f && x + segWidth - _origin.x > _maxWidth && x > _origin.x)
                 {
-                    y += line.height;
+                    y += rowStep;
                     x  = _origin.x;
+                    ++wrapCount;
                     seg.position = {x, y};
                     seg.sfText.setPosition({x, y});
                 }
@@ -81,7 +90,10 @@ namespace ml
                 x += seg.sfText.getGlobalBounds().size.x;
             }
 
-            y += line.height;
+            // Keep line.height consistent with layoutLines()
+            line.rowHeight = rowStep;
+            line.height    = rowStep * static_cast<float>(wrapCount + 1);
+            y = rowStartY + line.height;
         }
     }
 
@@ -170,7 +182,10 @@ namespace ml
                     static_cast<float>(seg.sfText.getCharacterSize()));
             line.height = lineHeight;
 
-            float x = _origin.x;
+            float x        = _origin.x;
+            float rowStartY = y;
+            int   wrapCount = 0;
+
             for (auto& seg : line.segments)
             {
                 seg.position = {x, y};
@@ -182,6 +197,7 @@ namespace ml
                 {
                     y += lineHeight;
                     x  = _origin.x;
+                    ++wrapCount;
                     seg.position = {x, y};
                     seg.sfText.setPosition({x, y});
                 }
@@ -189,7 +205,12 @@ namespace ml
                 x += seg.sfText.getGlobalBounds().size.x;
             }
 
-            y += lineHeight;
+            // line.height must cover ALL wrapped rows, not just one.
+            // getTotalHeight() uses this to compute total scrollable content.
+            line.rowHeight = lineHeight;
+            line.height    = lineHeight * static_cast<float>(wrapCount + 1);
+
+            y = rowStartY + line.height;
         }
     }
 
@@ -240,42 +261,89 @@ namespace ml
         const std::size_t startLine = lineIndexForChar(selStart);
         const std::size_t endLine   = lineIndexForChar(selEnd);
 
+        // Helper: get single visual row height for a line
+        auto rowH = [&](std::size_t li) -> float {
+            const auto& ln = _lines[li];
+            return ln.rowHeight > 0.f ? ln.rowHeight : static_cast<float>(_defaultSize);
+        };
+
         if (startLine == endLine)
         {
-            sf::RectangleShape rect;
-            rect.setPosition({startPos.x, _lines[startLine].y});
-            rect.setSize({endPos.x - startPos.x, _lines[startLine].height});
-            rect.setFillColor(color);
-            target.draw(rect, states);
+            // Both ends are in the same logical line.
+            // They may be on different visual rows due to word wrap — draw
+            // row-by-row between startPos.y and endPos.y.
+            const float rh          = rowH(startLine);
+            const float lineRight   = _origin.x + (_maxWidth > 0.f ? _maxWidth : 10000.f);
+
+            if (startPos.y == endPos.y)
+            {
+                // Same visual row — single rect
+                sf::RectangleShape rect;
+                rect.setPosition({startPos.x, startPos.y});
+                rect.setSize({endPos.x - startPos.x, rh});
+                rect.setFillColor(color);
+                target.draw(rect, states);
+            }
+            else
+            {
+                // Spans multiple visual rows within one logical line
+                // First visual row: from startPos.x to right edge
+                {
+                    sf::RectangleShape rect;
+                    rect.setPosition({startPos.x, startPos.y});
+                    rect.setSize({lineRight - startPos.x, rh});
+                    rect.setFillColor(color);
+                    target.draw(rect, states);
+                }
+                // Middle visual rows: full width
+                float y = startPos.y + rh;
+                while (y + rh <= endPos.y)
+                {
+                    sf::RectangleShape rect;
+                    rect.setPosition({_origin.x, y});
+                    rect.setSize({lineRight - _origin.x, rh});
+                    rect.setFillColor(color);
+                    target.draw(rect, states);
+                    y += rh;
+                }
+                // Last visual row: from left edge to endPos.x
+                {
+                    sf::RectangleShape rect;
+                    rect.setPosition({_origin.x, endPos.y});
+                    rect.setSize({endPos.x - _origin.x, rh});
+                    rect.setFillColor(color);
+                    target.draw(rect, states);
+                }
+            }
         }
         else
         {
             const float lineRight = _origin.x + (_maxWidth > 0.f ? _maxWidth : 10000.f);
 
+            // First logical line: from startPos to right edge, one row high
             {
                 sf::RectangleShape rect;
-                const auto& line = _lines[startLine];
-                rect.setPosition({startPos.x, line.y});
-                rect.setSize({lineRight - startPos.x, line.height});
+                rect.setPosition({startPos.x, startPos.y});
+                rect.setSize({lineRight - startPos.x, rowH(startLine)});
                 rect.setFillColor(color);
                 target.draw(rect, states);
             }
 
+            // Middle logical lines: full width, full (possibly wrapped) height
             for (std::size_t l = startLine + 1; l < endLine; ++l)
             {
                 sf::RectangleShape rect;
-                const auto& line = _lines[l];
-                rect.setPosition({_origin.x, line.y});
-                rect.setSize({lineRight - _origin.x, line.height});
+                rect.setPosition({_origin.x, _lines[l].y});
+                rect.setSize({lineRight - _origin.x, _lines[l].height});
                 rect.setFillColor(color);
                 target.draw(rect, states);
             }
 
+            // Last logical line: from left edge to endPos, one row high
             {
                 sf::RectangleShape rect;
-                const auto& line = _lines[endLine];
-                rect.setPosition({_origin.x, line.y});
-                rect.setSize({endPos.x - _origin.x, line.height});
+                rect.setPosition({_origin.x, endPos.y});
+                rect.setSize({endPos.x - _origin.x, rowH(endLine)});
                 rect.setFillColor(color);
                 target.draw(rect, states);
             }
@@ -290,9 +358,11 @@ namespace ml
     {
         const sf::Vector2f pos = charIndexToPosition(charIndex);
         const std::size_t  li  = lineIndexForChar(charIndex);
-        const float        h   = _lines.empty()
-                                 ? static_cast<float>(_defaultSize)
-                                 : _lines[li].height;
+        // Use rowHeight (single visual row) not height (all wrapped rows)
+        const float rh = (!_lines.empty() && _lines[li].rowHeight > 0.f)
+                         ? _lines[li].rowHeight
+                         : static_cast<float>(_defaultSize);
+        const float        h   = rh;
 
         sf::RectangleShape cursor({width, h});
         cursor.setPosition(pos);
@@ -340,6 +410,7 @@ namespace ml
     {
         if (_lines.empty()) return 0;
 
+        // ── Step 1: find the logical line that contains pos.y ─────────────────
         const RenderedLine* targetLine = &_lines.front();
         for (const auto& line : _lines)
         {
@@ -355,11 +426,36 @@ namespace ml
         if (targetLine->segments.empty())
             return targetLine->charStart;
 
-        std::size_t bestIndex = targetLine->charStart;
-        float       bestDist  = std::numeric_limits<float>::max();
+        // ── Step 2: find the correct visual row within a wrapped logical line ──
+        // When word wrap places segments on multiple y positions within one
+        // RenderedLine, clicking on row N must only match segments on row N.
+        // Without this, X-only distance matching picks wrong characters from
+        // adjacent visual rows.
+        float targetRowY     = targetLine->y;
+        float closestRowDist = std::numeric_limits<float>::max();
 
         for (const auto& seg : targetLine->segments)
         {
+            const float dist = std::abs(seg.position.y - pos.y);
+            if (dist < closestRowDist)
+            {
+                closestRowDist = dist;
+                targetRowY     = seg.position.y;
+            }
+        }
+
+        // ── Step 3: find closest character on the target visual row ───────────
+        std::size_t bestIndex = targetLine->charStart;
+        float       bestDist  = std::numeric_limits<float>::max();
+        const float rowH      = targetLine->rowHeight > 0.f
+                                ? targetLine->rowHeight
+                                : static_cast<float>(_defaultSize);
+
+        for (const auto& seg : targetLine->segments)
+        {
+            // Skip segments on a different visual row
+            if (std::abs(seg.position.y - targetRowY) > rowH * 0.5f) continue;
+
             const std::size_t len = seg.bufEnd - seg.bufStart;
             for (std::size_t i = 0; i <= len; ++i)
             {

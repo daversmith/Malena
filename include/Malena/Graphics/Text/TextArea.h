@@ -38,6 +38,9 @@ namespace ml
 
         void handleTextAreaKeypress(const sf::Event::KeyPressed& kp);
         void drawScrollbar(sf::RenderTarget& target, const sf::RenderStates& states) const;
+        void scrollToCursor();
+        void rebuildAndScroll() override;
+        std::size_t hitTest(const sf::Vector2f& worldPos) const override;
 
         // ── Scroll / drag state ───────────────────────────────────────────
         float _prevScrollY          = 0.f;

@@ -1,334 +1,198 @@
-//
-// Created by Dave Smith on 1/23/26.
-//
+// Copyright 2025 Dave R. Smith
+// SPDX-License-Identifier: Apache-2.0
 
 #include <Malena/Graphics/Controls/List.h>
-#include <Malena/Graphics/Controls/ListItem.h>
 #include <algorithm>
-
 
 namespace ml
 {
-	List::List() : _position(0, 0)
-{
-}
-
-// void List::addItem(ListComponent* item)
-// {
-//     addItem(std::unique_ptr<ListComponent>(item));
-// }
-
-void List::addItem(ListComponent* item)
-{
-    // If it's a nested List, set its indent
-    if (auto* nestedList = dynamic_cast<List*>(item))
+    List::List(const sf::Font& font_)
     {
-        nestedList->setCurrentIndent(_currentIndent + _indentAmount);
+        ListTheme::applyFrom(ThemeManager::get());
+        this->font = &font_;
+
+        _background.setFillColor(bgColor);
     }
 
-    _items.push_back(item);
-    repositionItems();
-    updateDividers();
-}
+    // ── onThemeApplied ────────────────────────────────────────────────────────
 
-void List::setPosition(const sf::Vector2f &position)
-{
-    _position = position;
-    repositionItems();
-    updateDividers();
-}
-
-sf::Vector2f List::getPosition() const
-{
-    return _position;
-}
-
-void List::setIndentAmount(float amount)
-{
-    _indentAmount = amount;
-
-    // Update indent for all nested lists
-    for (auto& item : _items)
+    void List::onThemeApplied(const Theme& theme)
     {
-        if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            nestedList->setCurrentIndent(_currentIndent + _indentAmount);
-        }
+        if (isThemeLocked()) return;
+        ListTheme::applyFrom(theme);
+        _background.setFillColor(bgColor);
+        applyThemeToOwnedItems();
+        rebuildDividers();
     }
 
-    repositionItems();
-}
+    // ── Adding rows ───────────────────────────────────────────────────────────
 
-void List::setShowDividers(bool show)
-{
-    _showDividers = show;
-
-    // Propagate to nested lists
-    for (auto& item : _items)
+    ListItem& List::addItem(const std::string& label,
+                             const std::string& description)
     {
-        if (auto* nestedList = dynamic_cast<List*>(item))
+        auto item = std::make_unique<ListItem>(*font);
+
+        // Apply current list theme/settings to the new item
         {
-            nestedList->setShowDividers(show);
+            ListItemTheme t;
+            t.applyFrom(ThemeManager::get());
+            // Propagate list's font
+            t.font = font;
+            item->applyTheme(t);
         }
+
+        item->setWidth(_width);
+        item->setLabel(label);
+        if (!description.empty())
+            item->setDescription(description);
+
+        ListItem* ptr = item.get();
+        _rows.push_back({ptr, std::move(item)});
+
+        layout();
+        rebuildDividers();
+        return *ptr;
     }
-}
 
-void List::setDividerColor(const sf::Color& color)
-{
-    _dividerColor = color;
-    updateDividers();
-
-    // Propagate to nested lists
-    for (auto& item : _items)
+    void List::add(ml::Core& component)
     {
-        if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            nestedList->setDividerColor(color);
-        }
+        // If it's a nested List, propagate indent
+        if (auto* nested = dynamic_cast<List*>(&component))
+            nested->setIndentOffset(_indent + indent);
+
+        _rows.push_back({&component, nullptr});
+        layout();
+        rebuildDividers();
     }
-}
 
-void List::setDividerThickness(float thickness)
-{
-    _dividerThickness = thickness;
-    updateDividers();
-
-    // Propagate to nested lists
-    for (auto& item : _items)
+    void List::clear()
     {
-        if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            nestedList->setDividerThickness(thickness);
-        }
+        _rows.clear();
+        _dividers.clear();
     }
-}
 
-void List::repositionItems()
-{
-    if (_items.empty())
-        return;
+    // ── Internal helpers ──────────────────────────────────────────────────────
 
-    float currentY = _position.y;
-
-    for (auto& item : _items)
+    void List::applyThemeToOwnedItems()
     {
-        if (auto* listItem = dynamic_cast<ListItem*>(item))
+        ListItemTheme t;
+        t.applyFrom(ThemeManager::get());
+        t.font = font;
+
+        for (auto& row : _rows)
         {
-            listItem->setPosition({_position.x + _currentIndent, currentY});
-            currentY += listItem->getGlobalBounds().size.y;
-        }
-        else if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            nestedList->setPosition({_position.x, currentY});
-            currentY += nestedList->getTotalHeight();
-        }
-    }
-}
-
-void List::updateDividers()
-{
-    _dividers.clear();
-
-    if (!_showDividers || _items.empty())
-        return;
-
-    float currentY = _position.y;
-    float maxWidth = getMaxWidth();
-
-    // Create dividers between items
-    for (size_t i = 0; i < _items.size(); ++i)
-    {
-        float itemHeight = 0.0f;
-
-        if (auto* listItem = dynamic_cast<ListItem*>(_items[i]))
-        {
-            itemHeight = listItem->getGlobalBounds().size.y;
-        }
-        else if (auto* nestedList = dynamic_cast<List*>(_items[i]))
-        {
-            itemHeight = nestedList->getTotalHeight();
-        }
-
-        currentY += itemHeight;
-
-        // Don't add divider after the last item
-        if (i < _items.size() - 1)
-        {
-            sf::RectangleShape divider;
-            divider.setSize({maxWidth, _dividerThickness});
-            divider.setPosition({_position.x + _currentIndent, currentY - _dividerThickness / 2.0f});
-            divider.setFillColor(_dividerColor);
-            _dividers.push_back(divider);
-        }
-    }
-}
-
-float List::getTotalHeight() const
-{
-    float totalHeight = 0.0f;
-
-    for (const auto& item : _items)
-    {
-        if (auto* listItem = dynamic_cast<ListItem*>(item))
-        {
-            totalHeight += listItem->getGlobalBounds().size.y;
-        }
-        else if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            totalHeight += nestedList->getTotalHeight();
+            if (row.owned)
+                row.owned->applyTheme(t);
         }
     }
 
-    return totalHeight;
-}
-
-float List::getMaxWidth() const
-{
-    float maxWidth = 0.0f;
-
-    for (const auto& item : _items)
+    void List::applySettingsToOwnedItems()
     {
-        float itemWidth = 0.0f;
-
-        if (auto* listItem = dynamic_cast<ListItem*>(item))
+        for (auto& row : _rows)
         {
-            itemWidth = listItem->getGlobalBounds().size.x;
-        }
-        else if (auto* nestedList = dynamic_cast<List*>(item))
-        {
-            itemWidth = nestedList->getMaxWidth() + _indentAmount;
-        }
-
-        if (itemWidth > maxWidth)
-            maxWidth = itemWidth;
-    }
-
-    return maxWidth;
-}
-
-void List::autoSizeAllItems(unsigned int baseFontSize)
-{
-    if (_items.empty())
-        return;
-
-    // Step 1: Collect all ListItems (including from nested Lists)
-    std::vector<ListItem*> allListItems;
-
-    std::function<void(List*)> collectItems = [&](List* list) {
-        for (auto& item : list->_items)
-        {
-            if (auto* listItem = dynamic_cast<ListItem*>(item))
+            if (row.owned)
             {
-                allListItems.push_back(listItem);
-            }
-            else if (auto* nestedList = dynamic_cast<List*>(item))
-            {
-                collectItems(nestedList);
+                row.owned->setWidth(_width);
+                // Propagate slotGap from ListSettings if needed in future
             }
         }
-    };
-
-    collectItems(this);
-
-    if (allListItems.empty())
-        return;
-
-    // Step 2: Find maximum natural width
-    float maxWidth = 0.0f;
-    for (auto* item : allListItems)
-    {
-        float itemWidth = item->getNaturalWidth(baseFontSize);
-        if (itemWidth > maxWidth)
-            maxWidth = itemWidth;
     }
 
-    // Step 3: Find the longest text
-    ListItem* longestItem = nullptr;
-    size_t maxTextLength = 0;
+    // ── Layout ────────────────────────────────────────────────────────────────
 
-    for (auto* item : allListItems)
+    void List::layout()
     {
-        if (item->getText().length() > maxTextLength)
+        if (_rows.empty()) return;
+
+        float y = _position.y;
+        const float x = _position.x + _indent;
+
+        for (auto& row : _rows)
         {
-            maxTextLength = item->getText().length();
-            longestItem = item;
+            row.component->setPosition({x, y});
+            y += row.component->getGlobalBounds().size.y;
+        }
+
+        // Resize background to cover all rows
+        if (showBackground)
+        {
+            _background.setPosition({x, _position.y});
+            _background.setSize({_width, y - _position.y});
+            _background.setFillColor(bgColor);
         }
     }
 
-    // Step 4: Calculate optimal font size
-    unsigned int finalFontSize = baseFontSize;
-
-    if (longestItem)
+    void List::rebuildDividers()
     {
-        float availableWidth = maxWidth - longestItem->getIconsWidth() - 20.0f;
-        sf::Text tempText(ml::FontManager<>::getDefault());
-        tempText.setString(longestItem->getText());
+        _dividers.clear();
+        if (!showDividers || _rows.size() < 2) return;
 
-        unsigned int minSize = 10;
-        unsigned int maxSize = baseFontSize;
-        while (minSize < maxSize)
+        const float x = _position.x + _indent;
+
+        for (std::size_t i = 0; i + 1 < _rows.size(); ++i)
         {
-            unsigned int midSize = (minSize + maxSize + 1) / 2;
-            tempText.setCharacterSize(midSize);
-            if (tempText.getGlobalBounds().size.x <= availableWidth)
-                minSize = midSize;
-            else
-                maxSize = midSize - 1;
+            const sf::FloatRect b = _rows[i].component->getGlobalBounds();
+            const float divY      = b.position.y + b.size.y;
+
+            sf::RectangleShape div({_width, dividerThickness});
+            div.setPosition({x, divY - dividerThickness / 2.f});
+            div.setFillColor(dividerColor);
+            _dividers.push_back(div);
         }
-        finalFontSize = minSize;
     }
 
-    // Step 5: Apply sizing to all ListItems
-    // for (auto* item : allListItems)
+    // ── draw ──────────────────────────────────────────────────────────────────
+
+    void List::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        for (auto* item : allListItems)
+        if (showBackground)
+            target.draw(_background, states);
+
+        for (std::size_t i = 0; i < _rows.size(); ++i)
         {
-            item->setCharacterSize(finalFontSize);
-            item->setSize({maxWidth, item->getGlobalBounds().size.y});
+            target.draw(*dynamic_cast<sf::Drawable*>(_rows[i].component), states);
+
+            if (showDividers && i < _dividers.size())
+                target.draw(_dividers[i], states);
         }
-        // Note: Lists don't have setCharacterSize or setSize
-        // They're handled recursively in autoSizeAllItems
     }
 
-    // Step 6: Reposition everything
-    repositionItems();
-    updateDividers();
-}
+    // ── Sizing ────────────────────────────────────────────────────────────────
 
-sf::FloatRect List::getGlobalBounds() const
-{
-    if (_items.empty())
-        return sf::FloatRect({_position.x, _position.y}, {0, 0});
-
-    float maxWidth = getMaxWidth();
-    return sf::FloatRect({_position.x + _currentIndent, _position.y}, {maxWidth, getTotalHeight()});
-}
-
-void List::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-    for (size_t i = 0; i < _items.size(); ++i)
+    void List::setWidth(float w)
     {
-        // Draw the item (works for both ListItem and List via polymorphism)
-        if (auto* listItem = dynamic_cast<ListItem*>(_items[i]))
-        {
-            target.draw(*listItem, states);
-        }
-        else if (auto* nestedList = dynamic_cast<List*>(_items[i]))
-        {
-            target.draw(*nestedList, states);
-        }
-
-        // Draw divider if applicable
-        if (_showDividers && i < _dividers.size())
-        {
-            target.draw(_dividers[i], states);
-        }
+        _width = w;
+        for (auto& row : _rows)
+            if (row.owned) row.owned->setWidth(w);
+        layout();
+        rebuildDividers();
     }
-}
 
-void List::clear()
-{
-    _items.clear();
-    _dividers.clear();
-}
-}
+    float List::getTotalHeight() const
+    {
+        float h = 0.f;
+        for (const auto& row : _rows)
+            h += row.component->getGlobalBounds().size.y;
+        return h;
+    }
+
+    // ── Positionable ──────────────────────────────────────────────────────────
+
+    void List::setPosition(const sf::Vector2f& pos)
+    {
+        _position = pos;
+        layout();
+        rebuildDividers();
+    }
+
+    sf::Vector2f  List::getPosition()     const { return _position; }
+
+    sf::FloatRect List::getGlobalBounds() const
+    {
+        return sf::FloatRect{
+            {_position.x + _indent, _position.y},
+            {_width, getTotalHeight()}
+        };
+    }
+
+} // namespace ml

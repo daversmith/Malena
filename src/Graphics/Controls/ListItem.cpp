@@ -1,220 +1,271 @@
-//
-// Created by Dave Smith on 1/23/26.
-//
+// Copyright 2025 Dave R. Smith
+// SPDX-License-Identifier: Apache-2.0
 
 #include <Malena/Graphics/Controls/ListItem.h>
-#include <Malena/Engine/App/Application.h>
-#include <Malena/Utilities/TextManipulators.h>
+#include <Malena/Utilities/Align.h>
+#include <algorithm>
+#include <cmath>
 
 namespace ml
 {
-	ListItem::ListItem() : ListItem("")
-	{
-	}
+    ListItem::ListItem(const sf::Font& font_)
+        : _label(font_),
+          _description(font_)
+    {
+        ListItemTheme::applyFrom(ThemeManager::get());
+        this->font = &font_;
 
-	ListItem::ListItem(const sf::Font &font, std::optional<sf::Vector2f> itemSize, const std::string &text,
-	    unsigned int charSize, const sf::Texture *startIcon, const sf::Texture *endIcon)
-	        : _middle(font, itemSize, text, charSize)
-	{
-	    setupIcons(startIcon, endIcon);
-	    _middle.setFillColor(sf::Color::Transparent);
-	    // setSize ({getNaturalWidth(charSize), static_cast<float>(charSize)+_padding});
-	}
+        _label.setCharacterSize(fontSize);
+        _label.setFillColor(textColor);
 
-	ListItem::ListItem(const std::string &text, const sf::Texture *startIcon, const sf::Texture *endIcon)
-	    : ListItem(ml::FontManager<>::getDefault(), std::nullopt, text, 24, startIcon, endIcon)
-	{
-	}
+        _description.setCharacterSize(fontSizeSmall);
+        _description.setFillColor(mutedColor);
 
-	ListItem::~ListItem()
-	{
-	    delete _startIcon;
-	    delete _endIcon;
-	}
+        _background.setFillColor(bgIdle);
 
-	void ListItem::setupIcons(const sf::Texture *startIcon, const sf::Texture *endIcon)
-	{
-	    if (startIcon)
-	    {
-	        setStartIcon(*startIcon);
-	    }
+        // Hover
+        onHover([this]{
+            if (checkFlag(Flag::DISABLED)) return;
+            setState(State::HOVERED);
+            applyVisualState();
+        });
+        onUnhover([this]{
+            if (checkFlag(Flag::DISABLED)) return;
+            setState(State::IDLE);
+            applyVisualState();
+        });
 
-	    if (endIcon)
-	    {
-	        setEndIcon(*endIcon);
-	    }
+        // Click — fire user callback
+        this->onClick([this]{
+            if (!checkFlag(Flag::DISABLED) && _onClickCb)
+                _onClickCb();
+        });
 
-	}
+        setState(State::IDLE);
+        layout();
+    }
 
-	void ListItem::scaleIcon(ml::Sprite *icon, const sf::Vector2f& size)
-	{
-	    if (icon)
-	    {
-	        float scale = size.y * 0.8f / icon->getGlobalBounds().size.y;
-	        icon->setScale({scale, scale});
-	    }
+    // ── onThemeApplied ────────────────────────────────────────────────────────
 
-	}
+    void ListItem::onThemeApplied(const Theme& theme)
+    {
+        if (isThemeLocked()) return;
+        ListItemTheme::applyFrom(theme);
+        this->font = font; // stays as-is; ThemeManager sets theme.font
+        _label.setCharacterSize(fontSize);
+        _label.setFillColor(textColor);
+        _description.setCharacterSize(fontSizeSmall);
+        _description.setFillColor(mutedColor);
+        applyVisualState();
+        layout();
+    }
 
-	void ListItem::setStartIcon(const sf::Texture &icon)
-	{
-	    _startIcon = new ml::Sprite(icon);
-	    // scaleIcon(*_startIcon);
-	    position();
-	}
+    // ── applyVisualState ──────────────────────────────────────────────────────
 
-	void ListItem::setEndIcon(const sf::Texture &icon)
-	{
-	    _endIcon = new ml::Sprite(icon);
-	    // scaleIcon(*_endIcon);
-	    position();
-	}
+    void ListItem::applyVisualState()
+    {
+        if (checkFlag(Flag::DISABLED))
+        {
+            _background.setFillColor(bgDisabled);
+            _label.setFillColor(disabledTextColor);
+            _description.setFillColor(disabledTextColor);
+        }
+        else if (isState(State::HOVERED))
+        {
+            _background.setFillColor(bgHover);
+            _label.setFillColor(textColor);
+            _description.setFillColor(mutedColor);
+        }
+        else
+        {
+            _background.setFillColor(bgIdle);
+            _label.setFillColor(textColor);
+            _description.setFillColor(mutedColor);
+        }
+    }
 
-	void ListItem::setFillColor(const sf::Color &color)
-	{
-	    if (_startIcon)
-	        _startIcon->setColor(color);
-	    if (_endIcon)
-	        _endIcon->setColor(color);
-	    _middle.setFillColor(color);
-	}
+    // ── layout ────────────────────────────────────────────────────────────────
 
-	void ListItem::setSize(const sf::Vector2f &size)
-	{
-	    sf::Vector2f scale = {0.f, 0.f};
-	    _middle.setCharacterSize(size.y * 0.8f);
+    float ListItem::contentHeight() const
+    {
+        if (rowHeight > 0.f) return rowHeight;
 
-	    if (size.x < _middle.getSize().x)
-	    {
-	        auto text = ml::TextManipulators::wordwrap(
-	            _middle.getString(),
-	            _middle.getFont(),
-	            _middle.getCharacterSize(),
-	            size.x * 0.6f);
+        float h = static_cast<float>(fontSize);
 
-	        _middle.setString(text);
+        if (_hasCustomContent && _content)
+            h = _content->getGlobalBounds().size.y;
+        else if (_hasDescription)
+            h = static_cast<float>(fontSize) + static_cast<float>(fontSizeSmall) + 4.f;
 
-	        scale.x = _middle.getSize().x * 0.2f;
-	        scale.y = _middle.getSize().y;
-	    }
-	    else
-	    {
-	        scale.x = size.x * .2f;
-	        scale.y = size.y;
-	        _middle.setSize({size.x * .6f, size.y});
-	    }
+        // Also consider slot heights
+        if (_start) h = std::max(h, _start->getGlobalBounds().size.y);
+        if (_end)   h = std::max(h, _end->getGlobalBounds().size.y);
 
-	    scaleIcon(_startIcon, scale);
-	    scaleIcon(_endIcon, scale);
+        return h + padding * 2.f;
+    }
 
-	    position();
-	}
+    void ListItem::layout()
+    {
+        const float h      = contentHeight();
+        const float halfH  = h / 2.f;
+        const float cy     = _position.y + halfH;  // vertical center
 
-	void ListItem::setCharacterSize(unsigned int size)
-	{
-	    _middle.setCharacterSize(size);
-	}
+        _background.setSize({_width, h});
+        _background.setPosition(_position);
 
-	unsigned int ListItem::getCharacterSize() const
-	{
-	    return _middle.getCharacterSize();
-	}
+        float leftX  = _position.x + padding;
+        float rightX = _position.x + _width - padding;
 
-	std::string ListItem::getText() const
-	{
-	    return _middle.getString();
-	}
+        // ── End slot — right-aligned first so content knows how much space is left
+        if (_end)
+        {
+            const float endW = _end->getGlobalBounds().size.x;
+            const float endH = _end->getGlobalBounds().size.y;
+            rightX -= endW;
+            _end->setPosition({rightX, cy - endH / 2.f});
+            rightX -= slotGap;
+        }
 
-	float ListItem::getIconsWidth() const
-	{
-	    float width = 0.0f;
-	    if (_startIcon)
-	        width += _startIcon->getGlobalBounds().size.x;
-	    if (_endIcon)
-	        width += _endIcon->getGlobalBounds().size.x;
-	    return width;
-	}
-	// sf::Vector2f ListItem::getTextSize(unsigned int fontSize)
-	// {
-	//     // Create a temporary text object to measure
-	//     sf::Text tempText(_middle.getFont());
-	//     tempText.setString(_middle.getString());
-	//     tempText.setCharacterSize(_middle.getCharacterSize());
-	// }
-	float ListItem::getNaturalWidth(unsigned int fontSize) const
-	{
-	    // Create a temporary text object to measure
-	    sf::Text tempText(_middle.getFont());
-	    tempText.setString(_middle.getString());
-	    tempText.setCharacterSize(fontSize);
+        // ── Start slot
+        if (_start)
+        {
+            const float startH = _start->getGlobalBounds().size.y;
+            _start->setPosition({leftX, cy - startH / 2.f});
+            leftX += _start->getGlobalBounds().size.x + slotGap;
+        }
 
-	    float textWidth = tempText.getGlobalBounds().size.x;
-	    float iconsWidth = getIconsWidth();
-	    return textWidth + iconsWidth + _padding;
-	}
+        // ── Content area
+        const float contentW = std::max(0.f, rightX - leftX);
 
-	void ListItem::setOnClick(std::function<void()> function)
-	{
-	    _onClick = function;
-	}
+        if (_hasCustomContent && _content)
+        {
+            const float cH = _content->getGlobalBounds().size.y;
+            _content->setPosition({leftX, cy - cH / 2.f});
+        }
+        else
+        {
+            // Built-in label (+ optional description)
+            if (_hasDescription)
+            {
+                const float totalTextH = static_cast<float>(fontSize)
+                                       + static_cast<float>(fontSizeSmall) + 4.f;
+                const float textStartY = cy - totalTextH / 2.f;
 
-	void ListItem::setPosition(const sf::Vector2f &position)
-	{
-	    if (_startIcon)
-	        _startIcon->setPosition(position);
-	    else
-	        _middle.setPosition(position);
+                _label.setPosition({leftX, textStartY});
+                _description.setPosition({leftX, textStartY + static_cast<float>(fontSize) + 4.f});
+            }
+            else
+            {
+                // Vertically center single label
+                const sf::FloatRect lb = _label.getLocalBounds();
+                _label.setPosition({leftX, cy - lb.size.y / 2.f - lb.position.y});
+            }
+        }
+    }
 
-	    this->position();
-	}
+    // ── draw ──────────────────────────────────────────────────────────────────
 
-	sf::Vector2f ListItem::getPosition() const
-	{
-	    if (_startIcon)
-	        return _startIcon->getPosition();
-	    return _middle.getPosition();
-	}
+    void ListItem::draw(sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        target.draw(_background, states);
 
-	sf::FloatRect ListItem::getGlobalBounds() const
-	{
-	    sf::FloatRect bounds = _middle.getGlobalBounds();
-	    // ml::Helper::output(bounds);
-	    if (_startIcon)
-	    {
-	        bounds.position = _startIcon->getPosition();
-	        bounds.size.x += _startIcon->getGlobalBounds().size.x;
-	    }
-	    if (_endIcon)
-	        bounds.size.x += _endIcon->getGlobalBounds().size.x;
+        if (_start)
+            target.draw(*dynamic_cast<sf::Drawable*>(_start), states);
 
-	    return bounds;
-	}
+        if (_hasCustomContent && _content)
+            target.draw(*dynamic_cast<sf::Drawable*>(_content), states);
+        else
+        {
+            target.draw(_label, states);
+            if (_hasDescription)
+                target.draw(_description, states);
+        }
 
-	void ListItem::draw(sf::RenderTarget &target, sf::RenderStates states) const
-	{
-	    if (_startIcon)
-	        target.draw(*_startIcon, states);
-	    target.draw(_middle, states);
-	    if (_endIcon)
-	        target.draw(*_endIcon, states);
-	}
+        if (_end)
+            target.draw(*dynamic_cast<sf::Drawable*>(_end), states);
+    }
 
-	void ListItem::position()
-	{
-	    if (_startIcon)
-	    {
-	        sf::Vector2f middlePos = _startIcon->getPosition();
-	        middlePos.x += _startIcon->getGlobalBounds().size.x;
-	        _middle.setPosition(middlePos);  // always position middle next to icon
-	    }
+    // ── Slots ─────────────────────────────────────────────────────────────────
 
-	    if (_endIcon)
-	    {
-	        sf::Vector2f endPos = _middle.getPosition();
-	        endPos.x += _middle.getGlobalBounds().size.x;
-	        _endIcon->setPosition(endPos);
-	    }
-	}
+    void ListItem::setStart(ml::Core& c)
+    {
+        _start = &c;
+        layout();
+    }
 
-}
+    void ListItem::setEnd(ml::Core& c)
+    {
+        _end = &c;
+        layout();
+    }
 
+    void ListItem::setContent(ml::Core& c)
+    {
+        _content           = &c;
+        _hasCustomContent  = true;
+        layout();
+    }
+
+    // ── Built-in content ──────────────────────────────────────────────────────
+
+    void ListItem::setLabel(const std::string& text)
+    {
+        _label.setString(text);
+        layout();
+    }
+
+    std::string ListItem::getLabel() const
+    {
+        return _label.getString();
+    }
+
+    void ListItem::setDescription(const std::string& text)
+    {
+        _description.setString(text);
+        _hasDescription = !text.empty();
+        layout();
+    }
+
+    std::string ListItem::getDescription() const
+    {
+        return _description.getString();
+    }
+
+    // ── Click ─────────────────────────────────────────────────────────────────
+
+    void ListItem::onClick(std::function<void()> cb)
+    {
+        _onClickCb = std::move(cb);
+    }
+
+    // ── State ─────────────────────────────────────────────────────────────────
+
+    void ListItem::setEnabled(bool enabled)
+    {
+        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
+        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        applyVisualState();
+    }
+
+    bool ListItem::isEnabled() const { return !checkFlag(Flag::DISABLED); }
+
+    // ── Width ─────────────────────────────────────────────────────────────────
+
+    void ListItem::setWidth(float w)
+    {
+        _width = w;
+        layout();
+    }
+
+    // ── Positionable ──────────────────────────────────────────────────────────
+
+    void ListItem::setPosition(const sf::Vector2f& pos)
+    {
+        _position = pos;
+        layout();
+    }
+
+    sf::Vector2f  ListItem::getPosition()     const { return _position; }
+    sf::FloatRect ListItem::getGlobalBounds() const { return _background.getGlobalBounds(); }
+
+} // namespace ml

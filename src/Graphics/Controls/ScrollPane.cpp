@@ -221,29 +221,49 @@ namespace ml
 	}
 	void ScrollPane::setScrollOffsetY(float y)
 	{
-		const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
-		_scrollOffsetY = std::clamp(y, 0.f, maxScroll);
-		enableFlag(Flag::DIRTY);
-		updateScrollBar();
-	}
-
-	float ScrollPane::getScrollOffsetY() const
-	{
-		return _scrollOffsetY;
-	}
-	void ScrollPane::setContentHeight(float height)
-	{
-	    _contentHeightOverride = height;
+	    const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
+	    _scrollOffsetY = std::clamp(y, 0.f, maxScroll);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
 	}
 
+	void ScrollPane::setContentHeight(float height)
+	{
+	    _contentHeightOverride = height;
+	    // Clamp current offset in case content shrank below scroll position
+	    const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
+	    _scrollOffsetY = std::clamp(_scrollOffsetY, 0.f, maxScroll);
+	    enableFlag(Flag::DIRTY);
+	    updateScrollBar();
+	}
+
+	// void ScrollPane::setScrollOffsetY(float y)
+	// {
+	//     const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
+	//     _scrollOffsetY = std::clamp(y, 0.f, maxScroll);
+	//     enableFlag(Flag::DIRTY);
+	//     updateScrollBar();
+	// }
+	//
+	// void ScrollPane::setContentHeight(float height)
+	// {
+	//     _contentHeightOverride = height;
+	//     // Clamp current offset in case content shrank below scroll position
+	//     const float maxScroll = std::max(0.f, getTotalContentHeight() - _height);
+	//     _scrollOffsetY = std::clamp(_scrollOffsetY, 0.f, maxScroll);
+	//     enableFlag(Flag::DIRTY);
+	//     updateScrollBar();
+	// }
 
 	void ScrollPane::embed()
 	{
-	    // Silence this pane and its internal thumb from the event system.
-	    // Both are Components with auto-subscriptions from ComponentCore.
-	    this->unsubscribeAll();
-	    _scrollBarThumb.unsubscribeAll();
+		// Silence this pane and its internal thumb from the event system.
+		// Both are Components with auto-subscriptions from ComponentCore.
+		this->unsubscribeAll();
+		_scrollBarThumb.unsubscribeAll();
 	}
-}
+	float ScrollPane::getScrollOffsetY() const
+	{
+		return _scrollOffsetY;
+	}
+} // namespace ml

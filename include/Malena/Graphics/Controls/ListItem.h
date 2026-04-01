@@ -1,53 +1,222 @@
 //
-// Created by Dave Smith on 1/23/26.
+// ListItem.h
 //
 
 #ifndef LISTITEM_H
 #define LISTITEM_H
-#include <Malena/Graphics/Controls/ListComponent.h>
-#include <Malena/Graphics/Controls/RectangleButton.h>
+
+#pragma once
+
+#include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
-#include <Malena/Graphics/Sprites/Sprite.h>
+#include <Malena/Manifests/Manifest.h>
+#include <Malena/Resources/FontManager.h>
+#include <Malena/Traits/Settings/ListItemSettings.h>
+#include <Malena/Traits/Theme/ListItemTheme.h>
+#include <Malena/Traits/Theme/Themeable.h>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <functional>
+#include <string>
+#include <type_traits>
 
 namespace ml
 {
-	class ListItem : public ListComponent {
-		ml::Sprite  *_startIcon = nullptr, *_endIcon = nullptr;
-		ml::RectangleButton _middle;
-		std::function<void()> _onClick;
-		float _padding = 5.f;
-		void position();
-		void setupIcons(const sf::Texture* startIcon, const sf::Texture* endIcon);
-		void scaleIcon(ml::Sprite* icon, const sf::Vector2f& size);
-	public:
-		ListItem();
-		virtual ~ListItem();
-		ListItem(const std::string &text, const sf::Texture *startIcon = nullptr, const sf::Texture *endIcon = nullptr);
-		ListItem(const sf::Font &font = ml::FontManager<>::getDefault(),
-				   std::optional<sf::Vector2f> itemSize = std::nullopt, const std::string &text = "",
-				   unsigned int charSize = 30, const sf::Texture* startIcon = nullptr, const sf::Texture* endIcon = nullptr);
+    // ── ListItemManifest ──────────────────────────────────────────────────────
 
-		void setPosition(const sf::Vector2f &position) override;
-		sf::Vector2f getPosition() const override;
-		sf::FloatRect getGlobalBounds() const override;
-		virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+    class ListItemManifest : public ml::Manifest
+    {
+    public:
+        enum class Flag  { DISABLED };
+        enum class State { IDLE, HOVERED, DISABLED };
+    };
 
-		void setStartIcon(const sf::Texture& icon);
-		void setEndIcon(const sf::Texture& icon);
-		void setFillColor(const sf::Color& color);
-		void setSize(const sf::Vector2f& size);
-		void setOnClick(std::function<void()>);
+    // ── ListItem ──────────────────────────────────────────────────────────────
 
-		// New methods for auto-sizing
-		float getNaturalWidth(unsigned int fontSize) const;
-		void setCharacterSize(unsigned int size);
-		unsigned int getCharacterSize() const;
-		std::string getText() const;
-		float getIconsWidth() const;
+    /**
+     * @brief A single row in a @c List with start, content and end slots.
+     * @ingroup GraphicsControls
+     *
+     * Inspired by Ionic Framework's @c ion-item — each row has three optional
+     * slots that accept any @c ml::Core component:
+     *
+     * | Slot    | Typical use                            |
+     * |---------|----------------------------------------|
+     * | start   | Icon, avatar, @c Checkbox, @c Radio    |
+     * | content | Label + description (built-in) or any  @c Core |
+     * | end     | @c Toggle, @c RectangleButton, badge   |
+     *
+     * Slot components are **not owned** by @c ListItem — the caller is
+     * responsible for their lifetime. Do NOT call @c addComponent on them
+     * separately; @c List handles drawing.
+     *
+     * ### Usage — built-in label
+     * @code
+     * ml::ListItem item;
+     * item.setLabel("Dark mode");
+     * item.setDescription("Reduces eye strain");
+     *
+     * ml::PillToggle toggle;
+     * item.setEnd(toggle);
+     *
+     * list.addItem(item);
+     * @endcode
+     *
+     * ### Usage — custom content slot
+     * @code
+     * ml::CheckboxGroup group;
+     * item.setContent(group);    // replaces built-in label
+     * list.addItem(item);
+     * @endcode
+     *
+     * @see List, ListItemSettings, ListItemTheme, ListItemStyle
+     */
+    class ListItem : public ComponentWith<ListItemManifest>,
+                     public ListItemSettings,
+                     public ListItemTheme,
+                     public Themeable
+    {
+    public:
+        using Flag  = ListItemManifest::Flag;
+        using State = ListItemManifest::State;
 
-		friend class List;
-	};
-}
+    private:
+        // ── Slots — external references, never owned ──────────────────────────
+        ml::Core* _start   = nullptr;
+        ml::Core* _content = nullptr;   ///< Custom content (replaces label/desc)
+        ml::Core* _end     = nullptr;
 
+        // ── Built-in content ──────────────────────────────────────────────────
+        sf::Text  _label;
+        sf::Text  _description;
+        bool      _hasDescription = false;
+        bool      _hasCustomContent = false;
 
-#endif //LISTITEM_H
+        // ── Layout ────────────────────────────────────────────────────────────
+        sf::RectangleShape _background;
+        sf::Vector2f       _position  = {0.f, 0.f};
+        float              _width     = 300.f;
+
+        // ── Callbacks ─────────────────────────────────────────────────────────
+        std::function<void()> _onClickCb;
+
+        // ── Internal ──────────────────────────────────────────────────────────
+        void layout();
+        void applyVisualState();
+        float contentHeight() const;
+
+    protected:
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onThemeApplied(const Theme& theme) override;
+
+    public:
+        explicit ListItem(const sf::Font& font = FontManager<>::getDefault());
+
+        // ── Apply ─────────────────────────────────────────────────────────────
+
+        template<typename S>
+        void applySettings(const S& s)
+        {
+            static_assert(std::is_base_of_v<ListItemSettings, S>,
+                "applySettings() requires a type derived from ListItemSettings");
+            static_cast<ListItemSettings&>(*this) = s;
+            layout();
+        }
+
+        template<typename T>
+        void applyTheme(const T& t)
+        {
+            static_assert(std::is_base_of_v<ListItemTheme, T>,
+                "applyTheme() requires a type derived from ListItemTheme");
+            static_cast<ListItemTheme&>(*this) = t;
+            applyVisualState();
+            layout();
+        }
+
+        template<typename St>
+        void applyStyle(const St& s)
+        {
+            static_assert(std::is_base_of_v<ListItemSettings, St> &&
+                          std::is_base_of_v<ListItemTheme, St>,
+                "applyStyle() requires ListItemSettings and ListItemTheme");
+            static_cast<ListItemSettings&>(*this) = s;
+            static_cast<ListItemTheme&>(*this)    = s;
+            applyVisualState();
+            layout();
+        }
+
+        // ── Slots ─────────────────────────────────────────────────────────────
+
+        /**
+         * @brief Assign a component to the start (left) slot.
+         *
+         * Typical use: icon, @c Checkbox, @c RadioButton, avatar.
+         * The component is not owned — do not @c addComponent it separately.
+         */
+        void setStart(ml::Core& component);
+
+        /**
+         * @brief Assign a component to the end (right) slot.
+         *
+         * Typical use: @c PillToggle, @c RectangleButton, badge.
+         * The component is not owned — do not @c addComponent it separately.
+         */
+        void setEnd(ml::Core& component);
+
+        /**
+         * @brief Replace the built-in label/description with a custom component.
+         *
+         * When set, @c setLabel and @c setDescription have no visual effect.
+         * The component is not owned — do not @c addComponent it separately.
+         */
+        void setContent(ml::Core& component);
+
+        // ── Built-in content ──────────────────────────────────────────────────
+
+        /** @brief Set the primary label text. */
+        void setLabel(const std::string& text);
+        [[nodiscard]] std::string getLabel() const;
+
+        /**
+         * @brief Set an optional secondary description line below the label.
+         * Pass an empty string to remove.
+         */
+        void setDescription(const std::string& text);
+        [[nodiscard]] std::string getDescription() const;
+
+        // ── Click callback ────────────────────────────────────────────────────
+
+        /** @brief Register a callback fired when the row is clicked. */
+        void onClick(std::function<void()> callback);
+
+        // ── State ─────────────────────────────────────────────────────────────
+
+        void setEnabled(bool enabled);
+        [[nodiscard]] bool isEnabled() const;
+
+        // ── Width ─────────────────────────────────────────────────────────────
+
+        /**
+         * @brief Set the total row width.
+         * Called automatically by @c List when the item is added.
+         */
+        void setWidth(float width);
+        [[nodiscard]] float getWidth() const { return _width; }
+
+        // ── Positionable ──────────────────────────────────────────────────────
+
+        void          setPosition(const sf::Vector2f& position) override;
+        sf::Vector2f  getPosition()     const override;
+        sf::FloatRect getGlobalBounds() const override;
+    };
+
+    // ── ListItemWith ──────────────────────────────────────────────────────────
+
+    template<typename MANIFEST>
+    class ListItemWith : public ListItem, public Customizable<MANIFEST>
+    { public: using ListItem::ListItem; };
+
+} // namespace ml
+
+#endif // LISTITEM_H

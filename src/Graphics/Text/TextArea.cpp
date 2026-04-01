@@ -184,7 +184,58 @@ namespace ml
         rebuild();
     }
 
-    // ── handleTextAreaKeypress ────────────────────────────────────────────────
+    // ── rebuildAndScroll ──────────────────────────────────────────────────────
+
+    void TextArea::rebuildAndScroll()
+    {
+        // Run the base rebuild + X scroll logic
+        TextInput::rebuildAndScroll();
+
+        // Then handle Y: update content height and scroll cursor into view
+        const float contentH = std::max(size.y,
+            _renderer.getTotalHeight() + padding * 2.f);
+        _scrollPane.setContentHeight(contentH);
+        scrollToCursor();
+    }
+
+    // ── scrollToCursor ────────────────────────────────────────────────────────
+
+    void TextArea::scrollToCursor()
+    {
+        // charIndexToPosition returns canvas-local coords with origin already applied:
+        //   canvasY = (padding - scrollY) + rawLineY
+        // So: rawLineY = canvasY - padding + scrollY
+        const sf::Vector2f cursorCanvas =
+            _renderer.charIndexToPosition(_buffer.getCursor());
+
+        const float currentScrollY = _scrollPane.getScrollOffsetY();
+        const float lineH          = static_cast<float>(fontSize) * 1.4f;
+        const float topEdge        = padding;
+        const float botEdge        = size.y - padding;
+        const float contentH       = std::max(size.y,
+            _renderer.getTotalHeight() + padding * 2.f);
+        const float maxScroll      = std::max(0.f, contentH - size.y);
+
+        if (cursorCanvas.y < topEdge)
+        {
+            // Cursor above visible area: rawY = cursorCanvas.y - topEdge + currentScrollY
+            const float newScroll = std::max(0.f,
+                cursorCanvas.y - topEdge + currentScrollY);
+            _scrollPane.setScrollOffsetY(newScroll);
+            reflow();
+        }
+        else if (cursorCanvas.y + lineH > botEdge)
+        {
+            // Cursor below visible area
+            const float visible  = botEdge - topEdge;
+            const float newScroll = std::min(maxScroll,
+                cursorCanvas.y - topEdge + currentScrollY + lineH - visible);
+            _scrollPane.setScrollOffsetY(newScroll);
+            reflow();
+        }
+    }
+
+        // ── handleTextAreaKeypress ────────────────────────────────────────────────
 
     void TextArea::handleTextAreaKeypress(const sf::Event::KeyPressed& kp)
     {
@@ -289,7 +340,21 @@ namespace ml
         drawScrollbar(target, states);
     }
 
-    // ── drawScrollbar ─────────────────────────────────────────────────────────
+    // ── hitTest override ─────────────────────────────────────────────────────
+
+    std::size_t TextArea::hitTest(const sf::Vector2f& worldPos) const
+    {
+        // Convert world click coords to canvas-local coords.
+        // Do NOT add scrollY — reflow() already bakes scrollY into every
+        // character's canvas position via the renderer origin.
+        // Adding it again would overshoot by exactly scrollY.
+        return _renderer.positionToCharIndex({
+            worldPos.x - _position.x,
+            worldPos.y - _position.y
+        });
+    }
+
+        // ── drawScrollbar ─────────────────────────────────────────────────────────
 
     void TextArea::drawScrollbar(sf::RenderTarget& target,
                                  const sf::RenderStates& states) const
