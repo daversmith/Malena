@@ -1,8 +1,11 @@
 // Copyright 2025 Dave R. Smith
 // SPDX-License-Identifier: Apache-2.0
 //
-// UIShowcase — demonstrates every Malena UI component.
-// Layout: MenuBar (30px) + Toolbar (44px) + 4 content columns.
+// UIShowcase:
+//   LEFT  — TabbedPanel  (Tab 1: Toggles | Tab 2: Selections)
+//   RIGHT — SplitPanel   (Left pane: Inputs | Right pane: List)
+//   TOP   — MenuBar + Toolbar
+//   SIDE  — SideMenu
 
 #include <Malena/Engine/App/Application.h>
 #include <Malena/Manifests/Manifest.h>
@@ -11,7 +14,6 @@
 #include <Malena/Graphics/Controls/PillToggle.h>
 #include <Malena/Graphics/Controls/SegmentToggle.h>
 #include <Malena/Graphics/Controls/ButtonToggle.h>
-#include <Malena/Graphics/Controls/ToggleGroup.h>
 #include <Malena/Graphics/Controls/Checkbox.h>
 #include <Malena/Graphics/Controls/CheckboxGroup.h>
 #include <Malena/Graphics/Controls/RadioButton.h>
@@ -21,13 +23,15 @@
 #include <Malena/Graphics/Controls/Select.h>
 #include <Malena/Graphics/Controls/List.h>
 #include <Malena/Graphics/Controls/ListItem.h>
-#include <Malena/Graphics/Primitives/Rectangle.h>
-#include <Malena/Graphics/Text/Text.h>
+#include <Malena/Graphics/Controls/TabbedPanel.h>
+#include <Malena/Graphics/Controls/SplitPanel.h>
 #include <Malena/Graphics/Controls/MenuBar.h>
 #include <Malena/Graphics/Controls/Toolbar.h>
 #include <Malena/Graphics/Controls/SideMenu.h>
+#include <Malena/Graphics/Primitives/Rectangle.h>
+#include <Malena/Graphics/Text/Text.h>
 
-// ── Custom themes ─────────────────────────────────────────────────────────────
+// ── Themes ────────────────────────────────────────────────────────────────────
 
 struct NeonTheme : ml::Theme { NeonTheme() {
     primary=sf::Color(0,255,180);  secondary=sf::Color(0,200,140);
@@ -51,10 +55,7 @@ struct OceanTheme : ml::Theme { OceanTheme() {
     muted=sf::Color(80,110,160);   radius=6.f;
 }};
 
-// ── Manifest ──────────────────────────────────────────────────────────────────
-
-class ShowcaseManifest : public ml::Manifest
-{
+class ShowcaseManifest : public ml::Manifest {
 public:
     enum class Themes { Dark, Neon, Warm, Ocean, Light };
     inline static const auto _ = [](){
@@ -73,50 +74,73 @@ class UIShowcaseApp : public ml::ApplicationWith<ShowcaseManifest>
 {
     using Themes = ShowcaseManifest::Themes;
 
-    // Layout constants
+    // Layout
     static constexpr float MENU_H    = 30.f;
     static constexpr float TOOLBARH = 44.f;
-    static constexpr float CONTENT_Y = MENU_H + TOOLBARH + 8.f;  // where columns start
+    static constexpr float CONTENT_Y = MENU_H + TOOLBARH + 8.f;  // 82
     static constexpr float WIN_W     = 1680.f;
     static constexpr float WIN_H     = 860.f;
-    static constexpr float COL_H     = WIN_H - CONTENT_Y - 30.f;  // available column height
+    static constexpr float COL_H     = WIN_H - CONTENT_Y - 26.f;  // 752
+    static constexpr float TAB_H     = 36.f;   // TabbedPanel strip
+    static constexpr float DIV_T     = 5.f;    // SplitPanel divider
 
-    // Column X positions
-    static constexpr float C1 = 60.f;   // Toggles
-    static constexpr float C2 = 460.f;  // Selections
-    static constexpr float C3 = 850.f;  // Inputs
-    static constexpr float C4 = 1240.f; // List
-    static constexpr float LW = 410.f;  // List width
+    // TabbedPanel: left half
+    static constexpr float TP_X      = 20.f;
+    static constexpr float TP_W      = 800.f;
+    static constexpr float TP_CX     = TP_X + 14.f;           // content left edge
+    static constexpr float TP_CY     = CONTENT_Y + TAB_H + 10.f; // content top edge
+
+    // SplitPanel: right half
+    static constexpr float SP_X      = 840.f;
+    static constexpr float SP_W      = WIN_W - SP_X - 20.f;   // 820
+    static constexpr float SP_PANE_W = (SP_W - DIV_T) / 2.f;  // ~407
+    static constexpr float SP_CY     = CONTENT_Y + 10.f;
+    static constexpr float SP_L_CX   = SP_X + 14.f;           // left pane content x
+    static constexpr float SP_R_CX   = SP_X + SP_PANE_W + DIV_T + 14.f; // right pane x
 
     // ── Background ────────────────────────────────────────────────────────────
     ml::Rectangle _bg;
 
-    // ── Column dividers ───────────────────────────────────────────────────────
-    ml::Rectangle _div1, _div2, _div3;
+    // ── Tab content backgrounds (registered so TabbedPanel can reference them)
+    ml::Rectangle _tabTogglesBg;     // Tab 1 background
+    ml::Rectangle _tabSelectionsBg;  // Tab 2 background
 
-    // ── Section headings ──────────────────────────────────────────────────────
-    ml::Text _headToggles, _headSelections, _headInputs, _headList;
+    // ── Split pane backgrounds ────────────────────────────────────────────────
+    ml::Rectangle _paneInputsBg;
+    ml::Rectangle _paneListBg;
 
-    // ── COL 1 — TOGGLES ──────────────────────────────────────────────────────
+    // ── TabbedPanel + SplitPanel ──────────────────────────────────────────────
+    ml::TabbedPanel _tabs;
+    ml::SplitPanel  _split;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TAB 1 — TOGGLES
+    // ─────────────────────────────────────────────────────────────────────────
     ml::Text          _pillHead, _segHead, _btnHead;
     ml::PillToggle    _pillDefault, _pillGreen, _pillLarge,
                       _pillInside, _pillDisabled, _pillLocked;
     ml::SegmentToggle _segDefault, _segHotels;
     ml::ButtonToggle  _btnSave, _btnMute, _btnBtnDisabled;
 
-    // ── COL 2 — SELECTIONS ───────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // TAB 2 — SELECTIONS
+    // ─────────────────────────────────────────────────────────────────────────
     ml::Text          _checkHead, _checkGroupHead, _radioHead;
     ml::Checkbox      _chkOne, _chkTwo, _chkThree, _chkDisabled;
     ml::CheckboxGroup _checkGroup;
     ml::RadioGroup    _radioGroup;
 
-    // ── COL 3 — INPUTS ───────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // LEFT PANE — INPUTS
+    // ─────────────────────────────────────────────────────────────────────────
     ml::Text      _inputHead, _areaHead, _selectHead;
     ml::TextInput _inputDefault, _inputPassword, _inputDisabled, _inputError;
     ml::TextArea  _textArea;
     ml::Select    _select;
 
-    // ── COL 4 — LIST ─────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // RIGHT PANE — LIST
+    // ─────────────────────────────────────────────────────────────────────────
     ml::Text      _listHead;
     ml::List      _list;
     ml::Rectangle _iconWifi, _iconBt, _iconDark, _iconNote, _iconAlert;
@@ -124,18 +148,13 @@ class UIShowcaseApp : public ml::ApplicationWith<ShowcaseManifest>
     ml::Checkbox  _chkList;
     ml::ButtonToggle _btnListAction;
 
-    // ── Status bar ────────────────────────────────────────────────────────────
-    ml::Text _status;
-
-    // ── Overlay components — added LAST ───────────────────────────────────────
+    // ── Status + overlays ─────────────────────────────────────────────────────
+    ml::Text     _status;
     ml::MenuBar  _menuBar;
     ml::Toolbar  _toolbar;
     ml::SideMenu _sideMenu;
 
-    bool _themeChanging = false;
-
     // ── Helpers ───────────────────────────────────────────────────────────────
-
     void setStatus(const std::string& s) { _status.setString(s); }
 
     void heading(ml::Text& t, const std::string& s, float x, float y)
@@ -149,9 +168,7 @@ class UIShowcaseApp : public ml::ApplicationWith<ShowcaseManifest>
     }
 
     void icon(ml::Rectangle& r, const sf::Color& c)
-    {
-        r.setSize({22.f, 22.f}); r.setRadius(4.f); r.setFillColor(c);
-    }
+    { r.setSize({22.f,22.f}); r.setRadius(4.f); r.setFillColor(c); }
 
 public:
     UIShowcaseApp()
@@ -165,46 +182,31 @@ public:
         ml::ThemeManager::apply<ShowcaseManifest>(Themes::Dark);
 
         // ── Background ────────────────────────────────────────────────────────
-        _bg.setSize({WIN_W - 20.f, WIN_H - 20.f});
+        _bg.setSize({WIN_W-20.f, WIN_H-20.f});
         _bg.setFillColor(sf::Color(18,18,24));
         _bg.setPosition({10.f, 10.f});
         addComponent(_bg);
 
-        // ── Column dividers ───────────────────────────────────────────────────
-        for (auto [div, x] : std::initializer_list<std::pair<ml::Rectangle*, float>>{
-            {&_div1, C2-10.f}, {&_div2, C3-10.f}, {&_div3, C4-10.f}})
-        {
-            div->setSize({1.f, COL_H});
-            div->setFillColor(sf::Color(60,60,60));
-            div->setPosition({x, CONTENT_Y});
-            addComponent(*div);
-        }
-
-        // ── Section headings ──────────────────────────────────────────────────
-        heading(_headToggles,    "TOGGLES",    C1,  CONTENT_Y);
-        heading(_headSelections, "SELECTIONS", C2,  CONTENT_Y);
-        heading(_headInputs,     "INPUTS",     C3,  CONTENT_Y);
-        heading(_headList,       "LIST",       C4,  CONTENT_Y);
-
         // ─────────────────────────────────────────────────────────────────────
-        // COL 1 — TOGGLES
+        // TAB 1 — TOGGLES  (positioned at TP_CX, TP_CY)
         // ─────────────────────────────────────────────────────────────────────
-        float y = CONTENT_Y + 20.f;
+        float y = TP_CY;
+        const float C1 = TP_CX;
 
-        heading(_pillHead, "PILL", C1, y); y += 22.f;
+        heading(_pillHead,"PILL", C1, y); y+=22.f;
 
         _pillDefault.setRightLabel("Default");
         _pillDefault.setPosition({C1,y}); addComponent(_pillDefault); y+=32.f;
 
         _pillGreen.setTrackOnColor(sf::Color(70,200,100));
         _pillGreen.lockTheme();
-        _pillGreen.setRightLabel("Custom green");
+        _pillGreen.setRightLabel("Custom green (locked)");
         _pillGreen.setPosition({C1,y}); addComponent(_pillGreen); y+=32.f;
 
         _pillLarge.setTrackSize({70.f,34.f});
         _pillLarge.setPillLabels("NO","YES");
         _pillLarge.setOn(true);
-        _pillLarge.setRightLabel("Large / ON");
+        _pillLarge.setRightLabel("Large / starts ON");
         _pillLarge.setPosition({C1,y}); addComponent(_pillLarge); y+=44.f;
 
         _pillInside.setPillLabels("OFF","ON");
@@ -219,55 +221,58 @@ public:
         _pillLocked.setTrackOnColor(sf::Color(220,60,60));
         _pillLocked.setTrackOffColor(sf::Color(70,70,70));
         _pillLocked.lockTheme();
-        _pillLocked.setRightLabel("Locked (red)");
+        _pillLocked.setRightLabel("Locked red");
         _pillLocked.setPosition({C1,y}); addComponent(_pillLocked); y+=42.f;
 
-        heading(_segHead, "SEGMENT", C1, y); y+=22.f;
+        heading(_segHead,"SEGMENT", C1, y); y+=22.f;
         _segDefault.setSegmentLabels("Off","On");
-        _segDefault.setSize({180.f,34.f});
+        _segDefault.setSize({200.f,34.f});
         _segDefault.setPosition({C1,y}); addComponent(_segDefault); y+=46.f;
 
         _segHotels.setSegmentLabels("Hotels","Apartments");
-        _segHotels.setSize({200.f,34.f});
+        _segHotels.setSize({220.f,34.f});
         _segHotels.setPosition({C1,y}); addComponent(_segHotels); y+=50.f;
 
-        heading(_btnHead, "BUTTON TOGGLE", C1, y); y+=22.f;
+        heading(_btnHead,"BUTTON TOGGLE", C1, y); y+=22.f;
         _btnSave.setOffLabel("Save"); _btnSave.setOnLabel("Saved");
-        _btnSave.setSize({110.f,34.f});
+        _btnSave.setSize({120.f,34.f});
         _btnSave.setPosition({C1,y}); addComponent(_btnSave); y+=46.f;
 
         _btnMute.setOffLabel("Unmuted"); _btnMute.setOnLabel("Muted");
         _btnMute.setOnColor(sf::Color(200,60,60));
-        _btnMute.setSize({110.f,34.f});
+        _btnMute.setSize({120.f,34.f});
         _btnMute.setPosition({C1,y}); addComponent(_btnMute); y+=46.f;
 
         _btnBtnDisabled.setOffLabel("Disabled");
-        _btnBtnDisabled.setSize({110.f,34.f});
+        _btnBtnDisabled.setSize({120.f,34.f});
         _btnBtnDisabled.setEnabled(false);
         _btnBtnDisabled.setPosition({C1,y}); addComponent(_btnBtnDisabled);
 
         // ─────────────────────────────────────────────────────────────────────
-        // COL 2 — SELECTIONS
+        // TAB 2 — SELECTIONS  (same top-left as Tab 1 — TabbedPanel repositions)
         // ─────────────────────────────────────────────────────────────────────
-        y = CONTENT_Y + 20.f;
-        heading(_checkHead, "CHECKBOX", C2, y); y+=22.f;
+        y = TP_CY;
+        const float C2 = TP_CX;
 
-        auto addCb = [&](ml::Checkbox& cb, const char* lbl, bool chk, bool dis){
-            cb.setLabel(lbl);
-            if (chk) cb.check();
-            if (dis) cb.setEnabled(false);
-            cb.setPosition({C2,y}); addComponent(cb); y+=30.f;
-        };
-        addCb(_chkOne,     "Enable fullscreen",  false, false);
-        addCb(_chkTwo,     "Enable VSync",        false, false);
-        addCb(_chkThree,   "Show FPS counter",    true,  false);
-        addCb(_chkDisabled,"Disabled option",     false, true);
+        heading(_checkHead,"CHECKBOX", C2, y); y+=22.f;
+        for (auto [cb, lbl, chk, dis] :
+            std::initializer_list<std::tuple<ml::Checkbox*,const char*,bool,bool>>{
+                {&_chkOne,     "Enable fullscreen",  false, false},
+                {&_chkTwo,     "Enable VSync",        false, false},
+                {&_chkThree,   "Show FPS counter",    true,  false},
+                {&_chkDisabled,"Disabled option",     false, true }})
+        {
+            cb->setLabel(lbl);
+            if (chk) cb->check();
+            if (dis) cb->setEnabled(false);
+            cb->setPosition({C2,y}); addComponent(*cb); y+=30.f;
+        }
         y+=16.f;
 
         heading(_checkGroupHead,"CHECKBOX GROUP", C2, y); y+=22.f;
-        _checkGroup.addOption("Dark mode",true);
+        _checkGroup.addOption("Dark mode", true);
         _checkGroup.addOption("Subtitles");
-        _checkGroup.addOption("Auto-save",true);
+        _checkGroup.addOption("Auto-save", true);
         _checkGroup.addOption("Analytics");
         _checkGroup.showBackground = true;
         _checkGroup.padding = 10.f;
@@ -286,32 +291,61 @@ public:
         _radioGroup.spacing = 4.f;
         _radioGroup.setPosition({C2,y}); addComponent(_radioGroup);
 
-        // ─────────────────────────────────────────────────────────────────────
-        // COL 3 — INPUTS
-        // ─────────────────────────────────────────────────────────────────────
-        y = CONTENT_Y + 20.f;
-        heading(_inputHead, "TEXT INPUT", C3, y); y+=22.f;
+        // ── Tab backgrounds — what TabbedPanel uses as its "content" ──────────
+        _tabTogglesBg.setSize({TP_W, COL_H - TAB_H});
+        _tabTogglesBg.setFillColor(sf::Color::Transparent);
+        _tabSelectionsBg.setSize({TP_W, COL_H - TAB_H});
+        _tabSelectionsBg.setFillColor(sf::Color::Transparent);
 
-        auto addInput = [&](ml::TextInput& inp, const char* ph, bool pass, bool dis, bool err){
-            inp.setSize({350.f,34.f});
-            inp.setPlaceholder(ph);
-            if (pass) inp.setPasswordMode(true);
-            if (dis)  { inp.setValue("Disabled field"); inp.setEnabled(false); }
-            if (err)  inp.setError(true);
-            inp.setPosition({C3,y}); addComponent(inp); y+=46.f;
-        };
-        addInput(_inputDefault,  "Default input...",  false, false, false);
-        addInput(_inputPassword, "Password...",        true,  false, false);
-        addInput(_inputDisabled, "",                   false, true,  false);
-        addInput(_inputError,    "Error state...",     false, false, true);
+        // ── TabbedPanel ───────────────────────────────────────────────────────
+        _tabs.setSize({TP_W, COL_H});
+        _tabs.setPosition({TP_X, CONTENT_Y});
+        _tabs.setCloseable(true);
+        // Transparent bg so independently-drawn components show through
+        _tabs.contentBg = sf::Color::Transparent;
+        _tabs.tabBarThickness = 1.f;  // keep border outline
+        _tabs.addTab("Toggles",    _tabTogglesBg);
+        _tabs.addTab("Selections", _tabSelectionsBg);
+        _tabs.onTabChanged([this](std::size_t i, const std::string& lbl){
+            setStatus("Tab: " + lbl);
+        });
+        addComponent(_tabs);
+
+        // ─────────────────────────────────────────────────────────────────────
+        // LEFT PANE — INPUTS  (SP_L_CX, SP_CY)
+        // ─────────────────────────────────────────────────────────────────────
+        y = SP_CY;
+        const float C3 = SP_L_CX;
+        const float INPUT_W = SP_PANE_W - 28.f;  // fits in pane with margins
+
+        heading(_inputHead,"TEXT INPUT", C3, y); y+=22.f;
+
+        _inputDefault.setSize({INPUT_W,34.f});
+        _inputDefault.setPlaceholder("Default input...");
+        _inputDefault.setPosition({C3,y}); addComponent(_inputDefault); y+=46.f;
+
+        _inputPassword.setSize({INPUT_W,34.f});
+        _inputPassword.setPlaceholder("Password...");
+        _inputPassword.setPasswordMode(true);
+        _inputPassword.setPosition({C3,y}); addComponent(_inputPassword); y+=46.f;
+
+        _inputDisabled.setSize({INPUT_W,34.f});
+        _inputDisabled.setValue("Disabled field");
+        _inputDisabled.setEnabled(false);
+        _inputDisabled.setPosition({C3,y}); addComponent(_inputDisabled); y+=46.f;
+
+        _inputError.setSize({INPUT_W,34.f});
+        _inputError.setPlaceholder("Error state...");
+        _inputError.setError(true);
+        _inputError.setPosition({C3,y}); addComponent(_inputError); y+=54.f;
 
         heading(_areaHead,"TEXT AREA", C3, y); y+=22.f;
-        _textArea.setSize({350.f,110.f});
+        _textArea.setSize({INPUT_W,130.f});
         _textArea.setPlaceholder("Multi-line text area...");
-        _textArea.setPosition({C3,y}); addComponent(_textArea); y+=126.f;
+        _textArea.setPosition({C3,y}); addComponent(_textArea); y+=146.f;
 
         heading(_selectHead,"SELECT", C3, y); y+=22.f;
-        _select.size = {350.f,34.f};
+        _select.size = {INPUT_W, 34.f};
         _select.setPlaceholder("Choose difficulty...");
         { ml::SelectOptionStyle s; s.color=sf::Color(100,220,100);
           s.description="For beginners";
@@ -328,15 +362,17 @@ public:
         _select.setPosition({C3,y}); addComponent(_select);
 
         // ─────────────────────────────────────────────────────────────────────
-        // COL 4 — LIST
+        // RIGHT PANE — LIST  (SP_R_CX, SP_CY)
         // ─────────────────────────────────────────────────────────────────────
-        y = CONTENT_Y + 20.f;
-        heading(_listHead,"LIST - ALL SLOTS", C4, y); y+=22.f;
+        y = SP_CY;
+        const float C4     = SP_R_CX;
+        const float LIST_W = SP_PANE_W - 28.f;
+
+        heading(_listHead,"LIST — ALL SLOTS", C4, y); y+=22.f;
 
         icon(_iconWifi,  sf::Color(70,130,230));
         icon(_iconBt,    sf::Color(150,80,220));
         icon(_iconDark,  sf::Color(60,180,120));
-        icon(_iconNote,  sf::Color(220,160,40));
         icon(_iconAlert, sf::Color(220,70,70));
 
         _toggleWifi.setOn(true);
@@ -346,13 +382,13 @@ public:
         _btnListAction.setOnLabel("Details");
         _btnListAction.setSize({80.f,28.f});
 
-        _list.setWidth(LW);
+        _list.setWidth(LIST_W);
         _list.showBackground = true;
         _list.showDividers   = true;
 
         { auto& i=_list.addItem("Notifications");
           i.onClick([this]{ setStatus("Notifications clicked"); }); }
-        { auto& i=_list.addItem("Account","Manage profile and preferences");
+        { auto& i=_list.addItem("Account","Manage profile");
           i.onClick([this]{ setStatus("Account clicked"); }); }
         { auto& i=_list.addItem("Bluetooth");
           i.setStart(_iconBt); }
@@ -360,7 +396,7 @@ public:
           i.setEnd(_toggleWifi); }
         { auto& i=_list.addItem("Dark mode","Reduces eye strain");
           i.setStart(_iconDark); i.setEnd(_toggleDark); }
-        { auto& i=_list.addItem("Alerts","Critical notifications only");
+        { auto& i=_list.addItem("Alerts","Critical only");
           i.setStart(_iconAlert); i.setEnd(_btnListAction); }
         { auto& i=_list.addItem("Remember login");
           i.setStart(_chkList);
@@ -371,47 +407,56 @@ public:
         _list.setPosition({C4, y});
         addComponent(_list);
 
+        // ── Pane backgrounds ──────────────────────────────────────────────────
+        _paneInputsBg.setSize({SP_PANE_W, COL_H});
+        _paneInputsBg.setFillColor(sf::Color::Transparent);
+        _paneListBg.setSize({SP_PANE_W, COL_H});
+        _paneListBg.setFillColor(sf::Color::Transparent);
+
+        // ── SplitPanel ────────────────────────────────────────────────────────
+        _split.setSize({SP_W, COL_H});
+        _split.setPosition({SP_X, CONTENT_Y});
+        _split.setDividerThick(DIV_T);
+        // Transparent pane backgrounds so components show through
+        _split.paneBg = sf::Color::Transparent;
+        _split.addPane(_paneInputsBg, SP_PANE_W);
+        _split.addPane(_paneListBg,   SP_PANE_W);
+        _split.setPaneMinSize(0, 200.f);
+        _split.setPaneMinSize(1, 200.f);
+        _split.onDividerMoved([this](std::size_t, float pos){
+            setStatus("Divider moved to " + std::to_string(static_cast<int>(pos)) + "px");
+        });
+        addComponent(_split);
+
         // ── Status bar ────────────────────────────────────────────────────────
         _status.setCharacterSize(11);
         _status.setFillColor(sf::Color(140,140,140));
-        _status.setString("Interact with any component — overlay components (MenuBar/Toolbar/SideMenu) added last");
-        _status.setPosition({20.f, WIN_H - 22.f});
+        _status.setString("Interact with any component  |  Drag the divider between panes  |  Switch tabs at top-left");
+        _status.setPosition({20.f, WIN_H - 20.f});
         addComponent(_status);
 
         // ─────────────────────────────────────────────────────────────────────
-        // OVERLAY COMPONENTS — must be added LAST to draw on top
+        // OVERLAY COMPONENTS — added LAST so they draw on top
         // ─────────────────────────────────────────────────────────────────────
 
-        // ── MenuBar (y=0, fills window width) ─────────────────────────────────
+        // ── MenuBar ───────────────────────────────────────────────────────────
         _menuBar.setPosition({0.f, 0.f});
         _menuBar.addMenu("File", {
-            ml::MenuItem::item("New",   [this]{ setStatus("File > New"); },   "Ctrl+N"),
-            ml::MenuItem::item("Open",  [this]{ setStatus("File > Open"); },  "Ctrl+O"),
+            ml::MenuItem::item("New",   [this]{ setStatus("New"); },   "Ctrl+N"),
+            ml::MenuItem::item("Open",  [this]{ setStatus("Open"); },  "Ctrl+O"),
             ml::MenuItem::sep(),
-            ml::MenuItem::item("Save",  [this]{ setStatus("File > Save"); },  "Ctrl+S"),
-            ml::MenuItem::item("Export",[this]{ setStatus("File > Export"); }),
+            ml::MenuItem::item("Save",  [this]{ setStatus("Save"); },  "Ctrl+S"),
             ml::MenuItem::sep(),
-            ml::MenuItem::item("Quit",  [this]{ setStatus("Quit!"); },        "Ctrl+Q"),
+            ml::MenuItem::item("Quit",  [this]{ setStatus("Quit"); },  "Ctrl+Q"),
         });
         _menuBar.addMenu("Edit", {
             ml::MenuItem::item("Undo",  [this]{ setStatus("Undo"); }, "Ctrl+Z"),
             ml::MenuItem::item("Redo",  [this]{ setStatus("Redo"); }, "Ctrl+Y"),
             ml::MenuItem::sep(),
-            ml::MenuItem::item("Cut",   [this]{ setStatus("Cut"); },   "Ctrl+X"),
-            ml::MenuItem::item("Copy",  [this]{ setStatus("Copy"); },  "Ctrl+C"),
-            ml::MenuItem::item("Paste", [this]{ setStatus("Paste"); }, "Ctrl+V"),
-            ml::MenuItem::sep(),
             ml::MenuItem::sub("Insert", {
                 ml::MenuItem::item("Table"),
                 ml::MenuItem::item("Image"),
-                ml::MenuItem::item("Code block"),
             }),
-        });
-        _menuBar.addMenu("View", {
-            ml::MenuItem::item("Zoom In",  [this]{ setStatus("Zoom In"); },  "Ctrl++"),
-            ml::MenuItem::item("Zoom Out", [this]{ setStatus("Zoom Out"); }, "Ctrl+-"),
-            ml::MenuItem::sep(),
-            ml::MenuItem::disabled("Full Screen  (coming soon)"),
         });
         _menuBar.addMenu("Theme", {
             ml::MenuItem::item("Dark",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Dark);  setStatus("Theme: Dark"); }),
@@ -420,39 +465,38 @@ public:
             ml::MenuItem::item("Ocean", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Ocean); setStatus("Theme: Ocean"); }),
             ml::MenuItem::item("Light", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Light); setStatus("Theme: Light"); }),
         });
-        _menuBar.addMenu("Help", {
-            ml::MenuItem::item("Documentation",[this]{ setStatus("Docs"); }),
-            ml::MenuItem::item("About Malena", [this]{ setStatus("Malena Framework"); }),
+        _menuBar.addMenu("View", {
+            ml::MenuItem::item("Zoom In",  [this]{ setStatus("Zoom In"); },  "Ctrl++"),
+            ml::MenuItem::item("Zoom Out", [this]{ setStatus("Zoom Out"); }, "Ctrl+-"),
         });
+        _menuBar.addMenu("Help", {
+            ml::MenuItem::item("About", [this]{ setStatus("Malena Framework"); }),
+        });
+        addComponent(_menuBar);
 
-
-        // ── Toolbar (y = MENU_H) ──────────────────────────────────────────────
+        // ── Toolbar ───────────────────────────────────────────────────────────
         _toolbar.setPosition({0.f, MENU_H});
-        _toolbar.addButton("New",   [this]{ setStatus("Toolbar: New"); });
-        _toolbar.addButton("Open",  [this]{ setStatus("Toolbar: Open"); });
-        _toolbar.addButton("Save",  [this]{ setStatus("Toolbar: Save"); });
+        _toolbar.addButton("New",   [this]{ setStatus("New"); });
+        _toolbar.addButton("Open",  [this]{ setStatus("Open"); });
+        _toolbar.addButton("Save",  [this]{ setStatus("Save"); });
         _toolbar.addSeparator();
-        _toolbar.addButton("Undo",  [this]{ setStatus("Toolbar: Undo"); });
-        _toolbar.addButton("Redo",  [this]{ setStatus("Toolbar: Redo"); });
+        _toolbar.addButton("Undo",  [this]{ setStatus("Undo"); });
+        _toolbar.addButton("Redo",  [this]{ setStatus("Redo"); });
         _toolbar.addSeparator();
-        _toolbar.addButton("Cut",   [this]{ setStatus("Toolbar: Cut"); });
-        _toolbar.addButton("Copy",  [this]{ setStatus("Toolbar: Copy"); });
-        _toolbar.addButton("Paste", [this]{ setStatus("Toolbar: Paste"); });
-        _toolbar.addSeparator();
-        _toolbar.addButton("Dark",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Dark);  });
-        _toolbar.addButton("Neon",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Neon);  });
-        _toolbar.addButton("Warm",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Warm);  });
+        _toolbar.addButton("Dark",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Dark); });
+        _toolbar.addButton("Neon",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Neon); });
+        _toolbar.addButton("Warm",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Warm); });
         _toolbar.addButton("Ocean", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Ocean); });
         _toolbar.addButton("Light", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Light); });
         addComponent(_toolbar);
-    	addComponent(_menuBar);
-        // ── SideMenu (hamburger top-left, 60px down to clear MenuBar+Toolbar) ─
+
+        // ── SideMenu ──────────────────────────────────────────────────────────
         _sideMenu.setHamburgerPosition({8.f, MENU_H + TOOLBARH * 0.5f - 24.f});
         {
             auto& list = _sideMenu.getList();
             list.addItem("Home",     "Dashboard");
-            list.addItem("Projects", "Browse all projects");
-            list.addItem("Settings", "Preferences and config");
+            list.addItem("Projects", "Browse all");
+            list.addItem("Settings", "Preferences");
             list.addItem("Profile",  "Your account");
             list.addItem("Help",     "Documentation");
             addComponent(list);
@@ -464,19 +508,21 @@ public:
 
     void onReady() override
     {
-        _pillDefault.onToggled([&](bool on){ setStatus(std::string("Pill: ")+(on?"ON":"OFF")); });
-        _pillGreen.onToggled([&](bool on){   setStatus(std::string("Green pill: ")+(on?"ON":"OFF")); });
-        _pillLarge.onToggled([&](bool on){   setStatus(std::string("Large pill: ")+(on?"YES":"NO")); });
-        _pillInside.onToggled([&](bool on){  setStatus(std::string("Inside: ")+(on?"ON":"OFF")); });
-        _pillLocked.onToggled([&](bool on){  setStatus(std::string("Locked: ")+(on?"ON":"OFF")); });
-        _segDefault.onToggled([&](bool on){  setStatus(std::string("Seg: ")+(on?"On":"Off")); });
-        _segHotels.onToggled([&](bool on){   setStatus(std::string("View: ")+(on?"Apartments":"Hotels")); });
+        // Toggles
+        _pillDefault.onToggled([&](bool on){ setStatus("Pill: "      +std::string(on?"ON":"OFF")); });
+        _pillGreen.onToggled([&](bool on){   setStatus("Green pill: " +std::string(on?"ON":"OFF")); });
+        _pillLarge.onToggled([&](bool on){   setStatus("Large pill: " +std::string(on?"YES":"NO")); });
+        _pillInside.onToggled([&](bool on){  setStatus("Inside: "     +std::string(on?"ON":"OFF")); });
+        _pillLocked.onToggled([&](bool on){  setStatus("Locked: "     +std::string(on?"ON":"OFF")); });
+        _segDefault.onToggled([&](bool on){  setStatus("Segment: "    +std::string(on?"On":"Off")); });
+        _segHotels.onToggled([&](bool on){   setStatus("View: "       +std::string(on?"Apartments":"Hotels")); });
         _btnSave.onToggled([&](bool on){ setStatus(on?"Saved!":"Save cleared"); });
         _btnMute.onToggled([&](bool on){ setStatus(on?"Muted":"Unmuted"); });
 
-        _chkOne.onSelected([&]{   setStatus("Fullscreen: on"); });
+        // Checkboxes
+        _chkOne.onSelected([&]{ setStatus("Fullscreen: on"); });
         _chkOne.onDeselected([&]{ setStatus("Fullscreen: off"); });
-        _chkTwo.onSelected([&]{   setStatus("VSync: on"); });
+        _chkTwo.onSelected([&]{ setStatus("VSync: on"); });
         _chkTwo.onDeselected([&]{ setStatus("VSync: off"); });
         _checkGroup.onSelectionChanged([&](const std::vector<std::string>& v){
             std::string s="Group: ";
@@ -487,16 +533,18 @@ public:
         _radioGroup.onSelectionChanged([&](const std::string& l, std::size_t){
             setStatus("Difficulty: "+l);
         });
+
+        // Inputs
         _inputDefault.onChange([&](const std::string& v){ setStatus("Input: "+v); });
         _inputDefault.onSubmit([&](const std::string& v){ setStatus("Submitted: "+v); });
         _textArea.onChange([&](const std::string& v){
-            setStatus("TextArea: "+std::to_string(v.size())+" chars");
-        });
+            setStatus("TextArea: "+std::to_string(v.size())+" chars"); });
         _select.onSelectionChanged([&](const std::string& v, std::size_t){
-            setStatus("Selected: "+v);
-        });
-        _toggleWifi.onToggled([&](bool on){ setStatus(std::string("Wi-Fi: ")+(on?"on":"off")); });
-        _toggleDark.onToggled([&](bool on){ setStatus(std::string("Dark mode: ")+(on?"on":"off")); });
+            setStatus("Selected: "+v); });
+
+        // List
+        _toggleWifi.onToggled([&](bool on){ setStatus("Wi-Fi: "     +std::string(on?"on":"off")); });
+        _toggleDark.onToggled([&](bool on){ setStatus("Dark mode: " +std::string(on?"on":"off")); });
     }
 };
 
