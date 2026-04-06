@@ -36,7 +36,7 @@ namespace ml::WindowManager
      * window.draw(myShape);
      *
      * // Pass it explicitly where an sf::RenderWindow& is required
-     * ml::Application app(videoMode, "My App", controller,
+     * ml::Application app(videoMode, "My App",
      *                      ml::WindowManager::getWindow());
      * @endcode
      *

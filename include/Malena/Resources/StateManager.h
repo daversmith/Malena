@@ -77,13 +77,10 @@ namespace ml
      * @tparam StateEnum An @c enum @c class type representing the possible states.
      *                   Defaults to @c void (selects the no-op specialization).
      *
+     * @ingroup Traits
      * @see Customizable, MultiCustomStateManager, GatherStates
      */
     template<typename StateEnum = void>
-    /**
-     * @brief StateManager.
-     * @ingroup Resources
-     */
     class StateManager
     {
     private:

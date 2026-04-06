@@ -51,13 +51,10 @@ namespace ml
      *                   Typically @c ml::Flag for system flags, or a manifest
      *                   @c Flag enum for custom flags.
      *
+     * @ingroup Traits
      * @see Flaggable, CustomFlaggable, MultiCustomFlaggable, ml::Flag
      */
     template<typename StateEnum>
-    /**
-     * @brief FlagManager.
-     * @ingroup Resources
-     */
     class FlagManager
     {
     public:

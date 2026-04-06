@@ -24,6 +24,8 @@
 #include "SignalBoard.h"
 #include <Malena/Utilities/Align.h>
 
+#include "Malena/Graphics/Controls/ListItem.h"
+
 // ── Spacing constants ─────────────────────────────────────────────────────────
 namespace Spacing
 {
@@ -62,7 +64,8 @@ SignalBoard::SignalBoard()
           static_cast<unsigned int>(Spacing::WIN_W),
           static_cast<unsigned int>(Spacing::WIN_H),
           32,
-          "SignalBoard - Malena Events and Messaging Demo")
+          "SignalBoard - Malena Events and Messaging Demo"),
+		pane(200.f, 200.f)
 {
 }
 
@@ -70,7 +73,7 @@ SignalBoard::SignalBoard()
 //  initialization()
 // ─────────────────────────────────────────────────────────────────────────────
 
-void SignalBoard::initialization()
+void SignalBoard::onInit()
 {
     // ── EventLog — the right-side layout anchor ───────────────────────────────
     //  One absolute setPosition call anchors the whole right column.
@@ -170,7 +173,7 @@ void SignalBoard::initialization()
 //  registerEvents()
 // ─────────────────────────────────────────────────────────────────────────────
 
-void SignalBoard::registerEvents()
+void SignalBoard::onReady()
 {
     // Individual tower buttons — publish targeted string event
     // _btnA.onClick([]() { ml::EventManager::fire(Events::towerFire(0)); });

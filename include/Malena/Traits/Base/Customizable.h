@@ -11,6 +11,7 @@ namespace ml
 {
     /**
      * @brief Tags a class with a manifest type and wires in its @c State manager.
+     * @ingroup Traits
      *
      * @c Customizable<Manifest> is the base class for any framework type that
      * needs to declare a manifest — traits, graphics components, and plugins
@@ -55,10 +56,6 @@ namespace ml
      * @see ComponentCore, GatherFlags, GatherStates, StateManager, MultiCustomFlaggable
      */
     template<typename Manifest>
-    /**
-     * @brief Customizable.
-     * @ingroup Traits
-     */
     class Customizable : public StateManager<typename extract_State<Manifest>::type>
     {
     public:

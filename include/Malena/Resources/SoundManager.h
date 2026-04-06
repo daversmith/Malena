@@ -42,13 +42,10 @@ namespace ml
      * @tparam Manifest A @c Manifest subclass with a @c Sounds enum whose
      *                  values map to audio file paths.
      *
+     * @ingroup Resources
      * @see ResourceManager, AssetsManager, Manifest
      */
     template<typename Manifest>
-    /**
-     * @brief SoundManager.
-     * @ingroup Resources
-     */
     class SoundManager : public ml::ResourceManager<Manifest, sf::SoundBuffer>
     {};
 

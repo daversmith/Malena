@@ -67,8 +67,8 @@ namespace ml
      *
      * // Query each plugin for an optional interface
      * for (auto* plugin : pluginManager.getPlugins()) {
-     *     if (auto* ui = plugin->getIf<ml::UIComponent>()) {
-     *         addComponent(*ui);
+     *     if (auto* drawable = plugin->getIf<IDrawablePlugin>()) {
+     *         addComponent(drawable->getComponent());
      *     }
      * }
      *
@@ -140,7 +140,7 @@ namespace ml
          * @brief Unload a plugin and close its shared library.
          *
          * Queues the following sequence for deferred execution:
-         * -# @c EventsManager::forceUnsubscribeAll and
+         * -# @c EventManager::forceUnsubscribeAll and
          *    @c MessageManager::forceUnsubscribeAll — removes all subscriptions
          *    immediately so no callbacks fire after the plugin is gone.
          * -# @c Plugin::onUnload() — gives the plugin a chance to clean up.

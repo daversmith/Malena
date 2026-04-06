@@ -50,13 +50,10 @@ namespace ml
      *           that provides @c setPosition, @c getPosition, and
      *           @c getGlobalBounds.
      *
+     * @ingroup GraphicsBase
      * @see Rectangle, Circle, Sprite, ComponentCore, Component
      */
     template<typename T>
-    /**
-     * @brief Graphic.
-     * @ingroup GraphicsBase
-     */
     class Graphic : public T, public virtual ComponentCore<>
     {
     public:

@@ -124,13 +124,10 @@ namespace ml
      *                    The empty specialization is used when no custom states
      *                    are declared.
      *
+     * @ingroup TraitsBase
      * @see SingleStateManager, GatherStates, ComponentCore
      */
     template<typename... StateEnums>
-    /**
-     * @brief MultiCustomStateManager.
-     * @ingroup TraitsBase
-     */
     class MultiCustomStateManager : public SingleStateManager<StateEnums>...
     {
     public:

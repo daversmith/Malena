@@ -650,4 +650,4 @@ Full documentation is available at **[malena.app](https://malena.app)**.
 
 ## License
 
-MIT. See [`LICENSE.md`](LICENSE.md).
+MIT. See [`LICENSE`](LICENSE).

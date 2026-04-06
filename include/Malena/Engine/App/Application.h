@@ -10,14 +10,13 @@
 
 #pragma once
 
+#include <Malena/Traits/Lifecycle/Updatable.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
-#include <Malena/Engine/App/UIController.h>
 #include <Malena/Manifests/Manifest.h>
+#include <Malena/Manifests/ManifestResources.h>
 #include <string>
 #include <type_traits>
-
-#include <Malena/Manifests/ManifestResources.h>
 
 namespace ml
 {
@@ -31,7 +30,7 @@ namespace ml
      *
      * @see Application, ApplicationWith
      */
-    class ApplicationBase : public AppManager, public UIController
+    class ApplicationBase : public AppManager, public Updatable
     {
     public:
         /**
@@ -39,7 +38,6 @@ namespace ml
          */
         ApplicationBase(const sf::VideoMode& videoMode,
                         const std::string& title,
-                        UIController& appLogic,
                         sf::RenderWindow& window = WindowManager::getWindow());
 
         /**
@@ -50,11 +48,6 @@ namespace ml
                         unsigned int bitDepth,
                         const std::string& title);
 
-        /**
-         * @brief Construct from an SFML video mode, using @c *this as the controller.
-         */
-        ApplicationBase(const sf::VideoMode& videoMode,
-                        const std::string& title);
 
         /**
          * @brief Register a @c Core object with the application's component manager.
@@ -74,12 +67,14 @@ namespace ml
          * 2. All message subscriptions
          * 3. All registered components
          *
-         * After @c reset(), call @c initialization() and @c registerEvents()
-         * to rebuild the scene.
+         * After @c reset(), call @c onInit() and @c onReady() to rebuild
+         * the scene.
          *
          * @note Does NOT close the window or restart the main loop.
          */
-        static void reset();
+        void reset();
+
+    	~ApplicationBase();
     };
 
     // ── Application — no manifest ─────────────────────────────────────────────
@@ -88,8 +83,9 @@ namespace ml
      * @brief Primary entry point for Malena applications without a manifest.
      * @ingroup EngineApp
      *
-     * Combines @c AppManager and @c UIController into a single class.
-     * Override @c initialization() and @c registerEvents() to build your scene.
+     * Combines @c AppManager and @c Lifecycle into a single class.
+     * Override @c onInit() to set up components and @c onReady() to wire
+     * event callbacks.
      *
      * @code
      * class MyApp : public ml::Application
@@ -97,13 +93,14 @@ namespace ml
      * public:
      *     MyApp() : ml::Application(1280, 720, 32, "My App") {}
      *
-     *     void initialization() override
+     * protected:
+     *     void onInit() override
      *     {
      *         _box.setSize({200.f, 100.f});
      *         addComponent(_box);
      *     }
      *
-     *     void registerEvents() override
+     *     void onReady() override
      *     {
      *         _box.onClick([]{ std::cout << "clicked!\n"; });
      *     }
@@ -120,8 +117,6 @@ namespace ml
     public:
         using ApplicationBase::ApplicationBase;
 
-        void initialization() override = 0;
-        void registerEvents() override = 0;
     };
 
     // ── ApplicationWith — with manifest ───────────────────────────────────────
@@ -163,14 +158,14 @@ namespace ml
      *         1280, 720, 32,
      *         Resources::get(Text::WindowTitle)) {}
      *
-     *     void initialization() override
+     *     void onInit() override
      *     {
      *         auto& icon = Resources::get(Images::Icon);
      *         auto& font = Resources::get(Fonts::Main);
      *         int   fps  = Resources::get(Ints::TargetFPS);
      *     }
      *
-     *     void registerEvents() override { ... }
+     *     void onReady() override {  }
      * };
      * @endcode
      *
@@ -189,8 +184,6 @@ namespace ml
 
         using ApplicationBase::ApplicationBase;
 
-        void initialization() override = 0;
-        void registerEvents() override = 0;
     };
 
 } // namespace ml

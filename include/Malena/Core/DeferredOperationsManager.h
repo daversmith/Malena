@@ -31,7 +31,7 @@ namespace ml
      *
      * Because the pattern uses CRTP, each derived manager gets its own
      * independent static @c busyDepth counter and @c pendingOperations queue.
-     * @c EventsManager, @c MessageManager, @c CoreManager, and @c PluginManager
+     * @c EventManager, @c MessageManager, @c CoreManager, and @c PluginManager
      * all inherit from this class for exactly that reason.
      *
      * Nested calls are fully supported: @c beginBusy() increments the depth
@@ -58,13 +58,10 @@ namespace ml
      *
      * @tparam Derived The concrete manager class (CRTP parameter).
      *
-     * @see CoreManager, EventsManager, MessageManager, PluginManager
+     * @ingroup Core
+     * @see CoreManager, EventManager, MessageManager, PluginManager
      */
     template<typename Derived>
-    /**
-     * @brief DeferredOperationsManager.
-     * @ingroup Core
-     */
     class DeferredOperationsManager
     {
     protected:
@@ -139,5 +136,5 @@ namespace ml
 
 } // namespace ml
 
-#include "../../../src/ECS/Core/DeferredOperationsManager.tpp"
+#include "../../../src/Core/DeferredOperationsManager.tpp"
 #endif // MALENA_DEFERREDOPERATIONSMANAGER_H

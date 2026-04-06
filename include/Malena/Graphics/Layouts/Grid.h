@@ -7,24 +7,24 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <Malena/Engine/App/Application.h>
-#include <Malena/Core/CoreManager.h>
+#include <Malena/Core/Core.h>
+#include <Malena/Traits/Spatial/Positionable.h>
+#include <vector>
 
 namespace ml
 {
     /**
-     * @brief A layout container that arranges @c Positionable objects in a grid.
-      * @ingroup GraphicsLayouts
+     * @brief A layout helper that arranges @c Positionable objects in a grid.
+     * @ingroup GraphicsLayouts
      *
-     * @c Grid acts as both a @c CoreManager<Positionable> (it owns and manages
-     * a collection of positioned objects) and a @c Core (it has its own
-     * position and bounds, so it can be placed in the scene like any other
-     * framework object).
+     * @c Grid is a pure positioning utility — it does not own, draw, or manage
+     * the lifecycle of its items. Items are still registered with the application
+     * via @c addComponent and receive events normally. @c Grid only controls
+     * their positions.
      *
-     * When components are added via @c addComponent, or when the grid's
-     * position, row count, or spacing changes, @c reposition() recalculates
-     * each component's world-space position so items flow left-to-right,
-     * top-to-bottom in equal-sized cells.
+     * When items are added, or when the grid's position, column count, or
+     * spacing changes, @c reposition() recalculates each item's world-space
+     * position so they flow left-to-right, top-to-bottom in equal-sized cells.
      *
      * @c Grid is declared @c final — it is not intended to be subclassed.
      *
@@ -35,21 +35,18 @@ namespace ml
      * grid.setSpacing(8.f);
      *
      * for (auto& tile : tiles)
-     *     grid.addComponent(tile);
-     *
-     * // Grid itself does not need to be added to the app —
-     * // its managed components are positioned directly.
+     * {
+     *     addComponent(tile);   // registers with the app for events/drawing
+     *     grid.addItem(tile);   // registers with the grid for layout
+     * }
      * @endcode
      *
-     * ### Layout model
-     * Items are placed in row-major order. The cell size is determined by
-     * the largest item dimensions seen so far (tracked via @c max_width
-     * and @c max_height). @c spacing is added between every cell.
-     *
-     * @see CoreManager, Core, Positionable
+     * @see Positionable, Core
      */
-    class Grid final : public CoreManager<Positionable>, public Core
+    class Grid final : public Core
     {
+        std::vector<Positionable*> _items;
+
         float        max_height = 0;
         float        max_width  = 0;
         float        spacing    = 10;
@@ -57,10 +54,10 @@ namespace ml
         unsigned int col        = 1;
 
         /**
-         * @brief Recompute and apply positions for all managed components.
+         * @brief Recompute and apply positions for all items.
          *
          * Called automatically whenever the layout parameters change
-         * (position, row count, spacing) or a component is added.
+         * (position, row count, spacing) or an item is added.
          */
         void reposition();
 
@@ -86,7 +83,7 @@ namespace ml
         /**
          * @brief Set the spacing between cells.
          *
-         * Triggers @c reposition() to update all component positions.
+         * Triggers @c reposition() to update all item positions.
          *
          * @param spacing Gap in pixels between adjacent cells.
          */
@@ -101,7 +98,7 @@ namespace ml
         /**
          * @brief Set the number of columns per row.
          *
-         * Triggers @c reposition() to reflow all managed components.
+         * Triggers @c reposition() to reflow all items.
          *
          * @param row Number of columns. Items beyond this count wrap to
          *            the next row.
@@ -109,43 +106,35 @@ namespace ml
         void setRow(int row);
 
         /**
-         * @brief Add a @c Core object to the grid and reposition all items.
+         * @brief Add a @c Core object to the grid layout and reposition all items.
          *
-         * The item is registered with the underlying @c CoreManager and its
-         * position is set according to the current grid layout.
+         * The item is NOT owned by the grid — register it with the application
+         * via @c addComponent separately so it receives events and is drawn.
          *
-         * @note Do not copy or move a component after it has been added —
-         *       the grid stores a raw pointer to it.
-         *
-         * @param component The component to add.
+         * @param item The component to include in the layout.
          */
-        void addComponent(Core& component);
+        void addItem(Core& item);
 
         /**
          * @brief Set the world-space origin of the grid.
          *
-         * Triggers @c reposition() so all managed components shift
-         * relative to the new origin.
+         * Triggers @c reposition() so all items shift relative to the new origin.
          *
          * @param position New top-left position in world coordinates.
          */
-        void setPosition(const sf::Vector2f& position);
+        void setPosition(const sf::Vector2f& position) override;
 
         /**
          * @brief Return the current world-space origin of the grid.
          * @return Top-left position in world coordinates.
          */
-        [[nodiscard]] sf::Vector2f getPosition() const;
+        [[nodiscard]] sf::Vector2f getPosition() const override;
 
         /**
          * @brief Return the axis-aligned bounding box of the entire grid.
-         *
-         * Encompasses all managed components from the top-left origin to
-         * the bottom-right of the last cell (including spacing).
-         *
          * @return Bounding rectangle in world coordinates.
          */
-        [[nodiscard]] sf::FloatRect getGlobalBounds() const;
+        [[nodiscard]] sf::FloatRect getGlobalBounds() const override;
     };
 
 } // namespace ml

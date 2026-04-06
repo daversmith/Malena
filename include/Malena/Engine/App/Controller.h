@@ -29,9 +29,10 @@ namespace ml
      * callback tries to reference them, avoiding order-of-initialization issues.
      *
      * @c UIController extends @c Controller with a @c CoreAdapter proxy and
-     * an @c onUpdate convenience method. @c Application inherits from both
-     * @c AppManager and @c UIController, collapsing the full lifecycle into a
-     * single subclass.
+     * an @c onUpdate convenience method. @c Application inherits @c AppManager
+     * (which provides the @c Lifecycle hooks @c onInit() / @c onReady()) rather
+     * than @c UIController — use @c ml::Application for the typical single-class
+     * setup.
      *
      * @see UIController, Application
      */
@@ -47,16 +48,16 @@ namespace ml
          * every object you plan to subscribe to will already exist by the time
          * callbacks are attached.
          */
-        virtual void initialization() = 0;
+        virtual void initialization() = {};
 
         /**
          * @brief Attach event callbacks to components and framework objects.
          *
          * Implement this method to wire up @c onClick, @c onHover, @c onUpdate,
          * @c onMessage, and any other subscriptions. Called immediately after
-         * @c initialization() by @c AppManager before the main loop begins.
+         * @c initialization() when @c UIController is in use.
          */
-        virtual void registerEvents() = 0;
+        virtual void registerEvents() = {};
 
         virtual ~Controller() = default;
     };

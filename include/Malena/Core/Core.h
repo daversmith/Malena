@@ -10,25 +10,19 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <Malena/Engine/Window/WindowManager.h>
-#include <Malena/Traits/Draggable.h>
-#include <Malena/Traits/Flaggable.h>
-#include <Malena/Traits/Messenger.h>
-#include <Malena/Traits/Positionable.h>
-#include <Malena/Traits/Subscribable.h>
-#include <Malena/Utilities/MouseEvents.h>
-#include <SFML/Graphics/Sprite.hpp>
-#include <iostream>
-#include <list>
+#include <Malena/Traits/Communication/Subscribable.h>
+#include <Malena/Traits/Interaction/Draggable.h>
+#include <Malena/Traits/Spatial/Positionable.h>
+#include <Malena/Traits/State/Flaggable.h>
 
-#include <Malena/Traits/Keyable.h>
-#include <Malena/Traits/Scrollable.h>
-#include <Malena/Traits/Updatable.h>
-#include "Malena/Traits/Clickable.h"
-#include "Malena/Traits/Focusable.h"
-#include "Malena/Traits/Hoverable.h"
+#include <Malena/Traits/Interaction/Keyable.h>
+#include <Malena/Traits/Interaction/Scrollable.h>
+#include <Malena/Traits/Lifecycle/Updatable.h>
+#include <Malena/Traits/Interaction/Clickable.h>
+#include <Malena/Traits/Interaction/Focusable.h>
+#include <Malena/Traits/Interaction/Hoverable.h>
 
-#include "../Traits/Unsubscribable.h"
+#include <Malena/Traits/Communication/Unsubscribable.h>
 
 namespace ml
 {
@@ -36,11 +30,15 @@ namespace ml
      * @brief Virtual base class for all Malena framework objects.
       * @ingroup Core
      *
-     * @c Core combines the three fundamental traits that every framework
-     * object is expected to support:
-     * - @c Subscribable — can subscribe to and receive framework events
-     * - @c Flaggable    — carries a set of system-level boolean flags (ml::Flag)
+     * @c Core combines the fundamental traits that every framework object
+     * is expected to support:
+     * - @c Subscribable — can subscribe to and publish framework events
+     * - @c Flaggable    — carries system-level boolean flags (@c ml::Flag)
      * - @c Positionable — has a position, global bounds, and spatial identity
+     * - @c Clickable, @c Hoverable, @c Focusable — pointer interaction
+     * - @c Keyable, @c Scrollable — keyboard and scroll-wheel input
+     * - @c Updatable    — receives a per-frame update callback
+     * - @c Unsubscribable — can remove all its event subscriptions at once
      *
      * All inheritance is @c virtual so that the diamond formed by
      * @c ComponentCore and its trait hierarchy collapses to a single

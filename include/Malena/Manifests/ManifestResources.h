@@ -76,7 +76,7 @@ namespace ml
      * @code
      * class MyComponent : public ml::ComponentWith<MyManifest>
      * {
-     *     void initialization() override
+     *     void onInit() override
      *     {
      *         // Reference — for auto& binding and direct use
      *         auto& tex  = Resources::get(Images::Background);
@@ -97,7 +97,7 @@ namespace ml
      * @see ManifestAliases, AssetsManager, ConfigManager, ComponentWith
      */
     template<typename Manifest>
-    struct ManifestResources : public ManifestAliases<Manifest>
+    struct ManifestResources : public ManifestAliases<Manifest>, public Manifest
     {
         /**
          * @brief Retrieve an asset by enum key → @c AssetsManager.

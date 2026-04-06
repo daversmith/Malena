@@ -5,18 +5,18 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#ifndef UIMANAGER_H
-#define UIMANAGER_H
+#ifndef APPMANAGER_H
+#define APPMANAGER_H
 
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <Malena/Engine/App/UIController.h>
-#include <Malena/Core/Manager.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
-#include <string>
+#include <SFML/Graphics.hpp>
 #include <optional>
+#include <string>
+
+#include <Malena/Engine/App/Lifecycle.h>
 namespace ml
 {
     /**
@@ -26,8 +26,8 @@ namespace ml
      * @c AppManager owns the SFML render window and runs the core application
      * lifecycle:
      *
-     * 1. Calls @c UIController::initialization() and @c UIController::registerEvents()
-     *    before entering the loop.
+     * 1. Calls @c Lifecycle::onInit() then @c Lifecycle::onReady() before
+     *    entering the loop.
      * 2. Each frame, polls SFML events and distributes them via @c fireInputEvents().
      * 3. Fires the per-frame update event via @c fireUpdateEvents().
      * 4. Clears the window, calls @c draw(), and presents the frame.
@@ -50,60 +50,50 @@ namespace ml
      * inherit from @c ml::Application, which combines @c AppManager and
      * @c UIController into a single convenient base class.
      *
-     * For projects that separate the runner from the UI logic:
+     * For the common case, subclass @c ml::Application and override
+     * @c onInit() and @c onReady() directly:
      * @code
-     * MyController controller;
-     * ml::AppManager runner(sf::VideoMode({1280, 720}), "My App", controller);
-     * runner.run();
+     * class MyApp : public ml::Application
+     * {
+     * public:
+     *     MyApp() : ml::Application(1280, 720, 32, "My App") {}
+     *
+     *     void onInit()  override { _box.setSize({200.f, 100.f}); addComponent(_box); }
+     *     void onReady() override { _box.onClick([]{ std::cout << "clicked!\n"; }); }
+     * private:
+     *     ml::Rectangle _box;
+     * };
      * @endcode
      *
      * @see Application, UIController, Manager, WindowManager
      */
-    class AppManager : public Manager
+    class AppManager : public Lifecycle, public CoreManager<Core>
     {
     private:
-        UIController*     uiController;
         sf::RenderWindow* window = nullptr;
 
         /// @cond INTERNAL
-        inline static bool _isDrawing = false;
+        inline static bool        _isDrawing = false;
+        inline static AppManager* _instance  = nullptr;
         inline static std::vector<std::function<void()>> _deferredUnloads;
         /// @endcond
 
     public:
         /**
-         * @brief Architectural style hint passed at construction.
+         * @brief Construct an @c AppManager and create the SFML window.
          *
-         * Informs the framework which structural pattern the application
-         * follows. Defaults to @c MVC.
+         * @c onInit() and @c onReady() are called by @c run() before the main
+         * loop begins, not in the constructor. The @p window parameter defaults
+         * to @c WindowManager::getWindow() so the framework's centralized window
+         * is used unless an explicit one is provided.
+         *
+         * @param videoMode  SFML video mode (resolution + bit depth).
+         * @param title      Window title string.
+         * @param window     Render window to use. Defaults to the framework window.
          */
-        enum Architecture
-        {
-            MVC, ///< Model-View-Controller
-            EDA, ///< Event-Driven Architecture
-            ECS  ///< Entity-Component-System
-        };
-
-        /**
-         * @brief Construct an @c AppManager with an explicit controller and window.
-         *
-         * Calls @c controller.initialization() then @c controller.registerEvents()
-         * before returning. The @p window parameter defaults to
-         * @c WindowManager::getWindow() so that the framework's centralized
-         * window is used unless you explicitly provide your own.
-         *
-         * @param videoMode     SFML video mode (resolution + bit depth).
-         * @param title         Window title string.
-         * @param appLogic      Controller that provides @c initialization() and
-         *                      @c registerEvents() implementations.
-         * @param window        Render window to use. Defaults to the framework window.
-         * @param architecture  Structural pattern hint. Defaults to @c MVC.
-         */
-        AppManager(const sf::VideoMode& videoMode,
-                   const std::string& title,
-                   UIController& appLogic,
-                   sf::RenderWindow& window = WindowManager::getWindow(),
-                   Architecture architecture = MVC);
+    	AppManager(const sf::VideoMode& videoMode,
+				   const std::string& title,
+				   sf::RenderWindow& window = WindowManager::getWindow());
 
         /**
          * @brief Enter the main loop and run until the window is closed.
@@ -116,7 +106,7 @@ namespace ml
          *
          * Returns when the SFML window is closed or @c window.close() is called.
          */
-        void run() override;
+        void run();
 
         virtual ~AppManager() = default;
 
@@ -126,12 +116,22 @@ namespace ml
         {
             _deferredUnloads.push_back(std::move(op));
         }
+
+        /**
+         * @brief Return the single running @c AppManager instance.
+         *
+         * Set on construction. Follows the same pattern as
+         * @c WindowManager::getWindow() — allows framework subsystems
+         * (e.g. @c PluginManager) to remove components from the application's
+         * @c CoreManager without requiring a direct reference.
+         */
+        static AppManager& get() { return *_instance; }
         /// @endcond
 
     private:
-        void fireInputEvents(const std::optional<sf::Event>& event) override;
-        void fireUpdateEvents() override;
-        void draw() override;
+        void fireInputEvents(const std::optional<sf::Event>& event);
+        void fireUpdateEvents();
+        void draw();
     };
 
 } // namespace ml

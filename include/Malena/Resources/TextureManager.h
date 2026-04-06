@@ -32,13 +32,10 @@ namespace ml
      * @tparam Manifest A @c Manifest subclass with an @c Images enum whose
      *                  values map to texture file paths.
      *
+     * @ingroup Resources
      * @see ResourceManager, AssetsManager, Manifest
      */
     template<typename Manifest>
-    /**
-     * @brief TextureManager.
-     * @ingroup Resources
-     */
     class TextureManager : public ml::ResourceManager<Manifest, sf::Texture>
     {};
 

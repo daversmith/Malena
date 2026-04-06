@@ -20,24 +20,23 @@ namespace ml
      * @brief Static, type-safe collection manager for @c Core-derived objects.
      * @ingroup Core
      *
-     * @c CoreManager<T> owns a static list of @c T* pointers and provides
-     * add, remove, and query operations. It inherits
+     * @c CoreManager<T> holds a per-instance list of @c T* raw pointers and
+     * provides add, remove, and query operations. It inherits
      * @c DeferredOperationsManager so that removals requested while the
      * collection is being iterated are queued and applied safely once
      * iteration completes — preventing iterator invalidation crashes.
      *
-     * Because the underlying storage is @c inline @c static, all instances
-     * of @c CoreManager<T> share a single list per type @c T. This means
-     * the manager behaves as a singleton per type without requiring an
-     * explicit instance to be passed around.
+     * Each @c CoreManager<T> instance maintains its own independent list.
+     * @c AppManager, @c Panel, and any other class inheriting @c CoreManager<Core>
+     * each manage their own separate component sets.
      *
      * ### Typical use
      * @code
-     * // Add a component to the managed collection
-     * CoreManager<ml::UIComponent>::addComponent(myRect);
+     * // Add a component to the managed collection (instance method)
+     * myManager.addComponent(myRect);
      *
      * // Remove safely from anywhere, including inside an event callback
-     * CoreManager<ml::UIComponent>::removeComponent(myRect);
+     * myManager.removeComponent(myRect);
      * @endcode
      *
      * ### Safety contract
@@ -54,7 +53,7 @@ namespace ml
     template<typename T>
     class CoreManager : public DeferredOperationsManager<CoreManager<T>>
     {
-        inline static std::vector<T*> _components;
+        std::vector<T*> _components;
 
     public:
         /**
@@ -65,7 +64,7 @@ namespace ml
          *
          * @return Const reference to the internal component pointer vector.
          */
-        [[nodiscard]] static const std::vector<T*>& getComponents();
+        [[nodiscard]] const std::vector<T*>& getComponents() const;
 
         /**
          * @brief Register a @c T object with this manager.
@@ -75,7 +74,7 @@ namespace ml
          *
          * @param component The object to register. Must outlive its registration.
          */
-        static void addComponent(T& component);
+        void addComponent(T& component);
 
         /**
          * @brief Unregister a @c T object by reference.
@@ -88,7 +87,7 @@ namespace ml
          * @return @c true if the object was found and removed (or queued
          *         for removal); @c false if it was not registered.
          */
-        static bool removeComponent(T& component);
+        bool removeComponent(T& component);
 
         /**
          * @brief Unregister a @c T object by pointer.
@@ -99,7 +98,7 @@ namespace ml
          * @param component Pointer to the object to remove.
          * @return @c true if found and removed (or queued); @c false otherwise.
          */
-        static bool removeComponent(T* component);
+        bool removeComponent(T* component);
 
         /**
          * @brief Remove all registered objects.
@@ -108,13 +107,13 @@ namespace ml
          * After this call (or after the deferred clear executes), @c getComponents()
          * returns an empty vector.
          */
-        static void clear();
+        void clear();
 
         virtual ~CoreManager();
 
     private:
         /// @cond INTERNAL
-        static void doRemoveComponent(T* component);
+        void doRemoveComponent(T* component);
         /// @endcond
     };
 

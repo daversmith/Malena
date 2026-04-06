@@ -50,13 +50,10 @@ namespace ml
      *           Typically @c ml::Rectangle, @c ml::Circle, or @c ml::Convex.
      * @tparam S Size parameter type accepted by @c T's constructor.
      *
+     * @ingroup GraphicsBase
      * @see RectangleButton, CircleButton, ConvexButton, Graphic
      */
     template<typename T, typename S>
-    /**
-     * @brief Button.
-     * @ingroup GraphicsBase
-     */
     class Button : public T
     {
         static_assert(std::is_base_of_v<Core, T>,

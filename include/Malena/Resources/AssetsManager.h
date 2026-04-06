@@ -85,13 +85,10 @@ namespace ml
      * @tparam Manifest A @c Manifest subclass declaring @c Images, @c Fonts,
      *                  and/or @c Sounds enums.
      *
+     * @ingroup Resources
      * @see TextureManager, FontManager, SoundManager, Context, Manifest
      */
     template<typename Manifest>
-    /**
-     * @brief AssetsManager.
-     * @ingroup Resources
-     */
     class AssetsManager
     {
     private:

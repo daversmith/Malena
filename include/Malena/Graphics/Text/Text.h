@@ -47,9 +47,8 @@ namespace ml
      * class MyLabel : public ml::TextWith<MyManifest> {};
      * @endcode
      *
-     * @note The manifest alias is currently named @c TextWidth — this appears
-     *       to be a typo for @c TextWith, consistent with the @c SpriteWidth
-     *       naming issue. Use @c TextWidth until corrected upstream.
+     * @note The manifest alias is currently named @c TextWidth — likely a typo
+     *       for @c TextWith. Use @c TextWidth until corrected upstream.
      *
      * @see Graphic, Cursor, Typer, TextInput
      */
@@ -106,8 +105,8 @@ namespace ml
     /**
      * @brief @c Text with an attached manifest.
      *
-     * @note Named @c TextWidth — likely a typo for @c TextWith.
-     *       Use @c TextWidth until corrected upstream.
+     * @note Named @c TextWidth — likely a typo for @c TextWith; use @c TextWidth
+     *       until corrected upstream.
      *
      * @tparam Manifest A @c Manifest subclass declaring @c Flag/@c State enums.
      *

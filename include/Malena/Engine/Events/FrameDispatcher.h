@@ -75,8 +75,7 @@ namespace ml {
  *
  *     void fire() override
  *     {
- *         for (auto* c : ml::EventsManager::getComponents())
- *             c->process(ml::Event::UPDATE, std::nullopt);
+ *         ml::EventManager::fire(ml::Event::UPDATE, this, std::nullopt);
  *     }
  * };
  *

@@ -76,9 +76,7 @@ namespace ml {
  *
  *     void fire(const std::optional<sf::Event>& event) override
  *     {
- *         for (auto* c : ml::EventsManager::getComponents())
- *             if (filter(event, c))
- *                 c->process(ml::Event::CLICK, event);
+ *         ml::EventManager::fire(ml::Event::CLICK, this, event);
  *     }
  * };
  *
@@ -88,12 +86,14 @@ namespace ml {
  *
  * @see Fireable, EventReceiver, ML_EXPORT, Clickable, Hoverable
  */
+
 class EventDispatcher : public Fireable {
 private:
     /// Sealed — frame-tick path is not used by EventDispatcher subclasses.
     void fire() final override{};
     /// Sealed — frame-tick path is not used by EventDispatcher subclasses.
     bool occurred() final override{return false;};
+
 
 public:
     /**
@@ -120,6 +120,9 @@ public:
      * @return @c true if this dispatcher should fire for @p event.
      */
     bool occurred(const std::optional<sf::Event> &event) override = 0;
+
+
+
 };
 
 } // ml

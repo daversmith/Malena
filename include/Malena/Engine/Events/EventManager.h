@@ -2,7 +2,7 @@
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
 //
-// EventsManager.h
+// EventManager.h
 //
 
 #ifndef _EVENTSMANAGER_H

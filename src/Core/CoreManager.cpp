@@ -16,7 +16,7 @@ namespace ml
 		_components.push_back(&component);
 	}
 	template<typename T>
-	const std::vector<T *> &CoreManager<T>::getComponents()
+	const std::vector<T *> &CoreManager<T>::getComponents() const
 	{
 		return _components;
 	}
@@ -28,8 +28,8 @@ namespace ml
 	template<typename T>
 	bool CoreManager<T>::removeComponent(T *component)
 	{
-		DeferredOperationsManager<CoreManager<T>>::deferOrExecute([component]() {  // ✅ Using base class method
-			CoreManager<T>::doRemoveComponent(component);
+		this->deferOrExecute([this, component]() {
+			doRemoveComponent(component);
 		});
 		return true;
 	}
@@ -38,24 +38,19 @@ namespace ml
 	{
 		auto it = std::find(_components.begin(), _components.end(), component);
 		if (it != _components.end())
-		{
 			_components.erase(it);
-		}
 	}
 	template<typename T>
 	void CoreManager<T>::clear()
 	{
-		DeferredOperationsManager<CoreManager<T>>::deferOrExecute([]() {
-			CoreManager<T>::_components.clear();
-			DeferredOperationsManager<CoreManager<T>>::clearPending();
+		this->deferOrExecute([this]() {
+			_components.clear();
 		});
 	}
 	template<typename T>
 	CoreManager<T>::~CoreManager()
 	{
-		// Force immediate - we're destructing
 		_components.clear();
-		DeferredOperationsManager<CoreManager<T>>::clearPending();
 	}
 
 } // namespace ml

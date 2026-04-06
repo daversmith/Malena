@@ -51,18 +51,9 @@ namespace ml
      * };
      * @endcode
      *
-     * ### Standalone use (separate controller + runner)
-     * @c UIController can be passed to the @c Application constructor that
-     * accepts a controller reference, keeping the application runner and
-     * the UI logic in separate objects:
-     * @code
-     * MyController controller;
-     * ml::Application app(sf::VideoMode({1280, 720}), "My App", controller);
-     * app.run();
-     * @endcode
-     *
-     * For simpler programs, inherit from @c ml::Application directly —
-     * it already inherits @c UIController and @c AppManager together.
+     * For simpler programs, inherit from @c ml::Application directly and
+     * override @c onInit() / @c onReady() from @c Lifecycle — those are the
+     * hooks @c AppManager actually calls.
      *
      * @see Controller, Application, AppManager, CoreAdapter
      */

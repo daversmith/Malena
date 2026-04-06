@@ -5,7 +5,7 @@ project(Malena VERSION 0.2.2 LANGUAGES CXX)
 include(GNUInstallDirs)
 
 # Options
-option(MALENA_BUILD_EXAMPLES "Build Malena examples" OFF)
+option(MALENA_BUILD_EXAMPLES "Build Malena examples" ON)
 option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
 # SFML handling

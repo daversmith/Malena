@@ -3,12 +3,12 @@
 //  ScoreDisplay.h  —  score counter driven by typed messages
 // ============================================================
 
+#include <../../../include/Malena/Traits/Communication/Messenger.h>
 #include <Malena/Core/CoreAdapter.h>
-#include <Malena/Traits/Messenger.h>
 #include <Malena/Resources/AssetsManager.h>
 #include <SFML/Graphics.hpp>
-#include "SignalBoardManifest.h"
 #include "Messages.h"
+#include "SignalBoardManifest.h"
 
 class ScoreDisplay : public ml::CoreAdapter, public ml::Messenger, public sf::Drawable
 {
