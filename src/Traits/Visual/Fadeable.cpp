@@ -1,5 +1,5 @@
-#pragma once
-// ============================================================
+
+\// ============================================================
 //  src/Traits/Fadeable.tpp
 // ============================================================
 #ifndef FADEABLE_CPP
@@ -8,6 +8,7 @@
 #include <Malena/Traits/Visual/Fadeable.h>
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
 namespace ml
 {
 
