@@ -20,24 +20,23 @@ namespace ml
      * @brief Static, type-safe collection manager for @c Core-derived objects.
      * @ingroup Core
      *
-     * @c CoreManager<T> owns a static list of @c T* pointers and provides
-     * add, remove, and query operations. It inherits
+     * @c CoreManager<T> holds a per-instance list of @c T* raw pointers and
+     * provides add, remove, and query operations. It inherits
      * @c DeferredOperationsManager so that removals requested while the
      * collection is being iterated are queued and applied safely once
      * iteration completes — preventing iterator invalidation crashes.
      *
-     * Because the underlying storage is @c inline @c static, all instances
-     * of @c CoreManager<T> share a single list per type @c T. This means
-     * the manager behaves as a singleton per type without requiring an
-     * explicit instance to be passed around.
+     * Each @c CoreManager<T> instance maintains its own independent list.
+     * @c AppManager, @c Panel, and any other class inheriting @c CoreManager<Core>
+     * each manage their own separate component sets.
      *
      * ### Typical use
      * @code
-     * // Add a component to the managed collection
-     * CoreManager<ml::UIComponent>::addComponent(myRect);
+     * // Add a component to the managed collection (instance method)
+     * myManager.addComponent(myRect);
      *
      * // Remove safely from anywhere, including inside an event callback
-     * CoreManager<ml::UIComponent>::removeComponent(myRect);
+     * myManager.removeComponent(myRect);
      * @endcode
      *
      * ### Safety contract

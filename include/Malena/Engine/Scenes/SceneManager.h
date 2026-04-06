@@ -60,7 +60,7 @@ namespace ml
      * public:
      *     MyApp() : ml::ApplicationWith<AppManifest>(1280, 720, 32, "My Game") {}
      *
-     *     void initialization() override
+     *     void onInit() override
      *     {
      *         Scenes::bind    (State::MainMenu,  _mainMenu);
      *         Scenes::bind    (State::Settings,  _settings);
@@ -70,7 +70,7 @@ namespace ml
      *         Scenes::start (State::MainMenu);  // first scene, no history entry
      *     }
      *
-     *     void registerEvents() override
+     *     void onReady() override
      *     {
      *         // Navigation is just setState — SceneManager handles the rest
      *         _mainMenu.playButton().onClick([this]{
@@ -211,7 +211,7 @@ namespace ml
          * scene swap. Also stores a reference to @c setState() so that
          * @c back() can navigate without the caller holding an app reference.
          *
-         * Call this once in @c initialization(), before @c start().
+         * Call this once in @c onInit(), before @c start().
          *
          * @tparam App  Any class that exposes:
          *              - @c onStateEnter(std::function<void(StateEnum)>)

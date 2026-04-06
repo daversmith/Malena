@@ -34,7 +34,7 @@ namespace ml
      * (@c onClick, @c onHover, @c onUpdate, etc.).
      *
      * @see Clickable, Hoverable, Focusable, Keyable, Updatable, Scrollable,
-     *      Unsubscribable, EventsManager, EnumKey
+     *      Unsubscribable, EventManager, EnumKey
      */
     class EventReceiver
     {

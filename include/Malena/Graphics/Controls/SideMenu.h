@@ -41,8 +41,8 @@ namespace ml
      *   callbacks so the app can shift its layout accordingly).
      *
      * The panel can host a @c List (via @c getList()) or any @c ml::Core
-     * component (via @c setContent()). When using @c setContent(), register the
-     * content component with @c addComponent separately so its events fire.
+     * component (via @c setContent()). The @c SideMenu draws and positions the
+     * content internally; no separate @c addComponent() call is needed.
      *
      * ### Usage
      * @code
@@ -54,8 +54,7 @@ namespace ml
      * list.addItem("Settings");
      * list.addItem("Profile");
      *
-     * addComponent(list);   // events on list items
-     * addComponent(menu);   // hamburger + backdrop + panel drawing
+     * addComponent(menu);   // hamburger, backdrop, and panel drawing
      * @endcode
      *
      * ### PUSH mode — shift layout on open
@@ -153,14 +152,17 @@ namespace ml
         /**
          * @brief Return the internal @c List for configuration.
          *
-         * Register it with @c addComponent so its list items receive events.
+         * The @c SideMenu draws and positions this list internally. List items
+         * receive events automatically — no separate @c addComponent() call is needed.
          */
         ml::List& getList();
 
         /**
          * @brief Replace the internal list with any component.
          *
-         * Register @p component with @c addComponent separately so its events fire.
+         * The @c SideMenu draws and positions the component internally. The
+         * component's events fire automatically — no separate @c addComponent()
+         * call is needed.
          */
         void setContent(ml::Core& component);
 

@@ -24,9 +24,9 @@ namespace ml
      * @ingroup EngineMessaging
      *
      * @c MessageManager is the engine behind the @c Messenger trait. It
-     * provides a completely separate communication channel from @c EventsManager:
+     * provides a completely separate communication channel from @c EventManager:
      *
-     * | @c EventsManager | @c MessageManager |
+     * | @c EventManager | @c MessageManager |
      * |------------------|-------------------|
      * | String keys (@c "click", @c "hover") | Enum keys (@c GameEvent::Started) |
      * | Fired by dispatchers based on SFML input | Fired explicitly by application code |
@@ -67,7 +67,7 @@ namespace ml
      * sendMessage<int>(GameEvent::ScoreChanged, 42);
      * @endcode
      *
-     * @see Messenger, EventsManager, DeferredOperationsManager
+     * @see Messenger, EventManager, DeferredOperationsManager
      */
     class MessageManager : public DeferredOperationsManager<MessageManager>
     {

@@ -31,10 +31,11 @@ namespace ml
      *
      * ### Usage
      * @code
-     * class MyApp : public ml::Application, public ml::Lifecycle
+     * // ml::Application already inherits Lifecycle — just override the hooks
+     * class MyApp : public ml::Application
      * {
      * public:
-     *     MyApp() : ml::Application(sf::VideoMode({1280, 720}), "My App") {}
+     *     MyApp() : ml::Application(1280, 720, 32, "My App") {}
      *
      * protected:
      *     void onInit() override

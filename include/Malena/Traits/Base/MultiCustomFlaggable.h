@@ -87,13 +87,10 @@ namespace ml
      *               The empty specialization (@c MultiCustomFlaggable<>) is
      *               used when no custom flags are declared.
      *
+     * @ingroup TraitsBase
      * @see SingleFlaggable, GatherFlags, ComponentCore
      */
     template<typename... Enums>
-    /**
-     * @brief MultiCustomFlaggable.
-     * @ingroup TraitsBase
-     */
     class MultiCustomFlaggable : public SingleFlaggable<Enums>...
     {
     public:

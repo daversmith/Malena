@@ -60,14 +60,15 @@ namespace ml
      * ml::PillToggle toggle;
      * item.setEnd(toggle);
      *
-     * list.addItem(item);
+     * list.add(item);   // add() accepts any ml::Core, including a pre-built ListItem
      * @endcode
      *
      * ### Usage — custom content slot
      * @code
+     * ml::ListItem item;
      * ml::CheckboxGroup group;
      * item.setContent(group);    // replaces built-in label
-     * list.addItem(item);
+     * list.add(item);
      * @endcode
      *
      * @see List, ListItemSettings, ListItemTheme, ListItemStyle

@@ -69,7 +69,9 @@ namespace ml
      * item.setEnd(darkMode);
      *
      * // Row with start-slot icon and end-slot toggle
-     * ml::Sprite wifiIcon(wifiTexture);
+     * ml::Sprite   wifiIcon;
+     * wifiIcon.setTexture(wifiTexture);
+     * ml::PillToggle wifiToggle;
      * auto& wifi = settings.addItem("Wi-Fi");
      * wifi.setStart(wifiIcon);
      * wifi.setEnd(wifiToggle);

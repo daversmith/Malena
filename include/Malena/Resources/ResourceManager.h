@@ -32,15 +32,12 @@ namespace ml
      * @tparam Resource       The SFML resource type to load and cache.
      * @tparam loadFunction   Function pointer @c bool(Resource&, const std::string&).
      *
+     * @ingroup Resources
      * @see TextureManager, FontManager, SoundManager, AssetsManager, Manifest
      */
     template<typename Manifest,
              typename Resource,
              bool (*loadFunction)(Resource&, const std::string&) = &fileLoader>
-    /**
-     * @brief ResourceManager.
-     * @ingroup Resources
-     */
     class ResourceManager
     {
     public:

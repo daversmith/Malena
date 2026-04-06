@@ -28,6 +28,21 @@ namespace ml
     /**
      * @brief Rectangular button that changes color and label on toggle.
      * @ingroup GraphicsControls
+     *
+     * Inherits @c ButtonSettings (geometry/labels/icons) and @c ButtonTheme
+     * (colors) as first-class members. The active theme is applied automatically
+     * via @c Themeable.
+     *
+     * ### Usage
+     * @code
+     * ml::ButtonToggle toggle;
+     * toggle.setOffLabel("Muted");
+     * toggle.setOnLabel("Live");
+     * toggle.setPosition({200.f, 100.f});
+     * toggle.onToggled([](bool on){ setStreamActive(on); });
+     * addComponent(toggle);
+     * @endcode
+     *
      * @see ButtonSettings, ButtonTheme, ButtonStyle
      */
     class ButtonToggle : public ComponentWith<ButtonToggleManifest>,

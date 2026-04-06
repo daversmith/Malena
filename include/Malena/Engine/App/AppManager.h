@@ -26,8 +26,8 @@ namespace ml
      * @c AppManager owns the SFML render window and runs the core application
      * lifecycle:
      *
-     * 1. Calls @c UIController::initialization() and @c UIController::registerEvents()
-     *    before entering the loop.
+     * 1. Calls @c Lifecycle::onInit() then @c Lifecycle::onReady() before
+     *    entering the loop.
      * 2. Each frame, polls SFML events and distributes them via @c fireInputEvents().
      * 3. Fires the per-frame update event via @c fireUpdateEvents().
      * 4. Clears the window, calls @c draw(), and presents the frame.
@@ -50,11 +50,19 @@ namespace ml
      * inherit from @c ml::Application, which combines @c AppManager and
      * @c UIController into a single convenient base class.
      *
-     * For projects that separate the runner from the UI logic:
+     * For the common case, subclass @c ml::Application and override
+     * @c onInit() and @c onReady() directly:
      * @code
-     * MyController controller;
-     * ml::AppManager runner(sf::VideoMode({1280, 720}), "My App", controller);
-     * runner.run();
+     * class MyApp : public ml::Application
+     * {
+     * public:
+     *     MyApp() : ml::Application(1280, 720, 32, "My App") {}
+     *
+     *     void onInit()  override { _box.setSize({200.f, 100.f}); addComponent(_box); }
+     *     void onReady() override { _box.onClick([]{ std::cout << "clicked!\n"; }); }
+     * private:
+     *     ml::Rectangle _box;
+     * };
      * @endcode
      *
      * @see Application, UIController, Manager, WindowManager
@@ -71,21 +79,18 @@ namespace ml
         /// @endcond
 
     public:
-    	/**
-			  * @brief Construct an @c AppManager with an explicit controller and window.
-			  *
-			  * Calls @c controller.initialization() then @c controller.registerEvents()
-			  * before returning. The @p window parameter defaults to
-			  * @c WindowManager::getWindow() so that the framework's centralized
-			  * window is used unless you explicitly provide your own.
-			  *
-			  * @param videoMode     SFML video mode (resolution + bit depth).
-			  * @param title         Window title string.
-			  * @param appLogic      Controller that provides @c initialization() and
-			  *                      @c registerEvents() implementations.
-			  * @param window        Render window to use. Defaults to the framework window.
-			  * @param architecture  Structural pattern hint. Defaults to @c MVC.
-			  */
+        /**
+         * @brief Construct an @c AppManager and create the SFML window.
+         *
+         * @c onInit() and @c onReady() are called by @c run() before the main
+         * loop begins, not in the constructor. The @p window parameter defaults
+         * to @c WindowManager::getWindow() so the framework's centralized window
+         * is used unless an explicit one is provided.
+         *
+         * @param videoMode  SFML video mode (resolution + bit depth).
+         * @param title      Window title string.
+         * @param window     Render window to use. Defaults to the framework window.
+         */
     	AppManager(const sf::VideoMode& videoMode,
 				   const std::string& title,
 				   sf::RenderWindow& window = WindowManager::getWindow());

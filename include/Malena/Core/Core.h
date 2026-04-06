@@ -30,11 +30,15 @@ namespace ml
      * @brief Virtual base class for all Malena framework objects.
       * @ingroup Core
      *
-     * @c Core combines the three fundamental traits that every framework
-     * object is expected to support:
-     * - @c Subscribable — can subscribe to and receive framework events
-     * - @c Flaggable    — carries a set of system-level boolean flags (ml::Flag)
+     * @c Core combines the fundamental traits that every framework object
+     * is expected to support:
+     * - @c Subscribable — can subscribe to and publish framework events
+     * - @c Flaggable    — carries system-level boolean flags (@c ml::Flag)
      * - @c Positionable — has a position, global bounds, and spatial identity
+     * - @c Clickable, @c Hoverable, @c Focusable — pointer interaction
+     * - @c Keyable, @c Scrollable — keyboard and scroll-wheel input
+     * - @c Updatable    — receives a per-frame update callback
+     * - @c Unsubscribable — can remove all its event subscriptions at once
      *
      * All inheritance is @c virtual so that the diamond formed by
      * @c ComponentCore and its trait hierarchy collapses to a single

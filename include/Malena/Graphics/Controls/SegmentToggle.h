@@ -29,6 +29,21 @@ namespace ml
     /**
      * @brief Two-option segmented selector with animated sliding pill.
      * @ingroup GraphicsControls
+     *
+     * Inherits @c SegmentSettings (geometry/labels) and @c SegmentTheme (colors)
+     * as first-class members. The active theme is applied automatically via
+     * @c Themeable.
+     *
+     * ### Usage
+     * @code
+     * ml::SegmentToggle toggle;
+     * toggle.setOffLabel("Light");
+     * toggle.setOnLabel("Dark");
+     * toggle.setPosition({200.f, 100.f});
+     * toggle.onToggled([](bool on){ applyTheme(on); });
+     * addComponent(toggle);
+     * @endcode
+     *
      * @see SegmentSettings, SegmentTheme, SegmentStyle
      */
     class SegmentToggle : public ComponentWith<SegmentToggleManifest>,

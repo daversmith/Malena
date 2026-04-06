@@ -57,7 +57,7 @@ namespace ml
      *     });
      * @endcode
      *
-     * @see Clickable, Hoverable, Updatable, Unsubscribable, EventsManager
+     * @see Clickable, Hoverable, Updatable, Unsubscribable, EventManager
      */
     class Subscribable : public EventReceiver
     {

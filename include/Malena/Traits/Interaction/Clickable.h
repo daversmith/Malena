@@ -38,7 +38,7 @@ namespace ml
      * myRect.unsubscribe(ml::Event::CLICK);
      * @endcode
      *
-     * @see Hoverable, Focusable, Clickable, ml::Event::CLICK, Unsubscribable
+     * @see Hoverable, Focusable, ml::Event::CLICK, Unsubscribable
      */
     class Core;
     class Clickable : public EventReceiver

@@ -17,7 +17,7 @@ namespace ml {
     class PanelManifest : public Manifest {};
 
     /**
-     * @brief A container that owns, positions, and draws a set of child components.
+     * @brief A layout container that groups, positions, and draws a set of child components.
      *
      * Children are added via @c addComponent(). The Panel is responsible for:
      * - Drawing all children in its @c draw() pass.

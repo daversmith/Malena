@@ -47,7 +47,7 @@ namespace ml
      *       because @c typeid().name() is implementation-defined.
      *       Do not persist or serialize EnumKey values.
      *
-     * @see EventsManager, Fireable, Unsubscribable
+     * @see EventManager, Fireable, Unsubscribable
      */
     struct EnumKey
     {

@@ -76,7 +76,7 @@ namespace ml
      * @code
      * class MyComponent : public ml::ComponentWith<MyManifest>
      * {
-     *     void initialization() override
+     *     void onInit() override
      *     {
      *         // Reference — for auto& binding and direct use
      *         auto& tex  = Resources::get(Images::Background);

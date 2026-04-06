@@ -76,9 +76,7 @@ namespace ml {
  *
  *     void fire(const std::optional<sf::Event>& event) override
  *     {
- *         for (auto* c : ml::EventsManager::getComponents())
- *             if (filter(event, c))
- *                 c->process(ml::Event::CLICK, event);
+ *         ml::EventManager::fire(ml::Event::CLICK, this, event);
  *     }
  * };
  *

@@ -46,13 +46,9 @@ namespace ml
      * split.setSize({800.f, 600.f});
      * split.setPosition({40.f, 100.f});
      *
-     * ml::List sidebar;
-     * ml::TextArea editor;
-     * addComponent(sidebar);
-     * addComponent(editor);
-     *
-     * split.addPane(sidebar, 220.f);   // 220px initial size
-     * split.addPane(editor);           // fills remaining space
+     * // addPane() takes ownership — content is drawn and resized by the panel
+     * auto& sidebar = split.addPane(std::make_unique<ml::List>(), 220.f);
+     * auto& editor  = split.addPane(std::make_unique<ml::TextArea>());
      *
      * addComponent(split);
      * @endcode

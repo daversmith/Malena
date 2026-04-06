@@ -38,13 +38,10 @@ namespace ml
      *                  values map to font file paths. Defaults to
      *                  @c DefaultManifest when no custom fonts are needed.
      *
+     * @ingroup Resources
      * @see ResourceManager, AssetsManager, DefaultManifest
      */
     template<typename Manifest = DefaultManifest>
-    /**
-     * @brief FontManager.
-     * @ingroup Resources
-     */
     class FontManager : public ResourceManager<Manifest, sf::Font, &fileOpener>
     {
     public:

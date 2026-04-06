@@ -43,7 +43,7 @@ namespace ml
      * @note @c unsubscribeAll() is called automatically by @c Core's destructor.
      *       Explicit calls are only needed for mid-lifecycle cleanup.
      *
-     * @see Core, EventReceiver, _EventsManager, EnumKey, ml::Event
+     * @see Core, EventReceiver, EventManager, EnumKey, ml::Event
      */
     class Unsubscribable
     {
@@ -54,7 +54,7 @@ namespace ml
          * Works with any enum type — @c ml::Event for built-in events,
          * or a manifest @c Event enum for custom events.
          *
-         * If called during a @c _EventsManager::fire() iteration the
+         * If called during an @c EventManager::fire() iteration the
          * removal is deferred until the iteration completes.
          *
          * @tparam EnumType Any enum type. Enforced at compile time.
@@ -75,7 +75,7 @@ namespace ml
          * Removes every subscription registered across all event names.
          * Called automatically by @c Core's destructor.
          *
-         * If called during a @c _EventsManager::fire() iteration the
+         * If called during an @c EventManager::fire() iteration the
          * removal is deferred until the iteration completes.
          */
         void unsubscribeAll();

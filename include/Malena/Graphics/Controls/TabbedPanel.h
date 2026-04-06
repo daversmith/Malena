@@ -49,17 +49,15 @@ namespace ml
      * tabs.setSize({600.f, 400.f});
      * tabs.setPosition({40.f, 100.f});
      *
-     * // Add a tab whose content is any ml::Core component
-     * ml::TextArea notes;
-     * notes.setSize(tabs.contentSize());
-     * addComponent(notes);
-     * tabs.addTab("Notes", notes);
+     * // addTab() takes ownership — content is drawn and resized by the panel
+     * auto& notes = tabs.addTab("Notes", std::make_unique<ml::TextArea>());
      *
      * // Tab with icon
-     * tabs.addTab("Settings", settingsPanel, &settingsIcon);
+     * auto& settings = tabs.addTab("Settings",
+     *                               std::make_unique<ml::Panel>(), &settingsIcon);
      *
      * // Closeable tab
-     * tabs.addTab("Log", logPanel, nullptr, true);
+     * auto& log = tabs.addTab("Log", std::make_unique<ml::TextArea>(), nullptr, true);
      *
      * // Callback when active tab changes
      * tabs.onTabChanged([](std::size_t index, const std::string& label){
@@ -213,8 +211,9 @@ namespace ml
         /**
          * @brief Remove a tab by index.
          *
-         * The content component is NOT destroyed — only detached from the panel.
-         * If the active tab is removed the panel selects the nearest remaining tab.
+         * The content component is destroyed on the next update frame (deferred
+         * to avoid use-after-free during event dispatch). If the active tab is
+         * removed, the panel selects the nearest remaining tab.
          */
         void removeTab(std::size_t index);
 
@@ -230,10 +229,13 @@ namespace ml
         /**
          * @brief Return the content area size.
          *
-         * Use this to size content components before adding them:
+         * Components with a @c setSize() method are resized automatically
+         * whenever the content area changes. Call this when you need to query
+         * the current bounds before constructing content:
          * @code
-         * myContent.setSize(tabs.contentSize());
-         * tabs.addTab("Label", myContent);
+         * auto content = std::make_unique<ml::Panel>();
+         * content->setSize(tabs.contentSize());  // optional — auto-resized anyway
+         * tabs.addTab("Label", std::move(content));
          * @endcode
          */
         [[nodiscard]] sf::Vector2f contentSize() const;
