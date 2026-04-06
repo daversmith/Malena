@@ -10,6 +10,7 @@ namespace ml
     {
         float  barHeight         = 30.f;
         float  entryPadding      = 14.f; ///< horizontal padding per entry label
+        float  leftInset         = 0.f;  ///< extra space reserved on the left before entries
         float  dropdownItemH     = 28.f; ///< height of each dropdown row
         float  dropdownMinW      = 180.f;
         float  dropdownBorderThk = 1.f;

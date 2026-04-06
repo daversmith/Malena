@@ -17,8 +17,11 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <functional>
+#include <memory>
 #include <vector>
 #include <type_traits>
+#include <SFML/System/Vector2.hpp>
+#include <Malena/Utilities/HasSetSize.h>
 
 namespace ml
 {
@@ -92,10 +95,11 @@ namespace ml
     private:
         struct Pane
         {
-            ml::Core* content  = nullptr;
-            float     size     = 0.f;   ///< current size along the split axis
-            float     minSize  = 0.f;   ///< 0 = use global minPaneSize
-            float     maxSize  = 0.f;   ///< 0 = unlimited
+            std::unique_ptr<ml::Core>         content;
+            std::function<void(sf::Vector2f)> resizeFn;   ///< calls setSize if supported
+            float                             size     = 0.f;   ///< current size along the split axis
+            float                             minSize  = 0.f;   ///< 0 = use global minPaneSize
+            float                             maxSize  = 0.f;   ///< 0 = unlimited
         };
 
         std::vector<Pane> _panes;
@@ -163,16 +167,39 @@ namespace ml
         // ── Pane management ───────────────────────────────────────────────────
 
         /**
-         * @brief Add a pane.
+         * @brief Add a pane with owned content.
          *
-         * The content component is NOT owned. Register it with @c addComponent
-         * separately so its events fire.
+         * The panel takes ownership of @p content. It is responsible for
+         * drawing, resizing, and destroying it. If @c T has a @c setSize()
+         * method, the panel will call it automatically whenever the pane
+         * dimensions change (resize or divider drag).
          *
-         * @param content     Component to display in this pane.
+         * @tparam T          Any @c ml::Core-derived type.
+         * @param content     Owned content component.
          * @param initialSize Initial size along the split axis in pixels.
          *                    Pass 0 to distribute remaining space equally.
          */
-        void addPane(ml::Core& content, float initialSize = 0.f);
+        template<typename T>
+        T& addPane(std::unique_ptr<T> content, float initialSize = 0.f)
+        {
+            static_assert(std::is_base_of_v<ml::Core, T>,
+                "addPane() content must derive from ml::Core");
+
+            T* ptr = content.get();
+
+            Pane pane;
+            pane.content  = std::move(content);
+            pane.size     = initialSize;
+
+            if constexpr (detail::has_setSize<T>::value)
+                pane.resizeFn = [ptr](sf::Vector2f sz){ ptr->setSize(sz); };
+
+            _panes.push_back(std::move(pane));
+            distributeSizes();
+            layoutPanes();
+
+            return *ptr;
+        }
 
         /** @brief Set the minimum size of a pane by index. */
         void setPaneMinSize(std::size_t index, float minSize);

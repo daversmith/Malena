@@ -59,13 +59,14 @@ namespace ml
      *
      * @see Application, UIController, Manager, WindowManager
      */
-    class AppManager : public Lifecycle
+    class AppManager : public Lifecycle, public CoreManager<Core>
     {
     private:
         sf::RenderWindow* window = nullptr;
 
         /// @cond INTERNAL
-        inline static bool _isDrawing = false;
+        inline static bool        _isDrawing = false;
+        inline static AppManager* _instance  = nullptr;
         inline static std::vector<std::function<void()>> _deferredUnloads;
         /// @endcond
 
@@ -110,6 +111,16 @@ namespace ml
         {
             _deferredUnloads.push_back(std::move(op));
         }
+
+        /**
+         * @brief Return the single running @c AppManager instance.
+         *
+         * Set on construction. Follows the same pattern as
+         * @c WindowManager::getWindow() — allows framework subsystems
+         * (e.g. @c PluginManager) to remove components from the application's
+         * @c CoreManager without requiring a direct reference.
+         */
+        static AppManager& get() { return *_instance; }
         /// @endcond
 
     private:

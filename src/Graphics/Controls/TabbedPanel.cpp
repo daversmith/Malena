@@ -15,8 +15,12 @@ namespace ml
         TabbedPanelTheme::applyFrom(ThemeManager::get());
         this->font = &font_;
 
-        // ── Hover tracking ────────────────────────────────────────────────────
+        // ── Hover tracking + deferred content cleanup ─────────────────────────
         onUpdate([this]{
+            // Safe to destroy here: Panel has no UPDATE subscription, so there
+            // is no CLICK/HOVER subscriber entry being iterated right now.
+            _pendingDelete.clear();
+
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
             _hoveredIdx = hitTestStrip(wp);
@@ -133,11 +137,13 @@ namespace ml
             offset   += tab.width;
         }
 
-        // Reposition content for active tab
+        // Reposition and resize content for active tab
         if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
         {
             const sf::FloatRect cr = contentRect();
             _tabs[_activeIdx].content->setPosition(cr.position);
+            if (_tabs[_activeIdx].resizeFn)
+                _tabs[_activeIdx].resizeFn(cr.size);
         }
     }
 
@@ -209,12 +215,34 @@ namespace ml
         // ── Tab strip ─────────────────────────────────────────────────────────
         drawStrip(target, states);
 
-        // ── Active tab content ────────────────────────────────────────────────
+        // ── Active tab content (clipped to content rect) ──────────────────────
         if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
         {
-            auto* comp = _tabs[_activeIdx].content;
+            auto* comp = _tabs[_activeIdx].content.get();
             if (comp)
-                target.draw(*dynamic_cast<const sf::Drawable*>(comp), states);
+            {
+                const auto targetSize = target.getSize();
+                const float tw = static_cast<float>(targetSize.x);
+                const float th = static_cast<float>(targetSize.y);
+
+                if (cr.size.x > 0.f && cr.size.y > 0.f)
+                {
+                    const sf::View savedView = target.getView();
+
+                    sf::View contentView;
+                    contentView.setCenter({cr.position.x + cr.size.x / 2.f,
+                                           cr.position.y + cr.size.y / 2.f});
+                    contentView.setSize(cr.size);
+                    contentView.setViewport(sf::FloatRect{
+                        {cr.position.x / tw, cr.position.y / th},
+                        {cr.size.x / tw,     cr.size.y / th}
+                    });
+
+                    target.setView(contentView);
+                    target.draw(*dynamic_cast<const sf::Drawable*>(comp), states);
+                    target.setView(savedView);
+                }
+            }
         }
     }
 
@@ -383,31 +411,21 @@ namespace ml
 
     // ── Tab management ────────────────────────────────────────────────────────
 
-    std::size_t TabbedPanel::addTab(const std::string& label,
-                                     ml::Core& content,
-                                     const sf::Texture* icon,
-                                     bool tabCloseable)
-    {
-        Tab tab;
-        tab.label     = label;
-        tab.content   = &content;
-        tab.icon      = icon;
-        tab.closeable = tabCloseable;
-
-        _tabs.push_back(std::move(tab));
-        computeTabLayout();
-
-        // Auto-select first tab
-        if (_activeIdx < 0)
-            selectTab(0);
-
-        return _tabs.size() - 1;
-    }
-
     void TabbedPanel::removeTab(std::size_t index)
     {
         if (index >= _tabs.size()) return;
+
+        // Move content into the pending-delete list instead of destroying it
+        // immediately. The CLICK dispatcher may still be iterating subscribers
+        // that include this Panel's entry; keeping it alive avoids a
+        // use-after-free when filter() dereferences the Core*.
+        if (_tabs[index].content)
+            _pendingDelete.push_back(std::move(_tabs[index].content));
+
         _tabs.erase(_tabs.begin() + static_cast<std::ptrdiff_t>(index));
+
+        // Reset hover index — the mouse position recalculates it next frame.
+        _hoveredIdx = -1;
 
         if (_tabs.empty())
         {
@@ -429,9 +447,10 @@ namespace ml
         if (index >= _tabs.size()) return;
         _activeIdx = static_cast<int>(index);
 
-        // Reposition content to fill content area
         const sf::FloatRect cr = contentRect();
         _tabs[index].content->setPosition(cr.position);
+        if (_tabs[index].resizeFn)
+            _tabs[index].resizeFn(cr.size);
 
         if (_onTabChanged)
             _onTabChanged(index, _tabs[index].label);

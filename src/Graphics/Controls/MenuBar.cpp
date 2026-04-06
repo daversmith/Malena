@@ -5,8 +5,42 @@
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
+
+// ── MenuSeparator ─────────────────────────────────────────────────────────────
+// A 1-pixel horizontal rule that reserves 9 px of vertical space in the List
+// layout (4 px padding above and below the line). Inherits ml::Rectangle for
+// drawing but overrides setPosition / getGlobalBounds so the List engine sees
+// the full 9 px allocation while the actual shape is centred within it.
+// unsubscribeAll() is called in the constructor so it never intercepts events.
+
+namespace
+{
+    class MenuSeparator : public ml::Rectangle
+    {
+        sf::Vector2f _logicalPos;
+        float        _width;
+
+    public:
+        MenuSeparator(float width, const sf::Color& color)
+            : _width(width)
+        {
+            setSize({width, 1.f});
+            setFillColor(color);
+            unsubscribeAll();
+        }
+
+        void setPosition(const sf::Vector2f& pos) override
+        {
+            _logicalPos = pos;
+            ml::Rectangle::setPosition({pos.x, pos.y + 4.f}); // centre the 1-px line
+        }
+
+        sf::Vector2f  getPosition()     const override { return _logicalPos; }
+        sf::FloatRect getGlobalBounds() const override
+        { return {_logicalPos, {_width, 9.f}}; }
+    };
+} // anonymous namespace
 
 namespace ml
 {
@@ -27,9 +61,13 @@ namespace ml
                 if (_openEntry == barHit) closeAll();
                 else
                 {
+                    if (_openEntry >= 0)
+                        _entries[_openEntry].dropdown->setPosition({-9999.f, -9999.f});
                     _openEntry   = barHit;
                     _hoveredItem = -1;
                     _openSubmenu = -1;
+                    _entries[_openEntry].dropdown->setPosition(
+                        {dropdownX(_openEntry), dropdownY()});
                     enableFlag(Flag::OPEN);
                     setState(State::OPEN);
                 }
@@ -47,8 +85,12 @@ namespace ml
             }
         });
 
-        // ── Update — hover tracking + keyboard navigation ─────────────────────
+        // ── Update — deferred cleanup + hover tracking + keyboard navigation ─────
         onUpdate([this]{
+            // Release any Lists that were replaced during a CLICK dispatch.
+            // Safe here because UPDATE fires outside the busy-depth window.
+            _pendingDelete.clear();
+
             if (_openEntry < 0) return;
 
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
@@ -58,12 +100,15 @@ namespace ml
             const int barHit = hitTestBar(wp);
             if (barHit >= 0 && barHit != _openEntry)
             {
+                _entries[_openEntry].dropdown->setPosition({-9999.f, -9999.f});
                 _openEntry   = barHit;
                 _hoveredItem = -1;
                 _openSubmenu = -1;
+                _entries[_openEntry].dropdown->setPosition(
+                    {dropdownX(_openEntry), dropdownY()});
             }
 
-            // Hover in dropdown
+            // Hover in dropdown (for submenu tracking only; ListItem handles visual hover)
             _hoveredItem = hitTestDropdown(wp);
             if (_hoveredItem >= 0)
             {
@@ -87,13 +132,19 @@ namespace ml
             if (kp->code == sf::Keyboard::Key::Escape)     { closeAll(); return; }
             if (kp->code == sf::Keyboard::Key::Left)
             {
+                _entries[_openEntry].dropdown->setPosition({-9999.f, -9999.f});
                 _openEntry = (_openEntry - 1 + static_cast<int>(_entries.size()))
                              % static_cast<int>(_entries.size());
+                _entries[_openEntry].dropdown->setPosition(
+                    {dropdownX(_openEntry), dropdownY()});
                 _hoveredItem = -1; return;
             }
             if (kp->code == sf::Keyboard::Key::Right)
             {
+                _entries[_openEntry].dropdown->setPosition({-9999.f, -9999.f});
                 _openEntry = (_openEntry + 1) % static_cast<int>(_entries.size());
+                _entries[_openEntry].dropdown->setPosition(
+                    {dropdownX(_openEntry), dropdownY()});
                 _hoveredItem = -1; return;
             }
 
@@ -139,7 +190,7 @@ namespace ml
         if (autoFillWidth)
             _width = static_cast<float>(WindowManager::getWindow().getSize().x);
 
-        float x = entryPadding;
+        float x = leftInset + entryPadding;
         sf::Text measure(*font, "", static_cast<unsigned int>(fontSize));
 
         for (auto& entry : _entries)
@@ -153,11 +204,115 @@ namespace ml
 
     void MenuBar::closeAll()
     {
+        if (_openEntry >= 0 && _openEntry < static_cast<int>(_entries.size()) &&
+            _entries[_openEntry].dropdown)
+            _entries[_openEntry].dropdown->setPosition({-9999.f, -9999.f});
         _openEntry   = -1;
         _hoveredItem = -1;
         _openSubmenu = -1;
         disableFlag(Flag::OPEN);
         setState(State::IDLE);
+    }
+
+    void MenuBar::buildDropdown(int entryIdx)
+    {
+        auto& entry = _entries[entryIdx];
+        const float dw = dropdownWidth(entryIdx);
+
+        // Move the entire old dropdown bundle into the pending-delete queue.
+        // The List's ListItems hold raw _start/_end pointers into checkmarkTexts
+        // and endTexts; ThemeManager will re-notify the still-living List before
+        // we return, so all three vectors must outlive each other.
+        // Everything is released safely on the next UPDATE frame.
+        if (entry.dropdown)
+        {
+            OldDropdown old;
+            old.dropdown      = std::move(entry.dropdown);
+            old.checkmarkTexts = std::move(entry.checkmarkTexts);
+            old.endTexts       = std::move(entry.endTexts);
+            old.separatorRects = std::move(entry.separatorRects);
+            _pendingDelete.push_back(std::move(old));
+        }
+        entry.listItems.clear();
+
+        // Create the ml::List that renders the dropdown
+        entry.dropdown = std::make_unique<ml::List>(*font);
+        entry.dropdown->showBackground = true;
+        entry.dropdown->showDividers   = false;
+        entry.dropdown->bgColor        = dropdownBg;
+        entry.dropdown->setWidth(dw);
+        entry.dropdown->setPosition({-9999.f, -9999.f});
+
+        // Build a ListItemTheme that matches the MenuBar's dropdown appearance
+        ml::ListItemTheme itemTheme;
+        itemTheme.bgIdle            = sf::Color::Transparent;
+        itemTheme.bgHover           = itemHoverBg;
+        itemTheme.bgDisabled        = sf::Color::Transparent;
+        itemTheme.textColor         = textColor;
+        itemTheme.disabledTextColor = itemDisabledColor;
+        itemTheme.font              = font;
+        itemTheme.fontSize          = fontSize;
+        itemTheme.fontSizeSmall     = fontSizeSmall;
+        itemTheme.padding           = padding;
+
+        for (const auto& item : entry.items)
+        {
+            if (item.separator)
+            {
+                auto sep = std::unique_ptr<ml::Core>(new MenuSeparator(dw, separatorColor));
+                entry.dropdown->add(*sep);
+                entry.separatorRects.push_back(std::move(sep));
+                // Null placeholders in the parallel vectors
+                entry.listItems.push_back(nullptr);
+                entry.checkmarkTexts.push_back(nullptr);
+                entry.endTexts.push_back(nullptr);
+            }
+            else
+            {
+                auto& li = entry.dropdown->addItem(item.label);
+                li.setEnabled(item.enabled);
+                li.setRowHeight(dropdownItemH);
+                li.applyTheme(itemTheme);
+
+                // Checkmark start slot — always "✓" but transparent when unchecked,
+                // so all labels are consistently indented.
+                auto chk = std::make_unique<ml::Text>(*font);
+                chk->setString("✓");
+                chk->setCharacterSize(fontSize);
+                chk->setFillColor(item.checked ? checkmarkColor : sf::Color::Transparent);
+                chk->unsubscribeAll();
+                li.setStart(*chk);
+                entry.checkmarkTexts.push_back(std::move(chk));
+
+                // End slot: submenu arrow or shortcut text
+                if (item.hasSubmenu())
+                {
+                    auto arrow = std::make_unique<ml::Text>(*font);
+                    arrow->setString("▶");
+                    arrow->setCharacterSize(fontSizeSmall);
+                    arrow->setFillColor(item.enabled ? textColor : itemDisabledColor);
+                    arrow->unsubscribeAll();
+                    li.setEnd(*arrow);
+                    entry.endTexts.push_back(std::move(arrow));
+                }
+                else if (!item.shortcut.empty())
+                {
+                    auto sc = std::make_unique<ml::Text>(*font);
+                    sc->setString(item.shortcut);
+                    sc->setCharacterSize(fontSizeSmall);
+                    sc->setFillColor(item.enabled ? shortcutColor : itemDisabledColor);
+                    sc->unsubscribeAll();
+                    li.setEnd(*sc);
+                    entry.endTexts.push_back(std::move(sc));
+                }
+                else
+                {
+                    entry.endTexts.push_back(nullptr);
+                }
+
+                entry.listItems.push_back(&li);
+            }
+        }
     }
 
     int MenuBar::hitTestBar(const sf::Vector2f& wp) const
@@ -175,22 +330,16 @@ namespace ml
 
     int MenuBar::hitTestDropdown(const sf::Vector2f& wp) const
     {
-        if (_openEntry < 0) return -1;
-        const float dx = dropdownX(_openEntry);
-        const float dy = dropdownY();
-        const float dw = dropdownWidth(_openEntry);
-        const float dh = dropdownHeight(_openEntry);
+        if (_openEntry < 0 || !_entries[_openEntry].dropdown) return -1;
+        const sf::FloatRect lb = _entries[_openEntry].dropdown->getGlobalBounds();
+        if (!lb.contains(wp)) return -1;
 
-        if (wp.x < dx || wp.x > dx + dw ||
-            wp.y < dy || wp.y > dy + dh) return -1;
-
-        const float relY  = wp.y - dy;
-        int   row   = 0;
-        float accH  = 0.f;
-
+        const float relY = wp.y - lb.position.y;
+        float accH = 0.f;
         for (int i = 0; i < static_cast<int>(_entries[_openEntry].items.size()); ++i)
         {
-            const float itemH = _entries[_openEntry].items[i].separator ? 9.f : dropdownItemH;
+            const float itemH = _entries[_openEntry].items[i].separator
+                                ? 9.f : dropdownItemH;
             if (relY >= accH && relY < accH + itemH) return i;
             accH += itemH;
         }
@@ -211,7 +360,7 @@ namespace ml
                 measure.setString(item.shortcut);
                 w += measure.getGlobalBounds().size.x + padding * 2.f;
             }
-            if (item.hasSubmenu()) w += 14.f; // arrow
+            if (item.hasSubmenu()) w += 14.f;
             maxW = std::max(maxW, w);
         }
         return maxW;
@@ -257,7 +406,10 @@ namespace ml
     void MenuBar::onThemeApplied(const Theme& theme)
     {
         if (isThemeLocked()) return;
+        closeAll(); // move any open dropdown off-screen before rebuilding
         MenuBarTheme::applyFrom(theme);
+        for (int i = 0; i < static_cast<int>(_entries.size()); ++i)
+            buildDropdown(i);
     }
 
     // ── draw ──────────────────────────────────────────────────────────────────
@@ -280,7 +432,6 @@ namespace ml
             const float left  = _position.x + entry.labelX - entryPadding;
             const float right = left + entry.labelW + entryPadding * 2.f;
 
-            // Hover/open background
             if (i == _openEntry)
             {
                 sf::RectangleShape hl({right - left, barHeight});
@@ -298,109 +449,30 @@ namespace ml
             target.draw(label, states);
         }
 
-        // ── Open dropdown ─────────────────────────────────────────────────────
-        if (_openEntry >= 0)
-            drawDropdown(target, states, _openEntry);
-    }
-
-    void MenuBar::drawDropdown(sf::RenderTarget& target,
-                                const sf::RenderStates& states,
-                                int entryIdx) const
-    {
-        const float dx = dropdownX(entryIdx);
-        const float dy = dropdownY();
-        const float dw = dropdownWidth(entryIdx);
-        const float dh = dropdownHeight(entryIdx);
-
-        // Panel
-        sf::RectangleShape panel({dw, dh});
-        panel.setFillColor(dropdownBg);
-        panel.setOutlineColor(dropdownBorder);
-        panel.setOutlineThickness(dropdownBorderThk);
-        panel.setPosition({dx, dy});
-        target.draw(panel, states);
-
-        sf::Text label(*font, "", static_cast<unsigned int>(fontSize));
-        sf::Text shortcut(*font, "", static_cast<unsigned int>(fontSizeSmall));
-        shortcut.setFillColor(shortcutColor);
-
-        float y = dy;
-        for (int i = 0; i < static_cast<int>(_entries[entryIdx].items.size()); ++i)
+        // ── Open dropdown (rendered via ml::List) ─────────────────────────────
+        if (_openEntry >= 0 && _openEntry < static_cast<int>(_entries.size()) &&
+            _entries[_openEntry].dropdown)
         {
-            const auto& item = _entries[entryIdx].items[i];
+            const auto& dropdown = _entries[_openEntry].dropdown;
+            const sf::FloatRect lb = dropdown->getGlobalBounds();
 
-            if (item.separator)
-            {
-                sf::RectangleShape sep({dw - padding * 2.f, 1.f});
-                sep.setFillColor(separatorColor);
-                sep.setPosition({dx + padding, y + 4.f});
-                target.draw(sep, states);
-                y += 9.f;
-                continue;
-            }
+            // Background border: slightly larger rect in border color, then
+            // draw the list on top so the border appears as a 1-px frame.
+            const float t = dropdownBorderThk;
+            sf::RectangleShape borderRect(
+                {lb.size.x + t * 2.f, lb.size.y + t * 2.f});
+            borderRect.setFillColor(dropdownBorder);
+            borderRect.setPosition({lb.position.x - t, lb.position.y - t});
+            target.draw(borderRect, states);
 
-            const float rowH = dropdownItemH;
+            if (const auto* d = dynamic_cast<const sf::Drawable*>(dropdown.get()))
+                target.draw(*d, states);
 
-            // Row highlight
-            if (i == _hoveredItem && item.enabled)
-            {
-                sf::RectangleShape hl({dw, rowH});
-                hl.setFillColor(itemHoverBg);
-                hl.setPosition({dx, y});
-                target.draw(hl, states);
-            }
-
-            // Checkmark
-            if (item.checked)
-            {
-                sf::Text chk(*font, "✓", static_cast<unsigned int>(fontSize));
-                chk.setFillColor(checkmarkColor);
-                const sf::FloatRect cb = chk.getLocalBounds();
-                chk.setPosition({dx + 6.f, y + (rowH - cb.size.y) / 2.f - cb.position.y});
-                target.draw(chk, states);
-            }
-
-            // Label
-            label.setString(item.label);
-            label.setFillColor(item.enabled ? textColor : itemDisabledColor);
-            const sf::FloatRect lb = label.getLocalBounds();
-            label.setPosition({
-                dx + padding + 18.f, // indent for checkmark
-                y + (rowH - lb.size.y) / 2.f - lb.position.y
-            });
-            target.draw(label, states);
-
-            // Shortcut
-            if (!item.shortcut.empty())
-            {
-                shortcut.setString(item.shortcut);
-                const sf::FloatRect sb = shortcut.getLocalBounds();
-                shortcut.setPosition({
-                    dx + dw - padding - sb.size.x - sb.position.x,
-                    y + (rowH - sb.size.y) / 2.f - sb.position.y
-                });
-                target.draw(shortcut, states);
-            }
-
-            // Submenu arrow
-            if (item.hasSubmenu())
-            {
-                sf::Text arrow(*font, "▶", static_cast<unsigned int>(fontSizeSmall));
-                arrow.setFillColor(item.enabled ? textColor : itemDisabledColor);
-                const sf::FloatRect ab = arrow.getLocalBounds();
-                arrow.setPosition({
-                    dx + dw - padding - ab.size.x - ab.position.x,
-                    y + (rowH - ab.size.y) / 2.f - ab.position.y
-                });
-                target.draw(arrow, states);
-            }
-
-            y += rowH;
+            // Submenu (manual rendering — submenus are less common and need
+            // different positioning logic than a flat dropdown)
+            if (_openSubmenu >= 0)
+                drawSubmenu(target, states, _openEntry, _openSubmenu);
         }
-
-        // Draw open submenu
-        if (_openSubmenu >= 0)
-            drawSubmenu(target, states, entryIdx, _openSubmenu);
     }
 
     void MenuBar::drawSubmenu(sf::RenderTarget& target,
@@ -429,7 +501,7 @@ namespace ml
                 smW = std::max(smW, m.getGlobalBounds().size.x + padding * 4.f);
             }
         }
-        const float smH = item.submenu.size() * dropdownItemH;
+        const float smH = static_cast<float>(item.submenu.size()) * dropdownItemH;
 
         // Prefer opening to the right; flip left if near edge
         const float winW = static_cast<float>(WindowManager::getWindow().getSize().x);
@@ -444,21 +516,21 @@ namespace ml
         panel.setPosition({smX, smY});
         target.draw(panel, states);
 
-        sf::Text label(*font, "", static_cast<unsigned int>(fontSize));
+        sf::Text lbl(*font, "", static_cast<unsigned int>(fontSize));
         float y = smY;
 
         for (const auto& si : item.submenu)
         {
             if (!si.separator)
             {
-                label.setString(si.label);
-                label.setFillColor(si.enabled ? textColor : itemDisabledColor);
-                const sf::FloatRect lb = label.getLocalBounds();
-                label.setPosition({
+                lbl.setString(si.label);
+                lbl.setFillColor(si.enabled ? textColor : itemDisabledColor);
+                const sf::FloatRect b = lbl.getLocalBounds();
+                lbl.setPosition({
                     smX + padding,
-                    y + (dropdownItemH - lb.size.y) / 2.f - lb.position.y
+                    y + (dropdownItemH - b.size.y) / 2.f - b.position.y
                 });
-                target.draw(label, states);
+                target.draw(lbl, states);
             }
             y += si.separator ? 9.f : dropdownItemH;
         }
@@ -470,24 +542,42 @@ namespace ml
     {
         _entries.push_back({label, std::move(items)});
         computeLayout();
+        buildDropdown(static_cast<int>(_entries.size()) - 1);
     }
 
     void MenuBar::setMenuItems(std::size_t i, std::vector<MenuItem> items)
     {
         if (i < _entries.size())
+        {
             _entries[i].items = std::move(items);
+            buildDropdown(static_cast<int>(i));
+        }
     }
 
     void MenuBar::setItemChecked(std::size_t menu, std::size_t item, bool checked)
     {
-        if (menu < _entries.size() && item < _entries[menu].items.size())
-            _entries[menu].items[item].checked = checked;
+        if (menu >= _entries.size() || item >= _entries[menu].items.size()) return;
+        auto& entry = _entries[menu];
+        entry.items[item].checked = checked;
+        if (item < entry.checkmarkTexts.size() && entry.checkmarkTexts[item])
+            entry.checkmarkTexts[item]->setFillColor(
+                checked ? checkmarkColor : sf::Color::Transparent);
     }
 
     void MenuBar::setItemEnabled(std::size_t menu, std::size_t item, bool enabled)
     {
-        if (menu < _entries.size() && item < _entries[menu].items.size())
-            _entries[menu].items[item].enabled = enabled;
+        if (menu >= _entries.size() || item >= _entries[menu].items.size()) return;
+        auto& entry = _entries[menu];
+        entry.items[item].enabled = enabled;
+        if (item < entry.listItems.size() && entry.listItems[item])
+            entry.listItems[item]->setEnabled(enabled);
+        if (item < entry.endTexts.size() && entry.endTexts[item])
+        {
+            const sf::Color col = enabled
+                ? (entry.items[item].hasSubmenu() ? textColor : shortcutColor)
+                : itemDisabledColor;
+            entry.endTexts[item]->setFillColor(col);
+        }
     }
 
     void MenuBar::closeMenus() { closeAll(); }
@@ -504,10 +594,10 @@ namespace ml
 
     sf::FloatRect MenuBar::getGlobalBounds() const
     {
-        // When a dropdown is open, extend bounds to cover it so clicks register
-        if (_openEntry >= 0)
+        if (_openEntry >= 0 && _openEntry < static_cast<int>(_entries.size()) &&
+            _entries[_openEntry].dropdown)
         {
-            const float dh = dropdownHeight(_openEntry);
+            const float dh = _entries[_openEntry].dropdown->getTotalHeight();
             return sf::FloatRect{_position, {_width, barHeight + dh + 4.f}};
         }
         return sf::FloatRect{_position, {_width, barHeight}};

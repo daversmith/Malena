@@ -14,13 +14,14 @@ namespace ml
     {
         window.create(videoMode, title);
         this->window->setFramerateLimit(60);
+        _instance = this;
     }
 
     void AppManager::draw()
     {
     	_isDrawing = true;
         this->window->clear();
-        for (auto &c : CoreManager<Core>::getComponents())
+        for (auto &c : getComponents())
         {
         	if (!c->checkFlag(Flag::HIDDEN))
         	{

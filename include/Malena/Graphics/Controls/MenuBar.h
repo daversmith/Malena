@@ -11,14 +11,19 @@
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Graphics/Controls/MenuItem.h>
+#include <Malena/Graphics/Controls/List.h>
+#include <Malena/Graphics/Controls/ListItem.h>
+#include <Malena/Graphics/Text/Text.h>
+#include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Traits/Settings/MenuBarSettings.h>
 #include <Malena/Traits/Theme/MenuBarTheme.h>
+#include <Malena/Traits/Theme/ListItemTheme.h>
 #include <Malena/Traits/Theme/Themeable.h>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
-#include <SFML/Graphics/RenderTexture.hpp>
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 #include <type_traits>
@@ -78,10 +83,21 @@ namespace ml
     private:
         struct MenuEntry
         {
-            std::string          label;
+            std::string           label;
             std::vector<MenuItem> items;
-            float                labelX  = 0.f; ///< computed x position in bar
-            float                labelW  = 0.f; ///< computed label width
+            float                 labelX = 0.f; ///< computed x position in bar
+            float                 labelW = 0.f; ///< computed label width
+
+            // List-based dropdown (off-screen when closed)
+            std::unique_ptr<ml::List> dropdown;
+
+            // Parallel to items — null for separators
+            std::vector<ml::ListItem*>              listItems;
+            std::vector<std::unique_ptr<ml::Text>>  checkmarkTexts; ///< start slot
+            std::vector<std::unique_ptr<ml::Text>>  endTexts;       ///< shortcut or arrow
+
+            // Separator helper objects (kept alive for list layout)
+            std::vector<std::unique_ptr<ml::Core>> separatorRects;
         };
 
         std::vector<MenuEntry> _entries;
@@ -91,21 +107,29 @@ namespace ml
         sf::Vector2f _position  = {0.f, 0.f};
         float        _width     = 0.f;  ///< resolved bar width
 
-        mutable sf::RenderTexture _dropdownCanvas;
-        mutable sf::RenderTexture _submenuCanvas;
+        /// All data from a replaced dropdown, kept alive until the next UPDATE
+        /// frame. The List's ListItems hold raw pointers to the Text objects in
+        /// checkmarkTexts/endTexts; destroying either side first causes a crash
+        /// when ThemeManager re-notifies the still-living List.
+        struct OldDropdown
+        {
+            std::unique_ptr<ml::List>              dropdown;
+            std::vector<std::unique_ptr<ml::Text>> checkmarkTexts;
+            std::vector<std::unique_ptr<ml::Text>> endTexts;
+            std::vector<std::unique_ptr<ml::Core>> separatorRects;
+        };
+        std::vector<OldDropdown> _pendingDelete;
 
         // ── Internal ──────────────────────────────────────────────────────────
         void  computeLayout();
         void  closeAll();
+        void  buildDropdown(int entryIdx);
         int   hitTestBar(const sf::Vector2f& wp) const;
         int   hitTestDropdown(const sf::Vector2f& wp) const;
         float dropdownWidth(int entryIdx) const;
         float dropdownHeight(int entryIdx) const;
         float dropdownX(int entryIdx) const;
         float dropdownY() const;
-        void  drawDropdown(sf::RenderTarget& target,
-                           const sf::RenderStates& states,
-                           int entryIdx) const;
         void  drawSubmenu(sf::RenderTarget& target,
                           const sf::RenderStates& states,
                           int entryIdx, int itemIdx) const;

@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 #include <type_traits>
+#include <SFML/System/Vector2.hpp>
+#include <Malena/Utilities/HasSetSize.h>
 
 namespace ml
 {
@@ -87,12 +89,13 @@ namespace ml
     private:
         struct Tab
         {
-            std::string        label;
-            ml::Core*          content   = nullptr;
-            const sf::Texture* icon      = nullptr;
-            bool               closeable = false;
-            float              x         = 0.f;  ///< computed position in strip
-            float              width     = 0.f;  ///< computed width
+            std::string                       label;
+            std::unique_ptr<ml::Core>         content;
+            std::function<void(sf::Vector2f)> resizeFn;   ///< calls setSize if supported
+            const sf::Texture*                icon      = nullptr;
+            bool                              closeable = false;
+            float                             x         = 0.f;  ///< computed position in strip
+            float                             width     = 0.f;  ///< computed width
         };
 
         std::vector<Tab>  _tabs;
@@ -101,6 +104,11 @@ namespace ml
 
         sf::Vector2f _position = {0.f, 0.f};
         sf::Vector2f _size     = {400.f, 300.f};
+
+        // Content whose unique_ptr was transferred out during event dispatch is
+        // held here until the next onUpdate tick, preventing use-after-free when
+        // the EventManager's CLICK loop continues past a just-closed tab.
+        std::vector<std::unique_ptr<ml::Core>> _pendingDelete;
 
         std::function<void(std::size_t, const std::string&)> _onTabChanged;
         std::function<void(std::size_t, const std::string&)> _onTabClosed;
@@ -159,23 +167,48 @@ namespace ml
         // ── Tab management ────────────────────────────────────────────────────
 
         /**
-         * @brief Add a tab.
+         * @brief Add a tab with owned content.
          *
-         * The content component is NOT owned — register it with @c addComponent
-         * separately so its events fire. Content is just hidden (not destroyed)
-         * when another tab is selected, so state is fully preserved.
+         * The panel takes ownership of @p content. It is responsible for
+         * drawing, resizing, and destroying it. If @c T has a @c setSize()
+         * method, the panel will call it automatically whenever the content
+         * area changes.
          *
+         * @tparam T        Any @c ml::Core-derived type.
          * @param label     Tab label text.
-         * @param content   Any @c ml::Core component to display in the panel.
+         * @param content   Owned content component.
          * @param icon      Optional icon texture. Pass @c nullptr for none.
-         * @param closeable Whether this tab has a close button. Defaults to
-         *                  the panel's @c closeable setting.
+         * @param closeable Whether this tab has a close button.
          * @return Zero-based index of the new tab.
          */
-        std::size_t addTab(const std::string& label,
-                           ml::Core&          content,
-                           const sf::Texture* icon      = nullptr,
-                           bool               closeable = false);
+        template<typename T>
+        T& addTab(const std::string& label,
+                  std::unique_ptr<T>  content,
+                  const sf::Texture*  icon      = nullptr,
+                  bool                closeable = false)
+        {
+            static_assert(std::is_base_of_v<ml::Core, T>,
+                "addTab() content must derive from ml::Core");
+
+            T* ptr = content.get();
+
+            Tab tab;
+            tab.label     = label;
+            tab.content   = std::move(content);
+            tab.icon      = icon;
+            tab.closeable = closeable;
+
+            if constexpr (detail::has_setSize<T>::value)
+                tab.resizeFn = [ptr](sf::Vector2f sz){ ptr->setSize(sz); };
+
+            _tabs.push_back(std::move(tab));
+            computeTabLayout();
+
+            if (_activeIdx < 0)
+                selectTab(0);
+
+            return *ptr;
+        }
 
         /**
          * @brief Remove a tab by index.

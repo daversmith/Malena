@@ -25,6 +25,7 @@
 #include <Malena/Graphics/Controls/ListItem.h>
 #include <Malena/Graphics/Controls/TabbedPanel.h>
 #include <Malena/Graphics/Controls/SplitPanel.h>
+#include <Malena/Graphics/Layouts/Panel.h>
 #include <Malena/Graphics/Controls/MenuBar.h>
 #include <Malena/Graphics/Controls/Toolbar.h>
 #include <Malena/Graphics/Controls/SideMenu.h>
@@ -101,13 +102,6 @@ class UIShowcaseApp : public ml::ApplicationWith<ShowcaseManifest>
     // ── Background ────────────────────────────────────────────────────────────
     ml::Rectangle _bg;
 
-    // ── Tab content backgrounds (registered so TabbedPanel can reference them)
-    ml::Rectangle _tabTogglesBg;     // Tab 1 background
-    ml::Rectangle _tabSelectionsBg;  // Tab 2 background
-
-    // ── Split pane backgrounds ────────────────────────────────────────────────
-    ml::Rectangle _paneInputsBg;
-    ml::Rectangle _paneListBg;
 
     // ── TabbedPanel + SplitPanel ──────────────────────────────────────────────
     ml::TabbedPanel _tabs;
@@ -157,14 +151,14 @@ class UIShowcaseApp : public ml::ApplicationWith<ShowcaseManifest>
     // ── Helpers ───────────────────────────────────────────────────────────────
     void setStatus(const std::string& s) { _status.setString(s); }
 
-    void heading(ml::Text& t, const std::string& s, float x, float y)
+    void heading(ml::Text& t, const std::string& s, float x, float y, ml::Panel& panel)
     {
         t.setString(s);
         t.setCharacterSize(11);
         t.setFillColor(sf::Color(160,160,160));
         t.setStyle(sf::Text::Style::Bold);
         t.setPosition({x, y});
-        addComponent(t);
+        panel.addComponent(t);
     }
 
     void icon(ml::Rectangle& r, const sf::Color& c)
@@ -187,246 +181,241 @@ public:
         _bg.setPosition({10.f, 10.f});
         addComponent(_bg);
 
-        // ─────────────────────────────────────────────────────────────────────
-        // TAB 1 — TOGGLES  (positioned at TP_CX, TP_CY)
-        // ─────────────────────────────────────────────────────────────────────
-        float y = TP_CY;
-        const float C1 = TP_CX;
-
-        heading(_pillHead,"PILL", C1, y); y+=22.f;
-
-        _pillDefault.setRightLabel("Default");
-        _pillDefault.setPosition({C1,y}); addComponent(_pillDefault); y+=32.f;
-
-        _pillGreen.setTrackOnColor(sf::Color(70,200,100));
-        _pillGreen.lockTheme();
-        _pillGreen.setRightLabel("Custom green (locked)");
-        _pillGreen.setPosition({C1,y}); addComponent(_pillGreen); y+=32.f;
-
-        _pillLarge.setTrackSize({70.f,34.f});
-        _pillLarge.setPillLabels("NO","YES");
-        _pillLarge.setOn(true);
-        _pillLarge.setRightLabel("Large / starts ON");
-        _pillLarge.setPosition({C1,y}); addComponent(_pillLarge); y+=44.f;
-
-        _pillInside.setPillLabels("OFF","ON");
-        _pillInside.setTrackSize({64.f,28.f});
-        _pillInside.setRightLabel("Inside labels");
-        _pillInside.setPosition({C1,y}); addComponent(_pillInside); y+=32.f;
-
-        _pillDisabled.setRightLabel("Disabled");
-        _pillDisabled.setEnabled(false);
-        _pillDisabled.setPosition({C1,y}); addComponent(_pillDisabled); y+=32.f;
-
-        _pillLocked.setTrackOnColor(sf::Color(220,60,60));
-        _pillLocked.setTrackOffColor(sf::Color(70,70,70));
-        _pillLocked.lockTheme();
-        _pillLocked.setRightLabel("Locked red");
-        _pillLocked.setPosition({C1,y}); addComponent(_pillLocked); y+=42.f;
-
-        heading(_segHead,"SEGMENT", C1, y); y+=22.f;
-        _segDefault.setSegmentLabels("Off","On");
-        _segDefault.setSize({200.f,34.f});
-        _segDefault.setPosition({C1,y}); addComponent(_segDefault); y+=46.f;
-
-        _segHotels.setSegmentLabels("Hotels","Apartments");
-        _segHotels.setSize({220.f,34.f});
-        _segHotels.setPosition({C1,y}); addComponent(_segHotels); y+=50.f;
-
-        heading(_btnHead,"BUTTON TOGGLE", C1, y); y+=22.f;
-        _btnSave.setOffLabel("Save"); _btnSave.setOnLabel("Saved");
-        _btnSave.setSize({120.f,34.f});
-        _btnSave.setPosition({C1,y}); addComponent(_btnSave); y+=46.f;
-
-        _btnMute.setOffLabel("Unmuted"); _btnMute.setOnLabel("Muted");
-        _btnMute.setOnColor(sf::Color(200,60,60));
-        _btnMute.setSize({120.f,34.f});
-        _btnMute.setPosition({C1,y}); addComponent(_btnMute); y+=46.f;
-
-        _btnBtnDisabled.setOffLabel("Disabled");
-        _btnBtnDisabled.setSize({120.f,34.f});
-        _btnBtnDisabled.setEnabled(false);
-        _btnBtnDisabled.setPosition({C1,y}); addComponent(_btnBtnDisabled);
-
-        // ─────────────────────────────────────────────────────────────────────
-        // TAB 2 — SELECTIONS  (same top-left as Tab 1 — TabbedPanel repositions)
-        // ─────────────────────────────────────────────────────────────────────
-        y = TP_CY;
-        const float C2 = TP_CX;
-
-        heading(_checkHead,"CHECKBOX", C2, y); y+=22.f;
-        for (auto [cb, lbl, chk, dis] :
-            std::initializer_list<std::tuple<ml::Checkbox*,const char*,bool,bool>>{
-                {&_chkOne,     "Enable fullscreen",  false, false},
-                {&_chkTwo,     "Enable VSync",        false, false},
-                {&_chkThree,   "Show FPS counter",    true,  false},
-                {&_chkDisabled,"Disabled option",     false, true }})
-        {
-            cb->setLabel(lbl);
-            if (chk) cb->check();
-            if (dis) cb->setEnabled(false);
-            cb->setPosition({C2,y}); addComponent(*cb); y+=30.f;
-        }
-        y+=16.f;
-
-        heading(_checkGroupHead,"CHECKBOX GROUP", C2, y); y+=22.f;
-        _checkGroup.addOption("Dark mode", true);
-        _checkGroup.addOption("Subtitles");
-        _checkGroup.addOption("Auto-save", true);
-        _checkGroup.addOption("Analytics");
-        _checkGroup.showBackground = true;
-        _checkGroup.padding = 10.f;
-        _checkGroup.spacing = 4.f;
-        _checkGroup.setPosition({C2,y}); addComponent(_checkGroup); y+=180.f;
-
-        heading(_radioHead,"RADIO GROUP", C2, y); y+=22.f;
-        _radioGroup.addOption("Easy");
-        _radioGroup.addOption("Normal");
-        _radioGroup.addOption("Hard");
-        _radioGroup.addOption("Impossible");
-        _radioGroup.setOptionEnabled(3,false);
-        _radioGroup.selectFirst();
-        _radioGroup.showBackground = true;
-        _radioGroup.padding = 10.f;
-        _radioGroup.spacing = 4.f;
-        _radioGroup.setPosition({C2,y}); addComponent(_radioGroup);
-
-        // ── Tab backgrounds — what TabbedPanel uses as its "content" ──────────
-        _tabTogglesBg.setSize({TP_W, COL_H - TAB_H});
-        _tabTogglesBg.setFillColor(sf::Color::Transparent);
-        _tabSelectionsBg.setSize({TP_W, COL_H - TAB_H});
-        _tabSelectionsBg.setFillColor(sf::Color::Transparent);
-
-        // ── TabbedPanel ───────────────────────────────────────────────────────
+        // ── TabbedPanel setup — panels are positioned before children are added ──
         _tabs.setSize({TP_W, COL_H});
         _tabs.setPosition({TP_X, CONTENT_Y});
         _tabs.setCloseable(true);
-        // Transparent bg so independently-drawn components show through
-        _tabs.contentBg = sf::Color::Transparent;
-        _tabs.tabBarThickness = 1.f;  // keep border outline
-        _tabs.addTab("Toggles",    _tabTogglesBg);
-        _tabs.addTab("Selections", _tabSelectionsBg);
-        _tabs.onTabChanged([this](std::size_t i, const std::string& lbl){
+        _tabs.contentBg      = sf::Color::Transparent;
+        _tabs.tabBarThickness = 1.f;
+
+        auto& tab1 = _tabs.addTab("Toggles",    std::make_unique<ml::Panel>());
+        auto& tab2 = _tabs.addTab("Selections", std::make_unique<ml::Panel>());
+
+        _tabs.onTabChanged([this](std::size_t, const std::string& lbl){
             setStatus("Tab: " + lbl);
         });
         addComponent(_tabs);
 
         // ─────────────────────────────────────────────────────────────────────
-        // LEFT PANE — INPUTS  (SP_L_CX, SP_CY)
+        // TAB 1 — TOGGLES  (positioned at TP_CX, TP_CY)
         // ─────────────────────────────────────────────────────────────────────
-        y = SP_CY;
-        const float C3 = SP_L_CX;
-        const float INPUT_W = SP_PANE_W - 28.f;  // fits in pane with margins
+        {
+            float y = TP_CY;
+            const float C1 = TP_CX;
 
-        heading(_inputHead,"TEXT INPUT", C3, y); y+=22.f;
+            heading(_pillHead,"PILL", C1, y, tab1); y+=22.f;
 
-        _inputDefault.setSize({INPUT_W,34.f});
-        _inputDefault.setPlaceholder("Default input...");
-        _inputDefault.setPosition({C3,y}); addComponent(_inputDefault); y+=46.f;
+            _pillDefault.setRightLabel("Default");
+            _pillDefault.setPosition({C1,y}); tab1.addComponent(_pillDefault); y+=32.f;
 
-        _inputPassword.setSize({INPUT_W,34.f});
-        _inputPassword.setPlaceholder("Password...");
-        _inputPassword.setPasswordMode(true);
-        _inputPassword.setPosition({C3,y}); addComponent(_inputPassword); y+=46.f;
+            _pillGreen.setTrackOnColor(sf::Color(70,200,100));
+            _pillGreen.lockTheme();
+            _pillGreen.setRightLabel("Custom green (locked)");
+            _pillGreen.setPosition({C1,y}); tab1.addComponent(_pillGreen); y+=32.f;
 
-        _inputDisabled.setSize({INPUT_W,34.f});
-        _inputDisabled.setValue("Disabled field");
-        _inputDisabled.setEnabled(false);
-        _inputDisabled.setPosition({C3,y}); addComponent(_inputDisabled); y+=46.f;
+            _pillLarge.setTrackSize({70.f,34.f});
+            _pillLarge.setPillLabels("NO","YES");
+            _pillLarge.setOn(true);
+            _pillLarge.setRightLabel("Large / starts ON");
+            _pillLarge.setPosition({C1,y}); tab1.addComponent(_pillLarge); y+=44.f;
 
-        _inputError.setSize({INPUT_W,34.f});
-        _inputError.setPlaceholder("Error state...");
-        _inputError.setError(true);
-        _inputError.setPosition({C3,y}); addComponent(_inputError); y+=54.f;
+            _pillInside.setPillLabels("OFF","ON");
+            _pillInside.setTrackSize({64.f,28.f});
+            _pillInside.setRightLabel("Inside labels");
+            _pillInside.setPosition({C1,y}); tab1.addComponent(_pillInside); y+=32.f;
 
-        heading(_areaHead,"TEXT AREA", C3, y); y+=22.f;
-        _textArea.setSize({INPUT_W,130.f});
-        _textArea.setPlaceholder("Multi-line text area...");
-        _textArea.setPosition({C3,y}); addComponent(_textArea); y+=146.f;
+            _pillDisabled.setRightLabel("Disabled");
+            _pillDisabled.setEnabled(false);
+            _pillDisabled.setPosition({C1,y}); tab1.addComponent(_pillDisabled); y+=32.f;
 
-        heading(_selectHead,"SELECT", C3, y); y+=22.f;
-        _select.size = {INPUT_W, 34.f};
-        _select.setPlaceholder("Choose difficulty...");
-        { ml::SelectOptionStyle s; s.color=sf::Color(100,220,100);
-          s.description="For beginners";
-          _select.addOption("Easy","easy",s); }
-        { ml::SelectOptionStyle s; s.description="Balanced";
-          _select.addOption("Normal","normal",s); }
-        { ml::SelectOptionStyle s; s.color=sf::Color(220,120,60);
-          s.description="Experienced players";
-          _select.addOption("Hard","hard",s); }
-        { ml::SelectOptionStyle s; s.color=sf::Color(220,60,60);
-          s.description="Permadeath";
-          _select.addOption("Impossible","impossible",s); }
-        _select.setOptionEnabled(3,false);
-        _select.setPosition({C3,y}); addComponent(_select);
+            _pillLocked.setTrackOnColor(sf::Color(220,60,60));
+            _pillLocked.setTrackOffColor(sf::Color(70,70,70));
+            _pillLocked.lockTheme();
+            _pillLocked.setRightLabel("Locked red");
+            _pillLocked.setPosition({C1,y}); tab1.addComponent(_pillLocked); y+=42.f;
+
+            heading(_segHead,"SEGMENT", C1, y, tab1); y+=22.f;
+            _segDefault.setSegmentLabels("Off","On");
+            _segDefault.setSize({200.f,34.f});
+            _segDefault.setPosition({C1,y}); tab1.addComponent(_segDefault); y+=46.f;
+
+            _segHotels.setSegmentLabels("Hotels","Apartments");
+            _segHotels.setSize({220.f,34.f});
+            _segHotels.setPosition({C1,y}); tab1.addComponent(_segHotels); y+=50.f;
+
+            heading(_btnHead,"BUTTON TOGGLE", C1, y, tab1); y+=22.f;
+            _btnSave.setOffLabel("Save"); _btnSave.setOnLabel("Saved");
+            _btnSave.setSize({120.f,34.f});
+            _btnSave.setPosition({C1,y}); tab1.addComponent(_btnSave); y+=46.f;
+
+            _btnMute.setOffLabel("Unmuted"); _btnMute.setOnLabel("Muted");
+            _btnMute.setOnColor(sf::Color(200,60,60));
+            _btnMute.setSize({120.f,34.f});
+            _btnMute.setPosition({C1,y}); tab1.addComponent(_btnMute); y+=46.f;
+
+            _btnBtnDisabled.setOffLabel("Disabled");
+            _btnBtnDisabled.setSize({120.f,34.f});
+            _btnBtnDisabled.setEnabled(false);
+            _btnBtnDisabled.setPosition({C1,y}); tab1.addComponent(_btnBtnDisabled);
+        }
 
         // ─────────────────────────────────────────────────────────────────────
-        // RIGHT PANE — LIST  (SP_R_CX, SP_CY)
+        // TAB 2 — SELECTIONS
         // ─────────────────────────────────────────────────────────────────────
-        y = SP_CY;
-        const float C4     = SP_R_CX;
-        const float LIST_W = SP_PANE_W - 28.f;
+        {
+            float y = TP_CY;
+            const float C2 = TP_CX;
 
-        heading(_listHead,"LIST — ALL SLOTS", C4, y); y+=22.f;
+            heading(_checkHead,"CHECKBOX", C2, y, tab2); y+=22.f;
+            for (auto [cb, lbl, chk, dis] :
+                std::initializer_list<std::tuple<ml::Checkbox*,const char*,bool,bool>>{
+                    {&_chkOne,     "Enable fullscreen",  false, false},
+                    {&_chkTwo,     "Enable VSync",        false, false},
+                    {&_chkThree,   "Show FPS counter",    true,  false},
+                    {&_chkDisabled,"Disabled option",     false, true }})
+            {
+                cb->setLabel(lbl);
+                if (chk) cb->check();
+                if (dis) cb->setEnabled(false);
+                cb->setPosition({C2,y}); tab2.addComponent(*cb); y+=30.f;
+            }
+            y+=16.f;
 
-        icon(_iconWifi,  sf::Color(70,130,230));
-        icon(_iconBt,    sf::Color(150,80,220));
-        icon(_iconDark,  sf::Color(60,180,120));
-        icon(_iconAlert, sf::Color(220,70,70));
+            heading(_checkGroupHead,"CHECKBOX GROUP", C2, y, tab2); y+=22.f;
+            _checkGroup.addOption("Dark mode", true);
+            _checkGroup.addOption("Subtitles");
+            _checkGroup.addOption("Auto-save", true);
+            _checkGroup.addOption("Analytics");
+            _checkGroup.showBackground = true;
+            _checkGroup.padding = 10.f;
+            _checkGroup.spacing = 4.f;
+            _checkGroup.setPosition({C2,y}); tab2.addComponent(_checkGroup); y+=180.f;
 
-        _toggleWifi.setOn(true);
-        _toggleDark.setOn(true);
-        _chkList.check();
-        _btnListAction.setOffLabel("Details");
-        _btnListAction.setOnLabel("Details");
-        _btnListAction.setSize({80.f,28.f});
+            heading(_radioHead,"RADIO GROUP", C2, y, tab2); y+=22.f;
+            _radioGroup.addOption("Easy");
+            _radioGroup.addOption("Normal");
+            _radioGroup.addOption("Hard");
+            _radioGroup.addOption("Impossible");
+            _radioGroup.setOptionEnabled(3,false);
+            _radioGroup.selectFirst();
+            _radioGroup.showBackground = true;
+            _radioGroup.padding = 10.f;
+            _radioGroup.spacing = 4.f;
+            _radioGroup.setPosition({C2,y}); tab2.addComponent(_radioGroup);
+        }
 
-        _list.setWidth(LIST_W);
-        _list.showBackground = true;
-        _list.showDividers   = true;
-
-        { auto& i=_list.addItem("Notifications");
-          i.onClick([this]{ setStatus("Notifications clicked"); }); }
-        { auto& i=_list.addItem("Account","Manage profile");
-          i.onClick([this]{ setStatus("Account clicked"); }); }
-        { auto& i=_list.addItem("Bluetooth");
-          i.setStart(_iconBt); }
-        { auto& i=_list.addItem("Wi-Fi");
-          i.setEnd(_toggleWifi); }
-        { auto& i=_list.addItem("Dark mode","Reduces eye strain");
-          i.setStart(_iconDark); i.setEnd(_toggleDark); }
-        { auto& i=_list.addItem("Alerts","Critical only");
-          i.setStart(_iconAlert); i.setEnd(_btnListAction); }
-        { auto& i=_list.addItem("Remember login");
-          i.setStart(_chkList);
-          i.onClick([this]{ _chkList.toggle(); }); }
-        { auto& i=_list.addItem("Restricted","Requires subscription");
-          i.setStart(_iconWifi); i.setEnabled(false); }
-
-        _list.setPosition({C4, y});
-        addComponent(_list);
-
-        // ── Pane backgrounds ──────────────────────────────────────────────────
-        _paneInputsBg.setSize({SP_PANE_W, COL_H});
-        _paneInputsBg.setFillColor(sf::Color::Transparent);
-        _paneListBg.setSize({SP_PANE_W, COL_H});
-        _paneListBg.setFillColor(sf::Color::Transparent);
-
-        // ── SplitPanel ────────────────────────────────────────────────────────
+        // ── SplitPanel setup — panels are positioned before children are added ──
         _split.setSize({SP_W, COL_H});
         _split.setPosition({SP_X, CONTENT_Y});
         _split.setDividerThick(DIV_T);
-        // Transparent pane backgrounds so components show through
         _split.paneBg = sf::Color::Transparent;
-        _split.addPane(_paneInputsBg, SP_PANE_W);
-        _split.addPane(_paneListBg,   SP_PANE_W);
+
+        auto& leftPane  = _split.addPane(std::make_unique<ml::Panel>(), SP_PANE_W);
+        auto& rightPane = _split.addPane(std::make_unique<ml::Panel>(), SP_PANE_W);
+
         _split.setPaneMinSize(0, 200.f);
         _split.setPaneMinSize(1, 200.f);
         _split.onDividerMoved([this](std::size_t, float pos){
             setStatus("Divider moved to " + std::to_string(static_cast<int>(pos)) + "px");
         });
         addComponent(_split);
+
+        // ─────────────────────────────────────────────────────────────────────
+        // LEFT PANE — INPUTS
+        // ─────────────────────────────────────────────────────────────────────
+        {
+            float y = SP_CY;
+            const float C3 = SP_L_CX;
+            const float INPUT_W = SP_PANE_W - 28.f;
+
+            heading(_inputHead,"TEXT INPUT", C3, y, leftPane); y+=22.f;
+
+            _inputDefault.setSize({INPUT_W,34.f});
+            _inputDefault.setPlaceholder("Default input...");
+            _inputDefault.setPosition({C3,y}); leftPane.addComponent(_inputDefault); y+=46.f;
+
+            _inputPassword.setSize({INPUT_W,34.f});
+            _inputPassword.setPlaceholder("Password...");
+            _inputPassword.setPasswordMode(true);
+            _inputPassword.setPosition({C3,y}); leftPane.addComponent(_inputPassword); y+=46.f;
+
+            _inputDisabled.setSize({INPUT_W,34.f});
+            _inputDisabled.setValue("Disabled field");
+            _inputDisabled.setEnabled(false);
+            _inputDisabled.setPosition({C3,y}); leftPane.addComponent(_inputDisabled); y+=46.f;
+
+            _inputError.setSize({INPUT_W,34.f});
+            _inputError.setPlaceholder("Error state...");
+            _inputError.setError(true);
+            _inputError.setPosition({C3,y}); leftPane.addComponent(_inputError); y+=54.f;
+
+            heading(_areaHead,"TEXT AREA", C3, y, leftPane); y+=22.f;
+            _textArea.setSize({INPUT_W,130.f});
+            _textArea.setPlaceholder("Multi-line text area...");
+            _textArea.setPosition({C3,y}); leftPane.addComponent(_textArea); y+=146.f;
+
+            heading(_selectHead,"SELECT", C3, y, leftPane); y+=22.f;
+            _select.size = {INPUT_W, 34.f};
+            _select.setPlaceholder("Choose difficulty...");
+            { ml::SelectOptionStyle s; s.color=sf::Color(100,220,100); s.description="For beginners";
+              _select.addOption("Easy","easy",s); }
+            { ml::SelectOptionStyle s; s.description="Balanced";
+              _select.addOption("Normal","normal",s); }
+            { ml::SelectOptionStyle s; s.color=sf::Color(220,120,60); s.description="Experienced players";
+              _select.addOption("Hard","hard",s); }
+            { ml::SelectOptionStyle s; s.color=sf::Color(220,60,60); s.description="Permadeath";
+              _select.addOption("Impossible","impossible",s); }
+            _select.setOptionEnabled(3,false);
+            _select.setPosition({C3,y}); leftPane.addComponent(_select);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // RIGHT PANE — LIST
+        // ─────────────────────────────────────────────────────────────────────
+        {
+            float y = SP_CY;
+            const float C4    = SP_R_CX;
+            const float LIST_W = SP_PANE_W - 28.f;
+
+            heading(_listHead,"LIST — ALL SLOTS", C4, y, rightPane); y+=22.f;
+
+            icon(_iconWifi,  sf::Color(70,130,230));
+            icon(_iconBt,    sf::Color(150,80,220));
+            icon(_iconDark,  sf::Color(60,180,120));
+            icon(_iconAlert, sf::Color(220,70,70));
+
+            _toggleWifi.setOn(true);
+            _toggleDark.setOn(true);
+            _chkList.check();
+            _btnListAction.setOffLabel("Details");
+            _btnListAction.setOnLabel("Details");
+            _btnListAction.setSize({80.f,28.f});
+
+            _list.setWidth(LIST_W);
+            _list.showBackground = true;
+            _list.showDividers   = true;
+
+            { auto& i=_list.addItem("Notifications");
+              i.onClick([this]{ setStatus("Notifications clicked"); }); }
+            { auto& i=_list.addItem("Account","Manage profile");
+              i.onClick([this]{ setStatus("Account clicked"); }); }
+            { auto& i=_list.addItem("Bluetooth");
+              i.setStart(_iconBt); }
+            { auto& i=_list.addItem("Wi-Fi");
+              i.setEnd(_toggleWifi); }
+            { auto& i=_list.addItem("Dark mode","Reduces eye strain");
+              i.setStart(_iconDark); i.setEnd(_toggleDark); }
+            { auto& i=_list.addItem("Alerts","Critical only");
+              i.setStart(_iconAlert); i.setEnd(_btnListAction); }
+            { auto& i=_list.addItem("Remember login");
+              i.setStart(_chkList);
+              i.onClick([this]{ _chkList.toggle(); }); }
+            { auto& i=_list.addItem("Restricted","Requires subscription");
+              i.setStart(_iconWifi); i.setEnabled(false); }
+
+            _list.setPosition({C4, y});
+            rightPane.addComponent(_list);
+        }
 
         // ── Status bar ────────────────────────────────────────────────────────
         _status.setCharacterSize(11);
@@ -441,6 +430,7 @@ public:
 
         // ── MenuBar ───────────────────────────────────────────────────────────
         _menuBar.setPosition({0.f, 0.f});
+        _menuBar.leftInset = 36.f; // leave room for the hamburger button
         _menuBar.addMenu("File", {
             ml::MenuItem::item("New",   [this]{ setStatus("New"); },   "Ctrl+N"),
             ml::MenuItem::item("Open",  [this]{ setStatus("Open"); },  "Ctrl+O"),
@@ -472,8 +462,6 @@ public:
         _menuBar.addMenu("Help", {
             ml::MenuItem::item("About", [this]{ setStatus("Malena Framework"); }),
         });
-        addComponent(_menuBar);
-
         // ── Toolbar ───────────────────────────────────────────────────────────
         _toolbar.setPosition({0.f, MENU_H});
         _toolbar.addButton("New",   [this]{ setStatus("New"); });
@@ -488,10 +476,13 @@ public:
         _toolbar.addButton("Warm",  [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Warm); });
         _toolbar.addButton("Ocean", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Ocean); });
         _toolbar.addButton("Light", [this]{ ml::ThemeManager::apply<ShowcaseManifest>(Themes::Light); });
+
         addComponent(_toolbar);
+        addComponent(_menuBar); // registered after toolbar so dropdown draws on top
 
         // ── SideMenu ──────────────────────────────────────────────────────────
-        _sideMenu.setHamburgerPosition({8.f, MENU_H + TOOLBARH * 0.5f - 24.f});
+        _sideMenu.hamburgerSize = 22.f;
+        _sideMenu.setHamburgerPosition({8.f, 4.f});
         {
             auto& list = _sideMenu.getList();
             list.addItem("Home",     "Dashboard");
@@ -499,7 +490,6 @@ public:
             list.addItem("Settings", "Preferences");
             list.addItem("Profile",  "Your account");
             list.addItem("Help",     "Documentation");
-            addComponent(list);
         }
         _sideMenu.onOpen([this]{  setStatus("SideMenu opened"); });
         _sideMenu.onClose([this]{ setStatus("SideMenu closed"); });

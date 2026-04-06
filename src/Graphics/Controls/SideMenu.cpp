@@ -182,10 +182,12 @@ namespace ml
     void SideMenu::drawHamburger(sf::RenderTarget& target,
                                   const sf::RenderStates& states) const
     {
-        // Background — always a solid dark pill so it's visible over any content
+        // Background — use the themed hamburgerBg color (transparent by default,
+        // so the button blends into whatever is behind it)
+        if (hamburgerBg.a > 0)
         {
             sf::RectangleShape bg({hamburgerSize, hamburgerSize});
-            bg.setFillColor(sf::Color(20, 20, 28, 220));
+            bg.setFillColor(hamburgerBg);
             bg.setPosition(_hamburgerPos);
             target.draw(bg, states);
         }

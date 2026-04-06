@@ -162,9 +162,7 @@ namespace ml
             if (pane.content)
             {
                 pane.content->setPosition(pos);
-                // Resize if component supports setSize (duck-typed via cast)
-                // We'll try a dynamic_cast to a known resizable base if available.
-                // For now components resize themselves when repositioned via their layout.
+                if (pane.resizeFn) pane.resizeFn(sz);
             }
 
             offset += pane.size + dividerThick;
@@ -208,9 +206,13 @@ namespace ml
 
     void SplitPanel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        // Pane backgrounds
         const bool horiz = (orientation == Orientation::HORIZONTAL);
         float offset = horiz ? _position.x : _position.y;
+
+        const sf::View savedView = target.getView();
+        const auto targetSize = target.getSize();
+        const float tw = static_cast<float>(targetSize.x);
+        const float th = static_cast<float>(targetSize.y);
 
         for (int i = 0; i < static_cast<int>(_panes.size()); ++i)
         {
@@ -223,26 +225,45 @@ namespace ml
                 ? sf::Vector2f{pane.size, _size.y}
                 : sf::Vector2f{_size.x, pane.size};
 
-            if (paneBg.a > 0)
+            // Set a viewport-clipped view so nothing draws outside this pane.
+            // The view center/size map the same world-space region, so all
+            // existing absolute coordinates remain correct — content that
+            // extends beyond the pane edge is simply not rendered.
+            if (sz.x > 0.f && sz.y > 0.f)
             {
-                sf::RectangleShape bg(sz);
-                bg.setPosition(pos);
-                bg.setFillColor(paneBg);
-                target.draw(bg, states);
-            }
+                sf::View paneView;
+                paneView.setCenter({pos.x + sz.x / 2.f, pos.y + sz.y / 2.f});
+                paneView.setSize(sz);
+                paneView.setViewport(sf::FloatRect{
+                    {pos.x / tw, pos.y / th},
+                    {sz.x / tw,  sz.y / th}
+                });
+                target.setView(paneView);
 
-            // Content
-            if (pane.content)
-                target.draw(*dynamic_cast<const sf::Drawable*>(pane.content), states);
+                if (paneBg.a > 0)
+                {
+                    sf::RectangleShape bg(sz);
+                    bg.setPosition(pos);
+                    bg.setFillColor(paneBg);
+                    target.draw(bg, states);
+                }
+
+                if (pane.content)
+                {
+                    auto* drawable = dynamic_cast<const sf::Drawable*>(pane.content.get());
+                    if (drawable) target.draw(*drawable, states);
+                }
+
+                target.setView(savedView);
+            }
 
             offset += pane.size;
 
-            // Divider (before next pane)
+            // Divider (before next pane) — drawn with original view, no clipping needed
             if (i < static_cast<int>(_panes.size()) - 1)
             {
-                const bool hov  = (i == _hoveredDivider);
-                const bool drag = (i == _draggingDiv);
-                drawDivider(target, states, i, hov, drag);
+                drawDivider(target, states, i,
+                            i == _hoveredDivider, i == _draggingDiv);
                 offset += dividerThick;
             }
         }
@@ -302,16 +323,6 @@ namespace ml
     }
 
     // ── Pane management ───────────────────────────────────────────────────────
-
-    void SplitPanel::addPane(ml::Core& content, float initialSize)
-    {
-        Pane pane;
-        pane.content = &content;
-        pane.size    = initialSize;
-        _panes.push_back(std::move(pane));
-        distributeSizes();
-        layoutPanes();
-    }
 
     void SplitPanel::setPaneMinSize(std::size_t index, float minSize)
     {

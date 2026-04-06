@@ -170,7 +170,7 @@ namespace ml
 
         // Remove from draw loop immediately — safe, doesn't touch plugin RTTI
         if (auto* core = dynamic_cast<Core*>(plugin))
-            CoreManager<Core>::removeComponent(core);
+            AppManager::get().removeComponent(core);
 
         // Defer everything else — plugin pointer may be mid-callback
         deferOrExecute([this, plugin]() {

@@ -54,7 +54,7 @@ namespace ml
     template<typename T>
     class CoreManager : public DeferredOperationsManager<CoreManager<T>>
     {
-        inline static std::vector<T*> _components;
+        std::vector<T*> _components;
 
     public:
         /**
@@ -65,7 +65,7 @@ namespace ml
          *
          * @return Const reference to the internal component pointer vector.
          */
-        [[nodiscard]] static const std::vector<T*>& getComponents();
+        [[nodiscard]] const std::vector<T*>& getComponents() const;
 
         /**
          * @brief Register a @c T object with this manager.
@@ -75,7 +75,7 @@ namespace ml
          *
          * @param component The object to register. Must outlive its registration.
          */
-        static void addComponent(T& component);
+        void addComponent(T& component);
 
         /**
          * @brief Unregister a @c T object by reference.
@@ -88,7 +88,7 @@ namespace ml
          * @return @c true if the object was found and removed (or queued
          *         for removal); @c false if it was not registered.
          */
-        static bool removeComponent(T& component);
+        bool removeComponent(T& component);
 
         /**
          * @brief Unregister a @c T object by pointer.
@@ -99,7 +99,7 @@ namespace ml
          * @param component Pointer to the object to remove.
          * @return @c true if found and removed (or queued); @c false otherwise.
          */
-        static bool removeComponent(T* component);
+        bool removeComponent(T* component);
 
         /**
          * @brief Remove all registered objects.
@@ -108,13 +108,13 @@ namespace ml
          * After this call (or after the deferred clear executes), @c getComponents()
          * returns an empty vector.
          */
-        static void clear();
+        void clear();
 
         virtual ~CoreManager();
 
     private:
         /// @cond INTERNAL
-        static void doRemoveComponent(T* component);
+        void doRemoveComponent(T* component);
         /// @endcond
     };
 

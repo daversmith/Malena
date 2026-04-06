@@ -19,7 +19,7 @@ namespace ml
 
 	void ApplicationBase::addComponent(Core &component)
 	{
-		CoreManager<Core>::addComponent(component);
+		CoreManager<Core>::addComponent(component);  // instance call via inheritance
 	}
 
 	void ApplicationBase::clearEvents()
@@ -31,7 +31,7 @@ namespace ml
 	{
 		EventManager::clear();
 		MessageManager::clear();
-		CoreManager<Core>::clear();
+		CoreManager<Core>::clear();  // instance call via inheritance
 	}
 	ApplicationBase::~ApplicationBase()
 	{
