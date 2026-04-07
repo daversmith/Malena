@@ -1,5 +1,6 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(Malena ${MALENA_SOURCES})
 
 add_library(Malena::Malena ALIAS Malena)

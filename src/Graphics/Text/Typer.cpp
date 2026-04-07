@@ -16,7 +16,7 @@ namespace ml
 			if (this->checkFlag(ml::Flag::ENABLED))
 			{
 				std::string text = this->getString();
-				const char c = event->getIf<sf::Event::TextEntered>()->unicode;
+				const char c = static_cast<char>(event->getIf<sf::Event::TextEntered>()->unicode);
 
 				if (c == '\b' && !text.empty())
 					text.pop_back();
