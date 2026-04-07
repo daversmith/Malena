@@ -91,7 +91,7 @@ namespace ml
             std::function<void(const void*)> callback;
         };
 
-        inline static std::unordered_map<EventKey, std::vector<Subscription>, KeyHash> subscribers;
+        static std::unordered_map<EventKey, std::vector<Subscription>, KeyHash> subscribers;
 
         static void doUnsubscribe(const EventKey& key, void* subscriber);
         static void doUnsubscribeAll(void* subscriber);
