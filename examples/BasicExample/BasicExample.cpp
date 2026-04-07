@@ -54,10 +54,10 @@ void BasicExample::onInit()
 	typer.enableFlag(ml::Flag::ENABLED);
 	typer.enableFlag(ml::Flag::HIDDEN);
 
-	circle.setTexture(&Resources::get(BasicExampeManifest::Images::ICON));
+	circle.setTexture(&Resources::get(Images::ICON));
 	circle.setRadius(50);
 	circle.setRightOf(myEventButton);
-	circle.onClick([this](){Resources::unload(BasicExampeManifest::Images::ICON);});
+	circle.onClick([this](){Resources::unload(Images::ICON);});
 
 	addComponent(circle);
 	addComponent(box1);

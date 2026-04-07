@@ -97,7 +97,7 @@ namespace ml
      * @see ManifestAliases, AssetsManager, ConfigManager, ComponentWith
      */
     template<typename Manifest>
-    struct ManifestResources : public ManifestAliases<Manifest>, public Manifest
+    struct ManifestResources :  public Manifest//public ManifestAliases<Manifest>, public Manifest
     {
         /**
          * @brief Retrieve an asset by enum key → @c AssetsManager.
