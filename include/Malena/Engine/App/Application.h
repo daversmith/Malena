@@ -174,13 +174,13 @@ namespace ml
      *
      * @see Application, ApplicationBase, Resources
      */
-    template<typename Manifest>
+    template<typename TManifest>
     class ApplicationWith : public ApplicationBase,
-                             public ml::ManifestResources<Manifest>
+                             public ml::ManifestResources<TManifest>
     {
     public:
         /// Unified resource accessor — Resources::get(Images::Icon)
-        using Resources = ml::ManifestResources<Manifest>;
+        using Resources = ml::ManifestResources<TManifest>;
 
         using ApplicationBase::ApplicationBase;
 
