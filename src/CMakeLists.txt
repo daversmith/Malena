@@ -1,12 +1,16 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-# MinGW/GCC: auto-export all symbols (uses --export-all-symbols, safe).
-# MSVC: skip — cmake -E __create_def crashes on this codebase; MALENA_API handles it instead.
-if(NOT MSVC)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
+# Export all symbols from the shared library.
+# On MSVC this uses cmake -E __create_def; on MinGW it uses --export-all-symbols.
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_library(Malena ${MALENA_SOURCES})
+
+# cmake -E __create_def crashes on MSVC when LTO (LTCG) is enabled because
+# it cannot parse the bitcode object files. Disable LTO for MSVC shared builds.
+if(MSVC AND BUILD_SHARED_LIBS)
+    set_target_properties(Malena PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
+endif()
 
 add_library(Malena::Malena ALIAS Malena)
 
