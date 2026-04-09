@@ -179,6 +179,9 @@ namespace ml
     public:
         Carousel();
 
+        Carousel(const Carousel&)            = delete;
+        Carousel& operator=(const Carousel&) = delete;
+
         // ── Item management ──────────────────────────────────────────────────
 
         /**

@@ -143,6 +143,9 @@ namespace ml
     public:
         explicit MenuBar(const sf::Font& font = FontManager<>::getDefault());
 
+        MenuBar(const MenuBar&)            = delete;
+        MenuBar& operator=(const MenuBar&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

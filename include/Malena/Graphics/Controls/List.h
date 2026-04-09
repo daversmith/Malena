@@ -136,6 +136,9 @@ namespace ml
     public:
         explicit List(const sf::Font& font = FontManager<>::getDefault());
 
+        List(const List&)            = delete;
+        List& operator=(const List&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

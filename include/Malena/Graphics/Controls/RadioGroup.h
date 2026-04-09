@@ -70,6 +70,9 @@ namespace ml
     public:
         explicit RadioGroup(const sf::Font& font = FontManager<>::getDefault());
 
+        RadioGroup(const RadioGroup&)            = delete;
+        RadioGroup& operator=(const RadioGroup&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

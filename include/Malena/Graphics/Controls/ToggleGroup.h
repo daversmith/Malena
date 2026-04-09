@@ -111,6 +111,9 @@ namespace ml
         explicit ToggleGroup();
         ~ToggleGroup();
 
+        ToggleGroup(const ToggleGroup&)            = delete;
+        ToggleGroup& operator=(const ToggleGroup&) = delete;
+
         // ── Adding owned toggles ──────────────────────────────────────────────
 
         /**

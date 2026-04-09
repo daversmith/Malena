@@ -133,6 +133,9 @@ namespace ml
     public:
         explicit TabbedPanel(const sf::Font& font = FontManager<>::getDefault());
 
+        TabbedPanel(const TabbedPanel&)            = delete;
+        TabbedPanel& operator=(const TabbedPanel&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

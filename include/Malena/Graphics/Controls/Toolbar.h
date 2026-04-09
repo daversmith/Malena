@@ -117,6 +117,9 @@ namespace ml
     public:
         explicit Toolbar(const sf::Font& font = FontManager<>::getDefault());
 
+        Toolbar(const Toolbar&)            = delete;
+        Toolbar& operator=(const Toolbar&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

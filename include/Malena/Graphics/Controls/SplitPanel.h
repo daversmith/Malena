@@ -131,6 +131,9 @@ namespace ml
         explicit SplitPanel(Orientation orientation = Orientation::HORIZONTAL,
                             const sf::Font& font = FontManager<>::getDefault());
 
+        SplitPanel(const SplitPanel&)            = delete;
+        SplitPanel& operator=(const SplitPanel&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>

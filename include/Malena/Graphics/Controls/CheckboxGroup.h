@@ -70,6 +70,9 @@ namespace ml
     public:
         explicit CheckboxGroup(const sf::Font& font = FontManager<>::getDefault());
 
+        CheckboxGroup(const CheckboxGroup&)            = delete;
+        CheckboxGroup& operator=(const CheckboxGroup&) = delete;
+
         // ── Apply ─────────────────────────────────────────────────────────────
 
         template<typename S>
