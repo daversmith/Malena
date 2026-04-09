@@ -6,9 +6,6 @@
 
 namespace ml {
 
-    std::unordered_map<MessageManager::EventKey, std::vector<MessageManager::Subscription>, MessageManager::KeyHash>
-        MessageManager::subscribers;
-
     void MessageManager::doUnsubscribe(const EventKey& key, void* subscriber) {
         auto it = subscribers.find(key);
         if (it == subscribers.end()) {
