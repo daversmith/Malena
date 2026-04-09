@@ -48,8 +48,8 @@ namespace ml
      *
      * ### Typical use
      * Most applications do not instantiate @c AppManager directly. Instead,
-     * inherit from @c ml::Application, which combines @c AppManager and
-     * @c UIController into a single convenient base class.
+     * inherit from @c ml::Application, which wraps @c AppManager into a
+     * single convenient base class.
      *
      * For the common case, subclass @c ml::Application and override
      * @c onInit() and @c onReady() directly:
@@ -66,7 +66,7 @@ namespace ml
      * };
      * @endcode
      *
-     * @see Application, UIController, Manager, WindowManager
+     * @see Application, Manager, WindowManager
      */
     class MALENA_API AppManager : public Lifecycle, public CoreManager<Core>
     {

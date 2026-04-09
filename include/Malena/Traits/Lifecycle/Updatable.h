@@ -55,7 +55,7 @@ namespace ml
      *
      * @see ml::Event::UPDATE, ml::Event::WINDOW_RESIZED,
      *      ml::Event::WINDOW_FOCUS_GAINED, ml::Event::WINDOW_FOCUS_LOST,
-     *      UIController::onUpdate, Unsubscribable
+     *      Unsubscribable
      */
     class MALENA_API Updatable : public EventReceiver
     {

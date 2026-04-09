@@ -23,7 +23,7 @@ Malena makes SFML development feel more event-driven. Instead of requiring objec
 
 ### Composition over rigid inheritance
 
-Malena uses traits to compose behavior into objects. Capabilities such as messaging, flags, dragging, positioning, and customization are modeled as reusable traits rather than being repeated across unrelated classes. The `With<Manifest>` template pattern (e.g., `UIComponentWith<Manifest>`, `PluginWith<Manifest>`) layers manifest-declared resources, flags, and states onto any framework class cleanly.
+Malena uses traits to compose behavior into objects. Capabilities such as messaging, flags, dragging, positioning, and customization are modeled as reusable traits rather than being repeated across unrelated classes. The `With<Manifest>` template pattern (e.g., `ComponentWith<Manifest>`, `PluginWith<Manifest>`) layers manifest-declared resources, flags, and states onto any framework class cleanly.
 
 ### Safety through deferred operations
 
@@ -69,15 +69,14 @@ The `Engine` module contains the main runtime infrastructure of the framework.
 
 The `Engine/App` subsystem contains the main application model:
 
-- `Application` — the high-level entry point for Malena programs. Subclasses override `initialization()` and `registerEvents()` to set up components and subscriptions.
+- `Application` — the high-level entry point for Malena programs. Subclasses override `onInit()` and `onReady()` to set up components and subscriptions.
 - `AppManager` — coordinates the application lifecycle and main loop, including window polling, event distribution, update ticks, and drawing.
-- `Controller` and `UIController` — control-layer abstractions for event registration and user interaction flow. `UIController` is the primary base for applications that host UI components.
 
 The two virtual methods that application authors implement are:
 
 ```cpp
-void initialization() override;  // called once at startup; add components here
-void registerEvents() override;   // called after initialization; set up subscriptions here
+void onInit() override;   // called once at startup; add components here
+void onReady() override;  // called after onInit(); set up subscriptions here
 ```
 
 #### Events
@@ -134,7 +133,7 @@ The `Engine/Window` subsystem contains `WindowManager`, which centralizes owners
 
 ### Graphics
 
-The `Graphics` module contains Malena's reusable visual and UI-oriented components built on top of SFML drawing primitives. All graphics components inherit from `UIComponent`, which provides the `Messenger` trait, auto-unsubscription on destruction, and integration with `EventsManager` and `ComponentsManager`.
+The `Graphics` module contains Malena's reusable visual and UI-oriented components built on top of SFML drawing primitives. All graphics components inherit from `Component`, which provides the `Messenger` trait, auto-unsubscription on destruction, and integration with `EventsManager` and `ComponentsManager`.
 
 #### Base
 
@@ -233,10 +232,10 @@ onHover([]{});             // fires when mouse enters bounds
 onUnhover([]{});           // fires when mouse leaves bounds
 onFocus([]{});             // fires on keyboard focus gain
 onBlur([]{});              // fires on keyboard focus loss
-onUpdate([](sf::Event){}); // fires every frame
+onUpdate([](){}); // fires every frame
 ```
 
-`UIComponent` inherits `Messenger` and auto-calls `unsubscribeAll()` in its destructor, preventing dangling callbacks after a component is destroyed.
+`Component` inherits `Messenger` and auto-calls `unsubscribeAll()` in its destructor, preventing dangling callbacks after a component is destroyed.
 
 #### Subscribable
 
@@ -308,7 +307,7 @@ A typical Malena application follows this flow:
 3. `AppManager` enters the main loop.
 4. Each frame, `UIManager` polls SFML events and fires corresponding Malena events through `EventsManager`.
 5. `MessageManager` delivers any queued typed messages.
-6. Subscribed callbacks on `UIComponent` instances are invoked via their `Messenger` trait.
+6. Subscribed callbacks on `Component` instances are invoked via their `Messenger` trait.
 7. `ComponentsManager` calls `update()` and `draw()` on all registered components.
 8. Deferred operations accumulated during the frame (unsubscribes, component removals, plugin unloads) are processed at safe points — typically at the start of the next public method call on the relevant manager.
 
@@ -322,8 +321,7 @@ This flow allows interactive behavior while keeping systems decoupled and safe f
 |---|---|
 | `Application` | Framework entry point; subclassed by users |
 | `AppManager` | Main loop coordinator |
-| `UIController` | Control-layer abstraction; base for UI-heavy apps |
-| `UIComponent` | Base visual class; inherits `Messenger`; auto-unsubscribes on destruction |
+| `Component` | Base visual class; inherits `Messenger`; auto-unsubscribes on destruction |
 | `EventsManager` | Centralized string-keyed pub-sub bus with deferred removal |
 | `MessageManager` | Typed enum-keyed messaging with deferred removal |
 | `PluginManager` | Loads, queries, and safely unloads plugins |

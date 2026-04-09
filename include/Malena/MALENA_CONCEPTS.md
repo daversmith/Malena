@@ -60,10 +60,10 @@ The most commonly used trait. Wraps `EventsManager` subscriptions with named con
 ```cpp
 rect.onClick([]{ /* clicked */ });
 rect.onHover([]{ /* hovered */ });
-rect.onUpdate([](sf::Event e){ /* every frame */ });
+rect.onUpdate([]{ /* every frame */ });
 ```
 
-`UIComponent` inherits `Messenger` and automatically calls `unsubscribeAll()` in its destructor, so there are no dangling callbacks when a component is destroyed.
+`Component` inherits `Messenger` and automatically calls `unsubscribeAll()` in its destructor, so there are no dangling callbacks when a component is destroyed.
 
 ### Flaggable / CustomFlaggable
 
@@ -108,8 +108,8 @@ This means user code can safely unsubscribe inside a callback, remove a componen
 The `With<Manifest>` template is how manifest metadata is applied to a class. It is the primary pattern for creating typed, resource-aware framework objects:
 
 ```cpp
-// A UIComponent that knows about its own textures and flags
-class MyWidget : public ml::UIComponentWith<MyManifest> { ... };
+// A Component that knows about its own textures and flags
+class MyWidget : public ml::ComponentWith<MyManifest> { ... };
 
 // A plugin with manifest-declared resources and metadata
 class MyPlugin : public ml::PluginWith<MyPlugin::Manifest> { ... };
@@ -147,7 +147,7 @@ Examples:
 
 The `Graphics` module provides reusable visual components built on top of SFML.
 
-All graphics components inherit from `UIComponent`, which provides:
+All graphics components inherit from `Component`, which provides:
 
 - the `Messenger` trait (click, hover, update, etc.)
 - automatic unsubscription on destruction
@@ -218,7 +218,7 @@ Unloading is always deferred until the current iteration context is complete, pr
 Because plugins cross dylib boundaries, use `getIf<InterfaceType>()` to safely query optional interfaces rather than relying on `dynamic_cast`:
 
 ```cpp
-if (auto* drawable = plugin->getIf<ml::UIComponent>()) {
+if (auto* drawable = plugin->getIf<ml::Component>()) {
     addComponent(*drawable);
 }
 ```
