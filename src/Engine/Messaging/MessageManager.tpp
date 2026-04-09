@@ -16,7 +16,7 @@ namespace ml
             callback(*static_cast<const DataType*>(data));
         };
 
-        subscribers[key].push_back(Subscription{subscriber, wrapper});
+        subscribers()[key].push_back(Subscription{subscriber, wrapper});
     }
 
     template<typename DataType, typename Enum>
@@ -27,8 +27,8 @@ namespace ml
             std::type_index(typeid(DataType))
         );
 
-        auto it = subscribers.find(key);
-        if (it == subscribers.end()) {
+        auto it = subscribers().find(key);
+        if (it == subscribers().end()) {
             return;
         }
 
@@ -37,8 +37,8 @@ namespace ml
         auto subscribersCopy = it->second;
 
         for (auto& sub : subscribersCopy) {
-            auto currentIt = subscribers.find(key);
-            if (currentIt != subscribers.end()) {
+            auto currentIt = subscribers().find(key);
+            if (currentIt != subscribers().end()) {
                 auto& currentSubs = currentIt->second;
                 auto found = std::find_if(currentSubs.begin(), currentSubs.end(),
                     [&sub](const Subscription& s) {

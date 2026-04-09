@@ -55,6 +55,7 @@ namespace ml
          *         accessible by (row, col) index.
          */
         static ml::ImageRects getImageRects(const sf::Texture& texture, int rows, int cols);
+    	static ml::ImageRects getImageRects(const sf::Texture &texture, sf::Vector2i coord);
     };
 
 } // namespace ml

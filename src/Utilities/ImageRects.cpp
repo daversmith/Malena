@@ -6,10 +6,10 @@
 
 namespace ml {
 	ImageRects::ImageRects(int cols)
-		: _cols(cols)
+		: _rows(0), _cols(cols)
 	{
 	}
-	const sf::IntRect &ImageRects::getIntRect(int row, int col)
+	const sf::IntRect &ImageRects::getIntRect(int row, int col) const
 	{
 		return _intRects.at(row * _cols + col);
 	}

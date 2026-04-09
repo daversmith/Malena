@@ -43,6 +43,13 @@ namespace ml
         int _rows;
         int _cols;
 
+        struct RowProxy
+        {
+            const ImageRects& owner;
+            int row;
+            const sf::IntRect& operator[](int col) const { return owner.getIntRect(row, col); }
+        };
+
     public:
         /**
          * @brief Construct an empty @c ImageRects with a known column count.
@@ -59,7 +66,17 @@ namespace ml
          * @param col Zero-based column index.
          * @return Const reference to the @c sf::IntRect for that cell.
          */
-        const sf::IntRect& getIntRect(int row, int col);
+        const sf::IntRect& getIntRect(int row, int col) const;
+
+        /**
+         * @brief Row-indexed access — returns a proxy for column subscript.
+         *
+         * Enables two-dimensional subscript syntax:
+         * @code
+         * sprite.setTextureRect(rects[1][3]);
+         * @endcode
+         */
+        RowProxy operator[](int row) const { return {*this, row}; }
 
         /**
          * @brief Append a rect to the collection.
