@@ -1,12 +1,12 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-# MinGW uses --export-all-symbols (safe, no crash). MSVC uses MALENA_API annotations instead
-# because cmake -E __create_def crashes on MSVC with this codebase.
-if(MINGW)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()
-
 add_library(Malena ${MALENA_SOURCES})
+
+# MinGW/GCC: auto-export all symbols (uses --export-all-symbols, safe).
+# MSVC: skip — cmake -E __create_def crashes on this codebase; MALENA_API handles it instead.
+if(NOT MSVC)
+    set_target_properties(Malena PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 add_library(Malena::Malena ALIAS Malena)
 
