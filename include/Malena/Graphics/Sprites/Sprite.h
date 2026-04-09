@@ -47,7 +47,9 @@ namespace ml
     {
     public:
         using Graphic::Graphic;
+#ifdef _WIN32
         ~Sprite() override;
+#endif
     };
 
     /**

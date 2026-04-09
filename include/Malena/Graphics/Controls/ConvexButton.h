@@ -45,7 +45,9 @@ namespace ml
     {
     public:
         using Button::Button;
+#ifdef _WIN32
         ~ConvexButton() override;
+#endif
     };
 
     /**

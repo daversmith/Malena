@@ -41,7 +41,9 @@ namespace ml
     {
     public:
         using Button::Button;
+#ifdef _WIN32
         ~CircleButton() override;
+#endif
     };
 
     /**

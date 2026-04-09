@@ -55,7 +55,9 @@ namespace ml
 	{
 	public:
 		using Graphic::Graphic;
+#ifdef _WIN32
 		~Convex() override;
+#endif
 	};
 
 	/**

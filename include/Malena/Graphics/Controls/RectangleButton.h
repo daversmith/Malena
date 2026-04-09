@@ -48,7 +48,9 @@ namespace ml
     {
     public:
         using Button::Button;
+#ifdef _WIN32
         ~RectangleButton() override;
+#endif
     };
 
     /**
