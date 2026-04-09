@@ -47,6 +47,7 @@ namespace ml
     {
     public:
         using Graphic::Graphic;
+        ~Sprite() override;
     };
 
     /**

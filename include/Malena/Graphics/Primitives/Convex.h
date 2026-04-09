@@ -8,7 +8,7 @@
 #pragma once
 
 #include <Malena/Core/malena_export.h>
-#include <Malena/Core/Core.h>
+#include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
@@ -55,6 +55,7 @@ namespace ml
 	{
 	public:
 		using Graphic::Graphic;
+		~Convex() override;
 	};
 
 	/**

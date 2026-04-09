@@ -43,6 +43,7 @@ namespace ml
     {
     public:
         using Graphic::Graphic;
+        ~Circle() override;
     };
 
     /**

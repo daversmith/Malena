@@ -43,7 +43,9 @@ namespace ml
      */
     class MALENA_API ConvexButton : public Button<Convex, std::size_t>
     {
+    public:
         using Button::Button;
+        ~ConvexButton() override;
     };
 
     /**
@@ -54,7 +56,7 @@ namespace ml
      * @see ConvexButton, Customizable
      */
     template<typename MANIFEST>
-    class ConvexButtonWith : public virtual Customizable<ConvexButton, MANIFEST> {};
+    class ConvexButtonWith : public ConvexButton, public Customizable<MANIFEST> {};
 
 } // namespace ml
 

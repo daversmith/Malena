@@ -74,7 +74,7 @@ namespace ml
                                 EventReceiver* component,
                                 EventCallback callback);
 
-        struct Cleanup { ~Cleanup(); };
+        struct MALENA_API Cleanup { ~Cleanup(); };
 
         static void _register(Fireable* f);
         static void _unregister(Fireable* f);

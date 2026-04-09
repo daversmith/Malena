@@ -48,6 +48,7 @@ namespace ml
     {
     public:
         using Graphic::Graphic;
+        ~Rectangle() override;
     };
 
     /**

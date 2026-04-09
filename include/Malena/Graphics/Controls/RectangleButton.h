@@ -48,6 +48,7 @@ namespace ml
     {
     public:
         using Button::Button;
+        ~RectangleButton() override;
     };
 
     /**

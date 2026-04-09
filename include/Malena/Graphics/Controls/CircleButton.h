@@ -39,7 +39,9 @@ namespace ml
      */
     class MALENA_API CircleButton : public Button<Circle, float>
     {
+    public:
         using Button::Button;
+        ~CircleButton() override;
     };
 
     /**
