@@ -27,7 +27,7 @@ namespace ml
 		for (char32_t c = 32; c < 127; ++c)
 			all += c;
 		warmup.setString(all);
-		warmup.getLocalBounds(); // forces ALL glyphs to load into atlas NOW
+		static_cast<void>(warmup.getLocalBounds()); // forces ALL glyphs to load into atlas NOW
 	}
 
 } // namespace ml
