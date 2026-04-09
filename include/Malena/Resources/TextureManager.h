@@ -8,6 +8,7 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Texture.hpp>
 #include <Malena/Resources/ResourceManager.h>
 

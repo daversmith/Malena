@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Graphics.hpp>
@@ -67,7 +68,7 @@ namespace ml
      *
      * @see Application, UIController, Manager, WindowManager
      */
-    class AppManager : public Lifecycle, public CoreManager<Core>
+    class MALENA_API AppManager : public Lifecycle, public CoreManager<Core>
     {
     private:
         sf::RenderWindow* window = nullptr;

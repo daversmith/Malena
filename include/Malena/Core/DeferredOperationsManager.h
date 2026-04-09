@@ -8,6 +8,7 @@
 #ifndef MALENA_DEFERREDOPERATIONSMANAGER_H
 #define MALENA_DEFERREDOPERATIONSMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <functional>
 #include <vector>
 

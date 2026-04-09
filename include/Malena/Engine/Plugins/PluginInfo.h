@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <string>
 #include <optional>
 #include <SFML/Graphics/Texture.hpp>

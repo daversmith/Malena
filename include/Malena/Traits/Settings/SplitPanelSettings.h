@@ -2,6 +2,7 @@
 #ifndef SPLITPANELSETTINGS_H
 #define SPLITPANELSETTINGS_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>
 
 namespace ml

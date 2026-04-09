@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <array>
 #include <cstdint>
 

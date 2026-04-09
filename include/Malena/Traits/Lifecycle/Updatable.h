@@ -6,6 +6,7 @@
 //
 
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/FrameDispatcher.h>
@@ -56,7 +57,7 @@ namespace ml
      *      ml::Event::WINDOW_FOCUS_GAINED, ml::Event::WINDOW_FOCUS_LOST,
      *      UIController::onUpdate, Unsubscribable
      */
-    class Updatable : public EventReceiver
+    class MALENA_API Updatable : public EventReceiver
     {
     public:
         // ── Per-frame ─────────────────────────────────────────────────────────
@@ -134,7 +135,7 @@ namespace ml
     };
 
     /// @cond INTERNAL
-    class UpdatableDispatcher : public FrameDispatcher
+    class MALENA_API UpdatableDispatcher : public FrameDispatcher
     {
     public:
         bool filter(const std::optional<sf::Event>& event, Core* component) override { return true; }

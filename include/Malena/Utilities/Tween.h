@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**

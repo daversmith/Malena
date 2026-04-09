@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Graphics/Primitives/RoundedRectangle.h>
@@ -43,7 +44,7 @@ namespace ml
      *
      * @see RoundedRectangle, Graphic, RectangleButton
      */
-    class Rectangle : public Graphic<ml::RoundedRectangle>
+    class MALENA_API Rectangle : public Graphic<ml::RoundedRectangle>
     {
     public:
         using Graphic::Graphic;

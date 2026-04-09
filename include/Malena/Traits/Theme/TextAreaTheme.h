@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Manifests/Theme.h>
 #include <SFML/Graphics/Color.hpp>
 

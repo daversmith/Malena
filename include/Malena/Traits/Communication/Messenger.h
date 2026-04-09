@@ -4,6 +4,7 @@
 #ifndef MALENA_MESSENGER_NEW_H
 #define MALENA_MESSENGER_NEW_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Messaging/MessageManager.h>
 #include <functional>
 #include <Malena/Traits/Base/Trait.h>
@@ -63,7 +64,7 @@ namespace ml
      *
      * @see MessageManager, Plugin, PluginWith
      */
-    class Messenger : public Trait
+    class MALENA_API Messenger : public Trait
     {
     public:
         /**

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -25,7 +26,7 @@
 
 namespace ml
 {
-    class SplitPanelManifest : public ml::Manifest
+    class MALENA_API SplitPanelManifest : public ml::Manifest
     {
     public:
         enum class Flag  {};
@@ -77,7 +78,7 @@ namespace ml
      *
      * @see SplitPanelSettings, SplitPanelTheme, SplitPanelStyle
      */
-    class SplitPanel : public ComponentWith<SplitPanelManifest>,
+    class MALENA_API SplitPanel : public ComponentWith<SplitPanelManifest>,
                        public SplitPanelSettings,
                        public SplitPanelTheme,
                        public Themeable

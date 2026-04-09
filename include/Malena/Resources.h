@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/AssetsManager.h>
 #include <Malena/Resources/ConfigManager.h>
 #include <Malena/Resources/ResourceManager.h>

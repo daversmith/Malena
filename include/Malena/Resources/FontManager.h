@@ -4,6 +4,7 @@
 #ifndef FONTMANAGER_H
 #define FONTMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/ResourceManager.h>
 #include "Malena/Manifests/DefaultManifest.h"
 #include <SFML/Graphics/Font.hpp>

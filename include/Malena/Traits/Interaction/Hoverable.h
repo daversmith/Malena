@@ -8,6 +8,7 @@
 #ifndef HOVERABLE_H
 #define HOVERABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
@@ -42,7 +43,7 @@ namespace ml
      *
      * @see Clickable, Focusable, ml::Event::HOVER, ml::Event::UNHOVER, Unsubscribable
      */
-    class Hoverable : public EventReceiver
+    class MALENA_API Hoverable : public EventReceiver
     {
     public:
         /**
@@ -79,7 +80,7 @@ namespace ml
     };
 
     /// @cond INTERNAL
-    class HoverableDispatcher : public EventDispatcher
+    class MALENA_API HoverableDispatcher : public EventDispatcher
     {
     public:
         bool occurred(const std::optional<sf::Event>& event) override;

@@ -2,6 +2,7 @@
 #ifndef TABBEDPANELSTYLE_H
 #define TABBEDPANELSTYLE_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/TabbedPanelSettings.h>
 #include <Malena/Traits/Theme/TabbedPanelTheme.h>
 

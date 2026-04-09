@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 
 namespace ml::WindowManager

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Graphics/Text/RichTextBuffer.h>
@@ -24,7 +25,7 @@
 
 namespace ml
 {
-    class TextInputManifest : public ml::Manifest
+    class MALENA_API TextInputManifest : public ml::Manifest
     {
     public:
         enum class Flag  { DISABLED, READONLY };
@@ -40,7 +41,7 @@ namespace ml
      *
      * @see TextInputSettings, TextInputTheme, TextInputStyle, TextArea
      */
-    class TextInput : public ComponentWith<TextInputManifest>,
+    class MALENA_API TextInput : public ComponentWith<TextInputManifest>,
                       public TextInputSettings,
                       public TextInputTheme,
                       public Themeable

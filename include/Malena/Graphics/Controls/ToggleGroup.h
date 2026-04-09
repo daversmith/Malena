@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Graphics/Controls/PillToggle.h>
@@ -22,7 +23,7 @@
 
 namespace ml
 {
-    class ToggleGroupManifest : public ml::Manifest
+    class MALENA_API ToggleGroupManifest : public ml::Manifest
     {
     public:
         enum class Flag  {};
@@ -56,7 +57,7 @@ namespace ml
      *
      * @see PillToggle, SegmentToggle, ButtonToggle, PillStyle
      */
-    class ToggleGroup : public ComponentWith<ToggleGroupManifest>
+    class MALENA_API ToggleGroup : public ComponentWith<ToggleGroupManifest>
     {
     public:
         using Flag  = ToggleGroupManifest::Flag;

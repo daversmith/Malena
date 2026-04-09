@@ -8,6 +8,7 @@
 #pragma once
 
 // ── Primitives ────────────────────────────────────────────────────────────────
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Primitives/Circle.h>
 #include <Malena/Graphics/Primitives/Convex.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>

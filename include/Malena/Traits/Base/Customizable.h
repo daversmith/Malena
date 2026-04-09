@@ -4,6 +4,7 @@
 #ifndef UICOMPONENT_H
 #define UICOMPONENT_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/StateManager.h>
 #include <Malena/Utilities/TypeExtraction.h>
 

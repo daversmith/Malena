@@ -8,6 +8,7 @@
 #ifndef ROUNDEDRECTANGLE_H
 #define ROUNDEDRECTANGLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <Malena/Graphics/Base/Graphic.h>
@@ -40,7 +41,7 @@ namespace ml
      *
      * @see Rectangle, Graphic
      */
-    class RoundedRectangle : public sf::Shape
+    class MALENA_API RoundedRectangle : public sf::Shape
     {
     public:
         /**

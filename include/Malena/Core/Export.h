@@ -16,6 +16,8 @@
 //
 // ============================================================
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     class Fireable;  // forward declare only

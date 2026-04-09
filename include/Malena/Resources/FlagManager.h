@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <map>
 #include <iostream>
 #include <Malena/Utilities/EnumClassHash.h>

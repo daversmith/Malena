@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Text/RichTextBuffer.h>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -75,7 +76,7 @@ namespace ml
      *
      * @see RichTextBuffer, TextInput, TextArea
      */
-    class RichTextRenderer
+    class MALENA_API RichTextRenderer
     {
     public:
         RichTextRenderer(const RichTextBuffer& buffer,

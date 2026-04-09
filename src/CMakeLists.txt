@@ -1,16 +1,12 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-# Export all symbols from the shared library.
-# On MSVC this uses cmake -E __create_def; on MinGW it uses --export-all-symbols.
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+# MinGW: export all remaining symbols (free functions etc.) via --export-all-symbols.
+# MSVC: MALENA_API handles all exports explicitly — cmake -E __create_def not needed.
+if(NOT MSVC)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 add_library(Malena ${MALENA_SOURCES})
-
-# cmake -E __create_def crashes on MSVC when LTO (LTCG) is enabled because
-# it cannot parse the bitcode object files. Disable LTO for MSVC shared builds.
-if(MSVC AND BUILD_SHARED_LIBS)
-    set_target_properties(Malena PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
-endif()
 
 add_library(Malena::Malena ALIAS Malena)
 
@@ -26,8 +22,12 @@ target_include_directories(Malena
 # Set C++ standard
 target_compile_features(Malena PUBLIC cxx_std_17)
 
-# Export MALENA_API symbols on Windows when building the DLL
+# MALENA_EXPORTS: consumed by malena_export.h to emit dllexport when building the DLL.
 target_compile_definitions(Malena PRIVATE $<$<BOOL:${BUILD_SHARED_LIBS}>:MALENA_EXPORTS>)
+
+# MALENA_SHARED: propagated to consumers so malena_export.h emits dllimport.
+# This is what allows MinGW to correctly resolve vtables across the DLL boundary.
+target_compile_definitions(Malena PUBLIC $<$<BOOL:${BUILD_SHARED_LIBS}>:MALENA_SHARED>)
 
 # Link with SFML
 target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio

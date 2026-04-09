@@ -8,6 +8,7 @@
 #pragma once
 
 // ── Application ───────────────────────────────────────────────────────────────
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/App/Application.h>
 
 // ── Plugins ───────────────────────────────────────────────────────────────────

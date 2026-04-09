@@ -8,6 +8,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/AssetsManager.h>
 #include <Malena/Resources/ConfigManager.h>
 #include <Malena/Resources/StateManager.h>

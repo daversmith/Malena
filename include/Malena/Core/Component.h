@@ -5,6 +5,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Interaction/Draggable.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>

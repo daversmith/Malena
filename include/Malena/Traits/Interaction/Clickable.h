@@ -8,6 +8,7 @@
 #ifndef CLICKABLE_H
 #define CLICKABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <optional>
@@ -41,7 +42,7 @@ namespace ml
      * @see Hoverable, Focusable, ml::Event::CLICK, Unsubscribable
      */
     class Core;
-    class Clickable : public EventReceiver
+    class MALENA_API Clickable : public EventReceiver
     {
     public:
         /**
@@ -66,7 +67,7 @@ namespace ml
     };
 
     /// @cond INTERNAL
-    class ClickableDispatcher : public EventDispatcher
+    class MALENA_API ClickableDispatcher : public EventDispatcher
     {
         inline static EventReceiver* _focused = nullptr;
     public:

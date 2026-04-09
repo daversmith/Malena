@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/CheckboxSettings.h>
 #include <Malena/Traits/Theme/CheckboxTheme.h>
 

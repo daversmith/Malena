@@ -8,6 +8,7 @@
 #ifndef CUSTOMFLAGGABLE_H
 #define CUSTOMFLAGGABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <unordered_map>
 #include <iostream>
 #include <Malena/Utilities/EnumClassHash.h>

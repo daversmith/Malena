@@ -8,6 +8,7 @@
 #pragma once
 
 // ── Base ──────────────────────────────────────────────────────────────────────
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Trait.h>
 #include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Traits/Base/MultiCustomFlaggable.h>

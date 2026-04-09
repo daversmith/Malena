@@ -4,6 +4,7 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Graphics/Text/Text.h>
 
@@ -31,7 +32,7 @@ namespace ml
      *
      * @see TextInput, Typer, Text
      */
-    class Cursor : public ml::Text
+    class MALENA_API Cursor : public ml::Text
     {
         inline static sf::Clock clock;
 

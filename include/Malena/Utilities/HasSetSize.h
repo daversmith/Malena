@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/System/Vector2.hpp>
 #include <type_traits>
 

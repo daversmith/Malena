@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Manifests/Theme.h>
 #include <Malena/Manifests/ThemeTag.h>
 #include <Malena/Manifests/Manifest.h>
@@ -52,7 +53,7 @@ namespace ml
      *
      * @see Theme, Themeable, DarkTheme, LightTheme, DeferredOperationsManager
      */
-    class ThemeManager : public DeferredOperationsManager<ThemeManager>
+    class MALENA_API ThemeManager : public DeferredOperationsManager<ThemeManager>
     {
     public:
         // ── Reading ───────────────────────────────────────────────────────────

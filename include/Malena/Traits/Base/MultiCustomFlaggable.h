@@ -4,6 +4,7 @@
 #ifndef MULTICUSTOMFLAGGABLE_H
 #define MULTICUSTOMFLAGGABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <unordered_map>
 #include <tuple>
 #include <type_traits>

@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <float.h>
 #include <queue>
@@ -63,7 +64,7 @@ namespace ml
      *
      * @see Draggable, CoreAdapter, Component
      */
-    class Positionable : public Trait
+    class MALENA_API Positionable : public Trait
     {
     private:
         float velocityX{}, velocityY{}, framerate = 60.f;

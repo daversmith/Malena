@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 
@@ -42,7 +43,7 @@ namespace ml
      *
      * @see Graphic, TextureManager, AssetsManager
      */
-    class Sprite : public Graphic<sf::Sprite>
+    class MALENA_API Sprite : public Graphic<sf::Sprite>
     {
     public:
         using Graphic::Graphic;

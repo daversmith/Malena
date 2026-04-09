@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Button.h>
 #include <Malena/Graphics/Primitives/Circle.h>
 
@@ -36,7 +37,7 @@ namespace ml
      *
      * @see Button, Circle, RectangleButton, ConvexButton
      */
-    class CircleButton : public Button<Circle, float>
+    class MALENA_API CircleButton : public Button<Circle, float>
     {
         using Button::Button;
     };

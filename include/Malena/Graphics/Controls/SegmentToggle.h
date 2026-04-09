@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Traits/Settings/SegmentSettings.h>
@@ -19,7 +20,7 @@
 
 namespace ml
 {
-    class SegmentToggleManifest : public ml::Manifest
+    class MALENA_API SegmentToggleManifest : public ml::Manifest
     {
     public:
         enum class Flag  { ON, DISABLED };
@@ -46,7 +47,7 @@ namespace ml
      *
      * @see SegmentSettings, SegmentTheme, SegmentStyle
      */
-    class SegmentToggle : public ComponentWith<SegmentToggleManifest>,
+    class MALENA_API SegmentToggle : public ComponentWith<SegmentToggleManifest>,
                           public SegmentSettings,
                           public SegmentTheme,
                           public Themeable

@@ -8,6 +8,7 @@
 #ifndef IMAGERECTS_H
 #define IMAGERECTS_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Rect.hpp>
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace ml
      *
      * @see TextureSlicer
      */
-    class ImageRects
+    class MALENA_API ImageRects
     {
     private:
         std::vector<sf::IntRect> _intRects;

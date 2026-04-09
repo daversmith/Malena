@@ -8,6 +8,7 @@
 #ifndef CAROUSEL_H
 #define CAROUSEL_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Manifests/Manifest.h>
@@ -28,7 +29,7 @@ namespace ml
      * carousel behavior. These are gathered automatically into the
      * @c Carousel component's flag and state stores.
      */
-    class CarouselManifest : public ml::Manifest
+    class MALENA_API CarouselManifest : public ml::Manifest
     {
     public:
         /**
@@ -111,7 +112,7 @@ namespace ml
      *
      * @see CarouselManifest, ComponentWith, ShaderLibrary
      */
-    class Carousel : public ComponentWith<CarouselManifest>
+    class MALENA_API Carousel : public ComponentWith<CarouselManifest>
     {
     public:
         /// @brief Convenience alias for @c CarouselManifest::Flag.

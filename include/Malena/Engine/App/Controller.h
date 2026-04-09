@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**
@@ -36,7 +38,7 @@ namespace ml
      *
      * @see UIController, Application
      */
-    class Controller
+    class MALENA_API Controller
     {
     public:
         /**

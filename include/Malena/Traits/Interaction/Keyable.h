@@ -6,6 +6,7 @@
 //
 
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
@@ -50,7 +51,7 @@ namespace ml
      * @see Focusable, ml::Event::KEYPRESS, ml::Event::KEY_RELEASE,
      *      ml::Event::TEXT_ENTERED, Unsubscribable
      */
-    class Keyable : public EventReceiver
+    class MALENA_API Keyable : public EventReceiver
     {
     public:
         // ── Key press ─────────────────────────────────────────────────────────
@@ -119,7 +120,7 @@ namespace ml
      * Fires @c KEYPRESS, @c KEY_RELEASE, and @c TEXT_ENTERED to the currently
      * focused component. Registered automatically via @c ML_EXPORT(KeyableDispatcher).
      */
-    class KeyableDispatcher : public EventDispatcher
+    class MALENA_API KeyableDispatcher : public EventDispatcher
     {
     public:
         bool occurred(const std::optional<sf::Event>& event) override;

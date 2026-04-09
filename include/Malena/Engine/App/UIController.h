@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/CoreAdapter.h>
 #include <Malena/Engine/App/Controller.h>
 
@@ -57,7 +58,7 @@ namespace ml
      *
      * @see Controller, Application, AppManager, CoreAdapter
      */
-    class UIController : public Controller//, public virtual Updatable
+    class MALENA_API UIController : public Controller//, public virtual Updatable
     {
         CoreAdapter proxy;
 

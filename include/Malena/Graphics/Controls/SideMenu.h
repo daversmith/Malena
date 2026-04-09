@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -22,7 +23,7 @@
 
 namespace ml
 {
-    class SideMenuManifest : public ml::Manifest
+    class MALENA_API SideMenuManifest : public ml::Manifest
     {
     public:
         enum class Flag  { OPEN };
@@ -66,7 +67,7 @@ namespace ml
      *
      * @see SideMenuSettings, SideMenuTheme, SideMenuStyle, List
      */
-    class SideMenu : public ComponentWith<SideMenuManifest>,
+    class MALENA_API SideMenu : public ComponentWith<SideMenuManifest>,
                      public SideMenuSettings,
                      public SideMenuTheme,
                      public Themeable

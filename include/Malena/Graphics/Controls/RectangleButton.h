@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Button.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>
 
@@ -43,7 +44,7 @@ namespace ml
      *
      * @see Button, Rectangle, CircleButton, ConvexButton
      */
-    class RectangleButton : public Button<Rectangle, sf::Vector2f>
+    class MALENA_API RectangleButton : public Button<Rectangle, sf::Vector2f>
     {
     public:
         using Button::Button;

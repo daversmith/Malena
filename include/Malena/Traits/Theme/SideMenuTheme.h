@@ -2,6 +2,7 @@
 #ifndef SIDEMENUTHEME_H
 #define SIDEMENUTHEME_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Theme/ControlTheme.h>
 
 namespace ml

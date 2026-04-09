@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
@@ -52,7 +53,7 @@ namespace ml
      *
      * @see Graphic, Cursor, Typer, TextInput
      */
-    class Text : public virtual Graphic<sf::Text>
+    class MALENA_API Text : public virtual Graphic<sf::Text>
     {
     public:
         using Graphic::Graphic;

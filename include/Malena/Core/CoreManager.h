@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <vector>
 #include <Malena/Core/Core.h>
 #include <Malena/Core/DeferredOperationsManager.h>

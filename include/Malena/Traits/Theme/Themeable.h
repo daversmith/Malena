@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Trait.h>
 #include <Malena/Resources/ThemeManager.h>
 
@@ -58,7 +59,7 @@ namespace ml
      *
      * @see ThemeManager, Theme, Trait
      */
-    class Themeable : public Trait
+    class MALENA_API Themeable : public Trait
     {
     public:
         // ── Construction / destruction ────────────────────────────────────────

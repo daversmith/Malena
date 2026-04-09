@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Manifests/ManifestResources.h>
 #include <Malena/Manifests/ManifestAliases.h>

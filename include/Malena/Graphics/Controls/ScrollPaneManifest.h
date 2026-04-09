@@ -1,11 +1,12 @@
 #ifndef SCROLLPANEMANIFEST_H
 #define SCROLLPANEMANIFEST_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Manifests/Manifest.h>
 
 namespace ml
 {
-	class ScrollPaneManifest : public ml::Manifest
+	class MALENA_API ScrollPaneManifest : public ml::Manifest
 	{
 	public:
 		enum class State { IDLE, SCROLLING };

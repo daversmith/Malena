@@ -8,6 +8,8 @@
 #ifndef DEFAULTMANIFEST_H
 #define DEFAULTMANIFEST_H
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**
@@ -32,7 +34,7 @@ namespace ml
      *
      * @see Manifest, FontManager
      */
-    class DefaultManifest
+    class MALENA_API DefaultManifest
     {
     public:
         /// Placeholder asset enum required by @c ResourceManager's template contract.

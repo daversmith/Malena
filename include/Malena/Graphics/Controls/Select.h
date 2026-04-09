@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -28,7 +29,7 @@
 
 namespace ml
 {
-    class SelectManifest : public ml::Manifest
+    class MALENA_API SelectManifest : public ml::Manifest
     {
     public:
         enum class Flag  { OPEN, DISABLED };
@@ -78,7 +79,7 @@ namespace ml
      *
      * @see SelectSettings, SelectTheme, SelectStyle
      */
-    class Select : public ComponentWith<SelectManifest>,
+    class MALENA_API Select : public ComponentWith<SelectManifest>,
                    public SelectSettings,
                    public SelectTheme,
                    public Themeable

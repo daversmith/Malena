@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Utilities/Align.h>
 #include <Malena/Utilities/EnumClassHash.h>
 #include <Malena/Utilities/EnumKey.h>

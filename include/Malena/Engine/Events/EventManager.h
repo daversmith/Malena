@@ -8,6 +8,7 @@
 #ifndef _EVENTSMANAGER_H
 #define _EVENTSMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <map>
 #include <string>
 #include <vector>
@@ -41,7 +42,7 @@ namespace ml
      *
      * @see Fireable, EventReceiver, EnumKey, DeferredOperationsManager
      */
-    class EventManager : public DeferredOperationsManager<EventManager>
+    class MALENA_API EventManager : public DeferredOperationsManager<EventManager>
     {
         /// @cond INTERNAL
         struct Subscriber

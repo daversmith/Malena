@@ -2,6 +2,7 @@
 #ifndef SPLITPANELSTYLE_H
 #define SPLITPANELSTYLE_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/SplitPanelSettings.h>
 #include <Malena/Traits/Theme/SplitPanelTheme.h>
 

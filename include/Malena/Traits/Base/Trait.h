@@ -8,6 +8,7 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
@@ -31,7 +32,7 @@ namespace ml
      *
      * @see TraitWith, Customizable, Draggable
      */
-    class Trait {};
+    class MALENA_API Trait {};
 
     /**
      * @brief Base for traits that declare a manifest.

@@ -159,3 +159,4 @@
  * @brief Base infrastructure for trait composition and multi-trait helpers.
  * @ingroup Traits
  */
+#include <Malena/Core/malena_export.h>

@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include <float.h>
@@ -54,7 +55,7 @@ namespace ml
      *
      * @see Positionable
      */
-    class Align
+    class MALENA_API Align
     {
     public:
         // ── Object overloads ─────────────────────────────────────────────────

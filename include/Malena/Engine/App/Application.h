@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Lifecycle/Updatable.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
@@ -30,7 +31,7 @@ namespace ml
      *
      * @see Application, ApplicationWith
      */
-    class ApplicationBase : public AppManager, public Updatable
+    class MALENA_API ApplicationBase : public AppManager, public Updatable
     {
     public:
         /**
@@ -112,7 +113,7 @@ namespace ml
      *
      * @see ApplicationWith, AppManager, UIController
      */
-    class Application : public ApplicationBase
+    class MALENA_API Application : public ApplicationBase
     {
     public:
         using ApplicationBase::ApplicationBase;

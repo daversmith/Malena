@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Resources/FontManager.h>
@@ -30,7 +31,7 @@
 
 namespace ml
 {
-    class MenuBarManifest : public ml::Manifest
+    class MALENA_API MenuBarManifest : public ml::Manifest
     {
     public:
         enum class Flag  { OPEN };
@@ -71,7 +72,7 @@ namespace ml
      *
      * @see MenuItem, MenuBarSettings, MenuBarTheme, MenuBarStyle
      */
-    class MenuBar : public ComponentWith<MenuBarManifest>,
+    class MALENA_API MenuBar : public ComponentWith<MenuBarManifest>,
                     public MenuBarSettings,
                     public MenuBarTheme,
                     public Themeable

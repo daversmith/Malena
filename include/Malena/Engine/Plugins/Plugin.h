@@ -10,6 +10,7 @@
     #define PLUGIN_EXPORT
 #endif
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Communication/Messenger.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Core/Export.h>
@@ -76,7 +77,7 @@ namespace ml
      *
      * @see PluginWith, PluginManager, ML_EXPORT
      */
-    class Plugin : public Messenger
+    class MALENA_API Plugin : public Messenger
     {
     public:
         virtual ~Plugin() = default;

@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 
@@ -38,7 +39,7 @@ namespace ml
      *
      * @see Graphic, CircleButton
      */
-    class Circle : public Graphic<sf::CircleShape>
+    class MALENA_API Circle : public Graphic<sf::CircleShape>
     {
     public:
         using Graphic::Graphic;
