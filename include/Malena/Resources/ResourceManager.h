@@ -8,6 +8,7 @@
 #ifndef RESOURCEMANAGER_H
 #define RESOURCEMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <algorithm>
 #include <unordered_map>
 #include <Malena/Utilities/EnumClassHash.h>
@@ -38,7 +39,7 @@ namespace ml
     template<typename Manifest,
              typename Resource,
              bool (*loadFunction)(Resource&, const std::string&) = &fileLoader>
-    class ResourceManager
+    class MALENA_API ResourceManager
     {
     public:
         /**

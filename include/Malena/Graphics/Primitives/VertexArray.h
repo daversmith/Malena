@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 

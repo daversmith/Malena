@@ -8,6 +8,7 @@
 #ifndef STATEMANAGER_H
 #define STATEMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <type_traits>
 #include <functional>
 

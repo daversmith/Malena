@@ -8,6 +8,7 @@
 #ifndef SOUNDMANAGER_H
 #define SOUNDMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/ResourceManager.h>
 #include <SFML/Audio/SoundBuffer.hpp>
 

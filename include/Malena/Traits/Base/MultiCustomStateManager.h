@@ -4,6 +4,7 @@
 #ifndef MULTICUSTOMSTATEMANAGER_H
 #define MULTICUSTOMSTATEMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <type_traits>
 #include <tuple>
 #include <functional>

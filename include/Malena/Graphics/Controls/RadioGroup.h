@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Graphics/Controls/RadioButton.h>
@@ -24,7 +25,7 @@
 
 namespace ml
 {
-    class RadioGroupManifest : public ml::Manifest
+    class MALENA_API RadioGroupManifest : public ml::Manifest
     {
     public:
         enum class Flag { SHOW_BACKGROUND };
@@ -39,7 +40,7 @@ namespace ml
      *
      * @see RadioGroupSettings, RadioGroupTheme, RadioGroupStyle, RadioButton
      */
-    class RadioGroup : public ComponentWith<RadioGroupManifest>,
+    class MALENA_API RadioGroup : public ComponentWith<RadioGroupManifest>,
                        public RadioGroupSettings,
                        public RadioGroupTheme,
                        public Themeable
@@ -68,6 +69,9 @@ namespace ml
 
     public:
         explicit RadioGroup(const sf::Font& font = FontManager<>::getDefault());
+
+        RadioGroup(const RadioGroup&)            = delete;
+        RadioGroup& operator=(const RadioGroup&) = delete;
 
         // ── Apply ─────────────────────────────────────────────────────────────
 

@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -39,7 +40,7 @@ namespace ml
      *
      * @see Text
      */
-    class TextManipulators
+    class MALENA_API TextManipulators
     {
     public:
         /**

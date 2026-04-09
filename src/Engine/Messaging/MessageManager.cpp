@@ -6,12 +6,16 @@
 
 namespace ml {
 
-    std::unordered_map<MessageManager::EventKey, std::vector<MessageManager::Subscription>, MessageManager::KeyHash>
-        MessageManager::subscribers;
+    std::unordered_map<MessageManager::EventKey, std::vector<MessageManager::Subscription>, MessageManager::KeyHash>&
+    MessageManager::subscribers()
+    {
+        static std::unordered_map<EventKey, std::vector<Subscription>, KeyHash> s;
+        return s;
+    }
 
     void MessageManager::doUnsubscribe(const EventKey& key, void* subscriber) {
-        auto it = subscribers.find(key);
-        if (it == subscribers.end()) {
+        auto it = subscribers().find(key);
+        if (it == subscribers().end()) {
             return;
         }
 
@@ -23,12 +27,12 @@ namespace ml {
         );
 
         if (subs.empty()) {
-            subscribers.erase(it);
+            subscribers().erase(it);
         }
     }
 
     void MessageManager::doUnsubscribeAll(void* subscriber) {
-        for (auto it = subscribers.begin(); it != subscribers.end();) {
+        for (auto it = subscribers().begin(); it != subscribers().end();) {
             auto& subs = it->second;
             subs.erase(
                 std::remove_if(subs.begin(), subs.end(),
@@ -37,7 +41,7 @@ namespace ml {
             );
 
             if (subs.empty()) {
-                it = subscribers.erase(it);
+                it = subscribers().erase(it);
             } else {
                 ++it;
             }
@@ -45,20 +49,19 @@ namespace ml {
     }
 
     void MessageManager::unsubscribeAll(void* subscriber) {
-        deferOrExecute([=]() {  // ✅ Using base class method
+        deferOrExecute([=]() {
             doUnsubscribeAll(subscriber);
         });
     }
 
     void MessageManager::clear() {
-        deferOrExecute([]() {  // ✅ Using base class method
-            subscribers.clear();
+        deferOrExecute([]() {
+            subscribers().clear();
             DeferredOperationsManager<MessageManager>::clearPending();
         });
     }
 
     void MessageManager::forceUnsubscribeAll(void* subscriber) {
-        // Force immediate - bypass deferral (for plugin unloading)
         doUnsubscribeAll(subscriber);
     }
 

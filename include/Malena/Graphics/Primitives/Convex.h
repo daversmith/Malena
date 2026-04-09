@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include <Malena/Core/Core.h>
+#include <Malena/Core/malena_export.h>
+#include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Traits/Base/Customizable.h>
 
 namespace ml
@@ -50,10 +51,13 @@ namespace ml
 	 *
 	 * @see Graphic, ConvexButton, Circle, Rectangle
 	 */
-	class Convex : public Graphic<sf::ConvexShape>
+	class MALENA_API Convex : public Graphic<sf::ConvexShape>
 	{
 	public:
 		using Graphic::Graphic;
+#ifdef _WIN32
+		~Convex() override;
+#endif
 	};
 
 	/**

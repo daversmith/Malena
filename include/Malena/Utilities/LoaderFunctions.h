@@ -11,6 +11,7 @@
  * @file LoaderFunctions.h
  * @ingroup Utilities
  */
+#include <Malena/Core/malena_export.h>
 #include <string>
 namespace ml
 {

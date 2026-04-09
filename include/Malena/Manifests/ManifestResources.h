@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/AssetsManager.h>
 #include <Malena/Resources/ConfigManager.h>
 #include <Malena/Manifests/ManifestAliases.h>
@@ -96,8 +97,8 @@ namespace ml
      * @tparam Manifest A @c Manifest subclass.
      * @see ManifestAliases, AssetsManager, ConfigManager, ComponentWith
      */
-    template<typename Manifest>
-    struct ManifestResources : public ManifestAliases<Manifest>, public Manifest
+    template<typename TManifest>
+    struct ManifestResources : public TManifest
     {
         /**
          * @brief Retrieve an asset by enum key → @c AssetsManager.
@@ -109,10 +110,10 @@ namespace ml
         template<typename EnumType>
         static auto get(EnumType key)
             -> std::enable_if_t<
-                is_asset_enum<Manifest, EnumType>::value,
-                const_ref_t<decltype(AssetsManager<Manifest>::get(key))>>
+                is_asset_enum<TManifest, EnumType>::value,
+                const_ref_t<decltype(AssetsManager<TManifest>::get(key))>>
         {
-            return AssetsManager<Manifest>::get(key);
+            return AssetsManager<TManifest>::get(key);
         }
 
         /**
@@ -124,33 +125,31 @@ namespace ml
         template<typename EnumType>
         static auto get(EnumType key)
             -> std::enable_if_t<
-                !is_asset_enum<Manifest, EnumType>::value,
-                decltype(ConfigManager<Manifest>::get(key))>
+                !is_asset_enum<TManifest, EnumType>::value,
+                decltype(ConfigManager<TManifest>::get(key))>
         {
-            return ConfigManager<Manifest>::get(key);
-        }
-
-    	// In ManifestResources — after the get() overloads
-
-    	template<typename EnumType>
-		static std::enable_if_t<is_images_enum<Manifest, EnumType>::value>
-		unload(EnumType key)
-        {
-        	TextureManager<Manifest>::unload(key);
+            return ConfigManager<TManifest>::get(key);
         }
 
     	template<typename EnumType>
-		static std::enable_if_t<is_fonts_enum<Manifest, EnumType>::value>
+		static std::enable_if_t<is_images_enum<TManifest, EnumType>::value>
 		unload(EnumType key)
         {
-        	FontManager<Manifest>::unload(key);
+        	TextureManager<TManifest>::unload(key);
         }
 
     	template<typename EnumType>
-		static std::enable_if_t<is_sounds_enum<Manifest, EnumType>::value>
+		static std::enable_if_t<is_fonts_enum<TManifest, EnumType>::value>
 		unload(EnumType key)
         {
-        	SoundManager<Manifest>::unload(key);
+        	FontManager<TManifest>::unload(key);
+        }
+
+    	template<typename EnumType>
+		static std::enable_if_t<is_sounds_enum<TManifest, EnumType>::value>
+		unload(EnumType key)
+        {
+        	SoundManager<TManifest>::unload(key);
         }
     };
 

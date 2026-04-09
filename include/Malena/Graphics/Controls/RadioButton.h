@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Interaction/Selectable.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
@@ -22,7 +23,7 @@
 
 namespace ml
 {
-    class RadioButtonManifest : public ml::Manifest
+    class MALENA_API RadioButtonManifest : public ml::Manifest
     {
     public:
         enum class Flag  { SELECTED, DISABLED };
@@ -38,7 +39,7 @@ namespace ml
      *
      * @see RadioButtonSettings, RadioButtonTheme, RadioButtonStyle, RadioGroup
      */
-    class RadioButton : public ComponentWith<RadioButtonManifest>,
+    class MALENA_API RadioButton : public ComponentWith<RadioButtonManifest>,
                         public RadioButtonSettings,
                         public RadioButtonTheme,
                         public Themeable,

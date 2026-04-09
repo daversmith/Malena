@@ -5,6 +5,7 @@
 
 #ifndef FADEABLE_H
 #define FADEABLE_H
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Trait.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Utilities/Tween.h>
@@ -52,7 +53,7 @@ namespace ml
      *
      * @see Draggable, Positionable, Tween
      */
-    class Fadeable : public Trait
+    class MALENA_API Fadeable : public Trait
     {
     public:
         Fadeable();

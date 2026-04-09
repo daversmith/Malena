@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Core.h>
 #include <optional>
 namespace ml
@@ -34,7 +35,7 @@ namespace ml
      *
      * @see Core, Component, CoreManager
      */
-    class CoreAdapter : public Core
+    class MALENA_API CoreAdapter : public Core
     {
     protected:
         /**

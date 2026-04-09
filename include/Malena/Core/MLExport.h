@@ -26,6 +26,7 @@
 //
 // ============================================================
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Events/Fireable.h>
 #include <type_traits>
 

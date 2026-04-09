@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
@@ -59,7 +60,7 @@ namespace ml
      *
      * @see Clickable, Hoverable, Updatable, Unsubscribable, EventManager
      */
-    class Subscribable : public EventReceiver
+    class MALENA_API Subscribable : public EventReceiver
     {
     public:
         /**
@@ -117,7 +118,7 @@ namespace ml
     };
 
     /// @cond INTERNAL
-    class SubscribableDispatcher : public EventDispatcher
+    class MALENA_API SubscribableDispatcher : public EventDispatcher
     {
     public:
         void fire(const std::optional<sf::Event>& event) override {};

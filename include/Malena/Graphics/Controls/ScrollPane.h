@@ -1,6 +1,7 @@
 #ifndef SCROLLPANE_H
 #define SCROLLPANE_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <Malena/Core/Component.h>
@@ -10,7 +11,7 @@
 
 namespace ml
 {
-    class ScrollPane : public ml::Component<ScrollPaneManifest>
+    class MALENA_API ScrollPane : public ml::Component<ScrollPaneManifest>
     {
     public:
         using App   = ml::ManifestResources<ScrollPaneManifest>;

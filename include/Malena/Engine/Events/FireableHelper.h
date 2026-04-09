@@ -7,6 +7,7 @@
 
 #ifndef FIREABLEHELPER_H
 #define FIREABLEHELPER_H
+#include <Malena/Core/malena_export.h>
 #include <functional>
 
 #endif //FIREABLEHELPER_H

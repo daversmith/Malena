@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>
 #include <SFML/System/Vector2.hpp>
 #include <cstddef>

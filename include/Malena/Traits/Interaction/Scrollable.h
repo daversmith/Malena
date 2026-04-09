@@ -6,6 +6,7 @@
 //
 
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/EventReceiver.h>
@@ -50,7 +51,7 @@ namespace ml
      * @see Clickable, Draggable, ml::Event::SCROLL, ml::Event::MOUSE_MOVED,
      *      ml::Event::MOUSE_PRESSED, ml::Event::MOUSE_RELEASED, Unsubscribable
      */
-    class Scrollable : public EventReceiver
+    class MALENA_API Scrollable : public EventReceiver
     {
     public:
         // ── Mouse wheel ───────────────────────────────────────────────────────
@@ -142,7 +143,7 @@ namespace ml
      * Fires @c SCROLL, @c MOUSE_MOVED, @c MOUSE_PRESSED, and @c MOUSE_RELEASED.
      * Registered automatically via @c ML_EXPORT(ScrollableDispatcher).
      */
-    class ScrollableDispatcher : public EventDispatcher
+    class MALENA_API ScrollableDispatcher : public EventDispatcher
     {
     public:
         bool occurred(const std::optional<sf::Event>& event) override;

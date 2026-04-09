@@ -31,10 +31,10 @@ namespace ml
         FontManager<>::prewarm(font_, fontSize);
         _placeholder.setFillColor(placeholderColor);
 
-        _canvas.resize({
+        static_cast<void>(_canvas.resize({
             static_cast<unsigned int>(size.x),
             static_cast<unsigned int>(size.y)
-        });
+        }));
 
         rebuild();
 
@@ -468,10 +468,10 @@ namespace ml
     {
         size = sz;
         _background.setSize(sz);
-        _canvas.resize({
+        static_cast<void>(_canvas.resize({
             static_cast<unsigned int>(sz.x),
             static_cast<unsigned int>(sz.y)
-        });
+        }));
         rebuild();
     }
 

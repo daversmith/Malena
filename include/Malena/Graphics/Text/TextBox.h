@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**
@@ -22,7 +24,7 @@ namespace ml
      *
      * @see Text, TextInput
      */
-    class TextBox
+    class MALENA_API TextBox
     {
     };
 

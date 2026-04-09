@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ListItemSettings.h>
 #include <Malena/Traits/Theme/ListItemTheme.h>
 

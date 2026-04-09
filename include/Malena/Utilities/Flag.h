@@ -8,6 +8,8 @@
 #ifndef SYSTEMSTATESENUM_H
 #define SYSTEMSTATESENUM_H
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**

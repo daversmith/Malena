@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Traits/Theme/Themeable.h>
@@ -14,7 +15,7 @@
 
 namespace ml {
 
-    class PanelManifest : public Manifest {};
+    class MALENA_API PanelManifest : public Manifest {};
 
     /**
      * @brief A layout container that groups, positions, and draws a set of child components.
@@ -38,7 +39,7 @@ namespace ml {
      * pane.addComponent(myList);
      * @endcode
      */
-    class Panel : public CoreManager<Core>, public RectangleWith<PanelManifest>, public Themeable
+    class MALENA_API Panel : public CoreManager<Core>, public RectangleWith<PanelManifest>, public Themeable
     {
         // Maps each child pointer to its position relative to this panel's origin
         std::unordered_map<Core*, sf::Vector2f> _relativePositions;

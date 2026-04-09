@@ -11,6 +11,7 @@
 #pragma once
 
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Utilities/EnumKey.h>
 namespace ml
 {
@@ -45,7 +46,7 @@ namespace ml
      *
      * @see Core, EventReceiver, EventManager, EnumKey, ml::Event
      */
-    class Unsubscribable
+    class MALENA_API Unsubscribable
     {
     public:
         /**

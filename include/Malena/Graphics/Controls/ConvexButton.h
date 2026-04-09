@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Button.h>
 #include <Malena/Graphics/Primitives/Convex.h>
 #include <Malena/Traits/Base/Customizable.h>
@@ -40,9 +41,13 @@ namespace ml
      *
      * @see Button, Convex, RectangleButton, CircleButton
      */
-    class ConvexButton : public Button<Convex, std::size_t>
+    class MALENA_API ConvexButton : public Button<Convex, std::size_t>
     {
+    public:
         using Button::Button;
+#ifdef _WIN32
+        ~ConvexButton() override;
+#endif
     };
 
     /**
@@ -53,7 +58,7 @@ namespace ml
      * @see ConvexButton, Customizable
      */
     template<typename MANIFEST>
-    class ConvexButtonWith : public virtual Customizable<ConvexButton, MANIFEST> {};
+    class ConvexButtonWith : public ConvexButton, public Customizable<MANIFEST> {};
 
 } // namespace ml
 

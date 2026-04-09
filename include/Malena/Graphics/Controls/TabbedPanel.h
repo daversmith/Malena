@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -28,7 +29,7 @@
 
 namespace ml
 {
-    class TabbedPanelManifest : public ml::Manifest
+    class MALENA_API TabbedPanelManifest : public ml::Manifest
     {
     public:
         enum class Flag  {};
@@ -74,7 +75,7 @@ namespace ml
      *
      * @see TabbedPanelSettings, TabbedPanelTheme, TabbedPanelStyle
      */
-    class TabbedPanel : public ComponentWith<TabbedPanelManifest>,
+    class MALENA_API TabbedPanel : public ComponentWith<TabbedPanelManifest>,
                         public TabbedPanelSettings,
                         public TabbedPanelTheme,
                         public Themeable
@@ -131,6 +132,9 @@ namespace ml
 
     public:
         explicit TabbedPanel(const sf::Font& font = FontManager<>::getDefault());
+
+        TabbedPanel(const TabbedPanel&)            = delete;
+        TabbedPanel& operator=(const TabbedPanel&) = delete;
 
         // ── Apply ─────────────────────────────────────────────────────────────
 

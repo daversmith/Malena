@@ -2,6 +2,7 @@
 #ifndef SIDEMENUSTYLE_H
 #define SIDEMENUSTYLE_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/SideMenuSettings.h>
 #include <Malena/Traits/Theme/SideMenuTheme.h>
 

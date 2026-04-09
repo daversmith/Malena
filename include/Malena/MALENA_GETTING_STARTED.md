@@ -8,8 +8,8 @@ Malena is a C++ framework built on top of SFML that provides an event-driven arc
 
 A Malena application derives from `ml::Application` and overrides two virtual methods:
 
-- `initialization()` — runs once at startup; create and register components here
-- `registerEvents()` — runs after initialization; subscribe to events here
+- `onInit()` — runs once at startup; create and register components here
+- `onReady()` — runs after `onInit()`; subscribe to events here
 
 ```cpp
 #include <Malena/Engine/App/Application.h>
@@ -19,14 +19,14 @@ class MyApp : public ml::Application
 public:
     MyApp() : Application(1280, 720, 32, "My Application") {}
 
-    void initialization() override
+    void onInit() override
     {
         _box.setSize({200.f, 100.f});
         _box.setPosition({100.f, 100.f});
         addComponent(_box);
     }
 
-    void registerEvents() override
+    void onReady() override
     {
         _box.onClick([] {
             // respond to click
@@ -59,7 +59,7 @@ int main()
 Components are registered with `addComponent()` and are then automatically updated and drawn each frame by `ComponentsManager`.
 
 ```cpp
-void initialization() override
+void onInit() override
 {
     _label.setString("Hello, Malena!");
     _label.setPosition({50.f, 50.f});
@@ -77,16 +77,16 @@ void initialization() override
 
 ## Event Subscriptions
 
-Subscriptions are set up in `registerEvents()` using the `Messenger` trait methods available on any `UIComponent`:
+Subscriptions are set up in `onReady()` using the `Messenger` trait methods available on any `Component`:
 
 ```cpp
-void registerEvents() override
+void onReady() override
 {
     _button.onClick([this] {
         _label.setString("Clicked!");
     });
 
-    _button.onUpdate([this](sf::Event) {
+    _button.onUpdate([this]() {
         // runs every frame
     });
 }
@@ -133,7 +133,7 @@ struct WidgetManifest
     enum class Flags { Selected, Disabled };
 };
 
-class Widget : public ml::UIComponentWith<WidgetManifest>
+class Widget : public ml::ComponentWith<WidgetManifest>
 {
 public:
     void select()
@@ -170,9 +170,9 @@ struct GameManifest
 };
 
 // AssetsManager<GameManifest> gives access to all three media types
-class GameScreen : public ml::UIComponentWith<GameManifest>
+class GameScreen : public ml::ComponentWith<GameManifest>
 {
-    void initialization() override
+    void onInit() override
     {
         _bg.setTexture(getTexture(GameManifest::Textures::Background));
         _label.setFont(getFont(GameManifest::Fonts::Main));
@@ -202,7 +202,7 @@ struct AppManifest
 // Context<AppManifest> wires both AssetsManager and ConfigManager
 class MyApp : public ml::Application
 {
-    void initialization() override
+    void onInit() override
     {
         auto title = getConfig(AppManifest::Config::WindowTitle);
         setTitle(title);
@@ -263,7 +263,7 @@ if (auto* p = pluginManager.getPlugin<MyPlugin>()) {
 }
 
 // Query optional interface safely across dylib boundary
-if (auto* drawable = plugin->getIf<ml::UIComponent>()) {
+if (auto* drawable = plugin->getIf<ml::Component>()) {
     addComponent(*drawable);
 }
 ```
@@ -280,7 +280,7 @@ enum class GameEvent { Start, Stop, ScoreChanged };
 // Sender
 sendMessage<int>(GameEvent::ScoreChanged, 42);
 
-// Receiver — set up in registerEvents() or onLoad()
+// Receiver — set up in onReady() or onLoad()
 onMessage<int>(GameEvent::ScoreChanged, [](const int& score) {
     // update display
 });
@@ -299,8 +299,8 @@ carousel.setPosition({100.f, 200.f});
 addComponent(carousel);
 
 // Add items
-carousel.addItem(mySprite);
-carousel.addItem(anotherSprite);
+carousel.add(mySprite);
+carousel.add(anotherSprite);
 ```
 
 ### Grid layout
@@ -308,7 +308,8 @@ carousel.addItem(anotherSprite);
 ```cpp
 ml::Grid grid(4, 3); // 4 columns, 3 rows
 grid.setPosition({50.f, 50.f});
-grid.setCellSize({100.f, 100.f});
+grid.setSpacing(8.f);
+grid.addItem(tile);   // positions tile in the next available cell
 addComponent(grid);
 ```
 
@@ -318,7 +319,7 @@ addComponent(grid);
 ml::TextInput input;
 input.setSize({300.f, 40.f});
 input.setPosition({100.f, 300.f});
-input.onUpdate([this](sf::Event e) {
+input.onUpdate([this]() {
     std::string text = input.getString();
 });
 addComponent(input);

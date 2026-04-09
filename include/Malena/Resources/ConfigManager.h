@@ -4,6 +4,7 @@
 #ifndef CONFIGMANAGER_H
 #define CONFIGMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <type_traits>
 #include <string>
 

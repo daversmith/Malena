@@ -7,6 +7,7 @@
 
 #ifndef FRAMEDISPATCHER_H
 #define FRAMEDISPATCHER_H
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <optional>
 
@@ -85,7 +86,7 @@ namespace ml {
  *
  * @see Fireable, EventDispatcher, EventReceiver, Updatable, ML_EXPORT
  */
-class FrameDispatcher : public Fireable {
+class MALENA_API FrameDispatcher : public Fireable {
 public:
     FrameDispatcher() : Fireable(DispatchType::FRAME) {}
 

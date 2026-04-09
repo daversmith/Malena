@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Customizable.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/Fireable.h>
@@ -25,7 +26,7 @@ namespace ml
      * @brief Manifest for the @c Draggable trait.
      * @ingroup Traits
      */
-    class DraggableManifest : public Manifest
+    class MALENA_API DraggableManifest : public Manifest
     {
     public:
         enum class State
@@ -65,7 +66,7 @@ namespace ml
      *
      * @see DraggableManifest, DraggableDispatcher
      */
-    class Draggable : public EventReceiver,
+    class MALENA_API Draggable : public EventReceiver,
                       public Customizable<DraggableManifest>
     {
     public:
@@ -113,7 +114,7 @@ namespace ml
      * Fires drag handling for all components that have @c ml::Flag::DRAGGABLE
      * set. Registered automatically via @c ML_EXPORT(DraggableDispatcher).
      */
-    class DraggableDispatcher : public EventDispatcher
+    class MALENA_API DraggableDispatcher : public EventDispatcher
     {
     public:
         bool occurred(const std::optional<sf::Event>& event) override;

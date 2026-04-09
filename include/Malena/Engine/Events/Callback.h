@@ -8,6 +8,7 @@
 #ifndef CALLBACK_H
 #define CALLBACK_H
 
+#include <Malena/Core/malena_export.h>
 #include <functional>
 #include <SFML/Window/Event.hpp>
 #include <optional>

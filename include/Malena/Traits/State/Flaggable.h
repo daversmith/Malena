@@ -8,6 +8,7 @@
 #ifndef STATEFUL_H
 #define STATEFUL_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FlagManager.h>
 #include <Malena/Utilities/Flag.h>
 #include <Malena/Traits/Base/Trait.h>
@@ -49,7 +50,7 @@ namespace ml
 	 *
 	 * @see FlagManager, ml::Flag, Core, CustomFlaggable
 	 */
-	class Flaggable : public Trait, public FlagManager<Flag> {};
+	class MALENA_API Flaggable : public Trait, public FlagManager<Flag> {};
 
 } // namespace ml
 

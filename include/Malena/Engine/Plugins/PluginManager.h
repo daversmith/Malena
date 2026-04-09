@@ -8,6 +8,7 @@
 #ifndef PLUGINHOST_H
 #define PLUGINHOST_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/App/Application.h>
 #include <Malena/Engine/Plugins/Plugin.h>
 #include <Malena/Core/DeferredOperationsManager.h>
@@ -78,7 +79,7 @@ namespace ml
      *
      * @see Plugin, PluginWith, PluginInfo, DeferredOperationsManager, REGISTER_PLUGIN
      */
-    class PluginManager : public DeferredOperationsManager<PluginManager>
+    class MALENA_API PluginManager : public DeferredOperationsManager<PluginManager>
     {
         struct PluginData
         {

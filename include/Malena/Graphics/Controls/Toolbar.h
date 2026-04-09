@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -25,7 +26,7 @@
 
 namespace ml
 {
-    class ToolbarManifest : public ml::Manifest
+    class MALENA_API ToolbarManifest : public ml::Manifest
     {
     public:
         enum class Flag  {};
@@ -73,7 +74,7 @@ namespace ml
      *
      * @see ToolbarSettings, ToolbarTheme, ToolbarStyle
      */
-    class Toolbar : public ComponentWith<ToolbarManifest>,
+    class MALENA_API Toolbar : public ComponentWith<ToolbarManifest>,
                     public ToolbarSettings,
                     public ToolbarTheme,
                     public Themeable
@@ -93,6 +94,10 @@ namespace ml
             std::string               label;
             bool                      separator = false;
             bool                      hovered   = false;
+
+            Item() = default;
+            Item(Item&&) = default;
+            Item& operator=(Item&&) = default;
         };
 
         std::vector<Item> _items;
@@ -111,6 +116,9 @@ namespace ml
 
     public:
         explicit Toolbar(const sf::Font& font = FontManager<>::getDefault());
+
+        Toolbar(const Toolbar&)            = delete;
+        Toolbar& operator=(const Toolbar&) = delete;
 
         // ── Apply ─────────────────────────────────────────────────────────────
 

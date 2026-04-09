@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <unordered_map>
 #include <memory>
 #include <string>
@@ -46,7 +47,7 @@ namespace ml
      *
      * @see ThemeManager, AssetsManager, ConfigManager
      */
-    class Manifest
+    class MALENA_API Manifest
     {
     public:
         // ── Retrieval ─────────────────────────────────────────────────────────

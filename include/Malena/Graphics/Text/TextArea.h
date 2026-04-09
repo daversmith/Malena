@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Text/TextInput.h>
 #include <Malena/Graphics/Controls/ScrollPane.h>
 #include <Malena/Traits/Theme/TextAreaTheme.h>
@@ -30,7 +31,7 @@ namespace ml
      *
      * @see TextInput, TextAreaTheme, TextAreaStyle, ScrollPane
      */
-    class TextArea : public TextInput,
+    class MALENA_API TextArea : public TextInput,
                      public TextAreaTheme
     {
     private:

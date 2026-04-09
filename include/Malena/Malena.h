@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Graphics.h>
 #include <Malena/Engine.h>
 #include <Malena/Manifests.h>

@@ -76,8 +76,7 @@ namespace ml
 	{
 		T::setScale(scale);
 		_text.setScale(scale);
-		// T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
-		T::centerText(*dynamic_cast<T *>(this), _text);
+		T::centerText(_text);
 	}
 
 	template<typename T, typename S>

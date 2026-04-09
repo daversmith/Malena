@@ -2,6 +2,7 @@
 #ifndef MENUBARSETTINGS_H
 #define MENUBARSETTINGS_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>
 
 namespace ml

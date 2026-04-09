@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Text.hpp>
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>

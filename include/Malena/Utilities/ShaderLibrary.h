@@ -8,6 +8,7 @@
 #ifndef SHADERLIBRARY_H
 #define SHADERLIBRARY_H
 
+#include <Malena/Core/malena_export.h>
 #include <string_view>
 #include <SFML/Graphics.hpp>
 #include <functional>
@@ -49,7 +50,7 @@ namespace ml
      *
      * @see Carousel, CarouselManifest
      */
-    class ShaderLibrary
+    class MALENA_API ShaderLibrary
     {
     public:
         /**

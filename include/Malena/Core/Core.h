@@ -8,6 +8,7 @@
 #ifndef UICOMPONENTBASE_H
 #define UICOMPONENTBASE_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 
 #include <Malena/Traits/Communication/Subscribable.h>
@@ -53,7 +54,7 @@ namespace ml
      *
      * @see Component, CoreAdapter, ComponentCore
      */
-    class Core : public virtual Subscribable,
+    class MALENA_API Core : public virtual Subscribable,
                  public virtual Flaggable,
                  public virtual Positionable,
                  public virtual Clickable,

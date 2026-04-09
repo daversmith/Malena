@@ -8,6 +8,7 @@
 #ifndef TEXTURESLICER_H
 #define TEXTURESLICER_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <Malena/Utilities/ImageRects.h>
 
@@ -38,7 +39,7 @@ namespace ml
      *
      * @see ImageRects, TextureManager
      */
-    class TextureSlicer
+    class MALENA_API TextureSlicer
     {
     public:
         /**
@@ -55,6 +56,7 @@ namespace ml
          *         accessible by (row, col) index.
          */
         static ml::ImageRects getImageRects(const sf::Texture& texture, int rows, int cols);
+    	static ml::ImageRects getImageRects(const sf::Texture &texture, sf::Vector2i coord);
     };
 
 } // namespace ml

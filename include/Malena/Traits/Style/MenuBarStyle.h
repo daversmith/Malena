@@ -2,6 +2,7 @@
 #ifndef MENUBARSTYLE_H
 #define MENUBARSTYLE_H
 #pragma once
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/MenuBarSettings.h>
 #include <Malena/Traits/Theme/MenuBarTheme.h>
 

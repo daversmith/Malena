@@ -8,6 +8,7 @@
 #ifndef ASSETSMANAGER_H
 #define ASSETSMANAGER_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Resources/TextureManager.h>
 #include <Malena/Resources/SoundManager.h>

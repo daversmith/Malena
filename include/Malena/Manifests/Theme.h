@@ -8,6 +8,7 @@
 #pragma once
 
 // #include <Malena/Resources/FontManager.h>
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Color.hpp>
 #include <Malena/Manifests/ThemeTag.h>
 #include <SFML/Graphics/Font.hpp>

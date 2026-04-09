@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Resources/FontManager.h>
@@ -24,7 +25,7 @@ namespace ml
      * @brief Shared manifest for @c TextInput and @c TextArea.
      * @ingroup GraphicsText
      */
-    class TextInputManifest : public ml::Manifest
+    class MALENA_API TextInputManifest : public ml::Manifest
     {
     public:
         /**
@@ -62,7 +63,7 @@ namespace ml
      *
      * @see TextInput, TextArea, TextInputManifest
      */
-    class TextInputBase : public ComponentWith<TextInputManifest>
+    class MALENA_API TextInputBase : public ComponentWith<TextInputManifest>
     {
     public:
         /// Convenience alias for @c TextInputManifest::Flag.

@@ -8,6 +8,8 @@
 #ifndef MANIFESTALIASES_H
 #define MANIFESTALIASES_H
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /// @cond INTERNAL

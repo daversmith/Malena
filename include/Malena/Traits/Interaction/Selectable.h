@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <Malena/Engine/Events/EventDispatcher.h>
 #include <Malena/Engine/Events/Fireable.h>
@@ -57,7 +58,7 @@ namespace ml
      *
      * @see RadioButton, ml::Event::SELECTED, ml::Event::DESELECTED, Clickable
      */
-    class Selectable : public EventReceiver
+    class MALENA_API Selectable : public EventReceiver
     {
     public:
         // ── onSelected ────────────────────────────────────────────────────────

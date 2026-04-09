@@ -7,6 +7,7 @@
 
 #ifndef EVENTDISPATCHER_H
 #define EVENTDISPATCHER_H
+#include <Malena/Core/malena_export.h>
 #include "Fireable.h"
 #include <optional>
 namespace ml {
@@ -87,7 +88,7 @@ namespace ml {
  * @see Fireable, EventReceiver, ML_EXPORT, Clickable, Hoverable
  */
 
-class EventDispatcher : public Fireable {
+class MALENA_API EventDispatcher : public Fireable {
 private:
     /// Sealed — frame-tick path is not used by EventDispatcher subclasses.
     void fire() final override{};

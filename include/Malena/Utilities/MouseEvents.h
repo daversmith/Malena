@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 
 namespace ml
@@ -33,7 +34,7 @@ namespace ml
      *
      * @see UIManager, Subscribable, Positionable
      */
-    class MouseEvents
+    class MALENA_API MouseEvents
     {
     public:
         /**

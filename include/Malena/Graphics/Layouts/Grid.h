@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 #include <Malena/Core/Core.h>
 #include <Malena/Traits/Spatial/Positionable.h>
@@ -43,7 +44,7 @@ namespace ml
      *
      * @see Positionable, Core
      */
-    class Grid final : public Core
+    class MALENA_API Grid final : public Core
     {
         std::vector<Positionable*> _items;
 

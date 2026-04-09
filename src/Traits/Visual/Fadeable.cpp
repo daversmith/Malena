@@ -1,4 +1,4 @@
-#pragma once
+
 // ============================================================
 //  src/Traits/Fadeable.tpp
 // ============================================================
@@ -8,6 +8,7 @@
 #include <Malena/Traits/Visual/Fadeable.h>
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
 namespace ml
 {
 

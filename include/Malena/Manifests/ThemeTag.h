@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <memory>
 #include <unordered_map>
 #include <Malena/Utilities/EnumClassHash.h>

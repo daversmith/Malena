@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Traits/Settings/ButtonSettings.h>
@@ -18,7 +19,7 @@
 
 namespace ml
 {
-    class ButtonToggleManifest : public ml::Manifest
+    class MALENA_API ButtonToggleManifest : public ml::Manifest
     {
     public:
         enum class Flag  { ON, DISABLED };
@@ -45,7 +46,7 @@ namespace ml
      *
      * @see ButtonSettings, ButtonTheme, ButtonStyle
      */
-    class ButtonToggle : public ComponentWith<ButtonToggleManifest>,
+    class MALENA_API ButtonToggle : public ComponentWith<ButtonToggleManifest>,
                          public ButtonSettings,
                          public ButtonTheme,
                          public Themeable

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Interaction/Selectable.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
@@ -23,7 +24,7 @@
 
 namespace ml
 {
-    class CheckboxManifest : public ml::Manifest
+    class MALENA_API CheckboxManifest : public ml::Manifest
     {
     public:
         enum class Flag  { CHECKED, DISABLED };
@@ -40,7 +41,7 @@ namespace ml
      *
      * @see CheckboxSettings, CheckboxTheme, CheckboxStyle, CheckboxGroup
      */
-    class Checkbox : public ComponentWith<CheckboxManifest>,
+    class MALENA_API Checkbox : public ComponentWith<CheckboxManifest>,
                      public CheckboxSettings,
                      public CheckboxTheme,
                      public Themeable,

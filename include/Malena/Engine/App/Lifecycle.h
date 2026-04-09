@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     /**
@@ -67,7 +69,7 @@ namespace ml
      *
      * @see SceneLifecycle, Updatable, Application
      */
-    class Lifecycle
+    class MALENA_API Lifecycle
     {
     public:
         /**

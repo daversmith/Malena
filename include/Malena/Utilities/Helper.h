@@ -14,6 +14,7 @@
  * @ingroup Utilities
  */
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
 
 namespace ml
@@ -36,7 +37,7 @@ namespace ml
 	 *
 	 * @note For production logging, prefer a dedicated logging library.
 	 */
-	class Helper
+	class MALENA_API Helper
 	{
 	public:
 		/**

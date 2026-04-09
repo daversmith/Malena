@@ -8,6 +8,8 @@
 #ifndef DRAWABLEWRAPPER_H
 #define DRAWABLEWRAPPER_H
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml
 {
     // ── Detection traits ─────────────────────────────────────────────────────

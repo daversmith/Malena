@@ -12,6 +12,8 @@
  * @ingroup Utilities
  */
 
+#include <Malena/Core/malena_export.h>
+
 namespace ml{
     struct EnumClassHash {
         template <typename T>

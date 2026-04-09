@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Traits/Settings/PillSettings.h>
@@ -20,7 +21,7 @@
 
 namespace ml
 {
-    class PillToggleManifest : public ml::Manifest
+    class MALENA_API PillToggleManifest : public ml::Manifest
     {
     public:
         enum class Flag  { ON, DISABLED };
@@ -62,7 +63,7 @@ namespace ml
      *
      * @see PillSettings, PillTheme, PillStyle, Themeable, ToggleGroup
      */
-    class PillToggle : public ComponentWith<PillToggleManifest>,
+    class MALENA_API PillToggle : public ComponentWith<PillToggleManifest>,
                        public PillSettings,
                        public PillTheme,
                        public Themeable

@@ -3,6 +3,7 @@
 #include <Malena/Traits/Spatial/Positionable.h>
 
 #include <Malena/Utilities/Align.h>
+#include <cmath>
 namespace ml
 {
 

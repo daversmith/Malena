@@ -4,6 +4,10 @@
 
 #include <Malena/Utilities/TextureSlicer.h>
 
+ml::ImageRects ml::TextureSlicer::getImageRects(const sf::Texture &texture, sf::Vector2i coord)
+{
+	return getImageRects(texture, coord.x, coord.y);
+}
 ml::ImageRects ml::TextureSlicer::getImageRects(const sf::Texture &texture, int rows, int cols)
 {
 	int width = texture.getSize().x / cols;

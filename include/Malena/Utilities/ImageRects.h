@@ -8,6 +8,7 @@
 #ifndef IMAGERECTS_H
 #define IMAGERECTS_H
 
+#include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Rect.hpp>
 #include <vector>
 
@@ -36,12 +37,19 @@ namespace ml
      *
      * @see TextureSlicer
      */
-    class ImageRects
+    class MALENA_API ImageRects
     {
     private:
         std::vector<sf::IntRect> _intRects;
         int _rows;
         int _cols;
+
+        struct RowProxy
+        {
+            const ImageRects& owner;
+            int row;
+            const sf::IntRect& operator[](int col) const { return owner.getIntRect(row, col); }
+        };
 
     public:
         /**
@@ -59,7 +67,17 @@ namespace ml
          * @param col Zero-based column index.
          * @return Const reference to the @c sf::IntRect for that cell.
          */
-        const sf::IntRect& getIntRect(int row, int col);
+        const sf::IntRect& getIntRect(int row, int col) const;
+
+        /**
+         * @brief Row-indexed access — returns a proxy for column subscript.
+         *
+         * Enables two-dimensional subscript syntax:
+         * @code
+         * sprite.setTextureRect(rects[1][3]);
+         * @endcode
+         */
+        RowProxy operator[](int row) const { return {*this, row}; }
 
         /**
          * @brief Append a rect to the collection.

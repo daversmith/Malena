@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Callback.h>
 #include <Malena/Engine/Events/Event.h>
 #include <SFML/Window/Event.hpp>
@@ -36,7 +37,7 @@ namespace ml
      * @see Clickable, Hoverable, Focusable, Keyable, Updatable, Scrollable,
      *      Unsubscribable, EventManager, EnumKey
      */
-    class EventReceiver
+    class MALENA_API EventReceiver
     {
     public:
         /**

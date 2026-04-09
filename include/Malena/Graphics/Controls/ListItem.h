@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Component.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Manifests/Manifest.h>
@@ -25,7 +26,7 @@ namespace ml
 {
     // ── ListItemManifest ──────────────────────────────────────────────────────
 
-    class ListItemManifest : public ml::Manifest
+    class MALENA_API ListItemManifest : public ml::Manifest
     {
     public:
         enum class Flag  { DISABLED };
@@ -73,7 +74,7 @@ namespace ml
      *
      * @see List, ListItemSettings, ListItemTheme, ListItemStyle
      */
-    class ListItem : public ComponentWith<ListItemManifest>,
+    class MALENA_API ListItem : public ComponentWith<ListItemManifest>,
                      public ListItemSettings,
                      public ListItemTheme,
                      public Themeable

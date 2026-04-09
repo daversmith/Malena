@@ -8,6 +8,7 @@
 #ifndef FOCUSABLE_H
 #define FOCUSABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventReceiver.h>
 #include <optional>
 namespace ml
@@ -41,7 +42,7 @@ namespace ml
      *
      * @see Keyable, Clickable, ml::Event::FOCUS, ml::Event::BLUR, Unsubscribable
      */
-    class Focusable : public EventReceiver
+    class MALENA_API Focusable : public EventReceiver
     {
     public:
         /**

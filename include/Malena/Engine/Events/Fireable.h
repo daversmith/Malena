@@ -8,6 +8,7 @@
 #ifndef FIREABLE_H
 #define FIREABLE_H
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Core/Export.h>
 #include <functional>
 #include <optional>
@@ -53,7 +54,7 @@ namespace ml
      */
     class Core;
     class EventReceiver;
-    class Fireable
+    class MALENA_API Fireable
     {
     public:
         /// @cond INTERNAL
@@ -73,7 +74,7 @@ namespace ml
                                 EventReceiver* component,
                                 EventCallback callback);
 
-        struct Cleanup { ~Cleanup(); };
+        struct MALENA_API Cleanup { ~Cleanup(); };
 
         static void _register(Fireable* f);
         static void _unregister(Fireable* f);

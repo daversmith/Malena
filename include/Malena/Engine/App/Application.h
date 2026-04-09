@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Lifecycle/Updatable.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
@@ -30,11 +31,11 @@ namespace ml
      *
      * @see Application, ApplicationWith
      */
-    class ApplicationBase : public AppManager, public Updatable
+    class MALENA_API ApplicationBase : public AppManager, public Updatable
     {
     public:
         /**
-         * @brief Construct with a separate @c UIController and explicit video mode.
+         * @brief Construct with an explicit video mode and window title.
          */
         ApplicationBase(const sf::VideoMode& videoMode,
                         const std::string& title,
@@ -110,9 +111,9 @@ namespace ml
      * };
      * @endcode
      *
-     * @see ApplicationWith, AppManager, UIController
+     * @see ApplicationWith, AppManager
      */
-    class Application : public ApplicationBase
+    class MALENA_API Application : public ApplicationBase
     {
     public:
         using ApplicationBase::ApplicationBase;
@@ -174,13 +175,13 @@ namespace ml
      *
      * @see Application, ApplicationBase, Resources
      */
-    template<typename Manifest>
+    template<typename TManifest>
     class ApplicationWith : public ApplicationBase,
-                             public ml::ManifestResources<Manifest>
+                             public ml::ManifestResources<TManifest>
     {
     public:
         /// Unified resource accessor — Resources::get(Images::Icon)
-        using Resources = ml::ManifestResources<Manifest>;
+        using Resources = ml::ManifestResources<TManifest>;
 
         using ApplicationBase::ApplicationBase;
 
