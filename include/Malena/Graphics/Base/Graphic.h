@@ -10,6 +10,8 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <Malena/Core/Component.h>
 #include <Malena/Resources/FontManager.h>
+#include <stdexcept>
+#include <type_traits>
 
 namespace ml
 {

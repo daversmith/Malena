@@ -94,6 +94,10 @@ namespace ml
             std::string               label;
             bool                      separator = false;
             bool                      hovered   = false;
+
+            Item() = default;
+            Item(Item&&) = default;
+            Item& operator=(Item&&) = default;
         };
 
         std::vector<Item> _items;

@@ -15,8 +15,14 @@ namespace ml
      T Graphic<T>::isItText() {
         if constexpr (std::is_same_v<T, sf::Text>) {
             return sf::Text(FontManager<>::getDefault());
-        } else {
+        } else if constexpr (std::is_default_constructible_v<T>) {
             return T();
+        } else {
+            // T has no default constructor (e.g. sf::Sprite in SFML 3).
+            // Graphic<T>() must not be called for these types — use Graphic(const T&).
+            throw std::logic_error(
+                "Graphic<T>() called for a type with no default constructor. "
+                "Construct with a valid T instance instead.");
         }
     }
     template<typename T>
