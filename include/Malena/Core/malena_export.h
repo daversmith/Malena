@@ -10,7 +10,7 @@
 #  ifdef MALENA_EXPORTS
 #    define MALENA_API __declspec(dllexport)
 #  else
-#    define MALENA_API __declspec(dllimport)
+#    define MALENA_API
 #  endif
 #else
 #  define MALENA_API
