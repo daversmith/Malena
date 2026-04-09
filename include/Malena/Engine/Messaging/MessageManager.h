@@ -8,14 +8,15 @@
 #ifndef MALENA_EVENTBUS_H
 #define MALENA_EVENTBUS_H
 
+#include <Malena/Core/malena_export.h>
+#include <Malena/Core/DeferredOperationsManager.h>
+#include <algorithm>
 #include <functional>
+#include <optional>
+#include <tuple>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
-#include <tuple>
-#include <algorithm>
-#include <optional>
-#include <Malena/Core/DeferredOperationsManager.h>
 
 namespace ml
 {
@@ -69,7 +70,7 @@ namespace ml
      *
      * @see Messenger, EventManager, DeferredOperationsManager
      */
-    class MessageManager : public DeferredOperationsManager<MessageManager>
+    class MALENA_API MessageManager : public DeferredOperationsManager<MessageManager>
     {
         /// @cond INTERNAL
         using EventKey = std::tuple<std::type_index, int, std::type_index>;

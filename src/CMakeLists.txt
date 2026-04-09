@@ -1,6 +1,5 @@
 file(GLOB_RECURSE MALENA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(Malena ${MALENA_SOURCES})
 
 add_library(Malena::Malena ALIAS Malena)
@@ -16,6 +15,9 @@ target_include_directories(Malena
 
 # Set C++ standard
 target_compile_features(Malena PUBLIC cxx_std_17)
+
+# Export MALENA_API symbols on Windows when building the DLL
+target_compile_definitions(Malena PRIVATE $<$<BOOL:${BUILD_SHARED_LIBS}>:MALENA_EXPORTS>)
 
 # Link with SFML
 target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
