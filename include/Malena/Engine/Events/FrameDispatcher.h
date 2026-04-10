@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/22/26.
 //
 
-#ifndef FRAMEDISPATCHER_H
-#define FRAMEDISPATCHER_H
+#ifndef MALENA_FRAMEDISPATCHER_H
+#define MALENA_FRAMEDISPATCHER_H
 #include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
 #include <optional>

@@ -1,6 +1,6 @@
 // SideMenuSettings.h
-#ifndef SIDEMENUSETTINGS_H
-#define SIDEMENUSETTINGS_H
+#ifndef MALENA_SIDEMENUSETTINGS_H
+#define MALENA_SIDEMENUSETTINGS_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>

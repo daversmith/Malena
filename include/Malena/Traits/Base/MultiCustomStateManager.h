@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef MULTICUSTOMSTATEMANAGER_H
-#define MULTICUSTOMSTATEMANAGER_H
+#ifndef MALENA_MULTICUSTOMSTATEMANAGER_H
+#define MALENA_MULTICUSTOMSTATEMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <type_traits>
@@ -248,4 +248,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // MULTICUSTOMSTATEMANAGER_H
+#endif // MALENA_MULTICUSTOMSTATEMANAGER_H

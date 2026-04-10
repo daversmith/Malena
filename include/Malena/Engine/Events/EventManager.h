@@ -5,8 +5,8 @@
 // EventManager.h
 //
 
-#ifndef _EVENTSMANAGER_H
-#define _EVENTSMANAGER_H
+#ifndef MALENA_EVENTSMANAGER_H
+#define MALENA_EVENTSMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <map>
@@ -156,4 +156,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // _EVENTSMANAGER_H
+#endif // MALENA_EVENTSMANAGER_H

@@ -2,8 +2,8 @@
 // ToggleTheme.h
 //
 
-#ifndef TOGGLETHEME_H
-#define TOGGLETHEME_H
+#ifndef MALENA_TOGGLETHEME_H
+#define MALENA_TOGGLETHEME_H
 
 #pragma once
 
@@ -71,4 +71,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TOGGLETHEME_H
+#endif // MALENA_TOGGLETHEME_H

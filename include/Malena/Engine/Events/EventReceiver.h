@@ -5,8 +5,8 @@
 // EventReceiver.h
 //
 
-#ifndef EVENTRECEIVER_H
-#define EVENTRECEIVER_H
+#ifndef MALENA_EVENTRECEIVER_H
+#define MALENA_EVENTRECEIVER_H
 
 #pragma once
 
@@ -85,4 +85,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../../src/Engine/Events/EventReceiver.tpp"
-#endif // EVENTRECEIVER_H
+#endif // MALENA_EVENTRECEIVER_H

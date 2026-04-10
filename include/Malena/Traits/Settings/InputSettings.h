@@ -2,8 +2,8 @@
 // InputSettings.h
 //
 
-#ifndef INPUTSETTINGS_H
-#define INPUTSETTINGS_H
+#ifndef MALENA_INPUTSETTINGS_H
+#define MALENA_INPUTSETTINGS_H
 
 #pragma once
 
@@ -53,4 +53,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // INPUTSETTINGS_H
+#endif // MALENA_INPUTSETTINGS_H

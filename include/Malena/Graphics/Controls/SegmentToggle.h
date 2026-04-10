@@ -2,8 +2,8 @@
 // SegmentToggle.h
 //
 
-#ifndef SEGMENTTOGGLE_H
-#define SEGMENTTOGGLE_H
+#ifndef MALENA_SEGMENTTOGGLE_H
+#define MALENA_SEGMENTTOGGLE_H
 
 #pragma once
 
@@ -122,4 +122,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SEGMENTTOGGLE_H
+#endif // MALENA_SEGMENTTOGGLE_H

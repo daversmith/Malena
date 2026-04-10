@@ -1,6 +1,6 @@
 // MenuBarStyle.h
-#ifndef MENUBARSTYLE_H
-#define MENUBARSTYLE_H
+#ifndef MALENA_MENUBARSTYLE_H
+#define MALENA_MENUBARSTYLE_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/MenuBarSettings.h>

@@ -12,8 +12,8 @@
 //   #include <Malena/Utilities.h>   — utility types and helpers
 //
 
-#ifndef MALENA_H
-#define MALENA_H
+#ifndef MALENA_MALENA_H
+#define MALENA_MALENA_H
 
 #pragma once
 
@@ -25,4 +25,4 @@
 #include <Malena/Traits.h>
 #include <Malena/Utilities.h>
 
-#endif // MALENA_H
+#endif // MALENA_MALENA_H

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/7/25.
 //
 
-#ifndef WINDOWMANAGER_H
-#define WINDOWMANAGER_H
+#ifndef MALENA_WINDOWMANAGER_H
+#define MALENA_WINDOWMANAGER_H
 
 #pragma once
 
@@ -54,4 +54,4 @@ namespace ml::WindowManager
 
 } // namespace ml::WindowManager
 
-#endif // WINDOWMANAGER_H
+#endif // MALENA_WINDOWMANAGER_H

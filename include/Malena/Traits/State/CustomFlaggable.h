@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/4/25.
 //
 
-#ifndef CUSTOMFLAGGABLE_H
-#define CUSTOMFLAGGABLE_H
+#ifndef MALENA_CUSTOMFLAGGABLE_H
+#define MALENA_CUSTOMFLAGGABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <unordered_map>

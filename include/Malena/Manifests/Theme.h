@@ -2,8 +2,8 @@
 // Theme.h
 //
 
-#ifndef THEME_H
-#define THEME_H
+#ifndef MALENA_THEME_H
+#define MALENA_THEME_H
 
 #pragma once
 
@@ -206,4 +206,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // THEME_H
+#endif // MALENA_THEME_H

@@ -2,8 +2,8 @@
 // ListItemSettings.h
 //
 
-#ifndef LISTITEMSETTINGS_H
-#define LISTITEMSETTINGS_H
+#ifndef MALENA_LISTITEMSETTINGS_H
+#define MALENA_LISTITEMSETTINGS_H
 
 #pragma once
 
@@ -45,4 +45,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LISTITEMSETTINGS_H
+#endif // MALENA_LISTITEMSETTINGS_H

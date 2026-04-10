@@ -2,8 +2,8 @@
 // SplitPanel.h
 //
 
-#ifndef SPLITPANEL_H
-#define SPLITPANEL_H
+#ifndef MALENA_SPLITPANEL_H
+#define MALENA_SPLITPANEL_H
 
 #pragma once
 
@@ -233,4 +233,4 @@ namespace ml
     { public: using SplitPanel::SplitPanel; };
 
 } // namespace ml
-#endif // SPLITPANEL_H
+#endif // MALENA_SPLITPANEL_H

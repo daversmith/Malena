@@ -2,8 +2,8 @@
 // TextAreaTheme.h
 //
 
-#ifndef TEXTAREATHEME_H
-#define TEXTAREATHEME_H
+#ifndef MALENA_TEXTAREATHEME_H
+#define MALENA_TEXTAREATHEME_H
 
 #pragma once
 
@@ -54,4 +54,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTAREATHEME_H
+#endif // MALENA_TEXTAREATHEME_H

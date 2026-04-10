@@ -2,8 +2,8 @@
 // List.h
 //
 
-#ifndef LIST_H
-#define LIST_H
+#ifndef MALENA_LIST_H
+#define MALENA_LIST_H
 
 #pragma once
 
@@ -244,4 +244,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LIST_H
+#endif // MALENA_LIST_H

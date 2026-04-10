@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/5/25.
 //
 
-#ifndef STATEMANAGER_H
-#define STATEMANAGER_H
+#ifndef MALENA_STATEMANAGER_H
+#define MALENA_STATEMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <type_traits>
@@ -176,4 +176,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/StateManager.tpp"
-#endif // STATEMANAGER_H
+#endif // MALENA_STATEMANAGER_H

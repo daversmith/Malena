@@ -2,8 +2,8 @@
 // InputTheme.h
 //
 
-#ifndef INPUTTHEME_H
-#define INPUTTHEME_H
+#ifndef MALENA_INPUTTHEME_H
+#define MALENA_INPUTTHEME_H
 
 #pragma once
 
@@ -86,4 +86,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // INPUTTHEME_H
+#endif // MALENA_INPUTTHEME_H

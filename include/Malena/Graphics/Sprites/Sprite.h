@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef SPRITE_H
-#define SPRITE_H
+#ifndef MALENA_SPRITE_H
+#define MALENA_SPRITE_H
 
 #pragma once
 
@@ -66,4 +66,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SPRITE_H
+#endif // MALENA_SPRITE_H

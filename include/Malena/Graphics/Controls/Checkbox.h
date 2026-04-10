@@ -2,8 +2,8 @@
 // Checkbox.h
 //
 
-#ifndef CHECKBOX_H
-#define CHECKBOX_H
+#ifndef MALENA_CHECKBOX_H
+#define MALENA_CHECKBOX_H
 
 #pragma once
 
@@ -131,4 +131,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CHECKBOX_H
+#endif // MALENA_CHECKBOX_H

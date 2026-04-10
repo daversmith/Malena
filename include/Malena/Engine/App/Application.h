@@ -5,8 +5,8 @@
 // Application.h
 //
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#ifndef MALENA_APPLICATION_H
+#define MALENA_APPLICATION_H
 
 #pragma once
 
@@ -189,4 +189,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // APPLICATION_H
+#endif // MALENA_APPLICATION_H

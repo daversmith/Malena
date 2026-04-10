@@ -2,8 +2,8 @@
 // ControlSettings.h
 //
 
-#ifndef CONTROLSETTINGS_H
-#define CONTROLSETTINGS_H
+#ifndef MALENA_CONTROLSETTINGS_H
+#define MALENA_CONTROLSETTINGS_H
 
 #pragma once
 
@@ -32,4 +32,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CONTROLSETTINGS_H
+#endif // MALENA_CONTROLSETTINGS_H

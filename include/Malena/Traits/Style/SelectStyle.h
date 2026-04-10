@@ -2,8 +2,8 @@
 // SelectStyle.h
 //
 
-#ifndef SELECTSTYLE_H
-#define SELECTSTYLE_H
+#ifndef MALENA_SELECTSTYLE_H
+#define MALENA_SELECTSTYLE_H
 
 #pragma once
 
@@ -44,4 +44,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SELECTSTYLE_H
+#endif // MALENA_SELECTSTYLE_H

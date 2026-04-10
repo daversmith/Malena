@@ -5,8 +5,8 @@
 // ManifestResources.h
 //
 
-#ifndef RESOURCES_H
-#define RESOURCES_H
+#ifndef MALENA_RESOURCES_H
+#define MALENA_RESOURCES_H
 
 #pragma once
 
@@ -155,4 +155,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RESOURCES_H
+#endif // MALENA_RESOURCES_H

@@ -2,8 +2,8 @@
 // Selectable.h
 //
 
-#ifndef SELECTABLE_H
-#define SELECTABLE_H
+#ifndef MALENA_SELECTABLE_H
+#define MALENA_SELECTABLE_H
 
 #pragma once
 
@@ -122,4 +122,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SELECTABLE_H
+#endif // MALENA_SELECTABLE_H

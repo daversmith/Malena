@@ -2,8 +2,8 @@
 // ListStyle.h
 //
 
-#ifndef LISTSTYLE_H
-#define LISTSTYLE_H
+#ifndef MALENA_LISTSTYLE_H
+#define MALENA_LISTSTYLE_H
 
 #pragma once
 
@@ -38,4 +38,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LISTSTYLE_H
+#endif // MALENA_LISTSTYLE_H

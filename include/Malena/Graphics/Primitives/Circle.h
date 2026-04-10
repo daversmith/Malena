@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef CIRCLE_H
-#define CIRCLE_H
+#ifndef MALENA_CIRCLE_H
+#define MALENA_CIRCLE_H
 
 #pragma once
 
@@ -60,4 +60,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CIRCLE_H
+#endif // MALENA_CIRCLE_H

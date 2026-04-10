@@ -2,8 +2,8 @@
 // MenuBar.h
 //
 
-#ifndef MENUBAR_H
-#define MENUBAR_H
+#ifndef MALENA_MENUBAR_H
+#define MALENA_MENUBAR_H
 
 #pragma once
 
@@ -208,4 +208,4 @@ namespace ml
     { public: using MenuBar::MenuBar; };
 
 } // namespace ml
-#endif // MENUBAR_H
+#endif // MALENA_MENUBAR_H

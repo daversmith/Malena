@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef GRAPHIC_H
-#define GRAPHIC_H
+#ifndef MALENA_GRAPHIC_H
+#define MALENA_GRAPHIC_H
 
 #pragma once
 

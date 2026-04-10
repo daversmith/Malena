@@ -5,8 +5,8 @@
 // PluginManager.h
 //
 
-#ifndef PLUGINHOST_H
-#define PLUGINHOST_H
+#ifndef MALENA_PLUGINHOST_H
+#define MALENA_PLUGINHOST_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Engine/App/Application.h>
@@ -183,4 +183,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // PLUGINHOST_H
+#endif // MALENA_PLUGINHOST_H

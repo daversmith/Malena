@@ -5,8 +5,8 @@
 // Created by Dave Smith on 11/13/22.
 //
 
-#ifndef PORTFOLIO_HELPER_H
-#define PORTFOLIO_HELPER_H
+#ifndef MALENA_PORTFOLIO_HELPER_H
+#define MALENA_PORTFOLIO_HELPER_H
 
 #pragma once
 /**
@@ -60,4 +60,4 @@ namespace ml
 	};
 
 } // namespace ml
-#endif // PORTFOLIO_HELPER_H
+#endif // MALENA_PORTFOLIO_HELPER_H

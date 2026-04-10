@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/14/26.
 //
 
-#ifndef DRAWABLEWRAPPER_H
-#define DRAWABLEWRAPPER_H
+#ifndef MALENA_DRAWABLEWRAPPER_H
+#define MALENA_DRAWABLEWRAPPER_H
 
 #include <Malena/Core/malena_export.h>
 
@@ -121,4 +121,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // DRAWABLEWRAPPER_H
+#endif // MALENA_DRAWABLEWRAPPER_H

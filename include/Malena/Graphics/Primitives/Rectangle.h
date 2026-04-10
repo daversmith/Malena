@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#ifndef MALENA_RECTANGLE_H
+#define MALENA_RECTANGLE_H
 
 #pragma once
 
@@ -69,4 +69,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RECTANGLE_H
+#endif // MALENA_RECTANGLE_H

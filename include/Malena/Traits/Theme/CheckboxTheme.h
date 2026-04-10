@@ -2,8 +2,8 @@
 // CheckboxTheme.h
 //
 
-#ifndef CHECKBOXTHEME_H
-#define CHECKBOXTHEME_H
+#ifndef MALENA_CHECKBOXTHEME_H
+#define MALENA_CHECKBOXTHEME_H
 
 #pragma once
 
@@ -82,4 +82,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CHECKBOXTHEME_H
+#endif // MALENA_CHECKBOXTHEME_H

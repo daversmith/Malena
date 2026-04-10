@@ -5,8 +5,8 @@
 // Draggable.h
 //
 
-#ifndef DRAGGABLE_H
-#define DRAGGABLE_H
+#ifndef MALENA_DRAGGABLE_H
+#define MALENA_DRAGGABLE_H
 
 #pragma once
 
@@ -126,4 +126,4 @@ namespace ml
 
 ML_EXPORT(DraggableDispatcher)
 
-#endif // DRAGGABLE_H
+#endif // MALENA_DRAGGABLE_H

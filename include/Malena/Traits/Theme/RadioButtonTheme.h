@@ -2,8 +2,8 @@
 // RadioButtonTheme.h
 //
 
-#ifndef RADIOBUTTONTHEME_H
-#define RADIOBUTTONTHEME_H
+#ifndef MALENA_RADIOBUTTONTHEME_H
+#define MALENA_RADIOBUTTONTHEME_H
 
 #pragma once
 
@@ -81,4 +81,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOBUTTONTHEME_H
+#endif // MALENA_RADIOBUTTONTHEME_H

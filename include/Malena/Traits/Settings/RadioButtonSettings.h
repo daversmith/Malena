@@ -2,8 +2,8 @@
 // RadioButtonSettings.h
 //
 
-#ifndef RADIOBUTTONSETTINGS_H
-#define RADIOBUTTONSETTINGS_H
+#ifndef MALENA_RADIOBUTTONSETTINGS_H
+#define MALENA_RADIOBUTTONSETTINGS_H
 
 #pragma once
 
@@ -44,4 +44,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOBUTTONSETTINGS_H
+#endif // MALENA_RADIOBUTTONSETTINGS_H

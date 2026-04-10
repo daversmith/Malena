@@ -5,8 +5,8 @@
 // ShaderLibrary.h
 //
 
-#ifndef SHADERLIBRARY_H
-#define SHADERLIBRARY_H
+#ifndef MALENA_SHADERLIBRARY_H
+#define MALENA_SHADERLIBRARY_H
 
 #include <Malena/Core/malena_export.h>
 #include <string_view>
@@ -208,4 +208,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SHADERLIBRARY_H
+#endif // MALENA_SHADERLIBRARY_H

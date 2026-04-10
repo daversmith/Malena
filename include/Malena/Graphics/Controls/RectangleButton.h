@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef RECTANGLEBUTTON_H
-#define RECTANGLEBUTTON_H
+#ifndef MALENA_RECTANGLEBUTTON_H
+#define MALENA_RECTANGLEBUTTON_H
 
 #pragma once
 
@@ -65,4 +65,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RECTANGLEBUTTON_H
+#endif // MALENA_RECTANGLEBUTTON_H

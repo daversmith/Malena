@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef ASSETSMANAGER_H
-#define ASSETSMANAGER_H
+#ifndef MALENA_ASSETSMANAGER_H
+#define MALENA_ASSETSMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FontManager.h>
@@ -150,4 +150,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/AssetsManager.tpp"
-#endif // ASSETSMANAGER_H
+#endif // MALENA_ASSETSMANAGER_H

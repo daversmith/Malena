@@ -2,8 +2,8 @@
 // RadioGroupSettings.h
 //
 
-#ifndef RADIOGROUPSETTINGS_H
-#define RADIOGROUPSETTINGS_H
+#ifndef MALENA_RADIOGROUPSETTINGS_H
+#define MALENA_RADIOGROUPSETTINGS_H
 
 #pragma once
 
@@ -56,4 +56,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOGROUPSETTINGS_H
+#endif // MALENA_RADIOGROUPSETTINGS_H

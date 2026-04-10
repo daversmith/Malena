@@ -2,8 +2,8 @@
 // Lifecycle.h
 //
 
-#ifndef LIFECYCLE_H
-#define LIFECYCLE_H
+#ifndef MALENA_LIFECYCLE_H
+#define MALENA_LIFECYCLE_H
 
 #pragma once
 
@@ -94,4 +94,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LIFECYCLE_H
+#endif // MALENA_LIFECYCLE_H

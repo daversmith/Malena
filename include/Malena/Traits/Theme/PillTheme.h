@@ -2,8 +2,8 @@
 // PillTheme.h
 //
 
-#ifndef PILLTHEME_H
-#define PILLTHEME_H
+#ifndef MALENA_PILLTHEME_H
+#define MALENA_PILLTHEME_H
 
 #pragma once
 
@@ -107,4 +107,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // PILLTHEME_H
+#endif // MALENA_PILLTHEME_H

@@ -2,8 +2,8 @@
 // RichTextBuffer.h
 //
 
-#ifndef RICHTEXTBUFFER_H
-#define RICHTEXTBUFFER_H
+#ifndef MALENA_RICHTEXTBUFFER_H
+#define MALENA_RICHTEXTBUFFER_H
 
 #pragma once
 
@@ -275,4 +275,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RICHTEXTBUFFER_H
+#endif // MALENA_RICHTEXTBUFFER_H

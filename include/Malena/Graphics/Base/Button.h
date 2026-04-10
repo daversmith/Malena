@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef MALENA_BUTTON_H
+#define MALENA_BUTTON_H
 
 #pragma once
 
@@ -258,4 +258,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../../src/Graphics/Base/Button.tpp"
-#endif // BUTTON_H
+#endif // MALENA_BUTTON_H

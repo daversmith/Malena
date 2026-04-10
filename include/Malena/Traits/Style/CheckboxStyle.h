@@ -2,8 +2,8 @@
 // CheckboxStyle.h
 //
 
-#ifndef CHECKBOXSTYLE_H
-#define CHECKBOXSTYLE_H
+#ifndef MALENA_CHECKBOXSTYLE_H
+#define MALENA_CHECKBOXSTYLE_H
 
 #pragma once
 
@@ -67,4 +67,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CHECKBOXSTYLE_H
+#endif // MALENA_CHECKBOXSTYLE_H

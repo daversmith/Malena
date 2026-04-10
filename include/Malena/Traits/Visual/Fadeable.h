@@ -3,8 +3,8 @@
 
 #pragma once
 
-#ifndef FADEABLE_H
-#define FADEABLE_H
+#ifndef MALENA_FADEABLE_H
+#define MALENA_FADEABLE_H
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Trait.h>
 #include <Malena/Engine/Events/EventManager.h>

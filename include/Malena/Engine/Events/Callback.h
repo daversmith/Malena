@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/21/26.
 //
 
-#ifndef CALLBACK_H
-#define CALLBACK_H
+#ifndef MALENA_CALLBACK_H
+#define MALENA_CALLBACK_H
 
 #include <Malena/Core/malena_export.h>
 #include <functional>
@@ -55,4 +55,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CALLBACK_H
+#endif // MALENA_CALLBACK_H

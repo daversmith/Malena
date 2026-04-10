@@ -2,8 +2,8 @@
 // ButtonTheme.h
 //
 
-#ifndef BUTTONTHEME_H
-#define BUTTONTHEME_H
+#ifndef MALENA_BUTTONTHEME_H
+#define MALENA_BUTTONTHEME_H
 
 #pragma once
 
@@ -90,4 +90,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // BUTTONTHEME_H
+#endif // MALENA_BUTTONTHEME_H

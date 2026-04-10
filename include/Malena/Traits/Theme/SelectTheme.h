@@ -2,8 +2,8 @@
 // SelectTheme.h
 //
 
-#ifndef SELECTTHEME_H
-#define SELECTTHEME_H
+#ifndef MALENA_SELECTTHEME_H
+#define MALENA_SELECTTHEME_H
 
 #pragma once
 
@@ -121,4 +121,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SELECTTHEME_H
+#endif // MALENA_SELECTTHEME_H

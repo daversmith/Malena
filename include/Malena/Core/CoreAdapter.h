@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef UICOMPONENTADAPTER_H
-#define UICOMPONENTADAPTER_H
+#ifndef MALENA_UICOMPONENTADAPTER_H
+#define MALENA_UICOMPONENTADAPTER_H
 
 #pragma once
 
@@ -95,4 +95,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // UICOMPONENTADAPTER_H
+#endif // MALENA_UICOMPONENTADAPTER_H

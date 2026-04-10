@@ -1,5 +1,5 @@
-#ifndef SCROLLPANEMANIFEST_H
-#define SCROLLPANEMANIFEST_H
+#ifndef MALENA_SCROLLPANEMANIFEST_H
+#define MALENA_SCROLLPANEMANIFEST_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Manifests/Manifest.h>

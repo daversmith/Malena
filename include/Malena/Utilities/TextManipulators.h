@@ -5,8 +5,8 @@
 // Created by Dave R. Smith on 3/12/25.
 //
 
-#ifndef TEXTMANIPULATORS_H
-#define TEXTMANIPULATORS_H
+#ifndef MALENA_TEXTMANIPULATORS_H
+#define MALENA_TEXTMANIPULATORS_H
 
 #pragma once
 
@@ -78,4 +78,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTMANIPULATORS_H
+#endif // MALENA_TEXTMANIPULATORS_H

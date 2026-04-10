@@ -2,8 +2,8 @@
 // SideMenu.h
 //
 
-#ifndef SIDEMENU_H
-#define SIDEMENU_H
+#ifndef MALENA_SIDEMENU_H
+#define MALENA_SIDEMENU_H
 
 #pragma once
 
@@ -196,4 +196,4 @@ namespace ml
     { public: using SideMenu::SideMenu; };
 
 } // namespace ml
-#endif // SIDEMENU_H
+#endif // MALENA_SIDEMENU_H

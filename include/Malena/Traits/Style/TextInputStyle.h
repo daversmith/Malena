@@ -2,8 +2,8 @@
 // TextInputStyle.h
 //
 
-#ifndef TEXTINPUTSTYLE_H
-#define TEXTINPUTSTYLE_H
+#ifndef MALENA_TEXTINPUTSTYLE_H
+#define MALENA_TEXTINPUTSTYLE_H
 
 #pragma once
 
@@ -88,4 +88,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTINPUTSTYLE_H
+#endif // MALENA_TEXTINPUTSTYLE_H

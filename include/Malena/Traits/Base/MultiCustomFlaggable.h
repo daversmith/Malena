@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef MULTICUSTOMFLAGGABLE_H
-#define MULTICUSTOMFLAGGABLE_H
+#ifndef MALENA_MULTICUSTOMFLAGGABLE_H
+#define MALENA_MULTICUSTOMFLAGGABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <unordered_map>
@@ -228,4 +228,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // MULTICUSTOMFLAGGABLE_H
+#endif // MALENA_MULTICUSTOMFLAGGABLE_H

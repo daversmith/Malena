@@ -2,8 +2,8 @@
 // TextInput.h
 //
 
-#ifndef TEXTINPUT_H
-#define TEXTINPUT_H
+#ifndef MALENA_TEXTINPUT_H
+#define MALENA_TEXTINPUT_H
 
 #pragma once
 
@@ -187,4 +187,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTINPUT_H
+#endif // MALENA_TEXTINPUT_H

@@ -5,8 +5,8 @@
 // Created by Dave R. Smith on 3/4/25.
 //
 
-#ifndef FLAGGABLE_H
-#define FLAGGABLE_H
+#ifndef MALENA_FLAGGABLE_H
+#define MALENA_FLAGGABLE_H
 
 #pragma once
 
@@ -112,4 +112,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/FlagManager.tpp"
-#endif // FLAGGABLE_H
+#endif // MALENA_FLAGGABLE_H

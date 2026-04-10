@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/5/25.
 //
 
-#ifndef STATEFUL_H
-#define STATEFUL_H
+#ifndef MALENA_STATEFUL_H
+#define MALENA_STATEFUL_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FlagManager.h>
@@ -54,4 +54,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // STATEFUL_H
+#endif // MALENA_STATEFUL_H

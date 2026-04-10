@@ -2,8 +2,8 @@
 // RadioGroup.h
 //
 
-#ifndef RADIOGROUP_H
-#define RADIOGROUP_H
+#ifndef MALENA_RADIOGROUP_H
+#define MALENA_RADIOGROUP_H
 
 #pragma once
 
@@ -143,4 +143,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOGROUP_H
+#endif // MALENA_RADIOGROUP_H

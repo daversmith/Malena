@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef TEXT_H
-#define TEXT_H
+#ifndef MALENA_TEXT_H
+#define MALENA_TEXT_H
 
 #pragma once
 
@@ -118,4 +118,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXT_H
+#endif // MALENA_TEXT_H

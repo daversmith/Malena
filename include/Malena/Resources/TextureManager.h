@@ -5,8 +5,8 @@
 // Created by Dave Smith on 4/8/25.
 //
 
-#ifndef TEXTUREMANAGER_H
-#define TEXTUREMANAGER_H
+#ifndef MALENA_TEXTUREMANAGER_H
+#define MALENA_TEXTUREMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Texture.hpp>
@@ -42,4 +42,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTUREMANAGER_H
+#endif // MALENA_TEXTUREMANAGER_H

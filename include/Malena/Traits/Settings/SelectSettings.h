@@ -2,8 +2,8 @@
 // SelectSettings.h
 //
 
-#ifndef SELECTSETTINGS_H
-#define SELECTSETTINGS_H
+#ifndef MALENA_SELECTSETTINGS_H
+#define MALENA_SELECTSETTINGS_H
 
 #pragma once
 
@@ -51,4 +51,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SELECTSETTINGS_H
+#endif // MALENA_SELECTSETTINGS_H

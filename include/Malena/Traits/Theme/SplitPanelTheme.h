@@ -1,6 +1,6 @@
 // SplitPanelTheme.h
-#ifndef SPLITPANELTHEME_H
-#define SPLITPANELTHEME_H
+#ifndef MALENA_SPLITPANELTHEME_H
+#define MALENA_SPLITPANELTHEME_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Theme/ControlTheme.h>

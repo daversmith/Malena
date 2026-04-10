@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef LOADERFUNCTIONS_H
-#define LOADERFUNCTIONS_H
+#ifndef MALENA_LOADERFUNCTIONS_H
+#define MALENA_LOADERFUNCTIONS_H
 /**
  * @file LoaderFunctions.h
  * @ingroup Utilities

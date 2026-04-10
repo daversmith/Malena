@@ -2,8 +2,8 @@
 // PillToggle.h
 //
 
-#ifndef PILLTOGGLE_H
-#define PILLTOGGLE_H
+#ifndef MALENA_PILLTOGGLE_H
+#define MALENA_PILLTOGGLE_H
 
 #pragma once
 
@@ -160,4 +160,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // PILLTOGGLE_H
+#endif // MALENA_PILLTOGGLE_H

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 11/13/22.
 //
 
-#ifndef PORTFOLIO_POSITIONABLE_H
-#define PORTFOLIO_POSITIONABLE_H
+#ifndef MALENA_PORTFOLIO_POSITIONABLE_H
+#define MALENA_PORTFOLIO_POSITIONABLE_H
 
 #pragma once
 
@@ -236,4 +236,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../../src/Traits/Spatial/Positionable.tpp"
-#endif // PORTFOLIO_POSITIONABLE_H
+#endif // MALENA_PORTFOLIO_POSITIONABLE_H

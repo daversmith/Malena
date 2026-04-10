@@ -5,8 +5,8 @@
 // CoreManager.h  (previously ComponentsManager.h)
 //
 
-#ifndef COMPONENTSMANAGER_H
-#define COMPONENTSMANAGER_H
+#ifndef MALENA_COMPONENTSMANAGER_H
+#define MALENA_COMPONENTSMANAGER_H
 
 #pragma once
 
@@ -121,4 +121,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Core/CoreManager.cpp"
-#endif // COMPONENTSMANAGER_H
+#endif // MALENA_COMPONENTSMANAGER_H

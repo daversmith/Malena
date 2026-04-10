@@ -2,8 +2,8 @@
 // ButtonSettings.h
 //
 
-#ifndef BUTTONSETTINGS_H
-#define BUTTONSETTINGS_H
+#ifndef MALENA_BUTTONSETTINGS_H
+#define MALENA_BUTTONSETTINGS_H
 
 #pragma once
 
@@ -96,4 +96,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // BUTTONSETTINGS_H
+#endif // MALENA_BUTTONSETTINGS_H

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef RESOURCEMANAGER_H
-#define RESOURCEMANAGER_H
+#ifndef MALENA_RESOURCEMANAGER_H
+#define MALENA_RESOURCEMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <algorithm>
@@ -83,4 +83,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/ResourceManager.tpp"
-#endif // RESOURCEMANAGER_H
+#endif // MALENA_RESOURCEMANAGER_H

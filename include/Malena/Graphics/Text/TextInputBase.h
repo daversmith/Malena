@@ -2,8 +2,8 @@
 // TextInputBase.h
 //
 
-#ifndef TEXTINPUTBASE_H
-#define TEXTINPUTBASE_H
+#ifndef MALENA_TEXTINPUTBASE_H
+#define MALENA_TEXTINPUTBASE_H
 
 #pragma once
 
@@ -243,4 +243,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTINPUTBASE_H
+#endif // MALENA_TEXTINPUTBASE_H

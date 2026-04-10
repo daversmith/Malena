@@ -2,8 +2,8 @@
 // Select.h
 //
 
-#ifndef SELECT_H
-#define SELECT_H
+#ifndef MALENA_SELECT_H
+#define MALENA_SELECT_H
 
 #pragma once
 
@@ -216,4 +216,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SELECT_H
+#endif // MALENA_SELECT_H

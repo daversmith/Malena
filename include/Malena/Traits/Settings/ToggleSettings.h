@@ -2,8 +2,8 @@
 // ToggleSettings.h
 //
 
-#ifndef TOGGLESETTINGS_H
-#define TOGGLESETTINGS_H
+#ifndef MALENA_TOGGLESETTINGS_H
+#define MALENA_TOGGLESETTINGS_H
 
 #pragma once
 
@@ -62,4 +62,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TOGGLESETTINGS_H
+#endif // MALENA_TOGGLESETTINGS_H

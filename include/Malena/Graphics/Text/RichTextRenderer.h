@@ -2,8 +2,8 @@
 // RichTextRenderer.h
 //
 
-#ifndef RICHTEXTRENDERER_H
-#define RICHTEXTRENDERER_H
+#ifndef MALENA_RICHTEXTRENDERER_H
+#define MALENA_RICHTEXTRENDERER_H
 
 #pragma once
 
@@ -157,4 +157,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RICHTEXTRENDERER_H
+#endif // MALENA_RICHTEXTRENDERER_H

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/5/25.
 //
 
-#ifndef SYSTEMSTATESENUM_H
-#define SYSTEMSTATESENUM_H
+#ifndef MALENA_SYSTEMSTATESENUM_H
+#define MALENA_SYSTEMSTATESENUM_H
 
 #include <Malena/Core/malena_export.h>
 
@@ -78,4 +78,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SYSTEMSTATESENUM_H
+#endif // MALENA_SYSTEMSTATESENUM_H

@@ -5,8 +5,8 @@
 // Unsubscribable.h
 //
 
-#ifndef UNSUBSCRIBABLE_H
-#define UNSUBSCRIBABLE_H
+#ifndef MALENA_UNSUBSCRIBABLE_H
+#define MALENA_UNSUBSCRIBABLE_H
 
 #pragma once
 
@@ -88,4 +88,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // UNSUBSCRIBABLE_H
+#endif // MALENA_UNSUBSCRIBABLE_H

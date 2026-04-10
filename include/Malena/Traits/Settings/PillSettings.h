@@ -2,8 +2,8 @@
 // PillSettings.h
 //
 
-#ifndef PILLSETTINGS_H
-#define PILLSETTINGS_H
+#ifndef MALENA_PILLSETTINGS_H
+#define MALENA_PILLSETTINGS_H
 
 #pragma once
 
@@ -80,4 +80,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // PILLSETTINGS_H
+#endif // MALENA_PILLSETTINGS_H

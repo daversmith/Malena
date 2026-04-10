@@ -2,8 +2,8 @@
 // TabbedPanel.h
 //
 
-#ifndef TABBEDPANEL_H
-#define TABBEDPANEL_H
+#ifndef MALENA_TABBEDPANEL_H
+#define MALENA_TABBEDPANEL_H
 
 #pragma once
 
@@ -267,4 +267,4 @@ namespace ml
     { public: using TabbedPanel::TabbedPanel; };
 
 } // namespace ml
-#endif // TABBEDPANEL_H
+#endif // MALENA_TABBEDPANEL_H

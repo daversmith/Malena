@@ -2,8 +2,8 @@
 // SegmentStyle.h
 //
 
-#ifndef SEGMENTSTYLE_H
-#define SEGMENTSTYLE_H
+#ifndef MALENA_SEGMENTSTYLE_H
+#define MALENA_SEGMENTSTYLE_H
 
 #pragma once
 
@@ -50,4 +50,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SEGMENTSTYLE_H
+#endif // MALENA_SEGMENTSTYLE_H
