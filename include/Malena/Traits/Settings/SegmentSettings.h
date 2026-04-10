@@ -2,8 +2,8 @@
 // SegmentSettings.h
 //
 
-#ifndef SEGMENTSETTINGS_H
-#define SEGMENTSETTINGS_H
+#ifndef MALENA_SEGMENTSETTINGS_H
+#define MALENA_SEGMENTSETTINGS_H
 
 #pragma once
 
@@ -71,4 +71,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SEGMENTSETTINGS_H
+#endif // MALENA_SEGMENTSETTINGS_H

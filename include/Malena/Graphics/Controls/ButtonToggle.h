@@ -2,8 +2,8 @@
 // ButtonToggle.h
 //
 
-#ifndef BUTTONTOGGLE_H
-#define BUTTONTOGGLE_H
+#ifndef MALENA_BUTTONTOGGLE_H
+#define MALENA_BUTTONTOGGLE_H
 
 #pragma once
 
@@ -116,4 +116,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // BUTTONTOGGLE_H
+#endif // MALENA_BUTTONTOGGLE_H

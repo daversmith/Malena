@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef CIRCLEBUTTON_H
-#define CIRCLEBUTTON_H
+#ifndef MALENA_CIRCLEBUTTON_H
+#define MALENA_CIRCLEBUTTON_H
 
 #pragma once
 
@@ -58,4 +58,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CIRCLEBUTTON_H
+#endif // MALENA_CIRCLEBUTTON_H

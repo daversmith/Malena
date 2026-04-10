@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef CONVEXBUTTON_H
-#define CONVEXBUTTON_H
+#ifndef MALENA_CONVEXBUTTON_H
+#define MALENA_CONVEXBUTTON_H
 
 #pragma once
 
@@ -62,4 +62,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CONVEXBUTTON_H
+#endif // MALENA_CONVEXBUTTON_H

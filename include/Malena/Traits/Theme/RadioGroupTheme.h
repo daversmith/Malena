@@ -2,8 +2,8 @@
 // RadioGroupTheme.h
 //
 
-#ifndef RADIOGROUPTHEME_H
-#define RADIOGROUPTHEME_H
+#ifndef MALENA_RADIOGROUPTHEME_H
+#define MALENA_RADIOGROUPTHEME_H
 
 #pragma once
 
@@ -57,4 +57,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOGROUPTHEME_H
+#endif // MALENA_RADIOGROUPTHEME_H

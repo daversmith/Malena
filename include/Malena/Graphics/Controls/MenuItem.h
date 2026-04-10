@@ -2,8 +2,8 @@
 // MenuItem.h
 //
 
-#ifndef MENUITEM_H
-#define MENUITEM_H
+#ifndef MALENA_MENUITEM_H
+#define MALENA_MENUITEM_H
 
 #pragma once
 
@@ -119,4 +119,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // MENUITEM_H
+#endif // MALENA_MENUITEM_H

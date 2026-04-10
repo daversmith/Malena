@@ -2,8 +2,8 @@
 // GraphicTheme.h
 //
 
-#ifndef GRAPHICTHEME_H
-#define GRAPHICTHEME_H
+#ifndef MALENA_GRAPHICTHEME_H
+#define MALENA_GRAPHICTHEME_H
 
 #pragma once
 
@@ -82,4 +82,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // GRAPHICTHEME_H
+#endif // MALENA_GRAPHICTHEME_H

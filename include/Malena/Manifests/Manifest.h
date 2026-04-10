@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef MANIFEST_H
-#define MANIFEST_H
+#ifndef MALENA_MANIFEST_H
+#define MALENA_MANIFEST_H
 
 #pragma once
 
@@ -121,4 +121,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Manifests/Manifest.tpp"
-#endif // MANIFEST_H
+#endif // MALENA_MANIFEST_H

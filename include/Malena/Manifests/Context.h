@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/5/25.
 //
 
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#ifndef MALENA_CONTEXT_H
+#define MALENA_CONTEXT_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/AssetsManager.h>
@@ -74,4 +74,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CONTEXT_H
+#endif // MALENA_CONTEXT_H

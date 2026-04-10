@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef SOUNDMANAGER_H
-#define SOUNDMANAGER_H
+#ifndef MALENA_SOUNDMANAGER_H
+#define MALENA_SOUNDMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/ResourceManager.h>
@@ -52,4 +52,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SOUNDMANAGER_H
+#endif // MALENA_SOUNDMANAGER_H

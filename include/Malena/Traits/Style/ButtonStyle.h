@@ -2,8 +2,8 @@
 // ButtonStyle.h
 //
 
-#ifndef BUTTONSTYLE_H
-#define BUTTONSTYLE_H
+#ifndef MALENA_BUTTONSTYLE_H
+#define MALENA_BUTTONSTYLE_H
 
 #pragma once
 
@@ -50,4 +50,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // BUTTONSTYLE_H
+#endif // MALENA_BUTTONSTYLE_H

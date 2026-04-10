@@ -2,8 +2,8 @@
 // ListItem.h
 //
 
-#ifndef LISTITEM_H
-#define LISTITEM_H
+#ifndef MALENA_LISTITEM_H
+#define MALENA_LISTITEM_H
 
 #pragma once
 
@@ -221,4 +221,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LISTITEM_H
+#endif // MALENA_LISTITEM_H

@@ -2,8 +2,8 @@
 // TextInputSettings.h
 //
 
-#ifndef TEXTINPUTSETTINGS_H
-#define TEXTINPUTSETTINGS_H
+#ifndef MALENA_TEXTINPUTSETTINGS_H
+#define MALENA_TEXTINPUTSETTINGS_H
 
 #pragma once
 
@@ -37,4 +37,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTINPUTSETTINGS_H
+#endif // MALENA_TEXTINPUTSETTINGS_H

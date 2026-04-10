@@ -5,8 +5,8 @@
 // EnumKey.h
 //
 
-#ifndef ENUMKEY_H
-#define ENUMKEY_H
+#ifndef MALENA_ENUMKEY_H
+#define MALENA_ENUMKEY_H
 
 #pragma once
 
@@ -95,4 +95,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // ENUMKEY_H
+#endif // MALENA_ENUMKEY_H

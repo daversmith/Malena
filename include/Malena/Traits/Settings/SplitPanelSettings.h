@@ -1,6 +1,6 @@
 // SplitPanelSettings.h
-#ifndef SPLITPANELSETTINGS_H
-#define SPLITPANELSETTINGS_H
+#ifndef MALENA_SPLITPANELSETTINGS_H
+#define MALENA_SPLITPANELSETTINGS_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>

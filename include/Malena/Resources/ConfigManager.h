@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef CONFIGMANAGER_H
-#define CONFIGMANAGER_H
+#ifndef MALENA_CONFIGMANAGER_H
+#define MALENA_CONFIGMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <type_traits>
@@ -152,4 +152,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/ConfigManager.tpp"
-#endif // CONFIGMANAGER_H
+#endif // MALENA_CONFIGMANAGER_H

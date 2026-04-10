@@ -5,8 +5,8 @@
 // Created by Dave Smith on 11/9/25.
 //
 
-#ifndef ROUNDEDRECTANGLE_H
-#define ROUNDEDRECTANGLE_H
+#ifndef MALENA_ROUNDEDRECTANGLE_H
+#define MALENA_ROUNDEDRECTANGLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
@@ -135,4 +135,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // ROUNDEDRECTANGLE_H
+#endif // MALENA_ROUNDEDRECTANGLE_H

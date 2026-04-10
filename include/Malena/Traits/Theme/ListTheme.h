@@ -2,8 +2,8 @@
 // ListTheme.h
 //
 
-#ifndef LISTTHEME_H
-#define LISTTHEME_H
+#ifndef MALENA_LISTTHEME_H
+#define MALENA_LISTTHEME_H
 
 #pragma once
 
@@ -54,4 +54,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LISTTHEME_H
+#endif // MALENA_LISTTHEME_H

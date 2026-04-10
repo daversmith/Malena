@@ -5,8 +5,8 @@
 // Created by Dave Smith on 11/13/22.
 //
 
-#ifndef ALIGN_H
-#define ALIGN_H
+#ifndef MALENA_ALIGN_H
+#define MALENA_ALIGN_H
 
 #pragma once
 
@@ -201,4 +201,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Utilities/Align.tpp"
-#endif // ALIGN_H
+#endif // MALENA_ALIGN_H

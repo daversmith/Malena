@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/7/26.
 //
 
-#ifndef MANIFESTALIASES_H
-#define MANIFESTALIASES_H
+#ifndef MALENA_MANIFESTALIASES_H
+#define MALENA_MANIFESTALIASES_H
 
 #include <Malena/Core/malena_export.h>
 
@@ -144,4 +144,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // MANIFESTALIASES_H
+#endif // MALENA_MANIFESTALIASES_H

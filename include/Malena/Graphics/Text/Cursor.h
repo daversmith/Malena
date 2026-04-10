@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef CURSOR_H
-#define CURSOR_H
+#ifndef MALENA_CURSOR_H
+#define MALENA_CURSOR_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/FontManager.h>
@@ -57,4 +57,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CURSOR_H
+#endif // MALENA_CURSOR_H

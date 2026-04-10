@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef MALENA_EXPORT_H
-#define MALENA_EXPORT_H
+#ifndef MALENA_MALENA_EXPORT_H
+#define MALENA_MALENA_EXPORT_H
 
 #pragma once
 
@@ -18,4 +18,4 @@
 #  define MALENA_API
 #endif
 
-#endif // MALENA_EXPORT_H
+#endif // MALENA_MALENA_EXPORT_H

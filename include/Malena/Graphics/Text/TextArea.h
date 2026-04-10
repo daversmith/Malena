@@ -2,8 +2,8 @@
 // TextArea.h
 //
 
-#ifndef TEXTAREA_H
-#define TEXTAREA_H
+#ifndef MALENA_TEXTAREA_H
+#define MALENA_TEXTAREA_H
 
 #pragma once
 
@@ -124,4 +124,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTAREA_H
+#endif // MALENA_TEXTAREA_H

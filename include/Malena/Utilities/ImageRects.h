@@ -5,8 +5,8 @@
 // Created by Dave Smith on 4/9/25.
 //
 
-#ifndef IMAGERECTS_H
-#define IMAGERECTS_H
+#ifndef MALENA_IMAGERECTS_H
+#define MALENA_IMAGERECTS_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics/Rect.hpp>
@@ -92,4 +92,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // IMAGERECTS_H
+#endif // MALENA_IMAGERECTS_H

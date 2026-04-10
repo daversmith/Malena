@@ -2,8 +2,8 @@
 // CheckboxSettings.h
 //
 
-#ifndef CHECKBOXSETTINGS_H
-#define CHECKBOXSETTINGS_H
+#ifndef MALENA_CHECKBOXSETTINGS_H
+#define MALENA_CHECKBOXSETTINGS_H
 
 #pragma once
 
@@ -47,4 +47,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CHECKBOXSETTINGS_H
+#endif // MALENA_CHECKBOXSETTINGS_H

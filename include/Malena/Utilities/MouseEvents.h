@@ -5,8 +5,8 @@
 // Created by Dave R. Smith on 3/3/25.
 //
 
-#ifndef MOUSEEVENTS_H
-#define MOUSEEVENTS_H
+#ifndef MALENA_MOUSEEVENTS_H
+#define MALENA_MOUSEEVENTS_H
 
 #pragma once
 
@@ -101,4 +101,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // MOUSEEVENTS_H
+#endif // MALENA_MOUSEEVENTS_H

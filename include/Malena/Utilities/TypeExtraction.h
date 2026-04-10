@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/10/26.
 //
 
-#ifndef TYPEEXTRACTION_H
-#define TYPEEXTRACTION_H
+#ifndef MALENA_TYPEEXTRACTION_H
+#define MALENA_TYPEEXTRACTION_H
 
 /**
  * @file TypeExtraction.h
@@ -52,4 +52,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TYPEEXTRACTION_H
+#endif // MALENA_TYPEEXTRACTION_H

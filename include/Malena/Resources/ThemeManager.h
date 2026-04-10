@@ -2,8 +2,8 @@
 // ThemeManager.h
 //
 
-#ifndef THEMEMANAGER_H
-#define THEMEMANAGER_H
+#ifndef MALENA_THEMEMANAGER_H
+#define MALENA_THEMEMANAGER_H
 
 #pragma once
 
@@ -169,4 +169,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // THEMEMANAGER_H
+#endif // MALENA_THEMEMANAGER_H

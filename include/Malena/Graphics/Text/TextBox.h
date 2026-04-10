@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef TEXTBOX_H
-#define TEXTBOX_H
+#ifndef MALENA_TEXTBOX_H
+#define MALENA_TEXTBOX_H
 
 #pragma once
 
@@ -30,4 +30,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTBOX_H
+#endif // MALENA_TEXTBOX_H

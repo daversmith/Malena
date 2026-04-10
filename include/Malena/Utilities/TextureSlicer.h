@@ -5,8 +5,8 @@
 // Created by Dave Smith on 4/9/25.
 //
 
-#ifndef TEXTURESLICER_H
-#define TEXTURESLICER_H
+#ifndef MALENA_TEXTURESLICER_H
+#define MALENA_TEXTURESLICER_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
@@ -61,4 +61,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTURESLICER_H
+#endif // MALENA_TEXTURESLICER_H

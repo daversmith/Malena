@@ -1,5 +1,5 @@
-#ifndef SCROLLPANE_H
-#define SCROLLPANE_H
+#ifndef MALENA_SCROLLPANE_H
+#define MALENA_SCROLLPANE_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>

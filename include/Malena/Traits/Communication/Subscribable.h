@@ -5,8 +5,8 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#ifndef SUBSCRIBABLE_H
-#define SUBSCRIBABLE_H
+#ifndef MALENA_SUBSCRIBABLE_H
+#define MALENA_SUBSCRIBABLE_H
 
 #pragma once
 

@@ -5,8 +5,8 @@
 // SceneManager.h
 //
 
-#ifndef SCENEMANAGER_H
-#define SCENEMANAGER_H
+#ifndef MALENA_SCENEMANAGER_H
+#define MALENA_SCENEMANAGER_H
 
 #pragma once
 
@@ -404,4 +404,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SCENEMANAGER_H
+#endif // MALENA_SCENEMANAGER_H

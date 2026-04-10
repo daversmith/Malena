@@ -2,8 +2,8 @@
 // SegmentTheme.h
 //
 
-#ifndef SEGMENTTHEME_H
-#define SEGMENTTHEME_H
+#ifndef MALENA_SEGMENTTHEME_H
+#define MALENA_SEGMENTTHEME_H
 
 #pragma once
 
@@ -78,4 +78,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SEGMENTTHEME_H
+#endif // MALENA_SEGMENTTHEME_H

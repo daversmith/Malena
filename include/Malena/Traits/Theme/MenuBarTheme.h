@@ -1,6 +1,6 @@
 // MenuBarTheme.h
-#ifndef MENUBARTHEME_H
-#define MENUBARTHEME_H
+#ifndef MALENA_MENUBARTHEME_H
+#define MALENA_MENUBARTHEME_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Theme/ControlTheme.h>

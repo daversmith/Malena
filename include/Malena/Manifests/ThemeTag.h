@@ -2,8 +2,8 @@
 // ThemeTag.h
 //
 
-#ifndef THEMETAG_H
-#define THEMETAG_H
+#ifndef MALENA_THEMETAG_H
+#define MALENA_THEMETAG_H
 
 #pragma once
 
@@ -30,4 +30,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // THEMETAG_H
+#endif // MALENA_THEMETAG_H

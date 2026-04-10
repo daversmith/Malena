@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/21/26.
 //
 
-#ifndef FOCUSABLE_H
-#define FOCUSABLE_H
+#ifndef MALENA_FOCUSABLE_H
+#define MALENA_FOCUSABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventReceiver.h>
@@ -80,4 +80,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // FOCUSABLE_H
+#endif // MALENA_FOCUSABLE_H

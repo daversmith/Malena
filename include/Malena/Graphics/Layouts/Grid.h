@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef GRID_H
-#define GRID_H
+#ifndef MALENA_GRID_H
+#define MALENA_GRID_H
 
 #pragma once
 
@@ -140,4 +140,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // GRID_H
+#endif // MALENA_GRID_H

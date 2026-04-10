@@ -2,8 +2,8 @@
 // Toolbar.h
 //
 
-#ifndef TOOLBAR_H
-#define TOOLBAR_H
+#ifndef MALENA_TOOLBAR_H
+#define MALENA_TOOLBAR_H
 
 #pragma once
 
@@ -195,4 +195,4 @@ namespace ml
     { public: using Toolbar::Toolbar; };
 
 } // namespace ml
-#endif // TOOLBAR_H
+#endif // MALENA_TOOLBAR_H

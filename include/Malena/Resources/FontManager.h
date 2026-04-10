@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef FONTMANAGER_H
-#define FONTMANAGER_H
+#ifndef MALENA_FONTMANAGER_H
+#define MALENA_FONTMANAGER_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/ResourceManager.h>
@@ -72,4 +72,4 @@ namespace ml
 } // namespace ml
 
 #include "../../../src/Resources/FontManager.tpp"
-#endif // FONTMANAGER_H
+#endif // MALENA_FONTMANAGER_H

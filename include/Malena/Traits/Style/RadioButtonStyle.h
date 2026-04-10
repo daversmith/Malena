@@ -2,8 +2,8 @@
 // RadioButtonStyle.h
 //
 
-#ifndef RADIOBUTTONSTYLE_H
-#define RADIOBUTTONSTYLE_H
+#ifndef MALENA_RADIOBUTTONSTYLE_H
+#define MALENA_RADIOBUTTONSTYLE_H
 
 #pragma once
 
@@ -69,4 +69,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // RADIOBUTTONSTYLE_H
+#endif // MALENA_RADIOBUTTONSTYLE_H

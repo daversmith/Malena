@@ -1,6 +1,6 @@
 // TabbedPanelSettings.h
-#ifndef TABBEDPANELSETTINGS_H
-#define TABBEDPANELSETTINGS_H
+#ifndef MALENA_TABBEDPANELSETTINGS_H
+#define MALENA_TABBEDPANELSETTINGS_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>

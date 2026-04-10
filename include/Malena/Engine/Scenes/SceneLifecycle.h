@@ -2,8 +2,8 @@
 // SceneLifecycle.h
 //
 
-#ifndef SCENELIFECYCLE_H
-#define SCENELIFECYCLE_H
+#ifndef MALENA_SCENELIFECYCLE_H
+#define MALENA_SCENELIFECYCLE_H
 
 #pragma once
 
@@ -124,4 +124,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // SCENELIFECYCLE_H
+#endif // MALENA_SCENELIFECYCLE_H

@@ -2,8 +2,8 @@
 // Created by Dave Smith on 4/1/26.
 //
 
-#ifndef PANEL_H
-#define PANEL_H
+#ifndef MALENA_PANEL_H
+#define MALENA_PANEL_H
 
 #pragma once
 

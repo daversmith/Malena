@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/11/26.
 //
 
-#ifndef TRAIT_H
-#define TRAIT_H
+#ifndef MALENA_TRAIT_H
+#define MALENA_TRAIT_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Base/Customizable.h>
@@ -67,4 +67,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TRAIT_H
+#endif // MALENA_TRAIT_H

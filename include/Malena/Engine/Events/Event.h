@@ -2,8 +2,8 @@
 // Event.h
 //
 
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef MALENA_EVENT_H
+#define MALENA_EVENT_H
 
 #pragma once
 
@@ -75,4 +75,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // EVENT_H
+#endif // MALENA_EVENT_H

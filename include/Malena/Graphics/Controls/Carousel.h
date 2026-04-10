@@ -5,8 +5,8 @@
 // Carousel.h
 //
 
-#ifndef CAROUSEL_H
-#define CAROUSEL_H
+#ifndef MALENA_CAROUSEL_H
+#define MALENA_CAROUSEL_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Core/Core.h>
@@ -355,4 +355,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CAROUSEL_H
+#endif // MALENA_CAROUSEL_H

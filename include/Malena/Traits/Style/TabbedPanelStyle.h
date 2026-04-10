@@ -1,6 +1,6 @@
 // TabbedPanelStyle.h
-#ifndef TABBEDPANELSTYLE_H
-#define TABBEDPANELSTYLE_H
+#ifndef MALENA_TABBEDPANELSTYLE_H
+#define MALENA_TABBEDPANELSTYLE_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/TabbedPanelSettings.h>

@@ -2,8 +2,8 @@
 // ControlTheme.h
 //
 
-#ifndef CONTROLTHEME_H
-#define CONTROLTHEME_H
+#ifndef MALENA_CONTROLTHEME_H
+#define MALENA_CONTROLTHEME_H
 
 #pragma once
 
@@ -97,4 +97,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // CONTROLTHEME_H
+#endif // MALENA_CONTROLTHEME_H

@@ -2,8 +2,8 @@
 // Themeable.h
 //
 
-#ifndef THEMEABLE_H
-#define THEMEABLE_H
+#ifndef MALENA_THEMEABLE_H
+#define MALENA_THEMEABLE_H
 
 #pragma once
 
@@ -142,4 +142,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // THEMEABLE_H
+#endif // MALENA_THEMEABLE_H

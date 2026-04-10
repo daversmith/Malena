@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef DEFAULTMANIFEST_H
-#define DEFAULTMANIFEST_H
+#ifndef MALENA_DEFAULTMANIFEST_H
+#define MALENA_DEFAULTMANIFEST_H
 
 #include <Malena/Core/malena_export.h>
 
@@ -45,4 +45,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // DEFAULTMANIFEST_H
+#endif // MALENA_DEFAULTMANIFEST_H

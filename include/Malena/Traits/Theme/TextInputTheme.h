@@ -2,8 +2,8 @@
 // TextInputTheme.h
 //
 
-#ifndef TEXTINPUTTHEME_H
-#define TEXTINPUTTHEME_H
+#ifndef MALENA_TEXTINPUTTHEME_H
+#define MALENA_TEXTINPUTTHEME_H
 
 #pragma once
 
@@ -57,4 +57,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TEXTINPUTTHEME_H
+#endif // MALENA_TEXTINPUTTHEME_H

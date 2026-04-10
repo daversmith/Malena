@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/20/26.
 //
 
-#ifndef CLICKABLE_H
-#define CLICKABLE_H
+#ifndef MALENA_CLICKABLE_H
+#define MALENA_CLICKABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/Fireable.h>
@@ -80,4 +80,4 @@ namespace ml
 } // namespace ml
 
 ML_EXPORT(ClickableDispatcher);
-#endif // CLICKABLE_H
+#endif // MALENA_CLICKABLE_H

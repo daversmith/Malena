@@ -2,8 +2,8 @@
 // ToggleGroup.h
 //
 
-#ifndef TOGGLEGROUP_H
-#define TOGGLEGROUP_H
+#ifndef MALENA_TOGGLEGROUP_H
+#define MALENA_TOGGLEGROUP_H
 
 #pragma once
 
@@ -218,4 +218,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TOGGLEGROUP_H
+#endif // MALENA_TOGGLEGROUP_H

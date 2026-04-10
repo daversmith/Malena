@@ -2,8 +2,8 @@
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
 
-#ifndef CONVEX_H
-#define CONVEX_H
+#ifndef MALENA_CONVEX_H
+#define MALENA_CONVEX_H
 
 #pragma once
 
@@ -70,4 +70,4 @@ namespace ml
 	template<typename MANIFEST>
 	class ConvexWith : public Convex, public Customizable<MANIFEST> {};
 } // namespace ml
-#endif // CONVEX_H
+#endif // MALENA_CONVEX_H

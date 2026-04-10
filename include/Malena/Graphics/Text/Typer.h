@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef TYPER_H
-#define TYPER_H
+#ifndef MALENA_TYPER_H
+#define MALENA_TYPER_H
 
 #pragma once
 
@@ -56,4 +56,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // TYPER_H
+#endif // MALENA_TYPER_H

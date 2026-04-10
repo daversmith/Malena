@@ -2,8 +2,8 @@
 // PillStyle.h
 //
 
-#ifndef PILLSTYLE_H
-#define PILLSTYLE_H
+#ifndef MALENA_PILLSTYLE_H
+#define MALENA_PILLSTYLE_H
 
 #pragma once
 
@@ -88,4 +88,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // PILLSTYLE_H
+#endif // MALENA_PILLSTYLE_H

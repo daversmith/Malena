@@ -1,6 +1,6 @@
 // ToolbarSettings.h
-#ifndef TOOLBARSETTINGS_H
-#define TOOLBARSETTINGS_H
+#ifndef MALENA_TOOLBARSETTINGS_H
+#define MALENA_TOOLBARSETTINGS_H
 #pragma once
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Settings/ControlSettings.h>

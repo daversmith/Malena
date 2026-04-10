@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/3/25.
 //
 
-#ifndef ENUMCLASSHASH_H
-#define ENUMCLASSHASH_H
+#ifndef MALENA_ENUMCLASSHASH_H
+#define MALENA_ENUMCLASSHASH_H
 /**
  * @file EnumClassHash.h
  * @ingroup Utilities

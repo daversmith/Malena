@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/21/26.
 //
 
-#ifndef EVENTDISPATCHER_H
-#define EVENTDISPATCHER_H
+#ifndef MALENA_EVENTDISPATCHER_H
+#define MALENA_EVENTDISPATCHER_H
 #include <Malena/Core/malena_export.h>
 #include "Fireable.h"
 #include <optional>

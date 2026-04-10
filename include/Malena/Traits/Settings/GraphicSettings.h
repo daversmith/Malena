@@ -2,8 +2,8 @@
 // GraphicSettings.h
 //
 
-#ifndef GRAPHICSETTINGS_H
-#define GRAPHICSETTINGS_H
+#ifndef MALENA_GRAPHICSETTINGS_H
+#define MALENA_GRAPHICSETTINGS_H
 
 #pragma once
 
@@ -38,4 +38,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // GRAPHICSETTINGS_H
+#endif // MALENA_GRAPHICSETTINGS_H

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/20/26.
 //
 
-#ifndef HOVERABLE_H
-#define HOVERABLE_H
+#ifndef MALENA_HOVERABLE_H
+#define MALENA_HOVERABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Engine/Events/EventReceiver.h>
@@ -92,4 +92,4 @@ namespace ml
 } // namespace ml
 
 ML_EXPORT(HoverableDispatcher)
-#endif // HOVERABLE_H
+#endif // MALENA_HOVERABLE_H

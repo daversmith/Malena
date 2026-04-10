@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef VERTEXARRAY_H
-#define VERTEXARRAY_H
+#ifndef MALENA_VERTEXARRAY_H
+#define MALENA_VERTEXARRAY_H
 
 #pragma once
 
@@ -37,4 +37,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // VERTEXARRAY_H
+#endif // MALENA_VERTEXARRAY_H

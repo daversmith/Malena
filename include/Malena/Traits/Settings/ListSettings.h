@@ -2,8 +2,8 @@
 // ListSettings.h
 //
 
-#ifndef LISTSETTINGS_H
-#define LISTSETTINGS_H
+#ifndef MALENA_LISTSETTINGS_H
+#define MALENA_LISTSETTINGS_H
 
 #pragma once
 
@@ -50,4 +50,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // LISTSETTINGS_H
+#endif // MALENA_LISTSETTINGS_H

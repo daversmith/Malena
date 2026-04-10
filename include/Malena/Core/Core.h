@@ -5,8 +5,8 @@
 // Created by Dave Smith on 10/4/25.
 //
 
-#ifndef UICOMPONENTBASE_H
-#define UICOMPONENTBASE_H
+#ifndef MALENA_UICOMPONENTBASE_H
+#define MALENA_UICOMPONENTBASE_H
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
@@ -84,4 +84,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // UICOMPONENTBASE_H
+#endif // MALENA_UICOMPONENTBASE_H

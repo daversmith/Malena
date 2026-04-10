@@ -5,8 +5,8 @@
 // Created by Dave R. Smith on 3/5/25.
 //
 
-#ifndef APPMANAGER_H
-#define APPMANAGER_H
+#ifndef MALENA_APPMANAGER_H
+#define MALENA_APPMANAGER_H
 
 #pragma once
 

@@ -5,8 +5,8 @@
 // Created by Dave Smith on 3/20/26.
 //
 
-#ifndef FIREABLE_H
-#define FIREABLE_H
+#ifndef MALENA_FIREABLE_H
+#define MALENA_FIREABLE_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Core/Export.h>
@@ -143,4 +143,4 @@ namespace ml::exports
 /// @endcond
 
 #include "../../../../src/Engine/Events/Fireable.tpp"
-#endif // FIREABLE_H
+#endif // MALENA_FIREABLE_H

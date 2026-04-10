@@ -2,8 +2,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef COMPONENT_H
-#define COMPONENT_H
+#ifndef MALENA_COMPONENT_H
+#define MALENA_COMPONENT_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Interaction/Draggable.h>
@@ -300,4 +300,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // COMPONENT_H
+#endif // MALENA_COMPONENT_H

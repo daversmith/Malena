@@ -1,8 +1,8 @@
 // Copyright (c) 2025 Dave R. Smith. All rights reserved.
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
-#ifndef UICOMPONENT_H
-#define UICOMPONENT_H
+#ifndef MALENA_UICOMPONENT_H
+#define MALENA_UICOMPONENT_H
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Resources/StateManager.h>
@@ -70,4 +70,4 @@ namespace ml
 
 } // namespace ml
 
-#endif // UICOMPONENT_H
+#endif // MALENA_UICOMPONENT_H
