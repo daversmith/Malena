@@ -16,6 +16,7 @@
 #include <Malena/Engine/App/AppManager.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Manifests/ManifestResources.h>
+#include <cstdint>
 #include <string>
 #include <type_traits>
 
@@ -36,18 +37,26 @@ namespace ml
     public:
         /**
          * @brief Construct with an explicit video mode and window title.
+         *
+         * @param windowStyle  SFML style flags (e.g. @c sf::Style::Default,
+         *                     @c sf::Style::None). Defaults to @c sf::Style::Default.
          */
         ApplicationBase(const sf::VideoMode& videoMode,
                         const std::string& title,
-                        sf::RenderWindow& window = WindowManager::getWindow());
+                        sf::RenderWindow& window = WindowManager::getWindow(),
+                        AppManager::Architecture architecture = AppManager::MVC,
+                        std::uint32_t windowStyle = sf::Style::Default);
 
         /**
          * @brief Construct from pixel dimensions and bit depth.
+         *
+         * @param windowStyle  SFML style flags. Defaults to @c sf::Style::Default.
          */
         ApplicationBase(unsigned int screenWidth,
                         unsigned int screenHeight,
                         unsigned int bitDepth,
-                        const std::string& title);
+                        const std::string& title,
+                        std::uint32_t windowStyle = sf::Style::Default);
 
 
         /**
