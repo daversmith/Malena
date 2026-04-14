@@ -6,35 +6,48 @@
 
 namespace ml
 {
-	ApplicationBase::ApplicationBase(const sf::VideoMode &videoMode, const std::string &title,
-							 sf::RenderWindow &window) : AppManager(videoMode, title, window)
-	{
-	}
+    ApplicationBase::ApplicationBase(const sf::VideoMode& videoMode,
+                                     const std::string& title,
+                                     sf::RenderWindow& window,
+                                     AppManager::Architecture architecture,
+                                     std::uint32_t windowStyle)
+        : AppManager(videoMode, title, window, architecture, windowStyle)
+    {
+    }
 
-	ApplicationBase::ApplicationBase(unsigned int screenWidth, unsigned int screenHeight, unsigned int bitDepth,
-		const std::string &title) : ApplicationBase(sf::VideoMode({screenWidth, screenHeight}, bitDepth), title)
-	{
-	}
+    ApplicationBase::ApplicationBase(unsigned int screenWidth,
+                                     unsigned int screenHeight,
+                                     unsigned int bitDepth,
+                                     const std::string& title,
+                                     std::uint32_t windowStyle)
+        : ApplicationBase(sf::VideoMode({screenWidth, screenHeight}, bitDepth),
+                          title,
+                          WindowManager::getWindow(),
+                          AppManager::MVC,
+                          windowStyle)
+    {
+    }
 
+    void ApplicationBase::addComponent(Core& component)
+    {
+        CoreManager<Core>::addComponent(component);
+    }
 
-	void ApplicationBase::addComponent(Core &component)
-	{
-		CoreManager<Core>::addComponent(component);  // instance call via inheritance
-	}
+    void ApplicationBase::clearEvents()
+    {
+        EventManager::clear();
+    }
 
-	void ApplicationBase::clearEvents()
-	{
-		EventManager::clear();
-	}
+    void ApplicationBase::reset()
+    {
+        EventManager::clear();
+        MessageManager::clear();
+        CoreManager<Core>::clear();
+    }
 
-	void ApplicationBase::reset()
-	{
-		EventManager::clear();
-		MessageManager::clear();
-		CoreManager<Core>::clear();  // instance call via inheritance
-	}
-	ApplicationBase::~ApplicationBase()
-	{
-		ml::ThemeManager::shutdown();
-	}
+    ApplicationBase::~ApplicationBase()
+    {
+        ml::ThemeManager::shutdown();
+    }
+
 } // namespace ml
