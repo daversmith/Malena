@@ -411,6 +411,15 @@ namespace ml
 
     // ── Tab management ────────────────────────────────────────────────────────
 
+    void TabbedPanel::addTab(Tab tab)
+    {
+        _tabs.push_back(std::move(tab));
+        computeTabLayout();
+
+        if (_activeIdx < 0)
+            selectTab(0);
+    }
+
     void TabbedPanel::removeTab(std::size_t index)
     {
         if (index >= _tabs.size()) return;

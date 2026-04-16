@@ -25,6 +25,7 @@
 #include <vector>
 #include <type_traits>
 #include <SFML/System/Vector2.hpp>
+#include <Malena/Graphics/Controls/Tab.h>
 #include <Malena/Utilities/HasSetSize.h>
 
 namespace ml
@@ -86,16 +87,6 @@ namespace ml
         using TabPosition = TabbedPanelSettings::TabPosition;
 
     private:
-        struct Tab
-        {
-            std::string                       label;
-            std::unique_ptr<ml::Core>         content;
-            std::function<void(sf::Vector2f)> resizeFn;   ///< calls setSize if supported
-            const sf::Texture*                icon      = nullptr;
-            bool                              closeable = false;
-            float                             x         = 0.f;  ///< computed position in strip
-            float                             width     = 0.f;  ///< computed width
-        };
 
         std::vector<Tab>  _tabs;
         int               _activeIdx  = -1;
@@ -183,32 +174,25 @@ namespace ml
          * @param closeable Whether this tab has a close button.
          * @return Zero-based index of the new tab.
          */
+        /**
+         * @brief Add a pre-built @c Tab.
+         *
+         * @param tab  A @c Tab constructed by the caller. Ownership of the
+         *             tab's content is transferred to this panel.
+         */
+        void addTab(Tab tab);
+
+        /**
+         * @brief Convenience overload — constructs a @c Tab inline.
+         */
         template<typename T>
         T& addTab(const std::string& label,
                   std::unique_ptr<T>  content,
                   const sf::Texture*  icon      = nullptr,
                   bool                closeable = false)
         {
-            static_assert(std::is_base_of_v<ml::Core, T>,
-                "addTab() content must derive from ml::Core");
-
             T* ptr = content.get();
-
-            Tab tab;
-            tab.label     = label;
-            tab.content   = std::move(content);
-            tab.icon      = icon;
-            tab.closeable = closeable;
-
-            if constexpr (detail::has_setSize<T>::value)
-                tab.resizeFn = [ptr](sf::Vector2f sz){ ptr->setSize(sz); };
-
-            _tabs.push_back(std::move(tab));
-            computeTabLayout();
-
-            if (_activeIdx < 0)
-                selectTab(0);
-
+            addTab(Tab(label, std::move(content), icon, closeable));
             return *ptr;
         }
 

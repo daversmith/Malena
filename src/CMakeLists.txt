@@ -22,6 +22,13 @@ target_include_directories(Malena
 # Set C++ standard
 target_compile_features(Malena PUBLIC cxx_std_17)
 
+# On macOS, SFML Audio transitively includes Foundation framework headers (via
+# CoreAudio/AudioToolbox) which contain Objective-C syntax. Compile as
+# Objective-C++ so the @ directives are understood by the compiler.
+if(APPLE)
+    target_compile_options(Malena PUBLIC -x objective-c++)
+endif()
+
 # MALENA_EXPORTS: consumed by malena_export.h to emit dllexport when building the DLL.
 target_compile_definitions(Malena PRIVATE $<$<BOOL:${BUILD_SHARED_LIBS}>:MALENA_EXPORTS>)
 

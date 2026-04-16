@@ -164,5 +164,4 @@ namespace ml
 
 } // namespace ml
 
-#include "../../../../src/Traits/Visual/Fadeable.cpp"
 #endif

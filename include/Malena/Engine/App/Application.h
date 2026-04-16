@@ -16,6 +16,7 @@
 #include <Malena/Engine/App/AppManager.h>
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Manifests/ManifestResources.h>
+#include <Malena/Traits/Base/MultiCustomStateManager.h>
 #include <cstdint>
 #include <string>
 #include <type_traits>
@@ -186,7 +187,8 @@ namespace ml
      */
     template<typename TManifest>
     class ApplicationWith : public ApplicationBase,
-                             public ml::ManifestResources<TManifest>
+                             public ml::ManifestResources<TManifest>,
+                             public GatherStates<TManifest>::type
     {
     public:
         /// Unified resource accessor — Resources::get(Images::Icon)
@@ -194,6 +196,12 @@ namespace ml
 
         using ApplicationBase::ApplicationBase;
 
+        using GatherStates<TManifest>::type::setState;
+        using GatherStates<TManifest>::type::getState;
+        using GatherStates<TManifest>::type::isState;
+        using GatherStates<TManifest>::type::onStateEnter;
+        using GatherStates<TManifest>::type::onStateExit;
+        using GatherStates<TManifest>::type::syncState;
     };
 
 } // namespace ml

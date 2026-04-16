@@ -97,6 +97,7 @@ namespace ml
             float                             size     = 0.f;   ///< current size along the split axis
             float                             minSize  = 0.f;   ///< 0 = use global minPaneSize
             float                             maxSize  = 0.f;   ///< 0 = unlimited
+            bool                              flex     = true;  ///< true = auto-distributed, false = user-fixed
         };
 
         std::vector<Pane> _panes;
@@ -190,6 +191,7 @@ namespace ml
             Pane pane;
             pane.content  = std::move(content);
             pane.size     = initialSize;
+            pane.flex     = (initialSize == 0.f);
 
             if constexpr (detail::has_setSize<T>::value)
                 pane.resizeFn = [ptr](sf::Vector2f sz){ ptr->setSize(sz); };

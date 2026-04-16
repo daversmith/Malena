@@ -88,6 +88,16 @@ namespace ml
          * @param cb Callback invoked with the old state before each transition.
          */
         void onStateExit(std::function<void(StateEnum)> cb)  { _onExit  = std::move(cb); }
+
+        /**
+         * @brief Set the current state silently, without firing any callbacks.
+         *
+         * Used by @c SceneManager::start() to synchronise the state machine
+         * to the initial scene without triggering enter/exit callbacks.
+         *
+         * @param state The state to set as current.
+         */
+        void syncState(StateEnum state) { _currentState = state; }
     };
 
     // =========================================================================
@@ -137,6 +147,7 @@ namespace ml
         using SingleStateManager<StateEnums>::isState...;
         using SingleStateManager<StateEnums>::onStateEnter...;
         using SingleStateManager<StateEnums>::onStateExit...;
+        using SingleStateManager<StateEnums>::syncState...;
     };
 
     /**
@@ -150,8 +161,11 @@ namespace ml
     {
     public:
         void setState(...)     {}
+        void getState(...)     {}
+        void isState(...)      {}
         void onStateEnter(...) {}
         void onStateExit(...)  {}
+        void syncState(...)    {}
     };
 
     // =========================================================================

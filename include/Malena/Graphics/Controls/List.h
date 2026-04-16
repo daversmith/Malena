@@ -185,10 +185,12 @@ namespace ml
          * @param label       Primary label text.
          * @param description Optional secondary description line. Pass @c ""
          *                    to omit.
+         * @param onClick     Optional callback fired when the row is clicked.
          * @return Reference to the newly created @c ListItem.
          */
         ListItem& addItem(const std::string& label,
-                          const std::string& description = "");
+                          const std::string& description = "",
+                          std::function<void()> onClick  = nullptr);
 
         /**
          * @brief Add any @c ml::Core component as a row.

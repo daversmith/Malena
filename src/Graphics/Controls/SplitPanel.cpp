@@ -180,8 +180,8 @@ namespace ml
         int   flex  = 0;
         for (const auto& p : _panes)
         {
-            if (p.size > 0.f) fixed += p.size;
-            else              ++flex;
+            if (!p.flex) fixed += p.size;
+            else         ++flex;
         }
 
         const float flexSize = (flex > 0)
@@ -189,7 +189,7 @@ namespace ml
                                : 0.f;
 
         for (auto& p : _panes)
-            if (p.size <= 0.f) p.size = flexSize;
+            if (p.flex) p.size = flexSize;
 
         // Final clamp to available space
         float total = 0.f;

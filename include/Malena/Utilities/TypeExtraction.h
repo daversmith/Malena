@@ -48,6 +48,19 @@ namespace ml
 		using type = typename T::State;
 	};
 
+	/**
+	 * @brief Extracts the @c manifest_type typedef from a trait, or @c void if absent.
+	 *
+	 * Used by @c GatherFlags and @c GatherStates to pull manifest enums
+	 * out of trait types.
+	 */
+	template<typename T, typename = void>
+	struct extract_TraitManifest { using type = void; };
+
+	template<typename T>
+	struct extract_TraitManifest<T, std::void_t<typename T::manifest_type>>
+	{ using type = typename T::manifest_type; };
+
 	/// @endcond
 
 } // namespace ml

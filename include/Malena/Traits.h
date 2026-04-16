@@ -15,19 +15,19 @@
 #include <Malena/Traits/Base/MultiCustomStateManager.h>
 
 // ── Traits ────────────────────────────────────────────────────────────────────
-#include <Malena/Traits/CustomFlaggable.h>
-#include <Malena/Traits/Draggable.h>
-#include <Malena/Traits/Fadeable.h>
-#include <Malena/Traits/Flaggable.h>
-#include <Malena/Traits/Focusable.h>
-#include <Malena/Traits/Hoverable.h>
-#include <Malena/Traits/Keyable.h>
-#include <Malena/Traits/Messenger.h>
-#include <Malena/Traits/Positionable.h>
-#include <Malena/Traits/Scrollable.h>
-#include <Malena/Traits/Subscribable.h>
-#include <Malena/Traits/Unsubscribable.h>
-#include <Malena/Traits/Updatable.h>
-#include <Traits/Interaction/Clickable.h>
+#include <Malena/Traits/State/CustomFlaggable.h>
+#include <Malena/Traits/Interaction/Draggable.h>
+#include <Malena/Traits/Visual/Fadeable.h>
+#include <Malena/Traits/State/Flaggable.h>
+#include <Malena/Traits/Interaction/Focusable.h>
+#include <Malena/Traits/Interaction/Hoverable.h>
+#include <Malena/Traits/Interaction/Keyable.h>
+#include <Malena/Traits/Communication/Messenger.h>
+#include <Malena/Traits/Spatial/Positionable.h>
+#include <Malena/Traits/Interaction/Scrollable.h>
+#include <Malena/Traits/Communication/Subscribable.h>
+#include <Malena/Traits/Communication/Unsubscribable.h>
+#include <Malena/Traits/Lifecycle/Updatable.h>
+#include <Malena/Traits/Interaction/Clickable.h>
 
 #endif // MALENA_TRAITS_H

@@ -35,8 +35,10 @@ namespace ml
             applyVisualState();
         });
 
-        // Click — fire user callback
-        this->onClick([this]{
+        // Click — wire the event subscription to fire _onClickCb.
+        // Must call Clickable::onClick explicitly — ListItem::onClick only
+        // updates _onClickCb and does NOT touch the event subscription.
+        Clickable::onClick([this]{
             if (!checkFlag(Flag::DISABLED) && _onClickCb)
                 _onClickCb();
         });

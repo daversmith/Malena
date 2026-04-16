@@ -28,17 +28,18 @@ namespace ml {
         setFillColor(theme.surface);
     }
 
-    void Panel::addComponent(Core& child)
-    {
-        // Record position relative to this panel's current origin
-        _relativePositions[&child] = child.getPosition() - getPosition();
-        CoreManager<Core>::addComponent(child);
-    }
-
     bool Panel::removeComponent(Core& child)
     {
         _relativePositions.erase(&child);
+        _fillChildren.erase(&child);
         return CoreManager<Core>::removeComponent(child);
+    }
+
+    void Panel::setSize(const sf::Vector2f& size)
+    {
+        RectangleWith<PanelManifest>::setSize(size);
+        for (auto& [child, resizeFn] : _fillChildren)
+            if (resizeFn) resizeFn(size);
     }
 
     void Panel::setPosition(const sf::Vector2f& newPos)

@@ -28,7 +28,8 @@ namespace ml
     // ── Adding rows ───────────────────────────────────────────────────────────
 
     ListItem& List::addItem(const std::string& label,
-                             const std::string& description)
+                             const std::string& description,
+                             std::function<void()> onClick)
     {
         auto item = std::make_unique<ListItem>(*font);
 
@@ -45,6 +46,8 @@ namespace ml
         item->setLabel(label);
         if (!description.empty())
             item->setDescription(description);
+        if (onClick)
+            item->onClick(std::move(onClick));
 
         ListItem* ptr = item.get();
         _rows.push_back({ptr, std::move(item)});

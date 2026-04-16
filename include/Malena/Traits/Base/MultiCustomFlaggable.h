@@ -9,6 +9,7 @@
 #include <tuple>
 #include <type_traits>
 #include <Malena/Utilities/EnumClassHash.h>
+#include <Malena/Utilities/TypeExtraction.h>
 
 namespace ml
 {
@@ -126,19 +127,6 @@ namespace ml
     // =========================================================================
 
     /// @cond INTERNAL
-
-    /**
-     * @brief Extracts @c manifest_type from a @c Customizable subclass.
-     *
-     * Yields @c void if @c T has no @c manifest_type typedef (i.e., it is
-     * not a @c Customizable).
-     */
-    template<typename T, typename = void>
-    struct extract_TraitManifest { using type = void; };
-
-    template<typename T>
-    struct extract_TraitManifest<T, std::void_t<typename T::manifest_type>>
-    { using type = typename T::manifest_type; };
 
     /**
      * @brief Extracts the @c Flag enum from a manifest struct.

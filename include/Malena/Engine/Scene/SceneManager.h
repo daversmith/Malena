@@ -145,6 +145,9 @@ namespace ml
         /// Calls setState() on the app. Used by back().
         inline static std::function<void(StateEnum)>   _setter;
 
+        /// Silently syncs the app's state machine current value without callbacks.
+        inline static std::function<void(StateEnum)>   _sync;
+
     public:
 
         // ── Bind ────────────────────────────────────────────────────────────
@@ -230,17 +233,10 @@ namespace ml
 
             // Store navigation primitives
             _setter = [&app](StateEnum s) { app.setState(s); };
+            _sync   = [&app](StateEnum s) { app.syncState(s); };
             _add    = [&app](Core& s)     { app.addComponent(s); };
 
-            // removeComponent lives on CoreManager — call through app if available,
-            // otherwise fall back to CoreManager<Core> directly
-            _remove = [&app](Core& s)
-            {
-                if constexpr (requires { app.removeComponent(s); })
-                    app.removeComponent(s);
-                else
-                    CoreManager<Core>::removeComponent(s);
-            };
+            _remove = [&app](Core& s) { app.removeComponent(s); };
 
             // Hook into the app's state machine — SceneManager reacts to transitions
             app.onStateExit([](StateEnum leaving)
@@ -269,7 +265,8 @@ namespace ml
         {
             _current = state;
             _started = true;
-            activate(state);  // show first scene — no history push
+            if (_sync) _sync(state);  // sync app state machine without triggering callbacks
+            activate(state);          // show first scene — no history push
         }
 
         // ── Navigation ──────────────────────────────────────────────────────
@@ -335,6 +332,7 @@ namespace ml
             _add    = nullptr;
             _remove = nullptr;
             _setter = nullptr;
+            _sync   = nullptr;
         }
 
     private:

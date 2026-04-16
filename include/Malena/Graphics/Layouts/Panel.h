@@ -11,6 +11,8 @@
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Traits/Theme/Themeable.h>
+#include <Malena/Utilities/HasSetSize.h>
+#include <functional>
 #include <unordered_map>
 
 namespace ml {
@@ -44,6 +46,9 @@ namespace ml {
         // Maps each child pointer to its position relative to this panel's origin
         std::unordered_map<Core*, sf::Vector2f> _relativePositions;
 
+        // Resize lambdas for fill-enabled children (empty function = no setSize)
+        std::unordered_map<Core*, std::function<void(sf::Vector2f)>> _fillChildren;
+
     public:
         Panel();
 
@@ -53,13 +58,50 @@ namespace ml {
          * The child's current absolute position is recorded relative to the
          * panel's current position. Subsequent @c setPosition() calls will
          * keep the child at the same relative offset.
+         *
+         * @param child  The component to add.
+         * @param fill   If @c true (default) and the child has @c setSize,
+         *               it will be resized to match this panel whenever the
+         *               panel resizes. Pass @c false to manage size manually.
          */
-        void addComponent(Core& child);
+        template<typename T>
+        void addComponent(T& child, bool fill = false)
+        {
+            static_assert(std::is_base_of_v<Core, T>,
+                "Panel::addComponent requires a Core-derived type");
+
+            if (fill)
+            {
+                if constexpr (detail::has_setSize<T>::value)
+                {
+                    // Fill child: snap to panel origin, fill its size
+                    child.setPosition(getPosition());
+                    child.setSize(getSize());
+                    _relativePositions[&child] = {0.f, 0.f};
+                    _fillChildren[&child] = [&child](sf::Vector2f sz){ child.setSize(sz); };
+                }
+                else
+                {
+                    _relativePositions[&child] = child.getPosition() - getPosition();
+                }
+            }
+            else
+            {
+                _relativePositions[&child] = child.getPosition() - getPosition();
+            }
+
+            CoreManager<Core>::addComponent(child);
+        }
 
         /**
          * @brief Remove a child component from this panel.
          */
         bool removeComponent(Core& child);
+
+        /**
+         * @brief Resize the panel and propagate to fill-enabled children.
+         */
+        void setSize(const sf::Vector2f& size);
 
         /**
          * @brief Move the panel and shift all children by the same delta.
