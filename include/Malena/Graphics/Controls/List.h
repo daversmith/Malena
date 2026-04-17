@@ -220,6 +220,7 @@ namespace ml
          * @param width Width in pixels.
          */
         void setWidth(float width);
+        void setSize(const sf::Vector2f& size) { setWidth(size.x); }
         [[nodiscard]] float getWidth()       const { return _width; }
         [[nodiscard]] float getTotalHeight() const;
 

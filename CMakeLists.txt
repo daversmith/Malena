@@ -8,11 +8,13 @@ include(GNUInstallDirs)
 option(MALENA_BUILD_EXAMPLES "Build Malena examples" ON)
 option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
+# FetchContent is used for SFML, networking, and JSON dependencies
+include(FetchContent)
+
 # SFML handling
 if(MALENA_USE_SYSTEM_SFML)
     find_package(SFML 3.0 COMPONENTS Graphics Audio Window System REQUIRED)
 else()
-    include(FetchContent)
     FetchContent_Declare(SFML
             GIT_REPOSITORY https://github.com/SFML/SFML.git
             GIT_TAG 3.0.2
@@ -21,6 +23,36 @@ else()
             SYSTEM)
     FetchContent_MakeAvailable(SFML)
 endif()
+
+# ── cpp-httplib — header-only HTTP/HTTPS client ───────────────────────────────
+FetchContent_Declare(
+        httplib
+        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+        GIT_TAG v0.18.3
+        GIT_SHALLOW ON
+        SYSTEM)
+set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(httplib)
+
+# ── IXWebSocket — WebSocket client ────────────────────────────────────────────
+FetchContent_Declare(
+        ixwebsocket
+        GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
+        GIT_TAG v11.4.5
+        GIT_SHALLOW ON
+        SYSTEM)
+FetchContent_MakeAvailable(ixwebsocket)
+
+# ── nlohmann/json ─────────────────────────────────────────────────────────────
+FetchContent_Declare(
+        nlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3
+        GIT_SHALLOW ON
+        SYSTEM)
+set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
+set(JSON_Install    OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(nlohmann_json)
 
 # Add the library
 add_subdirectory(src)

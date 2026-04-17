@@ -94,6 +94,22 @@ namespace ml {
         }
 
         /**
+         * @brief Add a child by reference — drawn by the panel but position
+         *        and size are managed entirely by the caller.
+         *
+         * Unlike @c addComponent(), the panel never calls @c setPosition or
+         * @c setSize on the child. Use this when the component is already
+         * positioned absolutely in world space and you only need the panel
+         * to include it in its draw pass.
+         *
+         * @code
+         * // myButton is positioned elsewhere — panel just draws it
+         * panel.addRef(myButton);
+         * @endcode
+         */
+        void addRef(Core& child);
+
+        /**
          * @brief Remove a child component from this panel.
          */
         bool removeComponent(Core& child);

@@ -37,8 +37,31 @@ namespace ml
 	void Button<T, S>::setString(const sf::String &text)
 	{
 		_text.setString(text);
-		// T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
-		T::centerText( _text);
+
+		// Auto-size: if the text occupies less than 80 % of the button width,
+		// shrink the button so the text fills exactly 80 % of the width.
+		// Only applies to vector-sized buttons (e.g. RectangleButton);
+		// skipped for scalar-sized buttons (e.g. CircleButton).
+		if constexpr (std::is_same_v<S, sf::Vector2f>)
+		{
+			const sf::FloatRect lb     = _text.getLocalBounds();
+			const float         textW  = lb.size.x;
+			const float         textH  = lb.size.y + lb.position.y;
+			const sf::FloatRect bounds = T::getGlobalBounds();
+
+			// Width: always auto-size so text fills 80 % of the button.
+			// Height: keep existing height if already set; otherwise derive
+			//         from font metrics so setSize() is not required.
+			const float newW = textW / 0.8f;
+			const float newH = bounds.size.y > 0.f
+			                   ? bounds.size.y
+			                   : std::ceil(textH / 0.6f);
+
+			if (bounds.size.x == 0.f || textW < bounds.size.x * 0.8f)
+				T::setSize(sf::Vector2f{ newW, newH });
+		}
+
+		T::centerText(_text);
 	}
 
 	template<typename T, typename S>

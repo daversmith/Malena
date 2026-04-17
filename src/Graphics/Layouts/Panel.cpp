@@ -28,6 +28,13 @@ namespace ml {
         setFillColor(theme.surface);
     }
 
+    void Panel::addRef(Core& child)
+    {
+        // No position tracking — caller manages the child's position entirely.
+        // Just register it with CoreManager so it appears in the draw pass.
+        CoreManager<Core>::addComponent(child);
+    }
+
     bool Panel::removeComponent(Core& child)
     {
         _relativePositions.erase(&child);
