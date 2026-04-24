@@ -94,6 +94,7 @@ namespace ml
             std::string               label;
             bool                      separator = false;
             bool                      hovered   = false;
+            bool                      enabled   = true;
 
             Item() = default;
             Item(Item&&) = default;
@@ -152,9 +153,15 @@ namespace ml
 
         // ── Adding items ──────────────────────────────────────────────────────
 
-        /** @brief Add a text-only button. */
-        void addButton(const std::string& label,
-                       std::function<void()> action = {});
+        /** @brief Add a text-only button. Returns the item index. */
+        std::size_t addButton(const std::string& label,
+                              std::function<void()> action = {});
+
+        /** @brief Update the label of an owned button by item index. */
+        void setItemLabel(std::size_t index, const std::string& label);
+
+        /** @brief Enable or disable an owned button by item index. */
+        void setItemEnabled(std::size_t index, bool enabled);
 
         /**
          * @brief Add a component as a toolbar item.
@@ -188,6 +195,8 @@ namespace ml
         void          setPosition(const sf::Vector2f& position) override;
         sf::Vector2f  getPosition()     const override;
         sf::FloatRect getGlobalBounds() const override;
+
+        void setEnabled(bool enabled) override;
     };
 
     template<typename MANIFEST>

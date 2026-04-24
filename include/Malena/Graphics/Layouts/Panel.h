@@ -115,6 +115,11 @@ namespace ml {
         bool removeComponent(Core& child);
 
         /**
+         * @brief Remove all child components from this panel.
+         */
+        void clear();
+
+        /**
          * @brief Resize the panel and propagate to fill-enabled children.
          */
         void setSize(const sf::Vector2f& size);
@@ -123,6 +128,9 @@ namespace ml {
          * @brief Move the panel and shift all children by the same delta.
          */
         void setPosition(const sf::Vector2f& position) override;
+
+        void setEnabled(bool enabled) override;
+        void setVisible(bool visible) override;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

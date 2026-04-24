@@ -203,6 +203,28 @@ namespace ml
          */
         void add(ml::Core& component);
 
+        /**
+         * @brief Remove a row by index.
+         *
+         * If the row contains an owned @c ListItem, it is destroyed.
+         * External components are simply unlinked but not deleted.
+         *
+         * @param index Row index (0-based).
+         * @return @c true if removed; @c false if index is out of bounds.
+         */
+        bool removeAt(std::size_t index);
+
+        /**
+         * @brief Remove a row by component pointer.
+         *
+         * If the row contains an owned @c ListItem, it is destroyed.
+         * External components are simply unlinked but not deleted.
+         *
+         * @param component Pointer to the component to remove.
+         * @return @c true if found and removed; @c false otherwise.
+         */
+        bool remove(const ml::Core* component);
+
         /** @brief Remove all rows. Owned @c ListItem objects are destroyed. */
         void clear();
 

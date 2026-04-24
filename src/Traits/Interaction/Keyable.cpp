@@ -56,10 +56,9 @@ namespace ml
 
     bool KeyableDispatcher::filter(const std::optional<sf::Event> &event, Core *component)
     {
-        // Only deliver to the focused component
-        auto* core = dynamic_cast<Core*>(component);
-        if (!core) return false;
-        return true;//core->checkFlag(Flag::FOCUSED);
+        if (!component) return false;
+        if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
+        return true;
     }
 
     void KeyableDispatcher::fire(const std::optional<sf::Event>& event)

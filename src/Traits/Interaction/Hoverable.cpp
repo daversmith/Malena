@@ -21,6 +21,7 @@ namespace ml
 	{
 		auto* core = dynamic_cast<Core*>(component);
 		if (!core) return false;
+		if (core->checkFlag(Flag::HIDDEN) || !core->checkFlag(Flag::ENABLED)) return false;
 		return MouseEvents::isHovered(*core, WindowManager::getWindow());
 	}
 

@@ -43,7 +43,7 @@ namespace ml
 
             for (auto& item : _items)
             {
-                if (item.separator || !item.owned) continue;
+                if (item.separator || !item.owned || !item.enabled) continue;
                 if (item.component->getGlobalBounds().contains(wp) && item.action)
                 {
                     item.action();
@@ -147,7 +147,7 @@ namespace ml
             }
 
             // Hover highlight for owned buttons
-            if (item.owned && i == _hoveredIdx)
+            if (item.owned && i == _hoveredIdx && item.enabled)
             {
                 const sf::FloatRect b = item.component->getGlobalBounds();
                 sf::RectangleShape hl(b.size + sf::Vector2f{4.f, 4.f});
@@ -158,6 +158,16 @@ namespace ml
 
             // Draw the item
             target.draw(*dynamic_cast<const sf::Drawable*>(item.component), states);
+
+            // Dim disabled items
+            if (item.owned && !item.enabled)
+            {
+                const sf::FloatRect b = item.component->getGlobalBounds();
+                sf::RectangleShape dim(b.size);
+                dim.setFillColor({0, 0, 0, 120});
+                dim.setPosition(b.position);
+                target.draw(dim, states);
+            }
 
             if (horiz)
                 offset += item.component->getGlobalBounds().size.x + itemSpacing;
@@ -202,8 +212,8 @@ namespace ml
         sf::RenderStates getRenderStates() const override { return {}; }
     };
 
-    void Toolbar::addButton(const std::string& label,
-                             std::function<void()> action)
+    std::size_t Toolbar::addButton(const std::string& label,
+                                    std::function<void()> action)
     {
         Item item;
         item.label  = label;
@@ -221,8 +231,31 @@ namespace ml
         item.component = corePtr;
         item.owned     = std::unique_ptr<ml::Core>(btn.release());
 
+        const std::size_t idx = _items.size();
         _items.push_back(std::move(item));
         layout();
+        return idx;
+    }
+
+    void Toolbar::setItemLabel(std::size_t index, const std::string& label)
+    {
+        if (index >= _items.size() || !_items[index].owned) return;
+        _items[index].label = label;
+        auto* btn = static_cast<ToolbarButton*>(_items[index].owned.get());
+        btn->text.setString(label);
+
+        // Re-measure and resize
+        sf::Text measure(*font, label, static_cast<unsigned int>(fontSize));
+        const float w = std::max(itemSize.x,
+            measure.getGlobalBounds().size.x + padding * 2.f);
+        btn->size = {w, itemSize.y};
+        layout();
+    }
+
+    void Toolbar::setItemEnabled(std::size_t index, bool enabled)
+    {
+        if (index >= _items.size()) return;
+        _items[index].enabled = enabled;
     }
 
     void Toolbar::add(ml::Core& component)
@@ -278,6 +311,14 @@ namespace ml
             return sf::FloatRect{_position, {_barLength, thick}};
         else
             return sf::FloatRect{_position, {thick, _barLength}};
+    }
+
+    void Toolbar::setEnabled(bool enabled)
+    {
+        Core::setEnabled(enabled);
+        for (auto& item : _items)
+            if (item.component)
+                item.component->setEnabled(enabled);
     }
 
 } // namespace ml

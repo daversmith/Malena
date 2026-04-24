@@ -68,6 +68,31 @@ namespace ml
         rebuildDividers();
     }
 
+    bool List::removeAt(std::size_t index)
+    {
+        if (index >= _rows.size())
+            return false;
+
+        _rows.erase(_rows.begin() + index);
+        layout();
+        rebuildDividers();
+        return true;
+    }
+
+    bool List::remove(const ml::Core* component)
+    {
+        auto it = std::find_if(_rows.begin(), _rows.end(),
+            [component](const Row& row) { return row.component == component; });
+
+        if (it == _rows.end())
+            return false;
+
+        _rows.erase(it);
+        layout();
+        rebuildDividers();
+        return true;
+    }
+
     void List::clear()
     {
         _rows.clear();
