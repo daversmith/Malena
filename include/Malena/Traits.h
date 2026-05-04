@@ -22,6 +22,7 @@
 #include <Malena/Traits/Interaction/Focusable.h>
 #include <Malena/Traits/Interaction/Hoverable.h>
 #include <Malena/Traits/Interaction/Keyable.h>
+#include <Malena/Traits/Communication/Hookable.h>
 #include <Malena/Traits/Communication/Messenger.h>
 #include <Malena/Traits/Spatial/Positionable.h>
 #include <Malena/Traits/Interaction/Scrollable.h>

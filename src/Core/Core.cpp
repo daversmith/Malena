@@ -13,12 +13,13 @@ namespace ml
 
     Core::~Core()
     {
-        EventManager::unsubscribeAll(this);
+        EventManager::forceUnsubscribeAll(this);
     }
 
     void Core::setEnabled(bool enabled)
     {
         setFlag(Flag::ENABLED, enabled);
+        onEnabledChanged(enabled);
     }
 
     void Core::setVisible(bool visible)

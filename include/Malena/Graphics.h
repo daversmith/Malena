@@ -29,6 +29,7 @@
 #include <Malena/Graphics/Controls/Carousel.h>
 #include <Malena/Graphics/Controls/CircleButton.h>
 #include <Malena/Graphics/Controls/ConvexButton.h>
+#include <Malena/Graphics/Controls/Modal.h>
 #include <Malena/Graphics/Controls/RectangleButton.h>
 
 // ── Layouts ───────────────────────────────────────────────────────────────────

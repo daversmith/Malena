@@ -366,7 +366,10 @@ namespace ml
             }
 
             if (entry.scene && _add)
+            {
+                entry.scene->setEnabled(true);
                 _add(*entry.scene);
+            }
         }
 
         /**
@@ -385,7 +388,10 @@ namespace ml
             SceneEntry& entry = it->second;
 
             if (entry.scene && _remove)
+            {
                 _remove(*entry.scene);
+                entry.scene->setEnabled(false);
+            }
 
             // Push to history so back() can return
             _history.push_back(state);

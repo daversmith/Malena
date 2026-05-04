@@ -77,6 +77,9 @@ namespace ml
         virtual void setVisible(bool visible);
         bool isEnabled() const;
         bool isVisible() const;
+
+    protected:
+        virtual void onEnabledChanged(bool enabled) {}
     };
 
 } // namespace ml

@@ -138,27 +138,25 @@ namespace ml
          *
          * @param position New position in world coordinates.
          */
-        virtual void setPosition(const sf::Vector2f& position) = 0;
+        virtual void setPosition(const sf::Vector2f& position) {}
 
         /**
          * @brief Return the current world-space position.
          *
-         * Pure virtual — implemented by the concrete shape or adapter class.
-         *
          * @return Current position in world coordinates.
          */
-        virtual sf::Vector2f getPosition() const = 0;
+        virtual sf::Vector2f getPosition() const { return {}; }
 
         /**
          * @brief Return the axis-aligned bounding box in world space.
          *
          * Used by @c UIManager for hit-testing (click, hover) and by
-         * layout helpers for relative placement. Pure virtual — implemented
-         * by the concrete shape or adapter class.
+         * layout helpers for relative placement. Returns a zero-size rect
+         * by default, opting the component out of event routing.
          *
          * @return Bounding rectangle in world coordinates.
          */
-        virtual sf::FloatRect getGlobalBounds() const = 0;
+        virtual sf::FloatRect getGlobalBounds() const { return {}; }
 
         // ── Relative layout helpers ──────────────────────────────────────────
 

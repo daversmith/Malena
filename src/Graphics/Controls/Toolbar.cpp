@@ -266,6 +266,11 @@ namespace ml
         layout();
     }
 
+    void Toolbar::add(const ml::Core& component)
+    {
+        add(const_cast<ml::Core&>(component));
+    }
+
     void Toolbar::addSeparator()
     {
         Item item;

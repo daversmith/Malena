@@ -67,7 +67,7 @@ namespace ml
         /// @cond INTERNAL
         virtual bool occurred(const std::optional<sf::Event>& event) { return false; }
         virtual bool occurred() { return false; }
-        virtual bool filter(const std::optional<sf::Event>& event, Core* component) { return true; }
+        virtual bool filter(const std::optional<sf::Event>& event, Core* component);
 
         template<typename EnumType>
         static void addCallback(EnumType eventEnum,

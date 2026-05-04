@@ -24,5 +24,6 @@
 #include <Malena/Resources.h>
 #include <Malena/Traits.h>
 #include <Malena/Utilities.h>
+#include <Malena/Providers.h>
 
 #endif // MALENA_MALENA_H

@@ -171,6 +171,14 @@ namespace ml
          */
         void add(ml::Core& component);
 
+        /**
+         * @brief Add a const component as a toolbar item.
+         *
+         * The component is NOT owned — register it with @c addComponent separately
+         * so its events fire. The toolbar positions it; the component sizes itself.
+         */
+        void add(const ml::Core& component);
+
         /** @brief Add a visual separator. */
         void addSeparator();
 

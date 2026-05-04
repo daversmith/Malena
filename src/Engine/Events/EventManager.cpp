@@ -35,6 +35,13 @@ namespace ml
 
         for (auto& sub : copy)
         {
+            auto liveIt = _subscribers.find(key);
+            if (liveIt == _subscribers.end()) break;
+
+            bool alive = std::any_of(liveIt->second.begin(), liveIt->second.end(),
+                [&sub](const Subscriber& s){ return s.receiver == sub.receiver; });
+            if (!alive) continue;
+
             if (dispatcher->filter(event, sub.core))
             {
                 sub.receiver->process(key, event);

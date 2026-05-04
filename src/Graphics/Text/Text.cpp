@@ -24,9 +24,8 @@ namespace ml
 
 	void Text::setString(const sf::String &text)
 	{
+		sf::Text::setString(text);
 		if (wordWrap)
 			TextManipulators::wordwrap(*this, maxWidth);
-		else
-			sf::Text::setString(text);
 	}
 } // namespace ml

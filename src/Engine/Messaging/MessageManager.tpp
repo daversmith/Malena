@@ -8,7 +8,7 @@ namespace ml
     void MessageManager::subscribe(Enum event, void* subscriber, std::function<void(const DataType&)> callback) {
         auto key = std::make_tuple(
             std::type_index(typeid(Enum)),
-            static_cast<int>(event),
+            std::hash<Enum>{}(event),
             std::type_index(typeid(DataType))
         );
 
@@ -23,7 +23,7 @@ namespace ml
     void MessageManager::publish(Enum event, const DataType& data) {
         auto key = std::make_tuple(
             std::type_index(typeid(Enum)),
-            static_cast<int>(event),
+            std::hash<Enum>{}(event),
             std::type_index(typeid(DataType))
         );
 
@@ -58,7 +58,7 @@ namespace ml
     void MessageManager::unsubscribe(Enum event, void* subscriber) {
         auto key = std::make_tuple(
             std::type_index(typeid(Enum)),
-            static_cast<int>(event),
+            std::hash<Enum>{}(event),
             std::type_index(typeid(DataType))
         );
 
