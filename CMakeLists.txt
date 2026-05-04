@@ -41,7 +41,10 @@ FetchContent_Declare(
         GIT_TAG v11.4.5
         GIT_SHALLOW ON
         SYSTEM)
+set(_saved_build_shared ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(ixwebsocket)
+set(BUILD_SHARED_LIBS ${_saved_build_shared} CACHE BOOL "" FORCE)
 
 # ── nlohmann/json ─────────────────────────────────────────────────────────────
 FetchContent_Declare(
