@@ -56,7 +56,7 @@ namespace ml
 
     bool KeyableDispatcher::filter(const std::optional<sf::Event> &event, Core *component)
     {
-        if (!component) return false;
+        if (!component) return true;
         if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
         return true;
     }
