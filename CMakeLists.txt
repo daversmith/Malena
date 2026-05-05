@@ -35,6 +35,11 @@ set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(httplib)
 
 # ── IXWebSocket — WebSocket client ────────────────────────────────────────────
+find_package(ZLIB QUIET)
+if(NOT ZLIB_FOUND)
+    set(USE_ZLIB OFF CACHE BOOL "" FORCE)
+endif()
+
 FetchContent_Declare(
         ixwebsocket
         GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
