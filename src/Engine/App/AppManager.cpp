@@ -6,6 +6,7 @@
 
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventManager.h>
+#include <Malena/Engine/Networking/NetworkManager.h>
 
 namespace ml
 {
@@ -161,7 +162,7 @@ namespace ml
                     if (shouldClose)
                     {
                         window->close();
-                        return;
+                        break;
                     }
                     continue;
                 }
@@ -182,9 +183,15 @@ namespace ml
             if (!_paused)
                 fireUpdateEvents();
 
+            NetworkManager::flush();
+
             draw();
             flushDeferredUnloads();
         }
+
+        // Join all background networking threads before static destructors run.
+        // Without this, ~vector<thread> on gWorkers calls std::terminate().
+        NetworkManager::shutdown();
     }
 
     void AppManager::fireInputEvents(const std::optional<sf::Event>& event)

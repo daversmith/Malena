@@ -35,7 +35,7 @@ namespace ml
                                       Core* component)
     {
         if (!component) return false;
-        // Only process components with DRAGGABLE flag set
+        if (component->checkFlag(ml::Flag::HIDDEN) || !component->checkFlag(ml::Flag::ENABLED)) return false;
         return component->checkFlag(ml::Flag::DRAGGABLE);
     }
 

@@ -23,7 +23,6 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - { name: Windows VS2019, os: windows-2019 }
           - { name: Windows VS2022, os: windows-2022 }
           - { name: Windows MSYS2, os: windows-2022, shell: 'msys2 {0}' }
           - { name: Linux GCC, os: ubuntu-latest }
@@ -40,10 +39,6 @@ jobs:
           - { name: Static Release, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
           - { name: Static RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
         exclude:
-          - platform: { name: Windows VS2019 }
-            config: { name: Shared Debug }
-          - platform: { name: Windows VS2019 }
-            config: { name: Static Debug }
           - platform: { name: Windows MSYS2 }
             config: { name: Shared Debug }
           - platform: { name: Windows MSYS2 }
@@ -69,8 +64,6 @@ jobs:
           - platform: { name: macOS }
             config: { name: Static Debug }
 
-          - platform: { name: Windows VS2019 }
-            config: { name: Static RelWithDebInfo }
           - platform: { name: Windows MSYS2 }
             config: { name: Static RelWithDebInfo }
           - platform: { name: Fedora }
@@ -92,6 +85,7 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-zlib
             git
 
       - name: Setup ccache
@@ -110,6 +104,11 @@ jobs:
         if: contains(matrix.platform.name, 'MSYS2')
         run: |
           pacman -S --noconfirm mingw-w64-x86_64-sfml mingw-w64-x86_64-openal
+
+      - name: Install Windows MSVC Dependencies
+        if: runner.os == 'Windows' && !contains(matrix.platform.name, 'MSYS2')
+        shell: pwsh
+        run: vcpkg install zlib:x64-windows
 
       - name: Install Fedora Dependencies
         if: matrix.platform.container == 'fedora:latest'
@@ -130,11 +129,11 @@ jobs:
         if: contains(matrix.platform.name, 'MSYS2')
         run: |
           export PATH=/mingw64/bin:$PATH
-          
+
           cmake_flags="${{matrix.config.flags}}"
           cmake_flags="${cmake_flags//-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON/-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF}"
           cmake_flags="${cmake_flags} -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-          
+
           cmake -G "Ninja" -B build ${cmake_flags} \
             -DCMAKE_C_COMPILER=/mingw64/bin/gcc.exe \
             -DCMAKE_CXX_COMPILER=/mingw64/bin/g++.exe
@@ -158,7 +157,11 @@ jobs:
         run: |
           cmake_flags="${{matrix.platform.flags}} ${{matrix.config.flags}}"
           cmake_flags="${cmake_flags} -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
-          
+
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cmake_flags="${cmake_flags} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          fi
+
           if [[ -n "${{ matrix.platform.container }}" ]]; then
             cmake -B build ${cmake_flags}
           else

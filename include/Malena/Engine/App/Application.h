@@ -185,10 +185,11 @@ namespace ml
      *
      * @see Application, ApplicationBase, Resources
      */
-    template<typename TManifest>
+    template<typename TManifest, typename... Traits>
     class ApplicationWith : public ApplicationBase,
                              public ml::ManifestResources<TManifest>,
-                             public GatherStates<TManifest>::type
+                             public GatherStates<TManifest>::type,
+                             public Traits...
     {
     public:
         /// Unified resource accessor — Resources::get(Images::Icon)

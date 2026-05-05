@@ -69,6 +69,8 @@ namespace ml
 
     bool ScrollableDispatcher::filter(const std::optional<sf::Event> &event, Core *component)
     {
+        if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
+
         // mousemoved fires for all components
         // scroll, pressed, released fire only when mouse is over component
         if (event.has_value() && event->is<sf::Event::MouseMoved>())

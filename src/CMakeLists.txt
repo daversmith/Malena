@@ -41,6 +41,16 @@ target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
         SFML::Window
         SFML::System)
 
+# Networking libraries — PRIVATE because the heavy implementation details
+# (httplib, ixwebsocket) are included only in .cpp files, not public headers.
+target_link_libraries(Malena PRIVATE httplib::httplib ixwebsocket)
+
+# nlohmann/json — header-only. BUILD_INTERFACE limits the dependency to the
+# build tree so it does not appear in the install export set (which would
+# require nlohmann to be installed system-wide as well).
+target_link_libraries(Malena PUBLIC
+    "$<BUILD_INTERFACE:nlohmann_json::nlohmann_json>")
+
 # Install the library
 install(TARGETS Malena
         EXPORT Malena-targets

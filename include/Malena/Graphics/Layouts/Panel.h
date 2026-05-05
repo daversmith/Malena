@@ -94,9 +94,30 @@ namespace ml {
         }
 
         /**
+         * @brief Add a child by reference — drawn by the panel but position
+         *        and size are managed entirely by the caller.
+         *
+         * Unlike @c addComponent(), the panel never calls @c setPosition or
+         * @c setSize on the child. Use this when the component is already
+         * positioned absolutely in world space and you only need the panel
+         * to include it in its draw pass.
+         *
+         * @code
+         * // myButton is positioned elsewhere — panel just draws it
+         * panel.addRef(myButton);
+         * @endcode
+         */
+        void addRef(Core& child);
+
+        /**
          * @brief Remove a child component from this panel.
          */
         bool removeComponent(Core& child);
+
+        /**
+         * @brief Remove all child components from this panel.
+         */
+        void clear();
 
         /**
          * @brief Resize the panel and propagate to fill-enabled children.
@@ -107,6 +128,9 @@ namespace ml {
          * @brief Move the panel and shift all children by the same delta.
          */
         void setPosition(const sf::Vector2f& position) override;
+
+        void setEnabled(bool enabled) override;
+        void setVisible(bool visible) override;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

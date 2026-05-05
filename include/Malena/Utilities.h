@@ -21,5 +21,6 @@
 #include <Malena/Utilities/TextureSlicer.h>
 #include <Malena/Utilities/Tween.h>
 #include <Malena/Utilities/TypeExtraction.h>
+#include <Malena/Utilities/Json.h>
 
 #endif // MALENA_UTILITIES_H

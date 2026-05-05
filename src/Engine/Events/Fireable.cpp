@@ -38,6 +38,11 @@ ml::Fireable::Cleanup::~Cleanup()
 	Fireable::_fireables_frame.clear();
 }
 
+bool ml::Fireable::filter(const std::optional<sf::Event>& event, Core* component)
+{
+    return component == nullptr || component->isEnabled();
+}
+
 void ml::Fireable::_register(Fireable *f)
 {
 	if (f->_type == DispatchType::FRAME)

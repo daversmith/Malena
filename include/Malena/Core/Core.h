@@ -68,18 +68,18 @@ namespace ml
 
     {
     public:
+        Core();
         virtual ~Core();
 
-        /**
-         * @brief Returns the SFML render states to use when drawing this object.
-         *
-         * The default implementation returns a default-constructed
-         * @c sf::RenderStates (no transform, no texture, no blend mode override).
-         * Override to apply a custom shader, blend mode, or transform.
-         *
-         * @return sf::RenderStates to pass to the SFML draw call.
-         */
         virtual sf::RenderStates getRenderStates() const { return sf::RenderStates(); }
+
+        virtual void setEnabled(bool enabled);
+        virtual void setVisible(bool visible);
+        bool isEnabled() const;
+        bool isVisible() const;
+
+    protected:
+        virtual void onEnabledChanged(bool enabled) {}
     };
 
 } // namespace ml

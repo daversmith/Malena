@@ -13,7 +13,9 @@ namespace ml
 			"[Malena] Fireable::addCallback — first argument must be an enum value.");
 
 		std::string key = EnumKey::get(eventEnum);
-		component->getCallbacks(key).push_back(std::move(callback));
+		auto& cbs = component->getCallbacks(key);
+		cbs.clear();
+		cbs.push_back(std::move(callback));
 		EventManager::subscribe(eventEnum, component);  // enum passed directly
 	}
 

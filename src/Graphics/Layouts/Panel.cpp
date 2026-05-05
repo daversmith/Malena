@@ -28,11 +28,25 @@ namespace ml {
         setFillColor(theme.surface);
     }
 
+    void Panel::addRef(Core& child)
+    {
+        // No position tracking — caller manages the child's position entirely.
+        // Just register it with CoreManager so it appears in the draw pass.
+        CoreManager<Core>::addComponent(child);
+    }
+
     bool Panel::removeComponent(Core& child)
     {
         _relativePositions.erase(&child);
         _fillChildren.erase(&child);
         return CoreManager<Core>::removeComponent(child);
+    }
+
+    void Panel::clear()
+    {
+        _relativePositions.clear();
+        _fillChildren.clear();
+        CoreManager<Core>::clear();
     }
 
     void Panel::setSize(const sf::Vector2f& size)
@@ -51,6 +65,20 @@ namespace ml {
             if (it != _relativePositions.end())
                 c->setPosition(newPos + it->second);
         }
+    }
+
+    void Panel::setEnabled(bool enabled)
+    {
+        Core::setEnabled(enabled);
+        for (auto* c : getComponents())
+            c->setEnabled(enabled);
+    }
+
+    void Panel::setVisible(bool visible)
+    {
+        Core::setVisible(visible);
+        for (auto* c : getComponents())
+            c->setVisible(visible);
     }
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
