@@ -27,6 +27,12 @@ namespace ml
         setFlag(Flag::HIDDEN, !visible);
     }
 
+    void Core::setActive(bool active)
+    {
+        setVisible(active);
+        setEnabled(active);
+    }
+
     bool Core::isEnabled() const
     {
         return checkFlag(Flag::ENABLED);

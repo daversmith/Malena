@@ -131,6 +131,7 @@ namespace ml {
 
         void setEnabled(bool enabled) override;
         void setVisible(bool visible) override;
+        void setActive(bool active) override;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 

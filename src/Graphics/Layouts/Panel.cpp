@@ -81,6 +81,13 @@ namespace ml {
             c->setVisible(visible);
     }
 
+    void Panel::setActive(bool active)
+    {
+        Core::setActive(active);
+        for (auto* c : getComponents())
+            c->setActive(active);
+    }
+
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         RectangleWith<PanelManifest>::draw(target, states);

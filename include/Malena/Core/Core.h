@@ -75,6 +75,7 @@ namespace ml
 
         virtual void setEnabled(bool enabled);
         virtual void setVisible(bool visible);
+        virtual void setActive(bool active);
         bool isEnabled() const;
         bool isVisible() const;
 
