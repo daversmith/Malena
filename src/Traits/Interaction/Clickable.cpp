@@ -27,16 +27,15 @@ bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core
 	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
 }
 
-void ml::Clickable::onClick(std::function<void()> f)
+void ml::Clickable::onClick(std::function<void()> f, bool overwrite)
 {
 	EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-	Fireable::addCallback(Event::CLICK, this, std::move(cb));
+	Fireable::addCallback(Event::CLICK, this, std::move(cb), overwrite);
 }
 
-void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)> f)
+void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 {
-	EventCallback cb = std::move(f);
-	Fireable::addCallback(Event::CLICK, this, std::move(cb));
+	Fireable::addCallback(Event::CLICK, this, std::move(f), overwrite);
 }
 void ml::ClickableDispatcher::fire(const std::optional<sf::Event>& event)
 {

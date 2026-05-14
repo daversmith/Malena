@@ -69,7 +69,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on selection.
          */
-        void onSelected(std::function<void()> callback);
+        void onSelected(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component is selected,
@@ -78,7 +78,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on selection.
          */
-        void onSelected(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onSelected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── onDeselected ──────────────────────────────────────────────────────
 
@@ -88,7 +88,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on deselection.
          */
-        void onDeselected(std::function<void()> callback);
+        void onDeselected(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component is deselected,
@@ -97,7 +97,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on deselection.
          */
-        void onDeselected(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onDeselected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Programmatic triggers ─────────────────────────────────────────────
 

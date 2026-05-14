@@ -62,7 +62,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on key press.
          */
-        void onKeypress(std::function<void()> callback);
+        void onKeypress(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a key is pressed while this
@@ -70,7 +70,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on key press.
          */
-        void onKeypress(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onKeypress(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Key release ───────────────────────────────────────────────────────
 
@@ -80,7 +80,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on key release.
          */
-        void onKeyRelease(std::function<void()> callback);
+        void onKeyRelease(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a key is released while this
@@ -88,7 +88,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on key release.
          */
-        void onKeyRelease(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onKeyRelease(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Text entered (unicode) ────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments when text is entered.
          */
-        void onTextEntered(std::function<void()> callback);
+        void onTextEntered(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a unicode character is entered
@@ -110,7 +110,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event when text is entered.
          */
-        void onTextEntered(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onTextEntered(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

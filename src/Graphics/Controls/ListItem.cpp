@@ -244,6 +244,7 @@ namespace ml
 
     void ListItem::setEnabled(bool enabled)
     {
+        Core::setEnabled(enabled);
         if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         applyVisualState();

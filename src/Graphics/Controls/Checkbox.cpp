@@ -144,10 +144,18 @@ namespace ml
         else                          check();
     }
 
+    void Checkbox::setChecked(bool checked)
+    {
+        if (checked) { enableFlag(Flag::CHECKED);  setState(State::CHECKED); }
+        else         { disableFlag(Flag::CHECKED); setState(State::IDLE);    }
+        applyVisualState();
+    }
+
     bool Checkbox::isChecked() const { return checkFlag(Flag::CHECKED); }
 
     void Checkbox::setEnabled(bool enabled)
     {
+        Core::setEnabled(enabled);
         if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         applyVisualState();

@@ -27,6 +27,7 @@ target_compile_features(Malena PUBLIC cxx_std_17)
 # Objective-C++ so the @ directives are understood by the compiler.
 if(APPLE)
     target_compile_options(Malena PUBLIC -x objective-c++)
+    target_link_libraries(Malena PUBLIC "-framework AppKit")
 endif()
 
 # MALENA_EXPORTS: consumed by malena_export.h to emit dllexport when building the DLL.

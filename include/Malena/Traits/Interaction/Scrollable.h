@@ -62,7 +62,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on scroll.
          */
-        void onScroll(std::function<void()> callback);
+        void onScroll(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse wheel is scrolled
@@ -70,7 +70,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on scroll.
          */
-        void onScroll(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onScroll(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse moved (fires for all components regardless of hover) ─────────
 
@@ -83,7 +83,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on mouse move.
          */
-        void onMouseMoved(std::function<void()> callback);
+        void onMouseMoved(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked whenever the mouse moves anywhere
@@ -91,7 +91,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on mouse move.
          */
-        void onMouseMoved(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMouseMoved(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse button pressed (raw — before click logic) ───────────────────
 
@@ -104,7 +104,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on mouse press.
          */
-        void onMousePressed(std::function<void()> callback);
+        void onMousePressed(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a mouse button is pressed,
@@ -112,7 +112,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on mouse press.
          */
-        void onMousePressed(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMousePressed(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse button released (raw — before click logic) ──────────────────
 
@@ -125,7 +125,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on mouse release.
          */
-        void onMouseReleased(std::function<void()> callback);
+        void onMouseReleased(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a mouse button is released,
@@ -133,7 +133,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on mouse release.
          */
-        void onMouseReleased(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMouseReleased(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

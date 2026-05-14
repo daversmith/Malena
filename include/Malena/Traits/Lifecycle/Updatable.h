@@ -70,7 +70,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments each frame.
          */
-        void onUpdate(std::function<void()> callback);
+        void onUpdate(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked every frame, receiving the SFML event.
@@ -81,7 +81,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event (always nullopt) each frame.
          */
-        void onUpdate(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onUpdate(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Window events ─────────────────────────────────────────────────────
 
@@ -91,7 +91,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on window resize.
          */
-        void onWindowResized(std::function<void()> callback);
+        void onWindowResized(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the application window is
@@ -99,7 +99,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on window resize.
          */
-        void onWindowResized(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowResized(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         /**
          * @brief Register a no-argument callback invoked when the application
@@ -107,7 +107,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments when focus is gained.
          */
-        void onWindowFocusGained(std::function<void()> callback);
+        void onWindowFocusGained(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the application window gains
@@ -115,7 +115,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event when focus is gained.
          */
-        void onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         /**
          * @brief Register a no-argument callback invoked when the application
@@ -123,7 +123,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments when focus is lost.
          */
-        void onWindowFocusLost(std::function<void()> callback);
+        void onWindowFocusLost(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the application window loses
@@ -131,7 +131,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event when focus is lost.
          */
-        void onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

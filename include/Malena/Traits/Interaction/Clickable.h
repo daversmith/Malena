@@ -53,17 +53,19 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on click.
          */
-        void onClick(std::function<void()> callback);
+        void onClick(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component is clicked,
          *        receiving the raw SFML event.
          *
-         * Replaces any previously registered @c onClick callback.
+         * Replaces any previously registered @c onClick callback unless
+         * @p overwrite is @c false, in which case the callback is appended.
          *
          * @param callback Function invoked with the SFML event on click.
+         * @param overwrite If @c true (default), replaces any existing callback.
          */
-        void onClick(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onClick(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

@@ -10,6 +10,8 @@
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
+#include <unordered_map>
+#include <vector>
 
 #include <Malena/Traits/Communication/Subscribable.h>
 #include <Malena/Traits/Interaction/Draggable.h>
@@ -79,8 +81,15 @@ namespace ml
         bool isEnabled() const;
         bool isVisible() const;
 
+        void addComponent(Core& child);
+        static void linkChild(Core* parent, Core* child);
+        static void unlinkAll(Core* core);
+
     protected:
         virtual void onEnabledChanged(bool enabled) {}
+
+    private:
+        static std::unordered_map<Core*, std::vector<Core*>> _childMap;
     };
 
 } // namespace ml

@@ -72,7 +72,8 @@ namespace ml
         template<typename EnumType>
         static void addCallback(EnumType eventEnum,
                                 EventReceiver* component,
-                                EventCallback callback);
+                                EventCallback callback,
+                                bool overwrite = true);
 
         struct MALENA_API Cleanup { ~Cleanup(); };
 

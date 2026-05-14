@@ -8,6 +8,24 @@
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Networking/NetworkManager.h>
 
+#ifdef __APPLE__
+#import <AppKit/AppKit.h>
+#import <objc/runtime.h>
+
+static BOOL ml_acceptsFirstMouse(id, SEL, NSEvent*) { return YES; }
+
+static void ml_patchAcceptsFirstMouse(NSWindow* nsWin)
+{
+    NSView* cv = [nsWin contentView];
+    if (!cv) return;
+    Class cls = [cv class];
+    class_replaceMethod(cls,
+                        @selector(acceptsFirstMouse:),
+                        (IMP)ml_acceptsFirstMouse,
+                        "c@:@");
+}
+#endif
+
 namespace ml
 {
     AppManager::AppManager(const sf::VideoMode& videoMode,
@@ -24,6 +42,9 @@ namespace ml
         window.create(videoMode, title, windowStyle);
         window.setFramerateLimit(_framerateLimit);
         _instance = this;
+#ifdef __APPLE__
+        ml_patchAcceptsFirstMouse((NSWindow*)window.getNativeHandle());
+#endif
     }
 
     // ── Window appearance ─────────────────────────────────────────────────────
@@ -54,6 +75,9 @@ namespace ml
         _windowStyle = style;
         window->create(_videoMode, _title, style);
         window->setFramerateLimit(_framerateLimit);
+#ifdef __APPLE__
+        ml_patchAcceptsFirstMouse((NSWindow*)window->getNativeHandle());
+#endif
     }
 
     // ── Timing ────────────────────────────────────────────────────────────────
@@ -147,6 +171,14 @@ namespace ml
     {
         onInit();
         onReady();
+
+#ifdef __APPLE__
+        {
+            NSApplication* app = [NSApplication sharedApplication];
+            [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+            [app activateIgnoringOtherApps:YES];
+        }
+#endif
 
         _clock.restart();
 

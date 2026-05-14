@@ -106,6 +106,7 @@ namespace ml
         void check();
         void uncheck();
         void toggle();
+        void setChecked(bool checked);
         [[nodiscard]] bool isChecked() const;
 
         // ── Enabled / disabled ────────────────────────────────────────────────

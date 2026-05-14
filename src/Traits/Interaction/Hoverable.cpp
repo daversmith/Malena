@@ -25,26 +25,26 @@ namespace ml
 		return MouseEvents::isHovered(*core, WindowManager::getWindow());
 	}
 
-	void Hoverable::onHover(std::function<void()> f)
+	void Hoverable::onHover(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::HOVER, this, std::move(cb));
+		Fireable::addCallback(Event::HOVER, this, std::move(cb), overwrite);
 	}
 
-	void Hoverable::onHover(std::function<void(const std::optional<sf::Event>&)> f)
+	void Hoverable::onHover(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 	{
 		EventCallback cb = std::move(f);
-		Fireable::addCallback(Event::HOVER, this, std::move(cb));
+		Fireable::addCallback(Event::HOVER, this, std::move(cb), overwrite);
 	}
-	void  Hoverable::onUnhover(std::function<void()> f)
+	void  Hoverable::onUnhover(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::UNHOVER, this, std::move(cb));
+		Fireable::addCallback(Event::UNHOVER, this, std::move(cb), overwrite);
 	}
-	void Hoverable::onUnhover(std::function<void(const std::optional<sf::Event> &event)> f)
+	void Hoverable::onUnhover(std::function<void(const std::optional<sf::Event> &event)> f, bool overwrite)
 	{
 		EventCallback cb = std::move(f);
-		Fireable::addCallback(Event::UNHOVER, this, std::move(cb));
+		Fireable::addCallback(Event::UNHOVER, this, std::move(cb), overwrite);
 	}
 
 	void HoverableDispatcher::fire(const std::optional<sf::Event>& event)

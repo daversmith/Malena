@@ -10,23 +10,23 @@
 
 namespace ml {
 	// Focusable.cpp
-	void Focusable::onFocus(std::function<void()> f)
+	void Focusable::onFocus(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::FOCUS, this, std::move(cb));
+		Fireable::addCallback(Event::FOCUS, this, std::move(cb), overwrite);
 	}
-	void Focusable::onFocus(std::function<void(const std::optional<sf::Event>&)> f)
+	void Focusable::onFocus(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 	{
-		Fireable::addCallback(Event::FOCUS, this, std::move(f));
+		Fireable::addCallback(Event::FOCUS, this, std::move(f), overwrite);
 	}
 
-	void Focusable::onBlur(std::function<void()> f)
+	void Focusable::onBlur(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::BLUR, this, std::move(cb));
+		Fireable::addCallback(Event::BLUR, this, std::move(cb), overwrite);
 	}
-	void Focusable::onBlur(std::function<void(const std::optional<sf::Event>&)> f)
+	void Focusable::onBlur(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 	{
-		Fireable::addCallback(Event::BLUR, this, std::move(f));
+		Fireable::addCallback(Event::BLUR, this, std::move(f), overwrite);
 	}
 } // ml

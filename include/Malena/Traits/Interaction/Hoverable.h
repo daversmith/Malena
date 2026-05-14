@@ -52,7 +52,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on hover enter.
          */
-        void onHover(std::function<void()> callback);
+        void onHover(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse enters this
@@ -60,7 +60,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on hover enter.
          */
-        void onHover(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onHover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
 
         /**
          * @brief Register a no-argument callback invoked when the mouse leaves
@@ -68,7 +68,7 @@ namespace ml
          *
          * @param callback Function invoked with no arguments on hover leave.
          */
-        void onUnhover(std::function<void()> callback);
+        void onUnhover(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse leaves this
@@ -76,7 +76,7 @@ namespace ml
          *
          * @param callback Function invoked with the SFML event on hover leave.
          */
-        void onUnhover(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onUnhover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

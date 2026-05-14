@@ -10,48 +10,48 @@ namespace ml
 {
     // ── Updatable ─────────────────────────────────────────────────────────────
 
-    void Updatable::onUpdate(std::function<void()> f)
+    void Updatable::onUpdate(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::UPDATE, this, std::move(cb));
+        Fireable::addCallback(Event::UPDATE, this, std::move(cb), overwrite);
     }
 
-    void Updatable::onUpdate(std::function<void(const std::optional<sf::Event>&)> f)
+    void Updatable::onUpdate(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::UPDATE, this, std::move(f));
+        Fireable::addCallback(Event::UPDATE, this, std::move(f), overwrite);
     }
 
-    void Updatable::onWindowResized(std::function<void()> f)
-    {
-        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::WINDOW_RESIZED, this, std::move(cb));
-    }
-
-    void Updatable::onWindowResized(std::function<void(const std::optional<sf::Event>&)> f)
-    {
-        Fireable::addCallback(Event::WINDOW_RESIZED, this, std::move(f));
-    }
-
-    void Updatable::onWindowFocusGained(std::function<void()> f)
+    void Updatable::onWindowResized(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::WINDOW_FOCUS_GAINED, this, std::move(cb));
+        Fireable::addCallback(Event::WINDOW_RESIZED, this, std::move(cb), overwrite);
     }
 
-    void Updatable::onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> f)
+    void Updatable::onWindowResized(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::WINDOW_FOCUS_GAINED, this, std::move(f));
+        Fireable::addCallback(Event::WINDOW_RESIZED, this, std::move(f), overwrite);
     }
 
-    void Updatable::onWindowFocusLost(std::function<void()> f)
+    void Updatable::onWindowFocusGained(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::WINDOW_FOCUS_LOST, this, std::move(cb));
+        Fireable::addCallback(Event::WINDOW_FOCUS_GAINED, this, std::move(cb), overwrite);
     }
 
-    void Updatable::onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> f)
+    void Updatable::onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::WINDOW_FOCUS_LOST, this, std::move(f));
+        Fireable::addCallback(Event::WINDOW_FOCUS_GAINED, this, std::move(f), overwrite);
+    }
+
+    void Updatable::onWindowFocusLost(std::function<void()> f, bool overwrite)
+    {
+        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
+        Fireable::addCallback(Event::WINDOW_FOCUS_LOST, this, std::move(cb), overwrite);
+    }
+
+    void Updatable::onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
+    {
+        Fireable::addCallback(Event::WINDOW_FOCUS_LOST, this, std::move(f), overwrite);
     }
 
     // ── UpdatableDispatcher ───────────────────────────────────────────────────
