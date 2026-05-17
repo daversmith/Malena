@@ -244,6 +244,8 @@ namespace ml
         void          setPosition(const sf::Vector2f& position) override;
         sf::Vector2f  getPosition()     const override;
         sf::FloatRect getGlobalBounds() const override;
+
+        void setEnabled(bool enabled) override;
     };
 
     template<typename MANIFEST>

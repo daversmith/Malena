@@ -93,6 +93,7 @@ namespace ml {
         RectangleWith<PanelManifest>::draw(target, states);
         for (auto* component : getComponents())
         {
+            if (component->checkFlag(ml::Flag::HIDDEN)) continue;
             auto* drawable = dynamic_cast<sf::Drawable*>(component);
             if (drawable)
                 target.draw(*drawable, states);

@@ -46,6 +46,9 @@ target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
 # (httplib, ixwebsocket) are included only in .cpp files, not public headers.
 target_link_libraries(Malena PRIVATE httplib::httplib ixwebsocket)
 
+# Native file dialogs — PRIVATE, NFD headers are only in the .cpp implementation
+target_link_libraries(Malena PRIVATE "$<BUILD_INTERFACE:nfd>")
+
 # nlohmann/json — header-only. BUILD_INTERFACE limits the dependency to the
 # build tree so it does not appear in the install export set (which would
 # require nlohmann to be installed system-wide as well).

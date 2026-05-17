@@ -21,11 +21,7 @@ namespace ml
 
     void ChatWindow::applyLayout()
     {
-        float spW = _size.x - 2.f * EDGE_PAD;
-        float spH = _size.y - INPUT_H - 3.f * EDGE_PAD;
-
         _scrollPane.setPosition({_position.x + EDGE_PAD, _position.y + EDGE_PAD});
-        _scrollPane.setSize(spW, spH);
 
         float inputY = _position.y + _size.y - INPUT_H - EDGE_PAD;
         float inputW = _size.x - 2.f * EDGE_PAD - BTN_W - EDGE_PAD;
@@ -66,6 +62,7 @@ namespace ml
     void ChatWindow::setSize(const sf::Vector2f& size)
     {
         _size = size;
+        _scrollPane.setSize(size.x - 2.f * EDGE_PAD, size.y - INPUT_H - 3.f * EDGE_PAD);
         applyLayout();
         rebuildBubbles();
     }

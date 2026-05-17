@@ -78,6 +78,12 @@ namespace ml
             _label.setFillColor(textColor);
             _description.setFillColor(mutedColor);
         }
+        else if (_selected)
+        {
+            _background.setFillColor(bgSelected);
+            _label.setFillColor(textColor);
+            _description.setFillColor(mutedColor);
+        }
         else
         {
             _background.setFillColor(bgIdle);
@@ -240,6 +246,11 @@ namespace ml
         _onClickCb = std::move(cb);
     }
 
+    bool ListItem::isEndHit(const sf::Vector2f& point) const
+    {
+        return _end && _end->getGlobalBounds().contains(point);
+    }
+
     // ── State ─────────────────────────────────────────────────────────────────
 
     void ListItem::setEnabled(bool enabled)
@@ -251,6 +262,12 @@ namespace ml
     }
 
     bool ListItem::isEnabled() const { return !checkFlag(Flag::DISABLED); }
+
+    void ListItem::setSelected(bool selected)
+    {
+        _selected = selected;
+        applyVisualState();
+    }
 
     // ── Width ─────────────────────────────────────────────────────────────────
 

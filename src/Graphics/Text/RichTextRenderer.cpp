@@ -376,9 +376,18 @@ namespace ml
     {
         if (_lines.empty()) return _origin;
 
-        for (const auto& line : _lines)
+        for (std::size_t li = 0; li < _lines.size(); ++li)
         {
+            const auto& line = _lines[li];
             if (index < line.charStart || index > line.charEnd) continue;
+
+            // When index is exactly at this line's end and the next line starts
+            // at the same index (i.e., cursor is right after a '\n'), the cursor
+            // belongs at the start of the next line, not the end of this one.
+            if (index == line.charEnd
+                && li + 1 < _lines.size()
+                && _lines[li + 1].charStart == index)
+                continue;
 
             for (const auto& seg : line.segments)
             {

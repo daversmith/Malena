@@ -62,6 +62,15 @@ set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
 set(JSON_Install    OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(nlohmann_json)
 
+# ── nativefiledialog-extended — native OS file open/save dialogs ──────────────
+FetchContent_Declare(
+        nfd
+        GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
+        GIT_TAG v1.2.1
+        GIT_SHALLOW ON
+        SYSTEM)
+FetchContent_MakeAvailable(nfd)
+
 # Add the library
 add_subdirectory(src)
 

@@ -6,8 +6,8 @@ namespace ml
     : _width(width), _height(height)
 	{
 	    _renderTexture.resize({
-	        static_cast<unsigned int>(width),
-	        static_cast<unsigned int>(height)
+	        std::max(1u, static_cast<unsigned int>(width)),
+	        std::max(1u, static_cast<unsigned int>(height))
 	    });
 
 	    _background.setSize({width, height});
@@ -215,8 +215,8 @@ namespace ml
 		_height = height;
 		_background.setSize({width, height});
 		_renderTexture.resize({
-			static_cast<unsigned int>(width),
-			static_cast<unsigned int>(height)
+			std::max(1u, static_cast<unsigned int>(width)),
+			std::max(1u, static_cast<unsigned int>(height))
 		});
 	}
 	void ScrollPane::setScrollOffsetY(float y)

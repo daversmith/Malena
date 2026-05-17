@@ -9,6 +9,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>
+#include <Malena/Traits/Theme/ButtonTheme.h>
+#include <Malena/Resources/ThemeManager.h>
 #include <string>
 
 namespace ml
@@ -21,8 +23,20 @@ namespace ml
 		{
 			*static_cast<T *>(this) = T(buttonSize.value()); // Assign after construction
 		}
-		// T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
-		T::centerText( _text);
+		T::centerText(_text);
+		onThemeApplied(ThemeManager::get());
+	}
+
+	template<typename T, typename S>
+	void Button<T, S>::onThemeApplied(const Theme& theme)
+	{
+		if (isThemeLocked()) return;
+		ButtonTheme t;
+		t.applyFrom(theme);
+		T::setFillColor(t.offColor);
+		T::setOutlineColor(t.borderColor);
+		T::setOutlineThickness(t.borderThickness);
+		_text.setFillColor(t.offTextColor);
 	}
 
 	template<typename T, typename S>

@@ -137,13 +137,19 @@ namespace ml
             offset   += tab.width;
         }
 
-        // Reposition and resize content for active tab
+        // Reposition and resize content for active tab.
+        // Guard matches draw(): skip when content area has non-positive dimensions
+        // (e.g. panel not yet sized), which would otherwise pass negative heights
+        // to nested components and corrupt their RenderTexture canvas.
         if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
         {
             const sf::FloatRect cr = contentRect();
-            _tabs[_activeIdx].content->setPosition(cr.position);
-            if (_tabs[_activeIdx].resizeFn)
-                _tabs[_activeIdx].resizeFn(cr.size);
+            if (cr.size.x > 0.f && cr.size.y > 0.f)
+            {
+                _tabs[_activeIdx].content->setPosition(cr.position);
+                if (_tabs[_activeIdx].resizeFn)
+                    _tabs[_activeIdx].resizeFn(cr.size);
+            }
         }
     }
 
@@ -413,6 +419,11 @@ namespace ml
 
     void TabbedPanel::addTab(Tab tab)
     {
+        // Inactive tab contents must not receive click/focus events while hidden.
+        // Disable the new content immediately if another tab is already active.
+        if (_activeIdx >= 0 && tab.content)
+            tab.content->setEnabled(false);
+
         _tabs.push_back(std::move(tab));
         computeTabLayout();
 
@@ -454,12 +465,28 @@ namespace ml
     void TabbedPanel::selectTab(std::size_t index)
     {
         if (index >= _tabs.size()) return;
+
+        // Disable the outgoing tab's content so it can't receive click/focus events.
+        if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()) &&
+            _activeIdx != static_cast<int>(index))
+        {
+            if (_tabs[_activeIdx].content)
+                _tabs[_activeIdx].content->setEnabled(false);
+        }
+
         _activeIdx = static_cast<int>(index);
 
+        // Enable the incoming tab's content.
+        if (_tabs[index].content)
+            _tabs[index].content->setEnabled(true);
+
         const sf::FloatRect cr = contentRect();
-        _tabs[index].content->setPosition(cr.position);
-        if (_tabs[index].resizeFn)
-            _tabs[index].resizeFn(cr.size);
+        if (cr.size.x > 0.f && cr.size.y > 0.f)
+        {
+            _tabs[index].content->setPosition(cr.position);
+            if (_tabs[index].resizeFn)
+                _tabs[index].resizeFn(cr.size);
+        }
 
         if (_onTabChanged)
             _onTabChanged(index, _tabs[index].label);
@@ -492,5 +519,12 @@ namespace ml
     sf::Vector2f  TabbedPanel::getPosition()     const { return _position; }
     sf::FloatRect TabbedPanel::getGlobalBounds() const
     { return sf::FloatRect{_position, _size}; }
+
+    void TabbedPanel::setEnabled(bool enabled)
+    {
+        Core::setEnabled(enabled);
+        for (auto& tab : _tabs)
+            if (tab.content) tab.content->setEnabled(enabled);
+    }
 
 } // namespace ml

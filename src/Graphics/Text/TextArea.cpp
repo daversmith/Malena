@@ -58,6 +58,8 @@ namespace ml
         });
 
         // ── Per-frame: scroll sync + scrollbar thumb drag ─────────────────────
+        // overwrite=false: preserve TextInput's onUpdate (cursor blink, click,
+        // drag selection) and add this handler alongside it.
         onUpdate([this]{
             // Sync renderer when scroll offset changes (wheel events)
             const float scrollY = _scrollPane.getScrollOffsetY();
@@ -117,7 +119,7 @@ namespace ml
             }
 
             _prevMouseDown = mouseDown;
-        });
+        }, false);
 
         // Enable word wrap — reserve scrollBarWidth on the right for the scrollbar
         _renderer.setMaxWidth(size.x - padding * 2.f - scrollBarWidth);
@@ -136,8 +138,8 @@ namespace ml
         // the renderer origin in reflow(), identical to TextInput's horizontal
         // scroll. Content outside the canvas bounds is clipped by the RenderTexture.
         _canvas.resize({
-            static_cast<unsigned int>(size.x),
-            static_cast<unsigned int>(size.y)
+            std::max(1u, static_cast<unsigned int>(size.x)),
+            std::max(1u, static_cast<unsigned int>(size.y))
         });
 
         // Tell ScrollPane the TOTAL content height for scrollbar calibration.
@@ -281,6 +283,8 @@ namespace ml
             _cursorVisible = true;
             return;
         }
+
+        handleKey(kp);
     }
 
     // ── draw ──────────────────────────────────────────────────────────────────

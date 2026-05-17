@@ -32,8 +32,8 @@ namespace ml
         _placeholder.setFillColor(placeholderColor);
 
         static_cast<void>(_canvas.resize({
-            static_cast<unsigned int>(size.x),
-            static_cast<unsigned int>(size.y)
+            std::max(1u, static_cast<unsigned int>(size.x)),
+            std::max(1u, static_cast<unsigned int>(size.y))
         }));
 
         rebuild();
@@ -439,6 +439,7 @@ namespace ml
 
     void TextInput::setEnabled(bool e)
     {
+        Core::setEnabled(e);
         if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         syncColors();
@@ -469,8 +470,8 @@ namespace ml
         size = sz;
         _background.setSize(sz);
         static_cast<void>(_canvas.resize({
-            static_cast<unsigned int>(sz.x),
-            static_cast<unsigned int>(sz.y)
+            std::max(1u, static_cast<unsigned int>(sz.x)),
+            std::max(1u, static_cast<unsigned int>(sz.y))
         }));
         rebuild();
     }

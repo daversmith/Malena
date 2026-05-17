@@ -116,6 +116,8 @@ namespace ml
 
         std::vector<Row>              _rows;
         std::vector<sf::RectangleShape> _dividers;
+        Row  _pinnedBottom;
+        bool _hasPinnedBottom = false;
 
         // ── Layout ────────────────────────────────────────────────────────────
         sf::RectangleShape _background;
@@ -202,6 +204,15 @@ namespace ml
          * @param component Any @c ml::Core (including @c List for nesting).
          */
         void add(ml::Core& component);
+
+        /**
+         * @brief Create a @c ListItem pinned to the bottom of the list.
+         *
+         * All items added via @c addItem after this call appear above it.
+         * Only one pinned item is supported — calling this again replaces it.
+         */
+        ListItem& addPinnedBottom(const std::string& label,
+                                  std::function<void()> onClick = nullptr);
 
         /**
          * @brief Remove a row by index.

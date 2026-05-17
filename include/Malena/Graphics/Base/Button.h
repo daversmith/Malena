@@ -10,6 +10,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>
+#include <Malena/Traits/Theme/Themeable.h>
+#include <Malena/Traits/Theme/ButtonTheme.h>
 #include <string>
 #include <optional>
 namespace ml
@@ -55,7 +57,7 @@ namespace ml
      * @see RectangleButton, CircleButton, ConvexButton, Graphic
      */
     template<typename T, typename S>
-    class Button : public T
+    class Button : public T, public Themeable
     {
         static_assert(std::is_base_of_v<Core, T>,
             "Button<T, S>: T must be derived from ml::Core.");
@@ -226,6 +228,17 @@ namespace ml
 
         /** @brief Set the absolute rotation of both shape and label. */
         void setRotation(sf::Angle angle);
+
+        // ── Themeable ─────────────────────────────────────────────────────────
+
+        /**
+         * @brief Re-style from the active theme.
+         *
+         * Applies @c ButtonTheme tokens: fill → @c offColor, text → @c offTextColor,
+         * outline color/thickness → @c borderColor / @c borderThickness.
+         * Respects @c lockTheme().
+         */
+        void onThemeApplied(const Theme& theme) override;
 
         // ── Draw ─────────────────────────────────────────────────────────────
 
