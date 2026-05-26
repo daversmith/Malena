@@ -71,6 +71,9 @@ namespace ml
         void setRecipientId(const std::string& id);
         const std::string& getRecipientId() const;
 
+        void setEnabled(bool enabled)       override;
+        void setParentEnabled(bool enabled) override;
+
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     };

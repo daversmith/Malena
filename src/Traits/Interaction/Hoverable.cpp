@@ -7,6 +7,7 @@
 #include <Malena/Traits/Spatial/Positionable.h>
 #include <Malena/Traits/State/Flaggable.h>
 #include <Malena/Core/Core.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Utilities/MouseEvents.h>
@@ -22,6 +23,7 @@ namespace ml
 		auto* core = dynamic_cast<Core*>(component);
 		if (!core) return false;
 		if (core->checkFlag(Flag::HIDDEN) || !core->checkFlag(Flag::ENABLED)) return false;
+	if (!AppManager::isUnderExclusiveOwner(core)) return false;
 		return MouseEvents::isHovered(*core, WindowManager::getWindow());
 	}
 

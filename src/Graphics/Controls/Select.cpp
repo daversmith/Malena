@@ -57,6 +57,7 @@ namespace ml
         });
 
         onUpdate([this]{
+            if (!checkFlag(ml::Flag::ENABLED)) { _hoveredIndex = -1; _prevDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left); return; }
             if (!checkFlag(Flag::OPEN)) { _hoveredIndex = -1; return; }
 
             const sf::Vector2f wp =
@@ -65,10 +66,9 @@ namespace ml
 
             _hoveredIndex = hitTestPanel(wp);
 
-            static bool prevDown = false;
             const bool  mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-            if (mouseDown && !prevDown)
+            if (mouseDown && !_prevDown)
             {
                 const int idx = hitTestPanel(wp);
                 if (idx >= 0 && idx < static_cast<int>(_options.size()))
@@ -87,7 +87,7 @@ namespace ml
                         closePanel();
                 }
             }
-            prevDown = mouseDown;
+            _prevDown = mouseDown;
         });
 
         onScroll([this](const std::optional<sf::Event>& e){

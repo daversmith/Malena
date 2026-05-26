@@ -77,6 +77,8 @@ namespace ml
 
 	void ScrollPane::addComponent(ml::Core& component)
 	{
+	    if (_embedded)
+	        component.unsubscribeAll();
 	    _children.push_back(&component);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
@@ -259,6 +261,7 @@ namespace ml
 	{
 		// Silence this pane and its internal thumb from the event system.
 		// Both are Components with auto-subscriptions from ComponentCore.
+		_embedded = true;
 		this->unsubscribeAll();
 		_scrollBarThumb.unsubscribeAll();
 	}

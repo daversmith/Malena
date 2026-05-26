@@ -108,6 +108,7 @@ namespace ml
         float _alpha     = 0.f;
         bool  _animating = false;
         bool  _fadingIn  = false;
+        bool  _prevDown  = false;
 
         // ── Callbacks ─────────────────────────────────────────────────────────
         std::function<void()> _onConfirm;
@@ -147,6 +148,7 @@ namespace ml
         // ── Control ───────────────────────────────────────────────────────────
 
         void show();
+        void showImmediate();
         void hide();
         void toggle();
         [[nodiscard]] bool isVisible() const;

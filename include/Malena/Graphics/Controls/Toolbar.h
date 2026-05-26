@@ -62,12 +62,14 @@ namespace ml
      * toolbar.addButton("Redo", [&]{ redo(); });
      * toolbar.addSeparator();
      *
-     * // Embed any component — e.g. a search TextInput
+     * // Embed any component as a visual toolbar item.
+     * // add() handles positioning; addComponent() registers it for events.
+     * // Both calls are required for interactive components.
      * ml::TextInput search;
      * search.setSize({200.f, 28.f});
      * search.setPlaceholder("Search...");
-     * toolbar.add(search);
-     * addComponent(search);
+     * toolbar.add(search);      // positions in toolbar flow
+     * addComponent(search);     // enables click / hover / update events
      *
      * addComponent(toolbar);
      * @endcode
@@ -95,6 +97,7 @@ namespace ml
             bool                      separator = false;
             bool                      hovered   = false;
             bool                      enabled   = true;
+            bool                      selected  = false;
 
             Item() = default;
             Item(Item&&) = default;
@@ -102,9 +105,11 @@ namespace ml
         };
 
         std::vector<Item> _items;
-        sf::Vector2f      _position  = {0.f, 0.f};
-        float             _barLength = 0.f;  ///< resolved bar length (width if H, height if V)
-        int               _hoveredIdx = -1;
+        sf::Vector2f      _position       = {0.f, 0.f};
+        float             _barLength      = 0.f;  ///< resolved bar length (width if H, height if V)
+        float             _scrollOffsetX  = 0.f;  ///< horizontal scroll offset (Overflow::SCROLL)
+        float             _totalItemsLen  = 0.f;  ///< total item span along the bar axis
+        int               _hoveredIdx     = -1;
 
         void layout();
         void drawSeparator(sf::RenderTarget& target,
@@ -163,20 +168,33 @@ namespace ml
         /** @brief Enable or disable an owned button by item index. */
         void setItemEnabled(std::size_t index, bool enabled);
 
+        /** @brief Set or clear the persistent selected highlight on an owned button. */
+        void setItemSelected(std::size_t index, bool selected);
+
         /**
-         * @brief Add a component as a toolbar item.
+         * @brief Embed any @c ml::Core as a positioned toolbar item.
          *
-         * The component is NOT owned — register it with @c addComponent separately
-         * so its events fire. The toolbar positions it; the component sizes itself.
+         * This handles **visual placement only** — the component is placed in the
+         * item flow and repositioned whenever the toolbar moves. It is NOT owned.
+         *
+         * To also receive framework events (click, hover, update), you must also
+         * register the component with the host's component manager:
+         *
+         * @code
+         * toolbar.add(myToggle);      // place in toolbar
+         * addComponent(myToggle);     // enable events
+         * @endcode
+         *
+         * For display-only items that need no events, @c add() alone is sufficient.
+         *
+         * @c setEnabled() on the toolbar propagates to all embedded components,
+         * including those added via this method.
+         *
+         * @param component Any @c ml::Core. Not owned — caller manages lifetime.
          */
         void add(ml::Core& component);
 
-        /**
-         * @brief Add a const component as a toolbar item.
-         *
-         * The component is NOT owned — register it with @c addComponent separately
-         * so its events fire. The toolbar positions it; the component sizes itself.
-         */
+        /** @brief Const overload — forwards to the non-const @c add(). */
         void add(const ml::Core& component);
 
         /** @brief Add a visual separator. */
@@ -204,7 +222,8 @@ namespace ml
         sf::Vector2f  getPosition()     const override;
         sf::FloatRect getGlobalBounds() const override;
 
-        void setEnabled(bool enabled) override;
+        void setEnabled(bool enabled)       override;
+        void setParentEnabled(bool enabled) override;
     };
 
     template<typename MANIFEST>

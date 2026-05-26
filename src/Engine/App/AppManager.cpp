@@ -40,11 +40,31 @@ namespace ml
         , _windowStyle(windowStyle)
     {
         window.create(videoMode, title, windowStyle);
+#ifdef __APPLE__
+        // VSync synchronizes frame submission with the display refresh, preventing
+        // Metal command buffer accumulation when multiple GL apps run simultaneously.
+        // setFramerateLimit() uses sf::sleep() which is imprecise and lets frames
+        // pile up, exhausting Metal's transient memory pool (MTLCommandBufferError Code=8).
+        window.setVerticalSyncEnabled(true);
+#else
         window.setFramerateLimit(_framerateLimit);
+#endif
         _instance = this;
 #ifdef __APPLE__
         ml_patchAcceptsFirstMouse((NSWindow*)window.getNativeHandle());
 #endif
+    }
+
+    // ── Exclusive interaction ─────────────────────────────────────────────────
+
+    void AppManager::setExclusiveOwner(Core* owner)  { _exclusiveOwner = owner; }
+    void AppManager::clearExclusiveOwner()            { _exclusiveOwner = nullptr; }
+
+    bool AppManager::isUnderExclusiveOwner(Core* component)
+    {
+        if (!_exclusiveOwner) return true;
+        return component == _exclusiveOwner
+            || Core::isDescendantOf(_exclusiveOwner, component);
     }
 
     // ── Window appearance ─────────────────────────────────────────────────────
@@ -74,7 +94,11 @@ namespace ml
     {
         _windowStyle = style;
         window->create(_videoMode, _title, style);
+#ifdef __APPLE__
+        window->setVerticalSyncEnabled(true);
+#else
         window->setFramerateLimit(_framerateLimit);
+#endif
 #ifdef __APPLE__
         ml_patchAcceptsFirstMouse((NSWindow*)window->getNativeHandle());
 #endif
@@ -173,11 +197,7 @@ namespace ml
         onReady();
 
 #ifdef __APPLE__
-        {
-            NSApplication* app = [NSApplication sharedApplication];
-            [app setActivationPolicy:NSApplicationActivationPolicyRegular];
-            [app activateIgnoringOtherApps:YES];
-        }
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 #endif
 
         _clock.restart();

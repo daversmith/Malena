@@ -164,6 +164,7 @@ namespace ml
          */
         static void bind(StateEnum state, Core& scene)
         {
+            scene.setEnabled(false);
             _bindings[state] = SceneEntry{ &scene, nullptr, nullptr };
         }
 

@@ -22,8 +22,12 @@
 #include <Malena/Traits/Interaction/Focusable.h>
 #include <Malena/Traits/Interaction/Hoverable.h>
 #include <Malena/Traits/Interaction/Keyable.h>
+#include <Malena/Traits/Communication/DialogRequest.h>
 #include <Malena/Traits/Communication/Hookable.h>
 #include <Malena/Traits/Communication/Messenger.h>
+#include <Malena/Traits/Communication/OverlayWidget.h>
+#include <Malena/Traits/Communication/SplitPaneWidget.h>
+#include <Malena/Traits/Communication/ToolbarWidget.h>
 #include <Malena/Traits/Spatial/Positionable.h>
 #include <Malena/Traits/Interaction/Scrollable.h>
 #include <Malena/Traits/Communication/Subscribable.h>

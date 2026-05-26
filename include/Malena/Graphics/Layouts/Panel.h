@@ -91,22 +91,36 @@ namespace ml {
             }
 
             CoreManager<Core>::addComponent(child);
+            Core::linkChild(this, &child);
+            child.setParentEnabled(isEnabled());
         }
 
         /**
-         * @brief Add a child by reference — drawn by the panel but position
-         *        and size are managed entirely by the caller.
+         * @brief Add a child that will NOT follow the panel when it moves.
          *
-         * Unlike @c addComponent(), the panel never calls @c setPosition or
-         * @c setSize on the child. Use this when the component is already
-         * positioned absolutely in world space and you only need the panel
-         * to include it in its draw pass.
+         * The panel draws the child and propagates enable/visible state, but
+         * never calls @c setPosition or @c setSize on it. The caller is
+         * responsible for positioning the child at all times.
+         *
+         * Use this only when the child's position is managed externally
+         * (e.g., a custom @c setPosition override that manually lays out
+         * children). In most cases @c addComponent() is the right choice —
+         * it tracks the child and shifts it whenever the panel moves.
          *
          * @code
-         * // myButton is positioned elsewhere — panel just draws it
-         * panel.addRef(myButton);
+         * // Override setPosition to lay out children manually:
+         * void MyWidget::setPosition(const sf::Vector2f& pos) override
+         * {
+         *     ml::Panel::setPosition(pos);
+         *     _label.setPosition({pos.x + 10.f, pos.y + 5.f});  // manual
+         * }
+         * // In constructor, register without position tracking:
+         * addUntracked(_label);
          * @endcode
          */
+        void addUntracked(Core& child);
+
+        /** @brief Alias for @c addUntracked(). Kept for compatibility. */
         void addRef(Core& child);
 
         /**
@@ -130,6 +144,7 @@ namespace ml {
         void setPosition(const sf::Vector2f& position) override;
 
         void setEnabled(bool enabled) override;
+        void setParentEnabled(bool enabled) override;
         void setVisible(bool visible) override;
         void setActive(bool active) override;
 

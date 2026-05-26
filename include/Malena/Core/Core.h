@@ -76,6 +76,7 @@ namespace ml
         virtual sf::RenderStates getRenderStates() const { return sf::RenderStates(); }
 
         virtual void setEnabled(bool enabled);
+        virtual void setParentEnabled(bool enabled);
         virtual void setVisible(bool visible);
         virtual void setActive(bool active);
         bool isEnabled() const;
@@ -89,7 +90,15 @@ namespace ml
         virtual void onEnabledChanged(bool enabled) {}
 
     private:
+        bool _selfEnabled   = true;
+        bool _parentEnabled = true;
+
+        void applyEnabled(bool selfEnabled, bool parentEnabled);
+
         static std::unordered_map<Core*, std::vector<Core*>> _childMap;
+
+        static bool isDescendantOf(Core* ancestor, Core* component);
+        friend class AppManager;
     };
 
 } // namespace ml

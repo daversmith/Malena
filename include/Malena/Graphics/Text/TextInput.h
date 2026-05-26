@@ -60,6 +60,7 @@ namespace ml
         float              _scrollX  = 0.f;
 
         sf::Text _placeholder;
+        sf::Text _maskDisplay;
         bool     _showPlaceholder = true;
 
         mutable sf::Clock _cursorClock;

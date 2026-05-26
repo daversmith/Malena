@@ -21,6 +21,12 @@ namespace ml
             // is no CLICK/HOVER subscriber entry being iterated right now.
             _pendingDelete.clear();
 
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _hoveredIdx = -1;
+                return;
+            }
+
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
             _hoveredIdx = hitTestStrip(wp);
@@ -424,6 +430,11 @@ namespace ml
         if (_activeIdx >= 0 && tab.content)
             tab.content->setEnabled(false);
 
+        // Sync _parentEnabled with TabbedPanel's current enabled state so new
+        // content starts correctly disabled when the panel itself is disabled.
+        if (tab.content)
+            tab.content->setParentEnabled(isEnabled());
+
         _tabs.push_back(std::move(tab));
         computeTabLayout();
 
@@ -523,8 +534,17 @@ namespace ml
     void TabbedPanel::setEnabled(bool enabled)
     {
         Core::setEnabled(enabled);
+        const bool effective = isEnabled();
         for (auto& tab : _tabs)
-            if (tab.content) tab.content->setEnabled(enabled);
+            if (tab.content) tab.content->setParentEnabled(effective);
+    }
+
+    void TabbedPanel::setParentEnabled(bool enabled)
+    {
+        Core::setParentEnabled(enabled);
+        const bool effective = isEnabled();
+        for (auto& tab : _tabs)
+            if (tab.content) tab.content->setParentEnabled(effective);
     }
 
 } // namespace ml

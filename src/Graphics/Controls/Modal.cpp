@@ -2,6 +2,7 @@
 // Malena Framework — Proprietary Software. See LICENSE for terms.
 
 #include <Malena/Graphics/Controls/Modal.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
@@ -39,6 +40,8 @@ namespace ml
                     _animating = false;
                     if (!_fadingIn)
                     {
+                        AppManager::clearExclusiveOwner();
+                        if (_content) _content->setParentEnabled(false);
                         disableFlag(Flag::VISIBLE);
                         setState(State::HIDDEN);
                         if (_onDismiss) _onDismiss();
@@ -57,10 +60,9 @@ namespace ml
             // Backdrop or close-button click while visible
             if (checkFlag(Flag::VISIBLE) || _animating)
             {
-                static bool prevDown = false;
                 const bool  down     = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-                if (down && !prevDown)
+                if (down && !_prevDown)
                 {
                     const auto& win = WindowManager::getWindow();
                     const sf::Vector2f wp =
@@ -84,7 +86,7 @@ namespace ml
                         hide();
                     }
                 }
-                prevDown = down;
+                _prevDown = down;
             }
         });
     }
@@ -334,6 +336,7 @@ namespace ml
     void Modal::setContent(ml::Core& content)
     {
         _content = &content;
+        Core::linkChild(this, &content);
         applyLayout();
     }
 
@@ -354,11 +357,26 @@ namespace ml
     void Modal::show()
     {
         if (checkFlag(Flag::VISIBLE) && !_animating) return;
+        AppManager::setExclusiveOwner(this);
+        if (_content) _content->setParentEnabled(true);
         enableFlag(Flag::VISIBLE);
         setState(State::ANIMATING);
         applyLayout();
         _fadingIn  = true;
         _animating = true;
+    }
+
+    void Modal::showImmediate()
+    {
+        if (checkFlag(Flag::VISIBLE) && !_animating) return;
+        AppManager::setExclusiveOwner(this);
+        if (_content) _content->setParentEnabled(true);
+        _alpha     = 255.f;
+        _fadingIn  = false;
+        _animating = false;
+        enableFlag(Flag::VISIBLE);
+        setState(State::VISIBLE);
+        applyLayout();
     }
 
     void Modal::hide()

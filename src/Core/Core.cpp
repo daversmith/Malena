@@ -10,6 +10,19 @@ namespace ml
 
     std::unordered_map<Core*, std::vector<Core*>> Core::_childMap;
 
+    bool Core::isDescendantOf(Core* ancestor, Core* component)
+    {
+        if (!ancestor || !component) return false;
+        auto it = _childMap.find(ancestor);
+        if (it == _childMap.end()) return false;
+        for (Core* child : it->second)
+        {
+            if (child == component) return true;
+            if (isDescendantOf(child, component)) return true;
+        }
+        return false;
+    }
+
     Core::Core()
     {
         enableFlag(Flag::ENABLED);
@@ -39,16 +52,30 @@ namespace ml
     void Core::addComponent(Core& child)
     {
         linkChild(this, &child);
+        child.setParentEnabled(isEnabled());
+    }
+
+    void Core::applyEnabled(bool selfEnabled, bool parentEnabled)
+    {
+        _selfEnabled   = selfEnabled;
+        _parentEnabled = parentEnabled;
+        bool effective = _selfEnabled && _parentEnabled;
+        setFlag(Flag::ENABLED, effective);
+        onEnabledChanged(effective);
+        auto it = _childMap.find(this);
+        if (it != _childMap.end())
+            for (auto* child : it->second)
+                child->setParentEnabled(effective);
     }
 
     void Core::setEnabled(bool enabled)
     {
-        setFlag(Flag::ENABLED, enabled);
-        onEnabledChanged(enabled);
-        auto it = _childMap.find(this);
-        if (it != _childMap.end())
-            for (auto* child : it->second)
-                child->setEnabled(enabled);
+        applyEnabled(enabled, _parentEnabled);
+    }
+
+    void Core::setParentEnabled(bool enabled)
+    {
+        applyEnabled(_selfEnabled, enabled);
     }
 
     void Core::setVisible(bool visible)

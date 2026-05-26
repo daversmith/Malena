@@ -17,6 +17,44 @@ namespace ml
 
         _input.setPlaceholder("Message...");
         _input.onSubmit([this](const std::string&) { doSend(); });
+
+        // ScrollPane is a private member — silence it from the event system so it
+        // cannot steal click focus away from _input.  Mouse wheel is re-routed via
+        // ChatWindow's own onScroll below; scrollbar-thumb drag is not supported.
+        _scrollPane.embed();
+
+        // Forward mouse-wheel events to the scroll pane from the whole chat area.
+        onScroll([this](const std::optional<sf::Event>& event)
+        {
+            if (!event) return;
+            const auto* scroll = event->getIf<sf::Event::MouseWheelScrolled>();
+            if (!scroll) return;
+            float newY = _scrollPane.getScrollOffsetY() - scroll->delta * 20.f;
+            _scrollPane.setScrollOffsetY(newY);
+        });
+
+        // Link members so setEnabled() propagates correctly when a parent
+        // panel is enabled or disabled.
+        Core::addComponent(_scrollPane);
+        Core::addComponent(_input);
+        Core::addComponent(_sendBtn);
+    }
+
+    void ChatWindow::setEnabled(bool enabled)
+    {
+        Component::setEnabled(enabled);
+        _scrollPane.setEnabled(enabled);
+        _input.setEnabled(enabled);
+        _sendBtn.setEnabled(enabled);
+    }
+
+    void ChatWindow::setParentEnabled(bool enabled)
+    {
+        Component::setParentEnabled(enabled);
+        const bool effective = isEnabled();
+        _scrollPane.setParentEnabled(effective);
+        _input.setParentEnabled(effective);
+        _sendBtn.setParentEnabled(effective);
     }
 
     void ChatWindow::applyLayout()

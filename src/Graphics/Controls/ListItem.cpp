@@ -72,7 +72,7 @@ namespace ml
             _label.setFillColor(disabledTextColor);
             _description.setFillColor(disabledTextColor);
         }
-        else if (isState(State::HOVERED))
+        else if (isState(State::HOVERED) && !_selected)
         {
             _background.setFillColor(bgHover);
             _label.setFillColor(textColor);
@@ -198,12 +198,14 @@ namespace ml
     void ListItem::setStart(ml::Core& c)
     {
         _start = &c;
+        Core::linkChild(this, &c);
         layout();
     }
 
     void ListItem::setEnd(ml::Core& c)
     {
         _end = &c;
+        Core::linkChild(this, &c);
         layout();
     }
 
@@ -211,6 +213,7 @@ namespace ml
     {
         _content           = &c;
         _hasCustomContent  = true;
+        Core::linkChild(this, &c);
         layout();
     }
 

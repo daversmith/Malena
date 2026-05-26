@@ -103,6 +103,7 @@ namespace ml
         mutable sf::RenderTexture _panelCanvas;
         mutable int               _hoveredIndex  = -1;
         mutable bool              _openAbove     = false;
+        bool                      _prevDown      = false;
 
         std::function<void(const std::string&, std::size_t)> _onSelectionChanged;
 

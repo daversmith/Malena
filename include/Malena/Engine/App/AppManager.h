@@ -140,9 +140,10 @@ namespace ml
         std::function<void(unsigned int, unsigned int)> _resizeHandler;
 
         /// @cond INTERNAL
-        inline static bool        _isDrawing = false;
-        inline static float       _deltaTime = 0.f;
-        inline static AppManager* _instance  = nullptr;
+        inline static bool        _isDrawing       = false;
+        inline static float       _deltaTime       = 0.f;
+        inline static AppManager* _instance        = nullptr;
+        inline static Core*       _exclusiveOwner  = nullptr;
         inline static std::vector<std::function<void()>> _deferredUnloads;
         /// @endcond
 
@@ -315,10 +316,22 @@ namespace ml
         /** @brief Return the architectural mode set at construction. */
         Architecture getArchitecture() const { return _architecture; }
 
+        // ── Exclusive interaction ─────────────────────────────────────────────
+
+        /** @brief Restrict click and hover dispatch to @p owner and its descendants.
+         *  Any component outside that subtree silently receives no events.
+         *  Pass @c nullptr (or call @c clearExclusiveOwner) to lift the restriction. */
+        static void setExclusiveOwner(Core* owner);
+
+        /** @brief Lift any active exclusive-owner restriction. */
+        static void clearExclusiveOwner();
+
         // ── Internal ──────────────────────────────────────────────────────────
 
         /// @cond INTERNAL
         static bool isDrawing() { return _isDrawing; }
+
+        static bool isUnderExclusiveOwner(Core* component);
 
         static void deferUnload(std::function<void()> op)
         {

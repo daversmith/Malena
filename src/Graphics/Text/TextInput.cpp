@@ -13,6 +13,7 @@ namespace ml
 {
     TextInput::TextInput(const sf::Font& font_)
         : _placeholder(font_),
+          _maskDisplay(font_),
           _renderer(_buffer, font_, 16, sf::Color::White)
     {
         // Seed from active theme, then apply the constructor font
@@ -100,6 +101,15 @@ namespace ml
                 _cursorClock.restart();
             }
 
+            // Skip all mouse interaction when disabled via parent propagation.
+            // TextInput polls raw mouse state directly, bypassing ClickableDispatcher,
+            // so we must gate on ml::Flag::ENABLED explicitly here.
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                return;
+            }
+
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
             const sf::Vector2f wp =
                 WindowManager::getWindow().mapPixelToCoords(
@@ -170,6 +180,17 @@ namespace ml
     void TextInput::rebuild()
     {
         _renderer.rebuild();
+
+        if (passwordMode)
+        {
+            _maskDisplay.setFont(*font);
+            _maskDisplay.setCharacterSize(fontSize);
+            _maskDisplay.setFillColor(sf::Color::White);
+            const std::u32string masked(
+                _buffer.size(), static_cast<char32_t>(passwordChar));
+            _maskDisplay.setString(sf::String::fromUtf32(masked.begin(), masked.end()));
+        }
+
         reflow();
         onRebuildComplete();
     }
@@ -186,6 +207,10 @@ namespace ml
                              : static_cast<float>(fontSize);
         const float textY  = (size.y - glyphH) / 2.f - lb.position.y;
         _renderer.setOrigin({padding - _scrollX, textY});
+
+        if (passwordMode)
+            _maskDisplay.setPosition({padding - _scrollX, textY});
+
         syncPlaceholder();
     }
 
@@ -356,12 +381,19 @@ namespace ml
 
         if (!_showPlaceholder)
         {
-            if (_buffer.hasSelection())
-                _renderer.drawSelection(_canvas, cs,
-                    _buffer.getSelectionStart(),
-                    _buffer.getSelectionEnd(),
-                    selectionColor);
-            _renderer.draw(_canvas, cs);
+            if (passwordMode)
+            {
+                _canvas.draw(_maskDisplay, cs);
+            }
+            else
+            {
+                if (_buffer.hasSelection())
+                    _renderer.drawSelection(_canvas, cs,
+                        _buffer.getSelectionStart(),
+                        _buffer.getSelectionEnd(),
+                        selectionColor);
+                _renderer.draw(_canvas, cs);
+            }
         }
 
         if (_cursorVisible

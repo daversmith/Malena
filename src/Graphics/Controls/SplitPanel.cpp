@@ -18,6 +18,12 @@ namespace ml
 
         // ── Per-frame: hover + drag ───────────────────────────────────────────
         onUpdate([this]{
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                return;
+            }
+
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
@@ -360,6 +366,16 @@ namespace ml
 
     void SplitPanel::onDividerMoved(std::function<void(std::size_t, float)> cb)
     { _onDividerMoved = std::move(cb); }
+
+    // ── Enabled propagation ───────────────────────────────────────────────────
+
+    void SplitPanel::setParentEnabled(bool enabled)
+    {
+        Core::setParentEnabled(enabled);
+        const bool effective = isEnabled();
+        for (auto& pane : _panes)
+            if (pane.content) pane.content->setParentEnabled(effective);
+    }
 
     // ── Size / position ───────────────────────────────────────────────────────
 

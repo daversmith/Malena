@@ -86,6 +86,13 @@ namespace ml
 
             const sf::FloatRect thumbRect({trackX, thumbTop}, {scrollBarWidth, thumbH});
 
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _thumbDragging = false;
+                _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                return;
+            }
+
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));

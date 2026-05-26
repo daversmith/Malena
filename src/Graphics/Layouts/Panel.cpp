@@ -28,12 +28,14 @@ namespace ml {
         setFillColor(theme.surface);
     }
 
-    void Panel::addRef(Core& child)
+    void Panel::addUntracked(Core& child)
     {
-        // No position tracking — caller manages the child's position entirely.
-        // Just register it with CoreManager so it appears in the draw pass.
         CoreManager<Core>::addComponent(child);
+        Core::linkChild(this, &child);
+        child.setParentEnabled(isEnabled());
     }
+
+    void Panel::addRef(Core& child) { addUntracked(child); }
 
     bool Panel::removeComponent(Core& child)
     {
@@ -44,6 +46,8 @@ namespace ml {
 
     void Panel::clear()
     {
+        for (auto* c : getComponents())
+            c->setParentEnabled(false);
         _relativePositions.clear();
         _fillChildren.clear();
         CoreManager<Core>::clear();
@@ -58,20 +62,29 @@ namespace ml {
 
     void Panel::setPosition(const sf::Vector2f& newPos)
     {
+        const sf::Vector2f delta = newPos - getPosition();
         RectangleWith<PanelManifest>::setPosition(newPos);
         for (auto* c : getComponents())
         {
-            auto it = _relativePositions.find(c);
-            if (it != _relativePositions.end())
-                c->setPosition(newPos + it->second);
+            if (_relativePositions.count(c))
+                c->setPosition(c->getPosition() + delta);
         }
     }
 
     void Panel::setEnabled(bool enabled)
     {
         Core::setEnabled(enabled);
+        bool effective = isEnabled();
         for (auto* c : getComponents())
-            c->setEnabled(enabled);
+            c->setParentEnabled(effective);
+    }
+
+    void Panel::setParentEnabled(bool enabled)
+    {
+        Core::setParentEnabled(enabled);
+        bool effective = isEnabled();
+        for (auto* c : getComponents())
+            c->setParentEnabled(effective);
     }
 
     void Panel::setVisible(bool visible)

@@ -24,6 +24,7 @@ bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core
 	auto* positionable = dynamic_cast<Positionable*>(component);
 	if (!positionable) return false;
 	if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
+	if (!AppManager::isUnderExclusiveOwner(component)) return false;
 	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
 }
 

@@ -51,6 +51,16 @@ namespace ml
                 }
             }
         });
+
+        onScroll([this](const std::optional<sf::Event>& event) {
+            if (overflow != Overflow::SCROLL) return;
+            if (!event) return;
+            const auto* scroll = event->getIf<sf::Event::MouseWheelScrolled>();
+            if (!scroll) return;
+            const float maxScroll = std::max(0.f, _totalItemsLen - _barLength + barPadding);
+            _scrollOffsetX = std::clamp(_scrollOffsetX - scroll->delta * 30.f, 0.f, maxScroll);
+            layout();
+        });
     }
 
     // ── layout ────────────────────────────────────────────────────────────────
@@ -62,7 +72,8 @@ namespace ml
         const float sepW   = 1.f;
         const float sepPad = 4.f;
 
-        float offset = barPadding;
+        const float scrollOffset = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
+        float offset = barPadding - scrollOffset;
 
         for (auto& item : _items)
         {
@@ -75,7 +86,6 @@ namespace ml
             sf::Vector2f pos;
             if (horiz)
             {
-                // Center vertically in bar
                 const float h = item.component->getGlobalBounds().size.y;
                 pos = {_position.x + offset, _position.y + (thick - h) / 2.f};
                 offset += item.component->getGlobalBounds().size.x + itemSpacing;
@@ -89,6 +99,8 @@ namespace ml
 
             item.component->setPosition(pos);
         }
+
+        _totalItemsLen = offset + scrollOffset - barPadding;
     }
 
     // ── onThemeApplied ────────────────────────────────────────────────────────
@@ -117,9 +129,14 @@ namespace ml
         target.draw(bg, states);
 
         // ── Items ─────────────────────────────────────────────────────────────
-        float offset = barPadding;
+        const float scrollOff = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
+        float offset = barPadding - scrollOff;
         const float sepW   = 1.f;
         const float sepPad = 4.f;
+
+        const bool clipItems = (horiz && overflow == Overflow::SCROLL);
+        const float clipLeft  = _position.x;
+        const float clipRight = _position.x + _barLength;
 
         for (int i = 0; i < static_cast<int>(_items.size()); ++i)
         {
@@ -128,28 +145,46 @@ namespace ml
             if (item.separator)
             {
                 offset += sepPad;
-                // Draw separator line
-                sf::RectangleShape sep;
-                if (horiz)
+                if (!clipItems || ((_position.x + offset) >= clipLeft && (_position.x + offset) <= clipRight))
                 {
-                    sep.setSize({sepW, thick - barPadding * 2.f});
-                    sep.setPosition({_position.x + offset, _position.y + barPadding});
+                    sf::RectangleShape sep;
+                    if (horiz)
+                    {
+                        sep.setSize({sepW, thick - barPadding * 2.f});
+                        sep.setPosition({_position.x + offset, _position.y + barPadding});
+                    }
+                    else
+                    {
+                        sep.setSize({thick - barPadding * 2.f, sepW});
+                        sep.setPosition({_position.x + barPadding, _position.y + offset});
+                    }
+                    sep.setFillColor(separatorColor);
+                    target.draw(sep, states);
                 }
-                else
-                {
-                    sep.setSize({thick - barPadding * 2.f, sepW});
-                    sep.setPosition({_position.x + barPadding, _position.y + offset});
-                }
-                sep.setFillColor(separatorColor);
-                target.draw(sep, states);
                 offset += sepW + sepPad;
                 continue;
+            }
+
+            const sf::FloatRect b = item.component->getGlobalBounds();
+            if (clipItems && (b.position.x + b.size.x < clipLeft || b.position.x > clipRight))
+            {
+                if (horiz) offset += b.size.x + itemSpacing;
+                else       offset += b.size.y + itemSpacing;
+                continue;
+            }
+
+            // Selected (active) highlight for owned buttons
+            if (item.owned && item.selected)
+            {
+                sf::RectangleShape hl(b.size + sf::Vector2f{4.f, 4.f});
+                hl.setFillColor(itemActiveBg);
+                hl.setPosition(b.position - sf::Vector2f{2.f, 2.f});
+                target.draw(hl, states);
             }
 
             // Hover highlight for owned buttons
             if (item.owned && i == _hoveredIdx && item.enabled)
             {
-                const sf::FloatRect b = item.component->getGlobalBounds();
                 sf::RectangleShape hl(b.size + sf::Vector2f{4.f, 4.f});
                 hl.setFillColor(itemHoverBg);
                 hl.setPosition(b.position - sf::Vector2f{2.f, 2.f});
@@ -162,7 +197,6 @@ namespace ml
             // Dim disabled items
             if (item.owned && !item.enabled)
             {
-                const sf::FloatRect b = item.component->getGlobalBounds();
                 sf::RectangleShape dim(b.size);
                 dim.setFillColor({0, 0, 0, 120});
                 dim.setPosition(b.position);
@@ -170,9 +204,9 @@ namespace ml
             }
 
             if (horiz)
-                offset += item.component->getGlobalBounds().size.x + itemSpacing;
+                offset += b.size.x + itemSpacing;
             else
-                offset += item.component->getGlobalBounds().size.y + itemSpacing;
+                offset += b.size.y + itemSpacing;
         }
     }
 
@@ -258,6 +292,12 @@ namespace ml
         _items[index].enabled = enabled;
     }
 
+    void Toolbar::setItemSelected(std::size_t index, bool selected)
+    {
+        if (index >= _items.size()) return;
+        _items[index].selected = selected;
+    }
+
     void Toolbar::add(ml::Core& component)
     {
         Item item;
@@ -324,6 +364,15 @@ namespace ml
         for (auto& item : _items)
             if (item.component)
                 item.component->setEnabled(enabled);
+    }
+
+    void Toolbar::setParentEnabled(bool enabled)
+    {
+        Core::setParentEnabled(enabled);
+        const bool effective = isEnabled();
+        for (auto& item : _items)
+            if (item.component)
+                item.component->setParentEnabled(effective);
     }
 
 } // namespace ml
