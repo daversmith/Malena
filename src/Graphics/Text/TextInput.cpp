@@ -403,7 +403,6 @@ namespace ml
         {
             _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), cursorColor);
         }
-
         _canvas.display();
         sf::Sprite sprite(_canvas.getTexture());
         sprite.setPosition(_position);
