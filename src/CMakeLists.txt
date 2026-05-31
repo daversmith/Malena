@@ -55,6 +55,43 @@ target_link_libraries(Malena PRIVATE "$<BUILD_INTERFACE:nfd>")
 target_link_libraries(Malena PUBLIC
     "$<BUILD_INTERFACE:nlohmann_json::nlohmann_json>")
 
+# ── AirPlay optional dependencies ─────────────────────────────────────────────
+if(MALENA_BUILD_AIRPLAY)
+    target_compile_definitions(Malena PUBLIC MALENA_AIRPLAY_ENABLED)
+
+    target_link_libraries(Malena PRIVATE
+        ${AIRPLAY_MDNS_LIBS}
+        "$<BUILD_INTERFACE:mbedcrypto>"
+        "$<BUILD_INTERFACE:monocypher>"
+        "$<BUILD_INTERFACE:playfair>")
+
+    # VideoToolbox for H264 decode on macOS (Phase 2)
+    if(APPLE)
+        target_link_libraries(Malena PRIVATE
+            "-framework VideoToolbox"
+            "-framework CoreMedia"
+            "-framework CoreVideo"
+            "-framework CoreFoundation")
+    endif()
+
+    if(AIRPLAY_MDNS_INCS)
+        target_include_directories(Malena PRIVATE ${AIRPLAY_MDNS_INCS})
+    endif()
+endif()
+
+# ── ScreenReceiver (RTSP/H.264 → texture) via GStreamer ───────────────────────
+# Independent of AirPlay. LGPL — dynamically linked, fine for closed-source apps.
+if(GSTREAMER_FOUND AND GST_APP_FOUND AND GST_VIDEO_FOUND)
+    target_compile_definitions(Malena PUBLIC MALENA_SCREENSHARE_ENABLED)
+    target_link_libraries(Malena PRIVATE
+        PkgConfig::GSTREAMER
+        PkgConfig::GST_APP
+        PkgConfig::GST_VIDEO)
+    message(STATUS "Malena: ScreenReceiver enabled (GStreamer ${GSTREAMER_VERSION})")
+else()
+    message(STATUS "Malena: GStreamer not found — ScreenReceiver disabled")
+endif()
+
 # Install the library
 install(TARGETS Malena
         EXPORT Malena-targets

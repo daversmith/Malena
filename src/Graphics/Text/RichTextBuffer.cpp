@@ -246,23 +246,38 @@ namespace ml
             return;
         }
 
-        attr.start = getSelectionStart();
-        attr.end   = getSelectionEnd();
+        applyAttributeRange(getSelectionStart(), getSelectionEnd(), attr);
+    }
+
+    void RichTextBuffer::applyAttributeRange(std::size_t start, std::size_t end,
+                                             TextAttribute attr)
+    {
+        end = std::min(end, _text.size());
+        if (start >= end) return;
+
+        attr.start = start;
+        attr.end   = end;
 
         // Split existing attributes at boundaries
-        splitAttributeAt(attr.start);
-        splitAttributeAt(attr.end);
+        splitAttributeAt(start);
+        splitAttributeAt(end);
 
         // Remove ranges fully inside the new range
         _attributes.erase(
             std::remove_if(_attributes.begin(), _attributes.end(),
                 [&](const TextAttribute& a){
-                    return a.start >= attr.start && a.end <= attr.end;
+                    return a.start >= start && a.end <= end;
                 }),
             _attributes.end());
 
         _attributes.push_back(attr);
         normalizeAttributes();
+    }
+
+    void RichTextBuffer::clearAttributes()
+    {
+        _attributes.clear();
+        _hasPending = false;
     }
 
     TextAttribute RichTextBuffer::getAttributeAt(

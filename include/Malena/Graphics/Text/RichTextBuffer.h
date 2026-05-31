@@ -213,6 +213,26 @@ namespace ml
         void applyAttribute(TextAttribute attr);
 
         /**
+         * @brief Apply an attribute to an explicit character range.
+         *
+         * Unlike @c applyAttribute, this does NOT depend on (or modify) the
+         * cursor/selection — useful for programmatic styling such as syntax
+         * highlighting. Existing ranges are split at the boundaries and ranges
+         * fully inside [start, end) are replaced.
+         *
+         * @param start First character index (inclusive).
+         * @param end   Last character index (exclusive); clamped to size().
+         * @param attr  Attribute to apply; its @c start/@c end are overwritten.
+         */
+        void applyAttributeRange(std::size_t start, std::size_t end, TextAttribute attr);
+
+        /**
+         * @brief Remove all attribute ranges (and any pending style), leaving
+         *        the text and cursor untouched. The text reverts to defaults.
+         */
+        void clearAttributes();
+
+        /**
          * @brief Return the effective @c TextAttribute at a given character index.
          *
          * Merges all attribute ranges that cover @p index, with later ranges
