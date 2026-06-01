@@ -40,6 +40,16 @@ namespace ml
         std::optional<bool>           italic;    ///< nullopt = inherit
         std::optional<bool>           underline; ///< nullopt = inherit
 
+        // Paragraph-level (uniform across a line): horizontal alignment.
+        // 0 = left, 1 = center, 2 = right. nullopt = inherit (left).
+        std::optional<int>            align;
+
+        // Paragraph-level list style. 0 = none, 1 = bullet, 2 = numbered.
+        std::optional<int>            listType;
+
+        // Paragraph-level indent depth (Tab/Shift+Tab). 0 = flush left.
+        std::optional<int>            indentLevel;
+
         TextAttribute() : font(nullptr) {}
     };
 
@@ -248,6 +258,12 @@ namespace ml
             const sf::Font* defaultFont,
             unsigned int    defaultSize,
             sf::Color       defaultColor) const;
+
+        /** @brief Whether a pending (next-insert) style is active. */
+        [[nodiscard]] bool hasPendingAttribute() const { return _hasPending; }
+
+        /** @brief The pending (next-insert) style; only meaningful when @c hasPendingAttribute(). */
+        [[nodiscard]] const TextAttribute& getPendingAttribute() const { return _pendingAttr; }
 
         // ── Clipboard helpers ─────────────────────────────────────────────────
 

@@ -269,6 +269,19 @@ namespace ml
             return;
         }
 
+        if (kp.code == sf::Keyboard::Key::Tab)
+        {
+            if (!checkFlag(Flag::READONLY))
+            {
+                changeSelectionIndent(kp.shift ? -1 : +1);   // Shift+Tab outdents
+                if (_onChange) _onChange(_buffer.getText());
+                rebuildAndScroll();
+                _cursorClock.restart();
+                _cursorVisible = true;
+            }
+            return;
+        }
+
         if (kp.code == sf::Keyboard::Key::Up)
         {
             const std::size_t newIdx = _renderer.charIndexAbove(_buffer.getCursor());

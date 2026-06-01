@@ -13,6 +13,7 @@ namespace ml
         sf::Color separatorColor = sf::Color(70, 70, 90);
         sf::Color itemHoverBg    = sf::Color(255, 255, 255, 20);
         sf::Color itemActiveBg   = sf::Color(70, 130, 230, 80);
+        sf::Color itemTextColor  = sf::Color::White;   ///< button label color
 
         ToolbarTheme& applyFrom(const Theme& t) override
         {
@@ -24,6 +25,7 @@ namespace ml
             separatorColor = t.border;
             itemHoverBg    = sf::Color(t.onSurface.r, t.onSurface.g, t.onSurface.b, 20);
             itemActiveBg   = sf::Color(t.primary.r, t.primary.g, t.primary.b, 80);
+            itemTextColor  = t.onSurface;
             return *this;
         }
         ToolbarTheme& operator=(const ControlTheme& c)
@@ -35,6 +37,7 @@ namespace ml
         void setSeparatorColor(const sf::Color& c) { separatorColor = c; }
         void setItemHoverBg(const sf::Color& c)    { itemHoverBg    = c; }
         void setItemActiveBg(const sf::Color& c)   { itemActiveBg   = c; }
+        void setItemTextColor(const sf::Color& c)  { itemTextColor  = c; }
     };
 } // namespace ml
 #endif

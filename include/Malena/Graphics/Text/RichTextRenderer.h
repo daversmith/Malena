@@ -58,6 +58,12 @@ namespace ml
         float       rowHeight = 0.f;  ///< Single visual row height (for cursor/selection)
         std::size_t charStart = 0;
         std::size_t charEnd   = 0;
+
+        // List rendering (computed by computeListMarkers).
+        int          listType = 0;     ///< 0 none, 1 bullet, 2 numbered
+        float        indent   = 0.f;   ///< left hanging indent for list text
+        std::string  marker;           ///< "•" or "N." (empty = none)
+        sf::Vector2f markerPos;        ///< where to draw the marker
     };
 
     // ── RichTextRenderer ─────────────────────────────────────────────────────
@@ -96,6 +102,9 @@ namespace ml
 
         /** @brief Set max line width for wrapping. @c 0 = no wrap. */
         void setMaxWidth(float width);
+
+        /** @brief The default (unstyled) text color. */
+        [[nodiscard]] sf::Color getDefaultColor() const { return _defaultColor; }
 
         /**
          * @brief Rebuild @c sf::Text objects from the current buffer content.
@@ -151,7 +160,13 @@ namespace ml
         std::vector<RenderedLine> _lines;
 
         void     buildSegments();
+        void     computeListMarkers();   // assign listType/indent/marker per line + numbering
         void     layoutLines();
+        // Height basis for an empty line: the size text typed there would take
+        // (the preceding character's size), so a blank line after small text isn't
+        // stuck at the default height. Falls back to the default.
+        [[nodiscard]] unsigned int emptyLineSize(std::size_t charStart) const;
+        void     alignLineRows(RenderedLine& line, float maxSize);  // shift rows per paragraph align
         sf::Text makeText(const std::string& str, const TextAttribute& attr) const;
     };
 

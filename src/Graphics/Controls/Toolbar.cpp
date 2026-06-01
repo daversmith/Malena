@@ -222,7 +222,7 @@ namespace ml
 
         ToolbarButton(const sf::Font& f, const std::string& label,
                       const sf::Vector2f& sz, unsigned int charSz)
-            : text(f, label, charSz), size(sz)
+            : text(f, sf::String::fromUtf8(label.begin(), label.end()), charSz), size(sz)
         {
             text.setFillColor(sf::Color::White);
             // Silence from event system — toolbar handles interaction
@@ -254,13 +254,15 @@ namespace ml
         item.action = std::move(action);
 
         // Measure label to compute natural width
-        sf::Text measure(*font, label, static_cast<unsigned int>(fontSize));
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
         const float w = std::max(itemSize.x,
             measure.getGlobalBounds().size.x + padding * 2.f);
         const sf::Vector2f sz{w, itemSize.y};
 
         auto btn = std::make_unique<ToolbarButton>(
             *font, label, sz, static_cast<unsigned int>(fontSize));
+        btn->text.setFillColor(itemTextColor);   // themeable (default white)
         ml::Core* corePtr = btn.get();
         item.component = corePtr;
         item.owned     = std::unique_ptr<ml::Core>(btn.release());
@@ -276,10 +278,11 @@ namespace ml
         if (index >= _items.size() || !_items[index].owned) return;
         _items[index].label = label;
         auto* btn = static_cast<ToolbarButton*>(_items[index].owned.get());
-        btn->text.setString(label);
+        btn->text.setString(sf::String::fromUtf8(label.begin(), label.end()));
 
         // Re-measure and resize
-        sf::Text measure(*font, label, static_cast<unsigned int>(fontSize));
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
         const float w = std::max(itemSize.x,
             measure.getGlobalBounds().size.x + padding * 2.f);
         btn->size = {w, itemSize.y};
@@ -337,6 +340,13 @@ namespace ml
         return (orientation == Orientation::HORIZONTAL)
                ? itemSize.y + barPadding * 2.f
                : itemSize.x + barPadding * 2.f;
+    }
+
+    float Toolbar::getContentExtent() const
+    {
+        // _totalItemsLen is the summed item run (widths + spacings); add the
+        // leading bar padding to measure from the bar origin to past the last item.
+        return barPadding + _totalItemsLen;
     }
 
     // ── Positionable ──────────────────────────────────────────────────────────

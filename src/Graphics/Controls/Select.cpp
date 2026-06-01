@@ -198,6 +198,7 @@ namespace ml
         setState(State::OPEN);
         _arrow.setString(L"\u25B2");
         syncTriggerColors();
+        if (_onOpen) _onOpen();
     }
 
     void Select::closePanel()
@@ -207,6 +208,7 @@ namespace ml
         _hoveredIndex = -1;
         _arrow.setString(L"\u25BC");
         syncTriggerColors();
+        if (_onClose) _onClose();
     }
 
     void Select::commitSelection(int index)
@@ -377,12 +379,26 @@ namespace ml
 
         target.draw(_panel, states);
 
-        _panelCanvas.clear(sf::Color::Transparent);
-
         const float panelOriginY = _panel.getPosition().y;
+        const float ph           = panelHeight();
 
-        sf::RenderStates cs;
-        cs.transform.translate({-_position.x, -panelOriginY});
+        // Draw options DIRECTLY to the target, clipped to the panel via a viewport
+        // sub-view. Routing them through an intermediate RenderTexture sampled the
+        // shared font atlas after the editor had grown it with large heading sizes,
+        // which left some glyphs garbled. Direct drawing (as the trigger does) is
+        // always crisp.
+        const sf::Vector2u tsz = target.getSize();
+        const float TW = static_cast<float>(tsz.x);
+        const float TH = static_cast<float>(tsz.y);
+
+        const sf::View prevView = target.getView();
+        sf::View clip;
+        clip.setSize({ size.x, ph });
+        clip.setCenter({ _position.x + size.x * 0.5f, panelOriginY + ph * 0.5f });
+        clip.setViewport(sf::FloatRect(
+            { _position.x / TW, panelOriginY / TH },
+            { size.x / TW,      ph / TH }));
+        target.setView(clip);
 
         for (int i = 0; i < static_cast<int>(_options.size()); ++i)
         {
@@ -391,19 +407,15 @@ namespace ml
                                    - _scrollOffset;
 
             if (itemWorldY + itemHeight < panelOriginY) continue;
-            if (itemWorldY > panelOriginY + panelHeight())  continue;
+            if (itemWorldY > panelOriginY + ph)         continue;
 
-            drawOption(_panelCanvas, cs,
+            drawOption(target, states,
                        _options[i], itemWorldY,
                        i == _hoveredIndex,
                        _options[i].selected);
         }
 
-        _panelCanvas.display();
-
-        sf::Sprite sprite(_panelCanvas.getTexture());
-        sprite.setPosition({_position.x, panelOriginY});
-        target.draw(sprite, states);
+        target.setView(prevView);
     }
 
     // ── Adding options ────────────────────────────────────────────────────────
@@ -464,6 +476,9 @@ namespace ml
     void Select::onSelectionChanged(
         std::function<void(const std::string&, std::size_t)> cb)
     { _onSelectionChanged = std::move(cb); }
+
+    void Select::onOpen(std::function<void()> cb)  { _onOpen  = std::move(cb); }
+    void Select::onClose(std::function<void()> cb) { _onClose = std::move(cb); }
 
     // ── Placeholder ───────────────────────────────────────────────────────────
 

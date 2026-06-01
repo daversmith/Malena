@@ -216,6 +216,14 @@ namespace ml
         [[nodiscard]] float getBarLength() const { return _barLength; }
         [[nodiscard]] float getBarThickness() const;  ///< height (H) or width (V)
 
+        /**
+         * @brief Extent of the laid-out items along the bar (width for H,
+         * height for V), measured from the bar origin past the last item.
+         * Useful for placing sibling controls right after a toolbar whose bar
+         * spans the full window.
+         */
+        [[nodiscard]] float getContentExtent() const;
+
         // ── Positionable ──────────────────────────────────────────────────────
 
         void          setPosition(const sf::Vector2f& position) override;

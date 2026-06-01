@@ -3,6 +3,7 @@
 
 #include <Malena/Graphics/Text/TextInput.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Utilities/Json.h>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Sprite.hpp>
@@ -57,10 +58,10 @@ namespace ml
 
             if (!getGlobalBounds().contains(mp))
             {
-                // Genuine blur — mouse left the field. Reset double-click
-                // state and clear selection.
+                // Genuine blur — mouse left the field. Reset double-click state,
+                // and clear selection unless an external toolbar needs it kept.
                 _waitingDouble = false;
-                _buffer.clearSelection();
+                if (_clearSelectionOnBlur) _buffer.clearSelection();
                 reflow();
             }
             // If mouse IS still inside, this is the blur/focus cycle that
@@ -421,6 +422,75 @@ namespace ml
 
     std::string TextInput::getValue() const { return _buffer.getText(); }
 
+    std::string TextInput::getRichText() const
+    {
+        ml::json j;
+        j["text"]  = _buffer.getText();
+        j["spans"] = ml::json::array();
+        for (const auto& a : _buffer.getAttributes())
+        {
+            ml::json s;
+            s["start"] = a.start;
+            s["end"]   = a.end;
+            if (a.bold.has_value())        s["bold"]      = *a.bold;
+            if (a.italic.has_value())      s["italic"]    = *a.italic;
+            if (a.underline.has_value())   s["underline"] = *a.underline;
+            if (a.charSize.has_value())    s["size"]      = *a.charSize;
+            if (a.align.has_value())       s["align"]     = *a.align;        // 0/1/2
+            if (a.listType.has_value())    s["list"]      = *a.listType;     // 0/1/2
+            if (a.indentLevel.has_value()) s["indent"]    = *a.indentLevel;
+            if (a.font && a.font == _monoFont) s["mono"]  = true;            // code runs
+            if (a.color.has_value())
+                s["color"] = { {"r", a.color->r}, {"g", a.color->g},
+                               {"b", a.color->b}, {"a", a.color->a} };
+            j["spans"].push_back(s);
+        }
+        return j.dump();
+    }
+
+    void TextInput::setRichText(const std::string& jsonStr)
+    {
+        const ml::json j = ml::json::parse(jsonStr, nullptr, /*allow_exceptions=*/false);
+        if (j.is_discarded() || !j.is_object())
+        {
+            // Not valid rich JSON — treat the input as plain text.
+            setValue(jsonStr);
+            return;
+        }
+
+        _buffer.setText(j.value("text", std::string{}));
+        if (j.contains("spans") && j["spans"].is_array())
+        {
+            for (const auto& s : j["spans"])
+            {
+                TextAttribute a;
+                const std::size_t start = s.value("start", std::size_t{0});
+                const std::size_t end   = s.value("end",   std::size_t{0});
+                if (s.contains("bold"))      a.bold      = s["bold"].get<bool>();
+                if (s.contains("italic"))    a.italic    = s["italic"].get<bool>();
+                if (s.contains("underline")) a.underline = s["underline"].get<bool>();
+                if (s.contains("size"))      a.charSize  = s["size"].get<unsigned int>();
+                if (s.contains("align"))     a.align       = s["align"].get<int>();
+                if (s.contains("list"))      a.listType    = s["list"].get<int>();
+                if (s.contains("indent"))    a.indentLevel = s["indent"].get<int>();
+                if (s.value("mono", false) && _monoFont) a.font = _monoFont;
+                if (s.contains("color"))
+                {
+                    const auto& c = s["color"];
+                    a.color = sf::Color(
+                        static_cast<std::uint8_t>(c.value("r", 0)),
+                        static_cast<std::uint8_t>(c.value("g", 0)),
+                        static_cast<std::uint8_t>(c.value("b", 0)),
+                        static_cast<std::uint8_t>(c.value("a", 255)));
+                }
+                _buffer.applyAttributeRange(start, end, a);
+            }
+        }
+        _scrollX = 0.f;
+        rebuild();
+        if (_onChange) _onChange(_buffer.getText());
+    }
+
     void TextInput::clear()
     {
         _buffer.clear();
@@ -449,8 +519,111 @@ namespace ml
     void TextInput::setSelectionUnderline(bool u)
     { TextAttribute a; a.underline = u; _buffer.applyAttribute(a); rebuild(); }
 
+    void TextInput::setSelectionAlign(int align)
+    { TextAttribute a; a.align = align; _buffer.applyAttribute(a); rebuild(); }
+
+    void TextInput::setSelectionListType(int listType)
+    { TextAttribute a; a.listType = listType; _buffer.applyAttribute(a); rebuild(); }
+
+    void TextInput::changeSelectionIndent(int delta)
+    {
+        // Indent is paragraph-level: expand to the enclosing paragraph(s), read
+        // the current depth, then apply the clamped new depth.
+        const std::string& text = _buffer.getText();
+        std::size_t a = _buffer.getSelectionStart();
+        std::size_t b = _buffer.getSelectionEnd();
+        while (a > 0 && text[a - 1] != '\n') --a;
+        while (b < text.size() && text[b] != '\n') ++b;
+
+        // Read the current depth. An empty paragraph carries no char, so probe the
+        // preceding newline; and if a pending indent is already staged (repeated
+        // Tab before typing), build on that so Tab keeps nesting deeper.
+        int cur;
+        if (a == b && _buffer.hasPendingAttribute()
+            && _buffer.getPendingAttribute().indentLevel.has_value())
+        {
+            cur = _buffer.getPendingAttribute().indentLevel.value();
+        }
+        else
+        {
+            const std::size_t probe = (a < text.size()) ? a : (a > 0 ? a - 1 : a);
+            cur = _buffer.getAttributeAt(
+                probe, nullptr, getCharacterSize(), _renderer.getDefaultColor())
+                    .indentLevel.value_or(0);
+        }
+        const int next = std::max(0, cur + delta);
+
+        const std::size_t caret = _buffer.getCursor();
+        TextAttribute attr; attr.indentLevel = next;
+        if (a == b) {                       // empty paragraph — style the next typing
+            _buffer.setCursor(a);
+            _buffer.applyAttribute(attr);
+        } else {
+            _buffer.setSelection(a, b);
+            _buffer.applyAttribute(attr);
+            _buffer.setCursor(caret);
+        }
+        rebuild();
+    }
+
     void TextInput::selectAll()
     { _buffer.selectAll(); rebuild(); }
+
+    std::size_t TextInput::getSelectionStart() const { return _buffer.getSelectionStart(); }
+    std::size_t TextInput::getSelectionEnd()   const { return _buffer.getSelectionEnd(); }
+    std::size_t TextInput::getCursor()         const { return _buffer.getCursor(); }
+
+    const sf::Font* TextInput::getFontAt(std::size_t index) const
+    {
+        // nullptr default font → returns the styled font if one is set, else nullptr.
+        return _buffer.getAttributeAt(index, nullptr,
+                                      getCharacterSize(), _renderer.getDefaultColor()).font;
+    }
+
+    sf::Color TextInput::getColorAt(std::size_t index) const
+    {
+        return _buffer.getAttributeAt(index, nullptr, getCharacterSize(),
+                                      _renderer.getDefaultColor())
+            .color.value_or(_renderer.getDefaultColor());
+    }
+
+    unsigned int TextInput::getCharSizeAt(std::size_t index) const
+    {
+        return _buffer.getAttributeAt(index, nullptr, getCharacterSize(),
+                                      _renderer.getDefaultColor())
+            .charSize.value_or(getCharacterSize());
+    }
+
+    TextAttribute TextInput::getActiveStyle() const
+    {
+        const std::size_t idx = _buffer.hasSelection()
+            ? _buffer.getSelectionStart()
+            : (_buffer.getCursor() > 0 ? _buffer.getCursor() - 1 : _buffer.getCursor());
+
+        TextAttribute a = _buffer.getAttributeAt(
+            idx, nullptr, getCharacterSize(), _renderer.getDefaultColor());
+
+        // With no selection, the next-typed style is the pending overlay (set by a
+        // toolbar toggle while nothing is selected) on top of the inherited run.
+        if (!_buffer.hasSelection() && _buffer.hasPendingAttribute())
+        {
+            const TextAttribute& p = _buffer.getPendingAttribute();
+            if (p.font)                   a.font        = p.font;
+            if (p.charSize.has_value())   a.charSize    = p.charSize;
+            if (p.color.has_value())      a.color       = p.color;
+            if (p.bold.has_value())       a.bold        = p.bold;
+            if (p.italic.has_value())     a.italic      = p.italic;
+            if (p.underline.has_value())  a.underline   = p.underline;
+            if (p.align.has_value())      a.align       = p.align;
+            if (p.listType.has_value())   a.listType    = p.listType;
+            if (p.indentLevel.has_value())a.indentLevel = p.indentLevel;
+        }
+        return a;
+    }
+
+    sf::Color TextInput::getTextColor() const { return _renderer.getDefaultColor(); }
+
+    void TextInput::setClearSelectionOnBlur(bool enabled) { _clearSelectionOnBlur = enabled; }
 
     void TextInput::setSelection(std::size_t s, std::size_t e)
     { _buffer.setSelection(s, e); rebuild(); }

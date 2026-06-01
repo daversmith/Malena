@@ -106,6 +106,8 @@ namespace ml
         bool                      _prevDown      = false;
 
         std::function<void(const std::string&, std::size_t)> _onSelectionChanged;
+        std::function<void()> _onOpen;
+        std::function<void()> _onClose;
 
         void syncTrigger();
         void syncTriggerColors();
@@ -190,6 +192,10 @@ namespace ml
 
         void onSelectionChanged(
             std::function<void(const std::string&, std::size_t)> callback);
+
+        /** Fired when the option panel opens / closes. */
+        void onOpen(std::function<void()> callback);
+        void onClose(std::function<void()> callback);
 
         // ── Misc ──────────────────────────────────────────────────────────────
 
