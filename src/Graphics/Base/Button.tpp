@@ -82,6 +82,7 @@ namespace ml
 	void Button<T, S>::setCharacterSize(unsigned int size)
 	{
 		_text.setCharacterSize(size);
+		T::centerText(_text);   // label bounds changed — keep it centered
 	}
 
 	template<typename T, typename S>
@@ -160,6 +161,7 @@ namespace ml
 	void Button<T, S>::setFont(const sf::Font& font)
 	{
 		_text.setFont(font);
+		T::centerText(_text);   // glyph metrics changed — keep the label centered
 	}
 
 	template<typename T, typename S>

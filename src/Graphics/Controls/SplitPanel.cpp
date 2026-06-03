@@ -237,12 +237,18 @@ namespace ml
             // extends beyond the pane edge is simply not rendered.
             if (sz.x > 0.f && sz.y > 0.f)
             {
+                // Map the pane rect through the active view to window pixels so the
+                // clip viewport stays correct under a scaled/letterbox view.
+                const sf::Vector2i tl = target.mapCoordsToPixel(pos, savedView);
+                const sf::Vector2i br = target.mapCoordsToPixel(
+                    {pos.x + sz.x, pos.y + sz.y}, savedView);
+
                 sf::View paneView;
                 paneView.setCenter({pos.x + sz.x / 2.f, pos.y + sz.y / 2.f});
                 paneView.setSize(sz);
                 paneView.setViewport(sf::FloatRect{
-                    {pos.x / tw, pos.y / th},
-                    {sz.x / tw,  sz.y / th}
+                    {tl.x / tw, tl.y / th},
+                    {(br.x - tl.x) / tw, (br.y - tl.y) / th}
                 });
                 target.setView(paneView);
 

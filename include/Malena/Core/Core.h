@@ -79,6 +79,11 @@ namespace ml
         virtual void setParentEnabled(bool enabled);
         virtual void setVisible(bool visible);
         virtual void setActive(bool active);
+
+        /// Called by AppManager on every registered component when the window is
+        /// resized. Override in responsive components to reflow to the new pixel
+        /// size (the framework keeps a 1:1 view, so width/height are window pixels).
+        virtual void onWindowResize(unsigned int /*width*/, unsigned int /*height*/) {}
         bool isEnabled() const;
         bool isVisible() const;
 

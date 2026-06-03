@@ -7,6 +7,8 @@
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Networking/NetworkManager.h>
+#include <SFML/Graphics/View.hpp>
+#include <algorithm>
 
 #ifdef __APPLE__
 #import <AppKit/AppKit.h>
@@ -144,6 +146,7 @@ namespace ml
         _resizeHandler = std::move(handler);
     }
 
+
     // ── Core loop helpers ─────────────────────────────────────────────────────
 
     void AppManager::flushDeferredUnloads()
@@ -221,11 +224,21 @@ namespace ml
 
                 if (event->is<sf::Event::Resized>())
                 {
-                    if (_resizeHandler)
+                    const auto* resized = event->getIf<sf::Event::Resized>();
+                    if (resized)
                     {
-                        const auto* resized = event->getIf<sf::Event::Resized>();
-                        if (resized)
-                            _resizeHandler(resized->size.x, resized->size.y);
+                        // Keep a 1:1 view so coordinates equal window pixels (crisp,
+                        // no scaling/letterbox); apps reflow their layout in onResize.
+                        window->setView(sf::View(sf::FloatRect(
+                            {0.f, 0.f},
+                            {static_cast<float>(resized->size.x),
+                             static_cast<float>(resized->size.y)})));
+
+                        // Broadcast so responsive components reflow to the new size.
+                        for (auto* c : getComponents())
+                            if (c) c->onWindowResize(resized->size.x, resized->size.y);
+
+                        if (_resizeHandler) _resizeHandler(resized->size.x, resized->size.y);
                     }
                 }
 

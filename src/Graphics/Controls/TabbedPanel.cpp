@@ -241,13 +241,20 @@ namespace ml
                 {
                     const sf::View savedView = target.getView();
 
+                    // Map the content rect through the ACTIVE view to window pixels
+                    // so the clip viewport is correct under a scaled/letterbox view
+                    // (and composes when nested in another viewport-clipped panel).
+                    const sf::Vector2i tl = target.mapCoordsToPixel(cr.position, savedView);
+                    const sf::Vector2i br = target.mapCoordsToPixel(
+                        {cr.position.x + cr.size.x, cr.position.y + cr.size.y}, savedView);
+
                     sf::View contentView;
                     contentView.setCenter({cr.position.x + cr.size.x / 2.f,
                                            cr.position.y + cr.size.y / 2.f});
                     contentView.setSize(cr.size);
                     contentView.setViewport(sf::FloatRect{
-                        {cr.position.x / tw, cr.position.y / th},
-                        {cr.size.x / tw,     cr.size.y / th}
+                        {tl.x / tw, tl.y / th},
+                        {(br.x - tl.x) / tw, (br.y - tl.y) / th}
                     });
 
                     target.setView(contentView);
