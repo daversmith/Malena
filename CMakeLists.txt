@@ -6,6 +6,7 @@ include(GNUInstallDirs)
 
 # Options
 option(MALENA_BUILD_EXAMPLES "Build Malena examples" ON)
+option(MALENA_BUILD_TESTS    "Build Malena tests"    OFF)
 option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
 
 # FetchContent is used for SFML, networking, and JSON dependencies
@@ -184,6 +185,12 @@ add_subdirectory(src)
 # Examples
 if(MALENA_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+# Tests
+if(MALENA_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
 endif()
 
 # Export targets

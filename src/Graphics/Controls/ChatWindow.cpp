@@ -33,28 +33,8 @@ namespace ml
             _scrollPane.setScrollOffsetY(newY);
         });
 
-        // Link members so setEnabled() propagates correctly when a parent
-        // panel is enabled or disabled.
-        Core::addComponent(_scrollPane);
-        Core::addComponent(_input);
-        Core::addComponent(_sendBtn);
-    }
-
-    void ChatWindow::setEnabled(bool enabled)
-    {
-        Component::setEnabled(enabled);
-        _scrollPane.setEnabled(enabled);
-        _input.setEnabled(enabled);
-        _sendBtn.setEnabled(enabled);
-    }
-
-    void ChatWindow::setParentEnabled(bool enabled)
-    {
-        Component::setParentEnabled(enabled);
-        const bool effective = isEnabled();
-        _scrollPane.setParentEnabled(effective);
-        _input.setParentEnabled(effective);
-        _sendBtn.setParentEnabled(effective);
+        // Register members so Core's enable/disable cascade reaches them.
+        addComponents(_scrollPane, _input, _sendBtn);
     }
 
     void ChatWindow::applyLayout()

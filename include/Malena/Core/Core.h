@@ -10,6 +10,7 @@
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -88,6 +89,26 @@ namespace ml
         bool isVisible() const;
 
         void addComponent(Core& child);
+
+        /**
+         * @brief Register multiple child components in one call.
+         *
+         * Equivalent to calling @c addComponent for each argument. Use this in
+         * a composite component's constructor when several fixed member
+         * components need to participate in the enable/disable cascade.
+         *
+         * @code
+         * ChatWindow() { addComponents(_scrollPane, _input, _sendBtn); }
+         * @endcode
+         */
+        template<typename... Children>
+        void addComponents(Children&... children)
+        {
+            static_assert((std::is_base_of_v<Core, Children> && ...),
+                "addComponents() requires Core-derived arguments");
+            (addComponent(children), ...);
+        }
+
         static void linkChild(Core* parent, Core* child);
         static void unlinkAll(Core* core);
 
