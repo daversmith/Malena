@@ -148,6 +148,17 @@ namespace ml
         doRemoveChild(&child);
     }
 
+    // ── Children rendering ─────────────────────────────────────────────────
+    void Core::drawChildren(sf::RenderTarget& target, sf::RenderStates states) const
+    {
+        for (const Child& entry : _children)
+        {
+            if (!entry.component->isVisible()) continue;
+            if (const auto* d = dynamic_cast<const sf::Drawable*>(entry.component))
+                target.draw(*d, states);
+        }
+    }
+
     // ── Enable cascade ──────────────────────────────────────────────────────
     void Core::applyEnabled(bool selfEnabled, bool parentEnabled)
     {

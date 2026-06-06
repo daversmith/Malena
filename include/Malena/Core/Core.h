@@ -237,6 +237,20 @@ namespace ml
         /// only care about the components walk @c entry.component.
         const std::vector<Child>& getChildren() const { return _children; }
 
+        /// Render all registered children in layer order, skipping invisible
+        /// ones. The framework default draw uses this; derived classes that
+        /// override @c draw to add procedural visuals (background, decoration)
+        /// or to wrap the loop in a clip view call this at the appropriate
+        /// point.
+        ///
+        /// @code
+        /// void Panel::draw(target, states) const {
+        ///     Rectangle::draw(target, states);    // background
+        ///     drawChildren(target, states);        // children loop
+        /// }
+        /// @endcode
+        void drawChildren(sf::RenderTarget& target, sf::RenderStates states) const;
+
     private:
         bool _selfEnabled   = true;
         bool _parentEnabled = true;

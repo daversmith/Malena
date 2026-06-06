@@ -94,14 +94,8 @@ namespace ml {
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        RectangleWith<PanelManifest>::draw(target, states);
-        for (const auto& e : getChildren())
-        {
-            if (e.component->checkFlag(ml::Flag::HIDDEN)) continue;
-            auto* drawable = dynamic_cast<sf::Drawable*>(e.component);
-            if (drawable)
-                target.draw(*drawable, states);
-        }
+        RectangleWith<PanelManifest>::draw(target, states);   // background
+        drawChildren(target, states);                          // children loop
     }
 
 } // ml
