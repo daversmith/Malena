@@ -11,9 +11,3 @@ add_test(NAME EnableCascade COMMAND EnableCascadeTest)
 add_executable(CoreUnifySpike CoreUnifySpike/main.cpp)
 target_compile_features(CoreUnifySpike PRIVATE cxx_std_17)
 add_test(NAME CoreUnifySpike COMMAND CoreUnifySpike)
-
-# Interactive cascade demo — visually exercises the Phase 1 changes. Not run
-# under ctest (it opens a window and waits for the user).
-add_executable(CascadeDemo CascadeDemo/main.cpp)
-target_link_libraries(CascadeDemo PRIVATE Malena::Malena)
-target_include_directories(CascadeDemo PRIVATE ${CMAKE_SOURCE_DIR}/include)
