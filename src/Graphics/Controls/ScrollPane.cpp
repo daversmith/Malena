@@ -74,17 +74,14 @@ namespace ml
 	{
 	    if (_embedded)
 	        component.unsubscribeAll();
-	    _children.push_back(&component);
+	    Core::addComponent(component);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
 	}
 
 	void ScrollPane::removeComponent(ml::Core& component)
 	{
-	    _children.erase(
-	        std::remove(_children.begin(), _children.end(), &component),
-	        _children.end()
-	    );
+	    Core::removeComponent(component);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
 	}
@@ -121,7 +118,7 @@ namespace ml
 	    // aligned with their hit-boxes (clickable children stay interactive) and
 	    // composes correctly under a scaled/nested view (map through the active
 	    // view, same technique as TabbedPanel/SplitPanel).
-	    if (_width > 0.f && _height > 0.f && !_children.empty())
+	    if (_width > 0.f && _height > 0.f && !getChildren().empty())
 	    {
 	        const auto  ts = target.getSize();
 	        const float tw = static_cast<float>(ts.x);
@@ -141,7 +138,7 @@ namespace ml
 	        });
 
 	        target.setView(clip);
-	        for (auto* child : _children)
+	        for (auto* child : getChildren())
 	        {
 	            const sf::Vector2f  pos    = child->getPosition();
 	            const sf::FloatRect bounds = child->getGlobalBounds();
@@ -171,7 +168,7 @@ namespace ml
 	    if (!checkFlag(Flag::DIRTY)) return;
 
 	    float yOffset = 0.f;
-	    for (auto* child : _children)
+	    for (auto* child : getChildren())
 	    {
 	        child->setPosition({
 	            _position.x - _scrollOffsetX,
@@ -187,7 +184,7 @@ namespace ml
 	{
 	    if (_contentHeightOverride > 0.f) return _contentHeightOverride;
 	    float total = 0.f;
-	    for (auto* child : _children)
+	    for (auto* child : getChildren())
 	        total += child->getGlobalBounds().size.y;
 	    return total;
 	}
@@ -195,7 +192,7 @@ namespace ml
 	float ScrollPane::getTotalContentWidth() const
 	{
 	    float total = 0.f;
-	    for (auto* child : _children)
+	    for (auto* child : getChildren())
 	        total += child->getGlobalBounds().size.x;
 	    return total;
 	}

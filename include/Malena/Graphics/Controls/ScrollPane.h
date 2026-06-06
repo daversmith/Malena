@@ -101,7 +101,6 @@ namespace ml
         mutable sf::RectangleShape _scrollBarTrack;
         mutable ml::Rectangle      _scrollBarThumb;
 
-        std::vector<ml::Core*>     _children;
         bool                       _embedded = false;
 
         sf::Color _scrollBarTrackColor = sf::Color(200, 200, 200, 150);
