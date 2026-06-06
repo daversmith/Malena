@@ -116,6 +116,13 @@ namespace ml
     protected:
         virtual void onEnabledChanged(bool enabled) {}
 
+        /// Read-only view of registered children for derived classes that need
+        /// to iterate (Panel for layout/draw, future composite components for
+        /// custom drawChildren). Order is registration order today; Phase 2
+        /// will introduce layer-based ordering, at which point this accessor
+        /// may change shape — keep usage localised.
+        const std::vector<Core*>& getChildren() const { return _children; }
+
     private:
         bool _selfEnabled   = true;
         bool _parentEnabled = true;
