@@ -48,10 +48,10 @@ namespace ml {
         // Snapshot — Core::removeComponent mutates _children, which is what
         // getChildren() returns.
         const auto kids = getChildren();
-        for (auto* c : kids) c->setParentEnabled(false);
+        for (const auto& e : kids) e.component->setParentEnabled(false);
         _relativePositions.clear();
         _fillChildren.clear();
-        for (auto* c : kids) Core::removeComponent(*c);
+        for (const auto& e : kids) Core::removeComponent(*e.component);
     }
 
     void Panel::setSize(const sf::Vector2f& size)
@@ -65,10 +65,10 @@ namespace ml {
     {
         const sf::Vector2f delta = newPos - getPosition();
         RectangleWith<PanelManifest>::setPosition(newPos);
-        for (auto* c : getChildren())
+        for (const auto& e : getChildren())
         {
-            if (_relativePositions.count(c))
-                c->setPosition(c->getPosition() + delta);
+            if (_relativePositions.count(e.component))
+                e.component->setPosition(e.component->getPosition() + delta);
         }
     }
 
@@ -81,24 +81,24 @@ namespace ml {
     void Panel::setVisible(bool visible)
     {
         Core::setVisible(visible);
-        for (auto* c : getChildren())
-            c->setVisible(visible);
+        for (const auto& e : getChildren())
+            e.component->setVisible(visible);
     }
 
     void Panel::setActive(bool active)
     {
         Core::setActive(active);
-        for (auto* c : getChildren())
-            c->setActive(active);
+        for (const auto& e : getChildren())
+            e.component->setActive(active);
     }
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         RectangleWith<PanelManifest>::draw(target, states);
-        for (auto* component : getChildren())
+        for (const auto& e : getChildren())
         {
-            if (component->checkFlag(ml::Flag::HIDDEN)) continue;
-            auto* drawable = dynamic_cast<sf::Drawable*>(component);
+            if (e.component->checkFlag(ml::Flag::HIDDEN)) continue;
+            auto* drawable = dynamic_cast<sf::Drawable*>(e.component);
             if (drawable)
                 target.draw(*drawable, states);
         }

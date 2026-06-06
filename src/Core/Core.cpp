@@ -11,10 +11,10 @@ namespace ml
     bool Core::isDescendantOf(Core* ancestor, Core* component)
     {
         if (!ancestor || !component) return false;
-        for (Core* child : ancestor->_children)
+        for (const Child& entry : ancestor->_children)
         {
-            if (child == component) return true;
-            if (isDescendantOf(child, component)) return true;
+            if (entry.component == component) return true;
+            if (isDescendantOf(entry.component, component)) return true;
         }
         return false;
     }
@@ -47,9 +47,17 @@ namespace ml
 
         // De-dup: do not add the same child twice to the same parent.
         auto& v = parent->_children;
-        if (std::find(v.begin(), v.end(), child) != v.end()) return;
+        auto it = std::find_if(v.begin(), v.end(),
+            [child](const Child& e) { return e.component == child; });
+        if (it != v.end()) return;
 
-        v.push_back(child);
+        v.push_back({child, DefaultLayer});
+        // No sort needed — appending an entry at DefaultLayer to a vector
+        // where the most recent insert was also at DefaultLayer keeps it
+        // sorted. addComponent(child, layer) re-sorts when a non-default
+        // layer would break the invariant.
+        std::stable_sort(v.begin(), v.end(),
+            [](const Child& a, const Child& b) { return a.layer < b.layer; });
         child->_parent = parent;
     }
 
@@ -68,10 +76,10 @@ namespace ml
         // Orphan any remaining children — they may outlive us. Use a local copy
         // so children destructing during this loop can safely null their own
         // _parent without invalidating our iteration.
-        std::vector<Core*> kids;
+        std::vector<Child> kids;
         kids.swap(core->_children);
-        for (Core* c : kids)
-            if (c) c->_parent = nullptr;
+        for (Child& e : kids)
+            if (e.component) e.component->_parent = nullptr;
     }
 
     void Core::doRemoveChild(Core* c)
@@ -84,11 +92,12 @@ namespace ml
             return;
         }
 
-        auto it = std::find(_children.begin(), _children.end(), c);
+        auto it = std::find_if(_children.begin(), _children.end(),
+            [c](const Child& e) { return e.component == c; });
         if (it == _children.end()) return;
 
-        if ((*it)->_parent == this)
-            (*it)->_parent = nullptr;
+        if (it->component->_parent == this)
+            it->component->_parent = nullptr;
         _children.erase(it);
     }
 
@@ -104,7 +113,33 @@ namespace ml
 
     void Core::addComponent(Core& child)
     {
-        linkChild(this, &child);
+        addComponent(child, DefaultLayer);
+    }
+
+    void Core::addComponent(Core& child, int layer)
+    {
+        // Soft single-parent: move from previous parent if any.
+        if (child._parent && child._parent != this)
+            child._parent->doRemoveChild(&child);
+
+        // Update layer if already a child of ours; otherwise insert.
+        auto it = std::find_if(_children.begin(), _children.end(),
+            [&child](const Child& e) { return e.component == &child; });
+        if (it == _children.end())
+        {
+            _children.push_back({&child, layer});
+            child._parent = this;
+        }
+        else
+        {
+            it->layer = layer;
+        }
+
+        // Stable sort: layer ascending, registration order preserved within
+        // a layer.
+        std::stable_sort(_children.begin(), _children.end(),
+            [](const Child& a, const Child& b) { return a.layer < b.layer; });
+
         child.setParentEnabled(isEnabled());
     }
 
@@ -126,8 +161,8 @@ namespace ml
         // fire onEnabledChanged which may in turn call removeComponent on us;
         // those mutations defer until the cascade unwinds.
         ++_iterDepth;
-        for (Core* c : _children)
-            c->setParentEnabled(effective);
+        for (Child& e : _children)
+            e.component->setParentEnabled(effective);
         --_iterDepth;
         runPendingIfDepthZero();
     }

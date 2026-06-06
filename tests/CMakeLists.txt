@@ -6,6 +6,12 @@ target_link_libraries(EnableCascadeTest PRIVATE Malena::Malena)
 target_include_directories(EnableCascadeTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME EnableCascade COMMAND EnableCascadeTest)
 
+# Layer-based child ordering — Phase 2.
+add_executable(ChildOrderingTest ChildOrdering/main.cpp)
+target_link_libraries(ChildOrderingTest PRIVATE Malena::Malena)
+target_include_directories(ChildOrderingTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME ChildOrdering COMMAND ChildOrderingTest)
+
 # Throwaway spike for the children-unification refactor. Pure standard library,
 # no Malena dependency. Delete this directory once the refactor lands.
 add_executable(CoreUnifySpike CoreUnifySpike/main.cpp)

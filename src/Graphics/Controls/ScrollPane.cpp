@@ -138,8 +138,9 @@ namespace ml
 	        });
 
 	        target.setView(clip);
-	        for (auto* child : getChildren())
+	        for (const auto& entry : getChildren())
 	        {
+	            ml::Core* child = entry.component;
 	            const sf::Vector2f  pos    = child->getPosition();
 	            const sf::FloatRect bounds = child->getGlobalBounds();
 
@@ -168,8 +169,9 @@ namespace ml
 	    if (!checkFlag(Flag::DIRTY)) return;
 
 	    float yOffset = 0.f;
-	    for (auto* child : getChildren())
+	    for (const auto& entry : getChildren())
 	    {
+	        ml::Core* child = entry.component;
 	        child->setPosition({
 	            _position.x - _scrollOffsetX,
 	            _position.y + yOffset - _scrollOffsetY
@@ -184,16 +186,16 @@ namespace ml
 	{
 	    if (_contentHeightOverride > 0.f) return _contentHeightOverride;
 	    float total = 0.f;
-	    for (auto* child : getChildren())
-	        total += child->getGlobalBounds().size.y;
+	    for (const auto& entry : getChildren())
+	        total += entry.component->getGlobalBounds().size.y;
 	    return total;
 	}
 
 	float ScrollPane::getTotalContentWidth() const
 	{
 	    float total = 0.f;
-	    for (auto* child : getChildren())
-	        total += child->getGlobalBounds().size.x;
+	    for (const auto& entry : getChildren())
+	        total += entry.component->getGlobalBounds().size.x;
 	    return total;
 	}
 

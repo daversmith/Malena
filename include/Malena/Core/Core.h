@@ -88,11 +88,29 @@ namespace ml
         bool isEnabled() const;
         bool isVisible() const;
 
+        /// Default layer key when none is specified. Chosen at 100 so callers
+        /// can place children both above and below the default without
+        /// renumbering. Within a layer, children draw in registration order.
+        static constexpr int DefaultLayer = 100;
+
+        /**
+         * @brief A registered child plus the layer key it draws/iterates under.
+         *
+         * Layer ascending = draw order. Within a layer, registration order
+         * (insertion) is preserved by the stable sort in addComponent.
+         */
+        struct Child
+        {
+            Core* component;
+            int   layer;
+        };
+
         void addComponent(Core& child);
+        void addComponent(Core& child, int layer);
         void removeComponent(Core& child);
 
         /**
-         * @brief Register multiple child components in one call.
+         * @brief Register multiple child components at the default layer.
          *
          * Equivalent to calling @c addComponent for each argument. Use this in
          * a composite component's constructor when several fixed member
@@ -110,18 +128,34 @@ namespace ml
             (addComponent(children), ...);
         }
 
+        /**
+         * @brief Register multiple child components at a shared layer.
+         *
+         * @code
+         * ChatWindow() {
+         *     addComponents(200, _input, _sendBtn);  // foreground row
+         * }
+         * @endcode
+         */
+        template<typename... Children>
+        void addComponents(int layer, Children&... children)
+        {
+            static_assert((std::is_base_of_v<Core, Children> && ...),
+                "addComponents() requires Core-derived arguments");
+            (addComponent(children, layer), ...);
+        }
+
         static void linkChild(Core* parent, Core* child);
         static void unlinkAll(Core* core);
 
     protected:
         virtual void onEnabledChanged(bool enabled) {}
 
-        /// Read-only view of registered children for derived classes that need
-        /// to iterate (Panel for layout/draw, future composite components for
-        /// custom drawChildren). Order is registration order today; Phase 2
-        /// will introduce layer-based ordering, at which point this accessor
-        /// may change shape — keep usage localised.
-        const std::vector<Core*>& getChildren() const { return _children; }
+        /// Read-only view of registered children, sorted by layer ascending.
+        /// Within a layer, entries appear in registration order. Each Child
+        /// carries its component pointer and layer key — derived classes that
+        /// only care about the components walk @c entry.component.
+        const std::vector<Child>& getChildren() const { return _children; }
 
     private:
         bool _selfEnabled   = true;
@@ -134,7 +168,7 @@ namespace ml
         // at most one parent's _children vector at a time. linkChild silently
         // moves a child if its previous parent differs.
         Core*               _parent = nullptr;
-        std::vector<Core*>  _children;
+        std::vector<Child>  _children;
 
         // Reentrancy guard for cascades that may indirectly trigger
         // removeComponent / linkChild. Mutations while iterating defer until
