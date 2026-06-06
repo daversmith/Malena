@@ -31,6 +31,31 @@
 namespace ml
 {
     /**
+     * @brief Framework-provided default layer enum.
+     * @ingroup Core
+     *
+     * Use this when a component has no manifest of its own and just needs to
+     * place children into broad strokes. For component-specific vocabulary,
+     * declare a @c Layer enum on the component's manifest and alias it into
+     * scope.
+     *
+     * @code
+     * addComponent(_background, ml::Layer::Background);
+     * addComponent(_content,    ml::Layer::Content);
+     * addComponent(_overlay,    ml::Layer::Overlay);
+     * @endcode
+     *
+     * Values are spaced 100 apart so callers can slip a custom layer in
+     * between (e.g. @c 50 for a backdrop behind Content) without renumbering.
+     */
+    enum class Layer : int
+    {
+        Background = 0,
+        Content    = 100,
+        Overlay    = 200,
+    };
+
+    /**
      * @brief Virtual base class for all Malena framework objects.
       * @ingroup Core
      *
@@ -107,6 +132,45 @@ namespace ml
 
         void addComponent(Core& child);
         void addComponent(Core& child, int layer);
+
+        /**
+         * @brief Register a child at a layer identified by any enum value.
+         *
+         * Sugar over @c addComponent(child, int) — the enum's underlying
+         * integer value is used as the layer key. Lets manifests declare a
+         * domain-meaningful @c Layer enum and pass it directly at the call
+         * site without explicit casts:
+         *
+         * @code
+         * class MyManifest : public ml::Manifest {
+         * public:
+         *     enum class Layer : int {
+         *         Backdrop  = 0,
+         *         Content   = 100,
+         *         Controls  = 150,
+         *     };
+         * };
+         *
+         * class MyWidget : public ml::ComponentWith<MyManifest> {
+         * public:
+         *     using Layer = MyManifest::Layer;
+         *     MyWidget() {
+         *         addComponent(_bg,    Layer::Backdrop);
+         *         addComponent(_input, Layer::Controls);
+         *     }
+         * };
+         * @endcode
+         *
+         * Also accepts @c ml::Layer (the framework-provided default) when a
+         * component has no manifest of its own.
+         */
+        template<typename E,
+                 typename = std::enable_if_t<std::is_enum_v<E>>>
+        void addComponent(Core& child, E layer)
+        {
+            addComponent(child, static_cast<int>(layer));
+        }
+
         void removeComponent(Core& child);
 
         /**
@@ -143,6 +207,22 @@ namespace ml
             static_assert((std::is_base_of_v<Core, Children> && ...),
                 "addComponents() requires Core-derived arguments");
             (addComponent(children, layer), ...);
+        }
+
+        /**
+         * @brief Variadic shared-layer registration with an enum layer key.
+         *
+         * @code
+         * addComponents(Layer::Controls, _input, _sendBtn);
+         * @endcode
+         */
+        template<typename E, typename... Children,
+                 typename = std::enable_if_t<std::is_enum_v<E>>>
+        void addComponents(E layer, Children&... children)
+        {
+            static_assert((std::is_base_of_v<Core, Children> && ...),
+                "addComponents() requires Core-derived arguments");
+            (addComponent(children, static_cast<int>(layer)), ...);
         }
 
         static void linkChild(Core* parent, Core* child);

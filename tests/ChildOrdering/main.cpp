@@ -141,6 +141,88 @@ void test_addComponents_variadic_shared_layer()
     CHECK(k[2].component == &fg2 && k[2].layer == 200);
 }
 
+// ── Phase 3 — enum overloads ───────────────────────────────────────────────
+
+void test_framework_ml_layer_enum()
+{
+    Probe p;
+    Leaf bg, content, overlay;
+
+    p.addComponent(overlay, ml::Layer::Overlay);
+    p.addComponent(content, ml::Layer::Content);
+    p.addComponent(bg,      ml::Layer::Background);
+
+    const auto& k = p.getChildren();
+    CHECK(k.size() == 3);
+    CHECK(k[0].component == &bg);
+    CHECK(k[1].component == &content);
+    CHECK(k[2].component == &overlay);
+
+    // ml::Layer values are spaced so the underlying ints match.
+    CHECK(k[0].layer == 0);
+    CHECK(k[1].layer == 100);
+    CHECK(k[2].layer == 200);
+}
+
+void test_user_enum_class_compiles_and_orders()
+{
+    enum class MyLayer : int
+    {
+        Backdrop = 10,
+        Body     = 50,
+        Modal    = 999,
+    };
+
+    Probe p;
+    Leaf a, b, c;
+
+    p.addComponent(c, MyLayer::Modal);
+    p.addComponent(a, MyLayer::Backdrop);
+    p.addComponent(b, MyLayer::Body);
+
+    const auto& k = p.getChildren();
+    CHECK(k[0].component == &a && k[0].layer == 10);
+    CHECK(k[1].component == &b && k[1].layer == 50);
+    CHECK(k[2].component == &c && k[2].layer == 999);
+}
+
+void test_addComponents_variadic_with_enum()
+{
+    Probe p;
+    Leaf input, sendBtn, bg;
+
+    p.addComponent(bg, ml::Layer::Background);
+    p.addComponents(ml::Layer::Overlay, input, sendBtn);
+
+    const auto& k = p.getChildren();
+    CHECK(k.size() == 3);
+    CHECK(k[0].component == &bg);
+    CHECK(k[1].component == &input   && k[1].layer == 200);
+    CHECK(k[2].component == &sendBtn && k[2].layer == 200);
+}
+
+void test_int_and_enum_paths_agree()
+{
+    // The enum overload is sugar over the int overload — they should produce
+    // identical orderings.
+    Probe pA;
+    Leaf a1, a2, a3;
+    pA.addComponent(a3, 200);
+    pA.addComponent(a1,   0);
+    pA.addComponent(a2, 100);
+
+    Probe pB;
+    Leaf b1, b2, b3;
+    pB.addComponent(b3, ml::Layer::Overlay);
+    pB.addComponent(b1, ml::Layer::Background);
+    pB.addComponent(b2, ml::Layer::Content);
+
+    const auto& kA = pA.getChildren();
+    const auto& kB = pB.getChildren();
+    for (size_t i = 0; i < kA.size(); ++i)
+        CHECK(kA[i].layer == kB[i].layer);
+}
+
 } // namespace
 
 int main()
@@ -152,6 +234,10 @@ int main()
     test_readding_same_child_updates_layer();
     test_addComponents_variadic_default_layer();
     test_addComponents_variadic_shared_layer();
+    test_framework_ml_layer_enum();
+    test_user_enum_class_compiles_and_orders();
+    test_addComponents_variadic_with_enum();
+    test_int_and_enum_paths_agree();
 
     if (failures == 0) {
         std::cout << "ChildOrdering: all checks passed\n";
