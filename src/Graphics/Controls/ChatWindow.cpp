@@ -126,10 +126,4 @@ namespace ml
         return {_position, _size};
     }
 
-    void ChatWindow::draw(sf::RenderTarget& target, sf::RenderStates states) const
-    {
-        target.draw(_scrollPane, states);
-        target.draw(_input, states);
-        target.draw(_sendBtn, states);
-    }
 }

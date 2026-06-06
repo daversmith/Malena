@@ -222,6 +222,25 @@ namespace ml
 
     public:
         using Resources = ml::ManifestResources<ComponentManifest>;
+
+        /// Framework default draw: walk registered children in layer order,
+        /// skip invisible ones, render each via sf::RenderTarget::draw.
+        ///
+        /// Components that compose other components and have no own visuals
+        /// (ChatWindow, future composites) inherit this and override nothing.
+        /// Components that need procedural rendering or to wrap the children
+        /// loop in a clip view / transform override @c draw and either
+        /// reproduce the loop themselves or call @c ComponentBase::draw to
+        /// reuse it.
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            for (const auto& entry : this->getChildren())
+            {
+                if (!entry.component->isVisible()) continue;
+                if (const auto* d = dynamic_cast<const sf::Drawable*>(entry.component))
+                    target.draw(*d, states);
+            }
+        }
     };
 
     // =========================================================================
@@ -233,6 +252,15 @@ namespace ml
     struct ComponentBase<void, Traits...> : public sf::Drawable,
                                             public ComponentCore<void, Traits...>
     {
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            for (const auto& entry : this->getChildren())
+            {
+                if (!entry.component->isVisible()) continue;
+                if (const auto* d = dynamic_cast<const sf::Drawable*>(entry.component))
+                    target.draw(*d, states);
+            }
+        }
     };
     /// @endcond
 
