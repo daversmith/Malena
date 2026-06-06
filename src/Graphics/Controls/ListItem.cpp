@@ -198,14 +198,14 @@ namespace ml
     void ListItem::setStart(ml::Core& c)
     {
         _start = &c;
-        Core::linkChild(this, &c);
+        addComponent(c);
         layout();
     }
 
     void ListItem::setEnd(ml::Core& c)
     {
         _end = &c;
-        Core::linkChild(this, &c);
+        addComponent(c);
         layout();
     }
 
@@ -213,7 +213,7 @@ namespace ml
     {
         _content           = &c;
         _hasCustomContent  = true;
-        Core::linkChild(this, &c);
+        addComponent(c);
         layout();
     }
 

@@ -373,15 +373,8 @@ namespace ml
     void SplitPanel::onDividerMoved(std::function<void(std::size_t, float)> cb)
     { _onDividerMoved = std::move(cb); }
 
-    // ── Enabled propagation ───────────────────────────────────────────────────
-
-    void SplitPanel::setParentEnabled(bool enabled)
-    {
-        Core::setParentEnabled(enabled);
-        const bool effective = isEnabled();
-        for (auto& pane : _panes)
-            if (pane.content) pane.content->setParentEnabled(effective);
-    }
+    // Enable cascade is handled by Core::setEnabled / Core::setParentEnabled
+    // — pane content components are registered via addComponent() in addPane().
 
     // ── Size / position ───────────────────────────────────────────────────────
 
