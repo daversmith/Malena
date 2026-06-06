@@ -10,8 +10,8 @@
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
+#include <functional>
 #include <type_traits>
-#include <unordered_map>
 #include <vector>
 
 #include <Malena/Traits/Communication/Subscribable.h>
@@ -89,6 +89,7 @@ namespace ml
         bool isVisible() const;
 
         void addComponent(Core& child);
+        void removeComponent(Core& child);
 
         /**
          * @brief Register multiple child components in one call.
@@ -121,7 +122,21 @@ namespace ml
 
         void applyEnabled(bool selfEnabled, bool parentEnabled);
 
-        static std::unordered_map<Core*, std::vector<Core*>> _childMap;
+        // ── Per-instance parent/child topology ──────────────────────────────
+        // Replaces the static _childMap. Single-parent: a Core may appear in
+        // at most one parent's _children vector at a time. linkChild silently
+        // moves a child if its previous parent differs.
+        Core*               _parent = nullptr;
+        std::vector<Core*>  _children;
+
+        // Reentrancy guard for cascades that may indirectly trigger
+        // removeComponent / linkChild. Mutations while iterating defer until
+        // the depth returns to zero.
+        int                                     _iterDepth = 0;
+        std::vector<std::function<void()>>      _pendingOps;
+
+        void doRemoveChild(Core* child);
+        void runPendingIfDepthZero();
 
         static bool isDescendantOf(Core* ancestor, Core* component);
         friend class AppManager;
