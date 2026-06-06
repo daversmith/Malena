@@ -1,4 +1,5 @@
 #include <Malena/Graphics/Controls/ScrollPane.h>
+#include <Malena/Utilities/ClipView.h>
 
 namespace ml
 {
@@ -112,46 +113,30 @@ namespace ml
 
 	    target.draw(_background, states);
 
-	    // Clip children to the pane rect with an sf::View VIEWPORT (no RenderTexture).
-	    // Children are already positioned at their real on-screen coords by
-	    // stackChildren(), so drawing them directly — clipped — keeps the visual
-	    // aligned with their hit-boxes (clickable children stay interactive) and
-	    // composes correctly under a scaled/nested view (map through the active
-	    // view, same technique as TabbedPanel/SplitPanel).
-	    if (_width > 0.f && _height > 0.f && !getChildren().empty())
+	    // Children are positioned in real on-screen coords by stackChildren(),
+	    // so we draw them directly inside a clipped view — keeps hit-boxes
+	    // aligned with visuals (clickable children stay interactive) and
+	    // composes correctly under nested views.
+	    if (!getChildren().empty())
 	    {
-	        const auto  ts = target.getSize();
-	        const float tw = static_cast<float>(ts.x);
-	        const float th = static_cast<float>(ts.y);
-	        const sf::View saved = target.getView();
+	        ml::withClipView(target, {_position, {_width, _height}}, [&]{
+	            for (const auto& entry : getChildren())
+	            {
+	                ml::Core* child = entry.component;
+	                if (!child->isVisible()) continue;
 
-	        const sf::Vector2i tl = target.mapCoordsToPixel(_position, saved);
-	        const sf::Vector2i br = target.mapCoordsToPixel(
-	            {_position.x + _width, _position.y + _height}, saved);
+	                const sf::Vector2f  pos    = child->getPosition();
+	                const sf::FloatRect bounds = child->getGlobalBounds();
 
-	        sf::View clip;
-	        clip.setCenter({_position.x + _width / 2.f, _position.y + _height / 2.f});
-	        clip.setSize({_width, _height});
-	        clip.setViewport(sf::FloatRect{
-	            {tl.x / tw, tl.y / th},
-	            {(br.x - tl.x) / tw, (br.y - tl.y) / th}
+	                // Cull fully off-pane children — saves draw calls when many
+	                // children sit off-screen. The viewport handles partial clips.
+	                if (pos.y + bounds.size.y < _position.y || pos.y > _position.y + _height) continue;
+	                if (pos.x + bounds.size.x < _position.x || pos.x > _position.x + _width)  continue;
+
+	                if (auto* drawable = dynamic_cast<sf::Drawable*>(child))
+	                    target.draw(*drawable, states);
+	            }
 	        });
-
-	        target.setView(clip);
-	        for (const auto& entry : getChildren())
-	        {
-	            ml::Core* child = entry.component;
-	            const sf::Vector2f  pos    = child->getPosition();
-	            const sf::FloatRect bounds = child->getGlobalBounds();
-
-	            // Cull fully off-pane children (the viewport clips partial ones).
-	            if (pos.y + bounds.size.y < _position.y || pos.y > _position.y + _height) continue;
-	            if (pos.x + bounds.size.x < _position.x || pos.x > _position.x + _width)  continue;
-
-	            if (auto* drawable = dynamic_cast<sf::Drawable*>(child))
-	                target.draw(*drawable, states);
-	        }
-	        target.setView(saved);
 	    }
 
 	    float contentHeight = getTotalContentHeight();
