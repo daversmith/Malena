@@ -3,6 +3,7 @@
 
 #include <Malena/Graphics/Controls/SplitPanel.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Utilities/ClipView.h>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
 #include <numeric>
@@ -215,43 +216,20 @@ namespace ml
         const bool horiz = (orientation == Orientation::HORIZONTAL);
         float offset = horiz ? _position.x : _position.y;
 
-        const sf::View savedView = target.getView();
-        const auto targetSize = target.getSize();
-        const float tw = static_cast<float>(targetSize.x);
-        const float th = static_cast<float>(targetSize.y);
-
         for (int i = 0; i < static_cast<int>(_panes.size()); ++i)
         {
             const auto& pane = _panes[i];
 
-            sf::Vector2f pos = horiz
+            const sf::Vector2f pos = horiz
                 ? sf::Vector2f{offset, _position.y}
                 : sf::Vector2f{_position.x, offset};
-            sf::Vector2f sz = horiz
+            const sf::Vector2f sz = horiz
                 ? sf::Vector2f{pane.size, _size.y}
                 : sf::Vector2f{_size.x, pane.size};
 
-            // Set a viewport-clipped view so nothing draws outside this pane.
-            // The view center/size map the same world-space region, so all
-            // existing absolute coordinates remain correct — content that
-            // extends beyond the pane edge is simply not rendered.
-            if (sz.x > 0.f && sz.y > 0.f)
-            {
-                // Map the pane rect through the active view to window pixels so the
-                // clip viewport stays correct under a scaled/letterbox view.
-                const sf::Vector2i tl = target.mapCoordsToPixel(pos, savedView);
-                const sf::Vector2i br = target.mapCoordsToPixel(
-                    {pos.x + sz.x, pos.y + sz.y}, savedView);
-
-                sf::View paneView;
-                paneView.setCenter({pos.x + sz.x / 2.f, pos.y + sz.y / 2.f});
-                paneView.setSize(sz);
-                paneView.setViewport(sf::FloatRect{
-                    {tl.x / tw, tl.y / th},
-                    {(br.x - tl.x) / tw, (br.y - tl.y) / th}
-                });
-                target.setView(paneView);
-
+            // Each pane runs inside its own clip view so its content (which
+            // uses absolute world coords) doesn't bleed past the pane edges.
+            ml::withClipView(target, {pos, sz}, [&]{
                 if (paneBg.a > 0)
                 {
                     sf::RectangleShape bg(sz);
@@ -261,17 +239,13 @@ namespace ml
                 }
 
                 if (pane.content)
-                {
-                    auto* drawable = dynamic_cast<const sf::Drawable*>(pane.content.get());
-                    if (drawable) target.draw(*drawable, states);
-                }
-
-                target.setView(savedView);
-            }
+                    if (auto* d = dynamic_cast<const sf::Drawable*>(pane.content.get()))
+                        target.draw(*d, states);
+            });
 
             offset += pane.size;
 
-            // Divider (before next pane) — drawn with original view, no clipping needed
+            // Divider (before next pane) — drawn with the outer view, no clip.
             if (i < static_cast<int>(_panes.size()) - 1)
             {
                 drawDivider(target, states, i,
