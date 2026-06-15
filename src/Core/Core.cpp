@@ -34,31 +34,15 @@ namespace ml
     }
 
     // ── Topology mutations ──────────────────────────────────────────────────
+    // linkChild is the legacy free-function spelling; it now funnels through the
+    // single insertion path (addComponent) so registration, layer ordering and
+    // the enable cascade behave identically no matter which spelling a caller
+    // uses. Previously linkChild skipped setParentEnabled, leaving children
+    // added this way with a stale enabled state.
     void Core::linkChild(Core* parent, Core* child)
     {
         if (!parent || !child || parent == child) return;
-
-        // Soft single-parent: silently move the child if it already belongs to
-        // a different parent. Preserves the implicit invariant that every
-        // historical caller relied on (each ListItem owns its own row, each
-        // Modal owns its own content, etc).
-        if (child->_parent && child->_parent != parent)
-            child->_parent->doRemoveChild(child);
-
-        // De-dup: do not add the same child twice to the same parent.
-        auto& v = parent->_children;
-        auto it = std::find_if(v.begin(), v.end(),
-            [child](const Child& e) { return e.component == child; });
-        if (it != v.end()) return;
-
-        v.push_back({child, DefaultLayer});
-        // No sort needed — appending an entry at DefaultLayer to a vector
-        // where the most recent insert was also at DefaultLayer keeps it
-        // sorted. addComponent(child, layer) re-sorts when a non-default
-        // layer would break the invariant.
-        std::stable_sort(v.begin(), v.end(),
-            [](const Child& a, const Child& b) { return a.layer < b.layer; });
-        child->_parent = parent;
+        parent->addComponent(*child);
     }
 
     void Core::unlinkAll(Core* core)
@@ -122,25 +106,33 @@ namespace ml
         if (child._parent && child._parent != this)
             child._parent->doRemoveChild(&child);
 
-        // Update layer if already a child of ours; otherwise insert.
+        // Insert if new, or reposition if already ours at a different layer.
+        // Either way the vector stays sorted via positional insert — no O(n log n)
+        // re-sort on every registration.
         auto it = std::find_if(_children.begin(), _children.end(),
             [&child](const Child& e) { return e.component == &child; });
         if (it == _children.end())
         {
-            _children.push_back({&child, layer});
-            child._parent = this;
+            insertChildSorted(child, layer);
         }
-        else
+        else if (it->layer != layer)
         {
-            it->layer = layer;
+            _children.erase(it);
+            insertChildSorted(child, layer);
         }
-
-        // Stable sort: layer ascending, registration order preserved within
-        // a layer.
-        std::stable_sort(_children.begin(), _children.end(),
-            [](const Child& a, const Child& b) { return a.layer < b.layer; });
 
         child.setParentEnabled(isEnabled());
+    }
+
+    void Core::insertChildSorted(Core& child, int layer)
+    {
+        // First entry whose layer is strictly greater than ours; inserting there
+        // places this child after all same-or-lower layers, preserving
+        // registration order within a layer.
+        auto pos = std::upper_bound(_children.begin(), _children.end(), layer,
+            [](int lyr, const Child& e) { return lyr < e.layer; });
+        _children.insert(pos, {&child, layer});
+        child._parent = this;
     }
 
     void Core::removeComponent(Core& child)
@@ -157,6 +149,25 @@ namespace ml
             if (const auto* d = dynamic_cast<const sf::Drawable*>(entry.component))
                 target.draw(*d, states);
         }
+    }
+
+    // ── Hit testing ─────────────────────────────────────────────────────────
+    Core* Core::topmostMatching(const std::function<bool(Core&)>& accept)
+    {
+        // Children are painted over us, so they win ties — visit them first,
+        // highest layer (last painted) first. _children is sorted ascending, so
+        // iterate in reverse. Recurse depth-first so a grandchild on top beats
+        // its parent.
+        for (auto it = _children.rbegin(); it != _children.rend(); ++it)
+        {
+            Core* child = it->component;
+            if (!child || !child->isVisible()) continue;
+            if (Core* hit = child->topmostMatching(accept))
+                return hit;
+        }
+        // Then us, painted beneath our children.
+        if (accept(*this)) return this;
+        return nullptr;
     }
 
     // ── Enable cascade ──────────────────────────────────────────────────────

@@ -174,6 +174,25 @@ namespace ml
         void removeComponent(Core& child);
 
         /**
+         * @brief Find the front-most (last-painted) node in this subtree that
+         *        satisfies @p accept, searching topmost-first.
+         *
+         * Walks this Core and its descendants in reverse paint order — children
+         * before their parent, and within a parent the highest layer first — so
+         * the first node for which @p accept returns @c true is the one visually
+         * on top at that location. Invisible subtrees are skipped.
+         *
+         * This is the hit-testing seam the event system uses to route a click to
+         * only the top-most interactive target instead of every overlapping one.
+         * @p accept encapsulates the test (e.g. "is hovered AND a click target"),
+         * keeping @c Core free of any geometry/bounds knowledge.
+         *
+         * @param accept Predicate evaluated per node, topmost-first.
+         * @return The front-most accepted node, or @c nullptr if none match.
+         */
+        Core* topmostMatching(const std::function<bool(Core&)>& accept);
+
+        /**
          * @brief Register multiple child components at the default layer.
          *
          * Equivalent to calling @c addComponent for each argument. Use this in
@@ -272,6 +291,12 @@ namespace ml
 
         void doRemoveChild(Core* child);
         void runPendingIfDepthZero();
+
+        // Insert a child keeping _children sorted by layer ascending, with
+        // registration order preserved within a layer. O(n) positional insert,
+        // not a full re-sort. Sets the child's _parent. Caller guarantees the
+        // child is not already present.
+        void insertChildSorted(Core& child, int layer);
 
         static bool isDescendantOf(Core* ancestor, Core* component);
         friend class AppManager;
