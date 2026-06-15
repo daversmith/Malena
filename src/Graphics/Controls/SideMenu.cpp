@@ -224,7 +224,7 @@ namespace ml
     void SideMenu::setContent(ml::Core& c)
     {
         _content = &c;
-        Core::linkChild(this, &c);
+        addComponent(c);
         updatePanelTransform();
     }
 

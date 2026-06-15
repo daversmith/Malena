@@ -71,8 +71,9 @@ namespace ml
         void setRecipientId(const std::string& id);
         const std::string& getRecipientId() const;
 
-    protected:
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        // No draw override — the framework default (ComponentBase::draw) walks
+        // the registered children in layer order, which is exactly what this
+        // window used to do explicitly.
     };
 }
 

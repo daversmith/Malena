@@ -336,7 +336,7 @@ namespace ml
     void Modal::setContent(ml::Core& content)
     {
         _content = &content;
-        Core::linkChild(this, &content);
+        addComponent(content);
         applyLayout();
     }
 

@@ -136,9 +136,6 @@ namespace ml
         void onThemeApplied(const Theme& theme) override;
 
     public:
-        void setParentEnabled(bool enabled) override;
-
-    public:
         explicit List(const sf::Font& font = FontManager<>::getDefault());
 
         List(const List&)            = delete;
