@@ -3,6 +3,7 @@
 
 #include <Malena/Graphics/Controls/Select.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
@@ -68,7 +69,12 @@ namespace ml
 
             const bool  mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-            if (mouseDown && !_prevDown)
+            // Act on the RELEASE edge, not press. Input events (incl. the CLICK on
+            // release) are dispatched before onUpdate each frame; committing here on
+            // release means this Select still owns exclusivity while that CLICK is
+            // dispatched, so an overlapping control behind the dropdown can't receive
+            // the same click. (Committing on press would clear ownership too early.)
+            if (!mouseDown && _prevDown)
             {
                 const int idx = hitTestPanel(wp);
                 if (idx >= 0 && idx < static_cast<int>(_options.size()))
@@ -198,6 +204,11 @@ namespace ml
         setState(State::OPEN);
         _arrow.setString(L"\u25B2");
         syncTriggerColors();
+        // Claim exclusive interaction so the open dropdown doesn't let clicks fall
+        // through to widgets behind it. Remember the prior owner (e.g. a host modal)
+        // so closing restores it rather than clearing it outright.
+        _prevExclusiveOwner = AppManager::exclusiveOwner();
+        AppManager::setExclusiveOwner(this);
         if (_onOpen) _onOpen();
     }
 
@@ -208,6 +219,8 @@ namespace ml
         _hoveredIndex = -1;
         _arrow.setString(L"\u25BC");
         syncTriggerColors();
+        AppManager::setExclusiveOwner(_prevExclusiveOwner);
+        _prevExclusiveOwner = nullptr;
         if (_onClose) _onClose();
     }
 

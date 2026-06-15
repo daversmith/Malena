@@ -143,6 +143,7 @@ namespace ml
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::isState;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::onStateEnter;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::onStateExit;
+        using GatherStates<ComponentManifest, Draggable, Traits...>::type::syncState;
     };
 
     // =========================================================================

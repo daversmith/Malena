@@ -3,6 +3,8 @@
 
 #include <Malena/Graphics/Controls/ListItem.h>
 #include <Malena/Utilities/Align.h>
+#include <Malena/Engine/Window/WindowManager.h>
+#include <SFML/Window/Mouse.hpp>
 #include <algorithm>
 #include <cmath>
 
@@ -39,8 +41,16 @@ namespace ml
         // Must call Clickable::onClick explicitly — ListItem::onClick only
         // updates _onClickCb and does NOT touch the event subscription.
         Clickable::onClick([this]{
-            if (!checkFlag(Flag::DISABLED) && _onClickCb)
-                _onClickCb();
+            if (checkFlag(Flag::DISABLED) || !_onClickCb) return;
+            // A start/end slot widget (e.g. an action button) owns its own click —
+            // don't ALSO fire the row's callback (that's the "click-through" where
+            // pressing an end-slot button also selects/toggles the row behind it).
+            const auto& win = WindowManager::getWindow();
+            const sf::Vector2f wp = win.mapPixelToCoords(sf::Mouse::getPosition(win));
+            if ((_start && _start->getGlobalBounds().contains(wp)) ||
+                (_end   && _end->getGlobalBounds().contains(wp)))
+                return;
+            _onClickCb();
         });
 
         setState(State::IDLE);

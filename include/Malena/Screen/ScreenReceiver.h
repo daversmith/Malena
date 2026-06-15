@@ -1,0 +1,91 @@
+// Copyright (c) 2025 Dave R. Smith. All rights reserved.
+// Malena Framework — Proprietary Software. See LICENSE for terms.
+
+#pragma once
+#ifndef MALENA_SCREEN_RECEIVER_H
+#define MALENA_SCREEN_RECEIVER_H
+
+#include <Malena/Core/malena_export.h>
+#include <Malena/Graphics/Base/Graphic.h>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <memory>
+#include <string>
+
+namespace ml {
+
+/**
+ * @brief Displays a live H.264 video stream pulled from an RTSP/RTP source.
+ *
+ * Unlike the AirPlay receiver (which reverse-engineers Apple's protocol and
+ * depends on GPL FairPlay code), this widget is a clean GStreamer client:
+ * it pulls an H.264 stream from an RTSP server (e.g. MediaMTX running on the
+ * Pi) — fed by Larix Broadcaster, OBS, a desktop capture pipeline, or our own
+ * future capture app — decodes it (hardware-accelerated where available), and
+ * uploads each frame to an sf::Texture for compositing in the Malena UI.
+ *
+ * The GStreamer pipeline runs on its own streaming threads; the latest frame
+ * is pulled and uploaded to the texture from the render loop (draw()), so no
+ * extra synchronisation is needed.  If the source is not yet publishing, the
+ * pipeline auto-retries with a short backoff and a black placeholder is shown.
+ *
+ * @see ScreenReceiver
+ */
+class MALENA_API ScreenReceiverBase : public Graphic<sf::RectangleShape>
+{
+public:
+    /**
+     * @param name    Human-readable label for logs/status.
+     * @param rtspUrl Source URL, e.g. "rtsp://127.0.0.1:8554/admin".
+     */
+    ScreenReceiverBase(const char* name, const char* rtspUrl);
+    ~ScreenReceiverBase() override;
+
+    ScreenReceiverBase(const ScreenReceiverBase&)            = delete;
+    ScreenReceiverBase& operator=(const ScreenReceiverBase&) = delete;
+
+    /** Start (or restart) the GStreamer pipeline. Non-blocking. */
+    void start();
+
+    /** Stop the pipeline and release resources. */
+    void stop();
+
+    /** True once decoded frames are arriving. */
+    bool isConnected() const;
+
+    const std::string& receiverName() const;
+    const std::string& url() const;
+
+    // sf::Drawable override — uploads the latest frame and renders it (or a
+    // black placeholder when no stream is active).
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> _impl;
+};
+
+// ---------------------------------------------------------------------------
+
+/**
+ * @brief Typed screen receiver — reads config from a manifest struct.
+ *
+ * @code
+ * struct AdminManifest {
+ *     static constexpr const char* name = "Admin";
+ *     static constexpr const char* url  = "rtsp://127.0.0.1:8554/admin";
+ * };
+ * panel.add<ml::ScreenReceiver<AdminManifest>>();
+ * @endcode
+ */
+template<typename Manifest>
+class ScreenReceiver : public ScreenReceiverBase
+{
+public:
+    ScreenReceiver()
+        : ScreenReceiverBase(Manifest::name, Manifest::url)
+    {}
+};
+
+} // namespace ml
+
+#endif // MALENA_SCREEN_RECEIVER_H

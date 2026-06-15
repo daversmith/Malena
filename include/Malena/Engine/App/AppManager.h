@@ -326,6 +326,9 @@ namespace ml
         /** @brief Lift any active exclusive-owner restriction. */
         static void clearExclusiveOwner();
 
+        /** @brief The current exclusive-interaction owner, or @c nullptr. */
+        static Core* exclusiveOwner() { return _exclusiveOwner; }
+
         // ── Internal ──────────────────────────────────────────────────────────
 
         /// @cond INTERNAL

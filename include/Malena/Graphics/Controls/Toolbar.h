@@ -109,6 +109,7 @@ namespace ml
         float             _barLength      = 0.f;  ///< resolved bar length (width if H, height if V)
         float             _scrollOffsetX  = 0.f;  ///< horizontal scroll offset (Overflow::SCROLL)
         float             _totalItemsLen  = 0.f;  ///< total item span along the bar axis
+        mutable int       _rowCount       = 1;    ///< rows used (Overflow::WRAP)
         int               _hoveredIdx     = -1;
 
         void layout();

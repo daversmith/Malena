@@ -102,6 +102,7 @@ namespace ml
         float                     _scrollOffset  = 0.f;
         mutable sf::RenderTexture _panelCanvas;
         mutable int               _hoveredIndex  = -1;
+        ml::Core*                 _prevExclusiveOwner = nullptr;   // restored on close
         mutable bool              _openAbove     = false;
         bool                      _prevDown      = false;
 

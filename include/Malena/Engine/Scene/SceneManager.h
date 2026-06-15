@@ -22,17 +22,39 @@
 namespace ml
 {
     /**
-     * @brief State-driven scene router for Malena applications.
+     * @brief State-driven scene router for Malena state machines.
      * @ingroup EngineApp
      *
      * @c SceneManager<StateEnum> binds scenes (any @c Core-derived object or
-     * lazily-constructed type) to application state enum values. When the app
-     * calls @c setState(), @c SceneManager intercepts the transition via
+     * lazily-constructed type) to state enum values. When the owner calls
+     * @c setState(), @c SceneManager intercepts the transition via
      * @c onStateEnter / @c onStateExit and performs the scene swap automatically —
-     * removing the outgoing scene from @c CoreManager and adding the incoming one.
+     * removing the outgoing scene from the owner and adding the incoming one.
+     *
+     * ### Ownership
+     * A @c SceneManager is a plain object you own — typically a member of the
+     * thing that drives it. That owner can be an @c Application **or** any
+     * @c Component, so the same router works at the top level of an app and for
+     * sub-routing *inside* a component. Each instance has its own bindings and
+     * history; the router lives and dies with its owner.
+     *
+     * The owner (the type passed to @c attach) must expose:
+     * - @c onStateEnter(std::function<void(StateEnum)>)
+     * - @c onStateExit(std::function<void(StateEnum)>)
+     * - @c setState(StateEnum)
+     * - @c syncState(StateEnum)
+     * - @c addComponent(Core&)
+     * - @c removeComponent(Core&)
+     *
+     * @c Application and @c Component both satisfy this contract.
+     *
+     * @warning The owner must outlive the @c SceneManager. @c attach() stores
+     *          callbacks that reference the owner and @c this; destroying either
+     *          while still attached is undefined behaviour. Holding the
+     *          @c SceneManager as a member of the owner satisfies this naturally.
      *
      * ### Design contract
-     * - @c setState() on the application is the **only** navigation primitive.
+     * - @c setState() on the owner is the **only** navigation primitive.
      *   @c SceneManager reacts to it; it does not replace it.
      * - @c back() is the one exception — it calls @c setState() with the
      *   previously visited state, keeping the state machine as the single
@@ -41,7 +63,7 @@ namespace ml
      *   lazily (@c bindLazy) are constructed on first visit and destroyed on
      *   @c back() or when another scene replaces them.
      *
-     * ### Typical setup
+     * ### Typical setup (Application)
      * @code
      * // AppManifest.h
      * struct AppManifest : public ml::Manifest
@@ -52,8 +74,10 @@ namespace ml
      * // MyApp.h
      * class MyApp : public ml::ApplicationWith<AppManifest>
      * {
-     *     using Scenes = ml::SceneManager<AppManifest::State>;
+     *     using State  = AppManifest::State;
+     *     using Scenes = ml::SceneManager<State>;
      *
+     *     Scenes        _scenes;     // owned router
      *     MainMenuScene _mainMenu;   // eager — always in memory
      *     SettingsScene _settings;   // eager
      *     // GameScene is lazy — only allocated when visited
@@ -63,26 +87,42 @@ namespace ml
      *
      *     void onInit() override
      *     {
-     *         Scenes::bind    (State::MainMenu,  _mainMenu);
-     *         Scenes::bind    (State::Settings,  _settings);
-     *         Scenes::bindLazy<GameScene>(State::Game);
+     *         _scenes.bind    (State::MainMenu,  _mainMenu);
+     *         _scenes.bind    (State::Settings,  _settings);
+     *         _scenes.bindLazy<GameScene>(State::Game);
      *
-     *         Scenes::attach(*this);            // wire into the app's state machine
-     *         Scenes::start (State::MainMenu);  // first scene, no history entry
+     *         _scenes.attach(*this);            // wire into the app's state machine
+     *         _scenes.start (State::MainMenu);  // first scene, no history entry
      *     }
      *
      *     void onReady() override
      *     {
      *         // Navigation is just setState — SceneManager handles the rest
-     *         _mainMenu.playButton().onClick([this]{
-     *             setState(State::Game);
-     *         });
-     *         _mainMenu.settingsButton().onClick([this]{
-     *             setState(State::Settings);
-     *         });
-     *         _settings.backButton().onClick([]{
-     *             Scenes::back();    // returns to MainMenu, calls setState internally
-     *         });
+     *         _mainMenu.playButton().onClick([this]{ setState(State::Game); });
+     *         _mainMenu.settingsButton().onClick([this]{ setState(State::Settings); });
+     *         _settings.backButton().onClick([this]{ _scenes.back(); });
+     *     }
+     * };
+     * @endcode
+     *
+     * ### Sub-routing inside a Component
+     * @code
+     * class Workspace : public ml::Component<WorkspaceManifest>
+     * {
+     *     using State  = WorkspaceManifest::State;   // { Chat, Quiz, Monitor }
+     *     using Scenes = ml::SceneManager<State>;
+     *
+     *     Scenes     _scenes;   // this component's own sub-router
+     *     ChatPanel  _chat;
+     *     QuizPanel  _quiz;
+     *
+     * public:
+     *     Workspace()
+     *     {
+     *         _scenes.bind(State::Chat, _chat);
+     *         _scenes.bind(State::Quiz, _quiz);
+     *         _scenes.attach(*this);            // attaches to THIS component
+     *         _scenes.start (State::Chat);
      *     }
      * };
      * @endcode
@@ -93,8 +133,8 @@ namespace ml
      * many components) that should not occupy memory while inactive.
      *
      * @code
-     * Scenes::bindLazy<GameScene>(State::Game);          // no args
-     * Scenes::bindLazy<GameScene>(State::Game, level);   // constructor args forwarded
+     * _scenes.bindLazy<GameScene>(State::Game);          // no args
+     * _scenes.bindLazy<GameScene>(State::Game, level);   // constructor args forwarded
      * @endcode
      *
      * ### History and back()
@@ -102,11 +142,11 @@ namespace ml
      * @c back() pops it and calls @c setState() with that value. The initial
      * scene set via @c start() is NOT pushed — it acts as the history root.
      *
-     * @tparam StateEnum  The @c enum @c class declared in your app manifest's
-     *                    @c State typedef. Must match the enum used by the app's
-     *                    own @c StateManager.
+     * @tparam StateEnum  The @c enum @c class declared in the owner's manifest's
+     *                    @c State typedef. Must match the enum used by the owner's
+     *                    own state machine.
      *
-     * @see ApplicationWith, StateManager, CoreManager, Core
+     * @see ApplicationWith, Component, StateManager, CoreManager, Core
      */
     template<typename StateEnum>
     class SceneManager
@@ -128,27 +168,38 @@ namespace ml
         };
         /// @endcond
 
-        // ── Static storage ──────────────────────────────────────────────────
+        // ── Per-instance storage ────────────────────────────────────────────
 
-        inline static std::unordered_map<StateEnum, SceneEntry, EnumClassHash> _bindings;
-        inline static std::vector<StateEnum>        _history;
-        inline static StateEnum                     _current{};
-        inline static bool                          _started  = false;
-        inline static bool                          _attached = false;
+        std::unordered_map<StateEnum, SceneEntry, EnumClassHash> _bindings;
+        std::vector<StateEnum>        _history;
+        StateEnum                     _current{};
+        bool                          _started  = false;
+        bool                          _attached = false;
 
-        /// Called to add a scene to the CoreManager. Wired via attach().
-        inline static std::function<void(Core&)>       _add;
+        /// Called to add a scene to the owner. Wired via attach().
+        std::function<void(Core&)>       _add;
 
-        /// Called to remove a scene from the CoreManager. Wired via attach().
-        inline static std::function<void(Core&)>       _remove;
+        /// Called to remove a scene from the owner. Wired via attach().
+        std::function<void(Core&)>       _remove;
 
-        /// Calls setState() on the app. Used by back().
-        inline static std::function<void(StateEnum)>   _setter;
+        /// Calls setState() on the owner. Used by back().
+        std::function<void(StateEnum)>   _setter;
 
-        /// Silently syncs the app's state machine current value without callbacks.
-        inline static std::function<void(StateEnum)>   _sync;
+        /// Silently syncs the owner's state machine current value without callbacks.
+        std::function<void(StateEnum)>   _sync;
 
     public:
+
+        // ── Lifetime ──────────────────────────────────────────────────────────
+
+        SceneManager() = default;
+
+        // Non-copyable, non-movable: attach() captures `this` into the owner's
+        // callbacks, so the instance must keep a stable address while attached.
+        SceneManager(const SceneManager&)            = delete;
+        SceneManager& operator=(const SceneManager&) = delete;
+        SceneManager(SceneManager&&)                 = delete;
+        SceneManager& operator=(SceneManager&&)      = delete;
 
         // ── Bind ────────────────────────────────────────────────────────────
 
@@ -157,12 +208,12 @@ namespace ml
          *
          * The scene is always in memory. @c SceneManager does not own it —
          * lifetime management is the caller's responsibility (typically a
-         * member of @c Application).
+         * member of the owning Application/Component).
          *
-         * @param state  The application state that activates this scene.
+         * @param state  The state that activates this scene.
          * @param scene  Reference to a @c Core-derived scene object.
          */
-        static void bind(StateEnum state, Core& scene)
+        void bind(StateEnum state, Core& scene)
         {
             scene.setEnabled(false);
             _bindings[state] = SceneEntry{ &scene, nullptr, nullptr };
@@ -177,16 +228,16 @@ namespace ml
          *
          * @tparam SceneType  A @c Core-derived type to construct on demand.
          * @tparam Args       Constructor argument types (deduced).
-         * @param  state      The application state that activates this scene.
+         * @param  state      The state that activates this scene.
          * @param  args       Arguments forwarded to @c SceneType's constructor.
          *
          * @code
-         * Scenes::bindLazy<GameScene>(State::Game);
-         * Scenes::bindLazy<LevelScene>(State::Level, levelIndex);
+         * _scenes.bindLazy<GameScene>(State::Game);
+         * _scenes.bindLazy<LevelScene>(State::Level, levelIndex);
          * @endcode
          */
         template<typename SceneType, typename... Args>
-        static void bindLazy(StateEnum state, Args&&... args)
+        void bindLazy(StateEnum state, Args&&... args)
         {
             static_assert(std::is_base_of_v<Core, SceneType>,
                 "[SceneManager] bindLazy: SceneType must derive from ml::Core.");
@@ -209,45 +260,48 @@ namespace ml
         // ── Attach ──────────────────────────────────────────────────────────
 
         /**
-         * @brief Wire @c SceneManager into the application's state machine.
+         * @brief Wire @c SceneManager into the owner's state machine.
          *
-         * Registers @c onStateEnter and @c onStateExit callbacks on @p app
+         * Registers @c onStateEnter and @c onStateExit callbacks on @p owner
          * so that every future @c setState() call automatically triggers a
          * scene swap. Also stores a reference to @c setState() so that
-         * @c back() can navigate without the caller holding an app reference.
+         * @c back() can navigate without the caller holding an owner reference.
          *
-         * Call this once in @c onInit(), before @c start().
+         * Call this once after construction (e.g. in @c onInit() for an app, or
+         * the constructor for a component), before @c start().
          *
-         * @tparam App  Any class that exposes:
-         *              - @c onStateEnter(std::function<void(StateEnum)>)
-         *              - @c onStateExit(std::function<void(StateEnum)>)
-         *              - @c setState(StateEnum)
-         *              - @c addComponent(Core&)
-         *              - @c removeComponent(Core&)  [or via CoreManager]
+         * @tparam Owner  Any class that exposes:
+         *                - @c onStateEnter(std::function<void(StateEnum)>)
+         *                - @c onStateExit(std::function<void(StateEnum)>)
+         *                - @c setState(StateEnum)
+         *                - @c syncState(StateEnum)
+         *                - @c addComponent(Core&)
+         *                - @c removeComponent(Core&)
          *
-         * @param app  The application instance to attach to.
+         * @param owner  The Application or Component instance to attach to.
+         *
+         * @warning @p owner and @c *this must both outlive the attachment.
          */
-        template<typename App>
-        static void attach(App& app)
+        template<typename Owner>
+        void attach(Owner& owner)
         {
             _attached = true;
 
             // Store navigation primitives
-            _setter = [&app](StateEnum s) { app.setState(s); };
-            _sync   = [&app](StateEnum s) { app.syncState(s); };
-            _add    = [&app](Core& s)     { app.addComponent(s); };
+            _setter = [&owner](StateEnum s) { owner.setState(s); };
+            _sync   = [&owner](StateEnum s) { owner.syncState(s); };
+            _add    = [&owner](Core& s)     { owner.addComponent(s); };
+            _remove = [&owner](Core& s)     { owner.removeComponent(s); };
 
-            _remove = [&app](Core& s) { app.removeComponent(s); };
-
-            // Hook into the app's state machine — SceneManager reacts to transitions
-            app.onStateExit([](StateEnum leaving)
+            // Hook into the owner's state machine — SceneManager reacts to transitions
+            owner.onStateExit([this](StateEnum leaving)
             {
-                SceneManager::deactivate(leaving);
+                deactivate(leaving);
             });
 
-            app.onStateEnter([](StateEnum entering)
+            owner.onStateEnter([this](StateEnum entering)
             {
-                SceneManager::activate(entering);
+                activate(entering);
             });
         }
 
@@ -262,11 +316,11 @@ namespace ml
          *
          * @param state  The state whose scene should be shown first.
          */
-        static void start(StateEnum state)
+        void start(StateEnum state)
         {
             _current = state;
             _started = true;
-            if (_sync) _sync(state);  // sync app state machine without triggering callbacks
+            if (_sync) _sync(state);  // sync owner state machine without triggering callbacks
             activate(state);          // show first scene — no history push
         }
 
@@ -278,11 +332,11 @@ namespace ml
          * Pops the history stack and calls @c setState() with the recovered
          * state. Does nothing if history is empty (i.e., already at the root).
          *
-         * @note This calls @c setState() on the application, which fires
+         * @note This calls @c setState() on the owner, which fires
          *       @c onStateExit and @c onStateEnter as normal. The scene swap
          *       happens automatically through those callbacks.
          */
-        static void back()
+        void back()
         {
             if (_history.empty()) return;
 
@@ -303,28 +357,27 @@ namespace ml
          * @brief Return the currently active state.
          * @return The state whose scene is currently shown.
          */
-        static StateEnum current() { return _current; }
+        StateEnum current() const { return _current; }
 
         /**
          * @brief Return @c true if @p state is currently the active scene.
          * @param state  State to check.
          */
-        static bool isActive(StateEnum state) { return _started && _current == state; }
+        bool isActive(StateEnum state) const { return _started && _current == state; }
 
         /**
          * @brief Return @c true if a scene has been bound to @p state.
          * @param state  State to check.
          */
-        static bool has(StateEnum state) { return _bindings.count(state) > 0; }
+        bool has(StateEnum state) const { return _bindings.count(state) > 0; }
 
         /**
          * @brief Clear all bindings and history.
          *
-         * Call before rebuilding the scene set (e.g., after @c Application::reset()).
-         * Does NOT deactivate the current scene — call @c deactivate(current()) first
-         * if needed.
+         * Call before rebuilding the scene set. Does NOT deactivate the current
+         * scene — call @c deactivate(current()) first if needed.
          */
-        static void clear()
+        void clear()
         {
             _bindings.clear();
             _history.clear();
@@ -341,15 +394,13 @@ namespace ml
         // ── Internal transition helpers ─────────────────────────────────────
 
         /**
-         * @brief Add the scene bound to @p state to the CoreManager.
+         * @brief Add the scene bound to @p state to the owner.
          *
          * For lazy scenes, constructs the instance on first visit.
-         * Pushes the previously active state to history unless this is
-         * the very first activation (@c start()).
          *
          * @param state  The state being entered.
          */
-        static void activate(StateEnum state)
+        void activate(StateEnum state)
         {
             auto it = _bindings.find(state);
             if (it == _bindings.end()) return;
@@ -374,14 +425,14 @@ namespace ml
         }
 
         /**
-         * @brief Remove the scene bound to @p state from the CoreManager.
+         * @brief Remove the scene bound to @p state from the owner.
          *
          * For lazy scenes, frees the instance after removal.
          * Pushes @p state to history so @c back() can return to it.
          *
          * @param state  The state being exited.
          */
-        static void deactivate(StateEnum state)
+        void deactivate(StateEnum state)
         {
             auto it = _bindings.find(state);
             if (it == _bindings.end()) return;

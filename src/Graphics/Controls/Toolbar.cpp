@@ -68,9 +68,44 @@ namespace ml
     void Toolbar::layout()
     {
         const bool horiz   = (orientation == Orientation::HORIZONTAL);
-        const float thick  = getBarThickness();
         const float sepW   = 1.f;
         const float sepPad = 4.f;
+
+        // ── WRAP: flow items onto extra rows (H) / columns (V) within the bar length ─
+        if (overflow == Overflow::WRAP && _barLength > 0.f)
+        {
+            const float rowStep = (horiz ? itemSize.y : itemSize.x) + itemSpacing;
+            float along = barPadding;    // position along the bar axis
+            int   row   = 0;
+            for (auto& item : _items)
+            {
+                const float w = item.separator ? (sepPad + sepW + sepPad)
+                    : (horiz ? item.component->getGlobalBounds().size.x
+                             : item.component->getGlobalBounds().size.y);
+
+                // Wrap before placing if it would exceed the bar length (but never
+                // wrap when it's the first item on a row).
+                if (along > barPadding && along + w > _barLength - barPadding)
+                {
+                    along = barPadding;
+                    ++row;
+                }
+                if (!item.separator)
+                {
+                    const float cross = barPadding + static_cast<float>(row) * rowStep;
+                    item.component->setPosition(horiz
+                        ? sf::Vector2f{ _position.x + along,  _position.y + cross }
+                        : sf::Vector2f{ _position.x + cross, _position.y + along });
+                }
+                along += w + (item.separator ? 0.f : itemSpacing);
+            }
+            _rowCount      = row + 1;
+            _totalItemsLen = _barLength;
+            return;
+        }
+
+        _rowCount          = 1;
+        const float thick  = getBarThickness();
 
         const float scrollOffset = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
         float offset = barPadding - scrollOffset;
@@ -337,9 +372,9 @@ namespace ml
 
     float Toolbar::getBarThickness() const
     {
-        return (orientation == Orientation::HORIZONTAL)
-               ? itemSize.y + barPadding * 2.f
-               : itemSize.x + barPadding * 2.f;
+        const float base = (orientation == Orientation::HORIZONTAL) ? itemSize.y : itemSize.x;
+        const int   rows = (overflow == Overflow::WRAP) ? std::max(1, _rowCount) : 1;
+        return base * rows + itemSpacing * (rows - 1) + barPadding * 2.f;
     }
 
     float Toolbar::getContentExtent() const
