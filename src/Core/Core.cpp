@@ -220,4 +220,11 @@ namespace ml
         return !checkFlag(Flag::HIDDEN);
     }
 
+    bool Core::isEffectivelyVisible() const
+    {
+        for (const Core* c = this; c; c = c->_parent)
+            if (c->checkFlag(Flag::HIDDEN)) return false;
+        return true;
+    }
+
 } // namespace ml

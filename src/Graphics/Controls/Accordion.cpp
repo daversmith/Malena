@@ -36,6 +36,11 @@ namespace ml
             s.header->setPosition({_position.x, y});
             y += headerHeight;
 
+            // Drive the HIDDEN flag from expanded-state so collapsed content is
+            // excluded from BOTH drawing and hit-testing (otherwise a collapsed
+            // section's controls stay click-testable at their stale positions).
+            s.content->setVisible(s.expanded);
+
             if (s.expanded)
             {
                 s.content->setWidth(_width);

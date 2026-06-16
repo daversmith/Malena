@@ -23,7 +23,10 @@ bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core
 {
 	auto* positionable = dynamic_cast<Positionable*>(component);
 	if (!positionable) return false;
-	if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
+	// Effective visibility, not the bare HIDDEN flag: a component inside a
+	// hidden container (e.g. a collapsed Accordion section) is not drawn and
+	// must not be hit-testable either, even though its own flag says visible.
+	if (!component->isEffectivelyVisible() || !component->checkFlag(Flag::ENABLED)) return false;
 	if (!AppManager::isUnderExclusiveOwner(component)) return false;
 	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
 }

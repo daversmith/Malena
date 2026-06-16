@@ -113,6 +113,19 @@ namespace ml
         bool isEnabled() const;
         bool isVisible() const;
 
+        /**
+         * @brief True only if this component and every ancestor are visible.
+         *
+         * @c isVisible() reports a single component's own @c HIDDEN flag, but
+         * visibility is not cascaded the way enabled-state is: hiding a
+         * container does not flip the @c HIDDEN flag on its descendants. A
+         * descendant of a hidden container is therefore not drawn (the parent
+         * never reaches it) yet still looks visible to anything that inspects
+         * its own flag — notably hit-testing. This walks the parent chain so
+         * such a descendant is correctly treated as not visible.
+         */
+        bool isEffectivelyVisible() const;
+
         /// Default layer key when none is specified. Chosen at 100 so callers
         /// can place children both above and below the default without
         /// renumbering. Within a layer, children draw in registration order.
