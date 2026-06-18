@@ -14,6 +14,7 @@
 #include <Malena/Graphics/Controls/ButtonToggle.h>
 #include <Malena/Graphics/Text/TextArea.h>
 #include <Malena/Core/Component.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <iostream>
 
 namespace {
@@ -93,6 +94,29 @@ void test_all_controls_enabled_flag_invariant()
     check_enabled_flag_invariant<ml::TextArea>("TextArea");
 }
 
+// ── Exclusive-owner lifecycle: the actual mechanism that blocked the toolbar ──
+// An open dropdown grabs exclusive input (so clicks don't fall through to what's
+// behind it); closing releases it. If release ever leaks, the rest of the UI
+// stays locked out — exactly the "toolbar needs two clicks" symptom.
+void test_select_open_release_exclusive_owner()
+{
+    ml::AppManager::clearExclusiveOwner();
+    ml::Select s;
+    s.addOption("a", "a");
+    s.addOption("b", "b");
+    Leaf other;
+
+    CHECK(ml::AppManager::exclusiveOwner() == nullptr);
+
+    s.open();
+    CHECK(ml::AppManager::isUnderExclusiveOwner(&s));        // the dropdown owns input
+    CHECK(!ml::AppManager::isUnderExclusiveOwner(&other));   // everything else is locked out
+
+    s.close();
+    CHECK(ml::AppManager::exclusiveOwner() == nullptr);      // released cleanly
+    CHECK(ml::AppManager::isUnderExclusiveOwner(&other));    // the rest of the UI is live again
+}
+
 // ── List: disabling the list disables its rows ──────────────────────────────
 void test_list_cascade()
 {
@@ -133,6 +157,7 @@ int main()
     test_select_setEnabled_drives_enabled_flag();
     test_select_disabled_by_parent_cascade();
     test_all_controls_enabled_flag_invariant();
+    test_select_open_release_exclusive_owner();
     test_list_cascade();
     test_scrollpane_cascade();
 
