@@ -12,8 +12,16 @@ target_link_libraries(ChildOrderingTest PRIVATE Malena::Malena)
 target_include_directories(ChildOrderingTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME ChildOrdering COMMAND ChildOrderingTest)
 
-# Throwaway spike for the children-unification refactor. Pure standard library,
-# no Malena dependency. Delete this directory once the refactor lands.
-add_executable(CoreUnifySpike CoreUnifySpike/main.cpp)
-target_compile_features(CoreUnifySpike PRIVATE cxx_std_17)
-add_test(NAME CoreUnifySpike COMMAND CoreUnifySpike)
+# Click-filter invariants — exclusive-owner gating, effective visibility through
+# ancestors, enabled/Flag::ENABLED consistency (the "toolbar two-clicks" class).
+add_executable(HitTestInvariantsTest HitTestInvariants/main.cpp)
+target_link_libraries(HitTestInvariantsTest PRIVATE Malena::Malena)
+target_include_directories(HitTestInvariantsTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME HitTestInvariants COMMAND HitTestInvariantsTest)
+
+# Control-level enable/disable behavior — Select flag fix + container cascades
+# (List, ScrollPane). Uses real controls (default font), still window-free.
+add_executable(ControlCascadeTest ControlCascade/main.cpp)
+target_link_libraries(ControlCascadeTest PRIVATE Malena::Malena)
+target_include_directories(ControlCascadeTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+add_test(NAME ControlCascade COMMAND ControlCascadeTest)
