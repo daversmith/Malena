@@ -8,6 +8,11 @@
 #include <Malena/Graphics/Controls/Select.h>
 #include <Malena/Graphics/Controls/List.h>
 #include <Malena/Graphics/Controls/ScrollPane.h>
+#include <Malena/Graphics/Controls/PillToggle.h>
+#include <Malena/Graphics/Controls/SegmentToggle.h>
+#include <Malena/Graphics/Controls/RadioButton.h>
+#include <Malena/Graphics/Controls/ButtonToggle.h>
+#include <Malena/Graphics/Text/TextArea.h>
 #include <Malena/Core/Component.h>
 #include <iostream>
 
@@ -60,6 +65,34 @@ void test_select_disabled_by_parent_cascade()
     CHECK(s.checkFlag(ml::Flag::ENABLED));
 }
 
+// ── Every control's isEnabled() must agree with Flag::ENABLED ───────────────
+// The class of bug fixed across Select / PillToggle / SegmentToggle /
+// RadioButton / ButtonToggle / TextArea: setEnabled toggled only a private
+// DISABLED flag, leaving Flag::ENABLED set, so the click filter (which reads
+// Flag::ENABLED) still saw them as live. After setEnabled, the control's own
+// disabled-state and the framework flag must never disagree.
+template <typename Control>
+void check_enabled_flag_invariant(const char* name)
+{
+    Control c;
+    bool ok = c.isEnabled() && c.checkFlag(ml::Flag::ENABLED);
+    c.setEnabled(false);
+    ok = ok && !c.isEnabled() && !c.checkFlag(ml::Flag::ENABLED);   // filter must reject it
+    c.setEnabled(true);
+    ok = ok && c.isEnabled() && c.checkFlag(ml::Flag::ENABLED);
+    if (!ok) { std::cerr << "FAIL: enabled/Flag::ENABLED invariant for " << name << "\n"; ++failures; }
+}
+
+void test_all_controls_enabled_flag_invariant()
+{
+    check_enabled_flag_invariant<ml::Select>("Select");
+    check_enabled_flag_invariant<ml::PillToggle>("PillToggle");
+    check_enabled_flag_invariant<ml::SegmentToggle>("SegmentToggle");
+    check_enabled_flag_invariant<ml::RadioButton>("RadioButton");
+    check_enabled_flag_invariant<ml::ButtonToggle>("ButtonToggle");
+    check_enabled_flag_invariant<ml::TextArea>("TextArea");
+}
+
 // ── List: disabling the list disables its rows ──────────────────────────────
 void test_list_cascade()
 {
@@ -99,6 +132,7 @@ int main()
 {
     test_select_setEnabled_drives_enabled_flag();
     test_select_disabled_by_parent_cascade();
+    test_all_controls_enabled_flag_invariant();
     test_list_cascade();
     test_scrollpane_cascade();
 

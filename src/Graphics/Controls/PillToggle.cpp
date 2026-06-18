@@ -149,6 +149,7 @@ namespace ml
 
     void PillToggle::setEnabled(bool e)
     {
+        Core::setEnabled(e);   // drive Flag::ENABLED so hit-testing excludes a disabled toggle
         if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         syncFromSettings();

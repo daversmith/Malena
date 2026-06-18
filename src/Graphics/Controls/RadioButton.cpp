@@ -129,6 +129,7 @@ namespace ml
 
     void RadioButton::setEnabled(bool enabled)
     {
+        Core::setEnabled(enabled);   // drive Flag::ENABLED so hit-testing excludes a disabled button
         if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
         applyVisualState();

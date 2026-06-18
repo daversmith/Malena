@@ -99,6 +99,7 @@ namespace ml
 
     void TextInputBase::setEnabled(bool enabled)
     {
+        Core::setEnabled(enabled);   // drive Flag::ENABLED so hit-testing excludes a disabled input
         if (enabled)
         {
             disableFlag(Flag::DISABLED);
