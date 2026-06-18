@@ -507,6 +507,10 @@ namespace ml
 
     void Select::setEnabled(bool enabled)
     {
+        // Drive the framework ENABLED flag too: hit-testing filters on Flag::ENABLED,
+        // so a Select disabled only via its own DISABLED flag would still pass the
+        // filter (and sit as a click target). Keep both in sync.
+        Core::setEnabled(enabled);
         if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
         else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); closePanel(); }
         syncTriggerColors();
