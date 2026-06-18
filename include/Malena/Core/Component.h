@@ -223,6 +223,18 @@ namespace ml
 
     public:
         using Resources = ml::ManifestResources<ComponentManifest>;
+
+        /// Framework default draw: walk registered children in layer order via
+        /// @c Core::drawChildren. Components that compose other components and
+        /// have no own visuals (ChatWindow, future composites) inherit this
+        /// and override nothing. Components that need procedural rendering or
+        /// to wrap the children loop in a clip view / transform override
+        /// @c draw and either call @c drawChildren themselves at the right
+        /// point or replace the loop entirely.
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            this->drawChildren(target, states);
+        }
     };
 
     // =========================================================================
@@ -234,6 +246,10 @@ namespace ml
     struct ComponentBase<void, Traits...> : public sf::Drawable,
                                             public ComponentCore<void, Traits...>
     {
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            this->drawChildren(target, states);
+        }
     };
     /// @endcond
 

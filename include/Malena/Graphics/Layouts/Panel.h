@@ -8,7 +8,6 @@
 #pragma once
 
 #include <Malena/Core/malena_export.h>
-#include <Malena/Core/CoreManager.h>
 #include <Malena/Graphics/Primitives/Rectangle.h>
 #include <Malena/Traits/Theme/Themeable.h>
 #include <Malena/Utilities/HasSetSize.h>
@@ -41,7 +40,7 @@ namespace ml {
      * pane.addComponent(myList);
      * @endcode
      */
-    class MALENA_API Panel : public CoreManager<Core>, public RectangleWith<PanelManifest>, public Themeable
+    class MALENA_API Panel : public RectangleWith<PanelManifest>, public Themeable
     {
         // Maps each child pointer to its position relative to this panel's origin
         std::unordered_map<Core*, sf::Vector2f> _relativePositions;
@@ -90,9 +89,7 @@ namespace ml {
                 _relativePositions[&child] = child.getPosition() - getPosition();
             }
 
-            CoreManager<Core>::addComponent(child);
-            Core::linkChild(this, &child);
-            child.setParentEnabled(isEnabled());
+            Core::addComponent(child);
         }
 
         /**
@@ -143,8 +140,6 @@ namespace ml {
          */
         void setPosition(const sf::Vector2f& position) override;
 
-        void setEnabled(bool enabled) override;
-        void setParentEnabled(bool enabled) override;
         void setVisible(bool visible) override;
         void setActive(bool active) override;
 

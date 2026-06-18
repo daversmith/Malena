@@ -10,9 +10,9 @@
  {
  	enum class Images {ICON};
 	 inline static const auto _ = []() {
-	 	set(
-	 		Images::ICON, "/Users/dsmizzle/CLionProjects/MalenaDeferred/Documentation/assets/malena_icon_3.png"
-	 	);
+	 	// set(
+	 	// 	Images::ICON, "/Users/dsmizzle/CLionProjects/MalenaDeferred/Documentation/assets/malena_icon_3.png"
+	 	// );
 		 return 0;
 	 }();
  };

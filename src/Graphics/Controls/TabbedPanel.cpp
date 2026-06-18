@@ -3,6 +3,7 @@
 
 #include <Malena/Graphics/Controls/TabbedPanel.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Utilities/ClipView.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
@@ -212,7 +213,7 @@ namespace ml
 
     void TabbedPanel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        // ── Content area background (skipped if transparent) ─────────────────
+        // Content area background (skipped if transparent).
         const sf::FloatRect cr = contentRect();
         if (contentBg.a > 0)
         {
@@ -224,45 +225,15 @@ namespace ml
             target.draw(bg, states);
         }
 
-        // ── Tab strip ─────────────────────────────────────────────────────────
+        // Tab strip (procedural — not a registered child).
         drawStrip(target, states);
 
-        // ── Active tab content (clipped to content rect) ──────────────────────
-        if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
-        {
-            auto* comp = _tabs[_activeIdx].content.get();
-            if (comp)
-            {
-                const auto targetSize = target.getSize();
-                const float tw = static_cast<float>(targetSize.x);
-                const float th = static_cast<float>(targetSize.y);
-
-                if (cr.size.x > 0.f && cr.size.y > 0.f)
-                {
-                    const sf::View savedView = target.getView();
-
-                    // Map the content rect through the ACTIVE view to window pixels
-                    // so the clip viewport is correct under a scaled/letterbox view
-                    // (and composes when nested in another viewport-clipped panel).
-                    const sf::Vector2i tl = target.mapCoordsToPixel(cr.position, savedView);
-                    const sf::Vector2i br = target.mapCoordsToPixel(
-                        {cr.position.x + cr.size.x, cr.position.y + cr.size.y}, savedView);
-
-                    sf::View contentView;
-                    contentView.setCenter({cr.position.x + cr.size.x / 2.f,
-                                           cr.position.y + cr.size.y / 2.f});
-                    contentView.setSize(cr.size);
-                    contentView.setViewport(sf::FloatRect{
-                        {tl.x / tw, tl.y / th},
-                        {(br.x - tl.x) / tw, (br.y - tl.y) / th}
-                    });
-
-                    target.setView(contentView);
-                    target.draw(*dynamic_cast<const sf::Drawable*>(comp), states);
-                    target.setView(savedView);
-                }
-            }
-        }
+        // Tab contents — only the active tab is visible (selectTab keeps
+        // visibility in sync). drawChildren auto-skips invisible entries, so
+        // the loop renders just the one active tab inside the clip.
+        ml::withClipView(target, cr, [&]{
+            drawChildren(target, states);
+        });
     }
 
     void TabbedPanel::drawStrip(sf::RenderTarget& target,
@@ -432,20 +403,26 @@ namespace ml
 
     void TabbedPanel::addTab(Tab tab)
     {
-        // Inactive tab contents must not receive click/focus events while hidden.
-        // Disable the new content immediately if another tab is already active.
-        if (_activeIdx >= 0 && tab.content)
-            tab.content->setEnabled(false);
+        auto* content = tab.content.get();
+        const bool willBecomeActive = (_activeIdx < 0);
 
-        // Sync _parentEnabled with TabbedPanel's current enabled state so new
-        // content starts correctly disabled when the panel itself is disabled.
-        if (tab.content)
-            tab.content->setParentEnabled(isEnabled());
+        // Non-active tab content starts both invisible and disabled — the
+        // framework's draw loop and event dispatchers gate on these flags, so
+        // inactive tabs cleanly don't render and don't receive clicks.
+        if (!willBecomeActive && content)
+            content->setActive(false);
 
         _tabs.push_back(std::move(tab));
+
+        // Register with Core so isDescendantOf / enable cascade / framework
+        // draw loop all see this child. addComponent also syncs _parentEnabled
+        // to our current enabled state.
+        if (content)
+            addComponent(*content);
+
         computeTabLayout();
 
-        if (_activeIdx < 0)
+        if (willBecomeActive)
             selectTab(0);
     }
 
@@ -458,7 +435,10 @@ namespace ml
         // that include this Panel's entry; keeping it alive avoids a
         // use-after-free when filter() dereferences the Core*.
         if (_tabs[index].content)
+        {
+            Core::removeComponent(*_tabs[index].content);
             _pendingDelete.push_back(std::move(_tabs[index].content));
+        }
 
         _tabs.erase(_tabs.begin() + static_cast<std::ptrdiff_t>(index));
 
@@ -484,19 +464,20 @@ namespace ml
     {
         if (index >= _tabs.size()) return;
 
-        // Disable the outgoing tab's content so it can't receive click/focus events.
+        // Hide + disable the outgoing tab. setActive toggles both flags so the
+        // framework draw loop skips it and the event system stops dispatching.
         if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()) &&
             _activeIdx != static_cast<int>(index))
         {
             if (_tabs[_activeIdx].content)
-                _tabs[_activeIdx].content->setEnabled(false);
+                _tabs[_activeIdx].content->setActive(false);
         }
 
         _activeIdx = static_cast<int>(index);
 
-        // Enable the incoming tab's content.
+        // Activate the incoming tab.
         if (_tabs[index].content)
-            _tabs[index].content->setEnabled(true);
+            _tabs[index].content->setActive(true);
 
         const sf::FloatRect cr = contentRect();
         if (cr.size.x > 0.f && cr.size.y > 0.f)
@@ -537,21 +518,5 @@ namespace ml
     sf::Vector2f  TabbedPanel::getPosition()     const { return _position; }
     sf::FloatRect TabbedPanel::getGlobalBounds() const
     { return sf::FloatRect{_position, _size}; }
-
-    void TabbedPanel::setEnabled(bool enabled)
-    {
-        Core::setEnabled(enabled);
-        const bool effective = isEnabled();
-        for (auto& tab : _tabs)
-            if (tab.content) tab.content->setParentEnabled(effective);
-    }
-
-    void TabbedPanel::setParentEnabled(bool enabled)
-    {
-        Core::setParentEnabled(enabled);
-        const bool effective = isEnabled();
-        for (auto& tab : _tabs)
-            if (tab.content) tab.content->setParentEnabled(effective);
-    }
 
 } // namespace ml

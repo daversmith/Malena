@@ -36,6 +36,11 @@ namespace ml
             s.header->setPosition({_position.x, y});
             y += headerHeight;
 
+            // Drive the HIDDEN flag from expanded-state so collapsed content is
+            // excluded from BOTH drawing and hit-testing (otherwise a collapsed
+            // section's controls stay click-testable at their stale positions).
+            s.content->setVisible(s.expanded);
+
             if (s.expanded)
             {
                 s.content->setWidth(_width);
@@ -106,6 +111,12 @@ namespace ml
         List&     contentRef = *content;
 
         _sections.push_back({ std::move(header), std::move(content), contentHeight, false });
+
+        // Register with Core so isDescendantOf / enable cascade see the section
+        // children. addComponent also syncs their _parentEnabled to ours.
+        addComponent(headerRef);
+        addComponent(contentRef);
+
         layout();
 
         return { headerRef, contentRef };
@@ -144,6 +155,9 @@ namespace ml
     void Accordion::removeSection(std::size_t index)
     {
         if (index >= _sections.size()) return;
+        auto& s = _sections[index];
+        if (s.header)  Core::removeComponent(*s.header);
+        if (s.content) Core::removeComponent(*s.content);
         _sections.erase(_sections.begin() + static_cast<std::ptrdiff_t>(index));
         layout();
     }

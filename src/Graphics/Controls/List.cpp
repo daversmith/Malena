@@ -50,7 +50,7 @@ namespace ml
             item->onClick(std::move(onClick));
 
         ListItem* ptr = item.get();
-        Core::linkChild(this, ptr);
+        addComponent(*ptr);
         _rows.push_back({ptr, std::move(item)});
 
         layout();
@@ -64,7 +64,7 @@ namespace ml
         if (auto* nested = dynamic_cast<List*>(&component))
             nested->setIndentOffset(_indent + indent);
 
-        Core::linkChild(this, &component);
+        addComponent(component);
         _rows.push_back({&component, nullptr});
         layout();
         rebuildDividers();
@@ -85,7 +85,7 @@ namespace ml
             item->onClick(std::move(onClick));
 
         ListItem* ptr = item.get();
-        Core::linkChild(this, ptr);
+        addComponent(*ptr);
         _pinnedBottom = { ptr, std::move(item) };
         _hasPinnedBottom = true;
         layout();
@@ -211,17 +211,8 @@ namespace ml
         }
     }
 
-    // ── Enabled propagation ───────────────────────────────────────────────────
-
-    void List::setParentEnabled(bool enabled)
-    {
-        Core::setParentEnabled(enabled);
-        const bool effective = isEnabled();
-        for (auto& row : _rows)
-            row.component->setParentEnabled(effective);
-        if (_hasPinnedBottom)
-            _pinnedBottom.component->setParentEnabled(effective);
-    }
+    // Enable cascade is handled by Core::setParentEnabled — row content and
+    // the pinned-bottom row are both registered via addComponent().
 
     // ── draw ──────────────────────────────────────────────────────────────────
 

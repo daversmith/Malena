@@ -304,6 +304,7 @@ namespace ml
 
         const std::size_t idx = _items.size();
         _items.push_back(std::move(item));
+        addComponent(*corePtr);
         layout();
         return idx;
     }
@@ -341,6 +342,7 @@ namespace ml
         Item item;
         item.component = &component;
         _items.push_back(std::move(item));
+        addComponent(component);
         layout();
     }
 
@@ -359,6 +361,8 @@ namespace ml
 
     void Toolbar::clear()
     {
+        for (auto& item : _items)
+            if (item.component) Core::removeComponent(*item.component);
         _items.clear();
     }
 
@@ -401,23 +405,6 @@ namespace ml
             return sf::FloatRect{_position, {_barLength, thick}};
         else
             return sf::FloatRect{_position, {thick, _barLength}};
-    }
-
-    void Toolbar::setEnabled(bool enabled)
-    {
-        Core::setEnabled(enabled);
-        for (auto& item : _items)
-            if (item.component)
-                item.component->setEnabled(enabled);
-    }
-
-    void Toolbar::setParentEnabled(bool enabled)
-    {
-        Core::setParentEnabled(enabled);
-        const bool effective = isEnabled();
-        for (auto& item : _items)
-            if (item.component)
-                item.component->setParentEnabled(effective);
     }
 
 } // namespace ml
