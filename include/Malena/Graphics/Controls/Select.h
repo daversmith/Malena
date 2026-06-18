@@ -32,8 +32,8 @@ namespace ml
     class MALENA_API SelectManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { OPEN, DISABLED };
-        enum class State { IDLE, HOVERED, OPEN, DISABLED };
+        enum class Flag  { OPEN };
+        enum class State { IDLE, HOVERED, OPEN };   // disabled is derived from ml::Flag::ENABLED
     };
 
     struct SelectOptionStyle
@@ -129,6 +129,7 @@ namespace ml
 
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // close dropdown + refresh colors
         void onThemeApplied(const Theme& theme) override;
 
     public:
@@ -203,8 +204,6 @@ namespace ml
         void setPlaceholder(const std::string& text);
         [[nodiscard]] std::string getPlaceholder() const;
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
         void setOptionEnabled(std::size_t index, bool enabled);
 
         void setFont(const sf::Font& f);

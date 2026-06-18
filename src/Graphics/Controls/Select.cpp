@@ -40,19 +40,19 @@ namespace ml
         syncTrigger();
 
         onHover([this]{
-            if (checkFlag(Flag::DISABLED) || checkFlag(Flag::OPEN)) return;
+            if (!checkFlag(ml::Flag::ENABLED) || checkFlag(Flag::OPEN)) return;
             setState(State::HOVERED);
             syncTriggerColors();
         });
 
         onUnhover([this]{
-            if (checkFlag(Flag::DISABLED) || checkFlag(Flag::OPEN)) return;
+            if (!checkFlag(ml::Flag::ENABLED) || checkFlag(Flag::OPEN)) return;
             setState(State::IDLE);
             syncTriggerColors();
         });
 
         onClick([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             if (checkFlag(Flag::OPEN)) closePanel();
             else                       openPanel();
         });
@@ -144,7 +144,7 @@ namespace ml
 
     void Select::syncTriggerColors()
     {
-        const bool disabled = checkFlag(Flag::DISABLED);
+        const bool disabled = !checkFlag(ml::Flag::ENABLED);
         const bool open     = checkFlag(Flag::OPEN);
         const bool hovered  = isState(State::HOVERED);
         const bool hasValue = _selectedIndex >= 0;
@@ -505,18 +505,14 @@ namespace ml
 
     // ── Enabled / disabled ────────────────────────────────────────────────────
 
-    void Select::setEnabled(bool enabled)
+    void Select::onEnabledChanged(bool enabled)
     {
-        // Drive the framework ENABLED flag too: hit-testing filters on Flag::ENABLED,
-        // so a Select disabled only via its own DISABLED flag would still pass the
-        // filter (and sit as a click target). Keep both in sync.
-        Core::setEnabled(enabled);
-        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); closePanel(); }
+        // Single source of truth is Flag::ENABLED (driven by Core); just react to
+        // the change on both the direct and cascade paths: drop an open dropdown
+        // when disabled, and refresh trigger colors (which read ENABLED).
+        if (!enabled && checkFlag(Flag::OPEN)) closePanel();
         syncTriggerColors();
     }
-
-    bool Select::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void Select::setOptionEnabled(std::size_t index, bool enabled)
     { if (index < _options.size()) _options[index].enabled = enabled; }
