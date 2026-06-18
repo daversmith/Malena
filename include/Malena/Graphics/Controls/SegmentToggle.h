@@ -23,8 +23,8 @@ namespace ml
     class MALENA_API SegmentToggleManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { ON, DISABLED };
-        enum class State { IDLE, HOVERED, ON, DISABLED };
+        enum class Flag  { ON };
+        enum class State { IDLE, HOVERED, ON };   // disabled derives from ml::Flag::ENABLED
     };
 
     /**
@@ -106,8 +106,6 @@ namespace ml
         void setOn(bool on);
         void toggle();
         [[nodiscard]] bool isOn()      const;
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
 
         void onToggled(std::function<void(bool)> callback);
 

@@ -12,9 +12,9 @@ namespace ml
         SegmentTheme::applyFrom(ThemeManager::get());
         syncFromSettings();
 
-        onHover([this]{ if (!checkFlag(Flag::DISABLED)) setState(State::HOVERED); });
-        onUnhover([this]{ if (!checkFlag(Flag::DISABLED)) setState(checkFlag(Flag::ON) ? State::ON : State::IDLE); });
-        onClick([this]{ if (!checkFlag(Flag::DISABLED)) toggle(); });
+        onHover([this]{ if (checkFlag(ml::Flag::ENABLED)) setState(State::HOVERED); });
+        onUnhover([this]{ if (checkFlag(ml::Flag::ENABLED)) setState(checkFlag(Flag::ON) ? State::ON : State::IDLE); });
+        onClick([this]{ if (checkFlag(ml::Flag::ENABLED)) toggle(); });
         onUpdate([this]{
             const float dt    = _animClock.restart().asSeconds();
             const float speed = animSpeed > 0.f ? animSpeed : 1000.f;
@@ -95,13 +95,8 @@ namespace ml
     }
     void SegmentToggle::toggle()          { setOn(!checkFlag(Flag::ON)); }
     bool SegmentToggle::isOn()      const { return checkFlag(Flag::ON); }
-    void SegmentToggle::setEnabled(bool e)
-    {
-        Core::setEnabled(e);   // drive Flag::ENABLED so hit-testing excludes a disabled toggle
-        if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
-    }
-    bool SegmentToggle::isEnabled() const { return !checkFlag(Flag::DISABLED); }
+    // Enabled state lives entirely in ml::Flag::ENABLED (Core); draw derives the
+    // disabled appearance from it live — no setEnabled/onEnabledChanged override.
 
     void SegmentToggle::onToggled(std::function<void(bool)> cb) { _onToggled = std::move(cb); }
 

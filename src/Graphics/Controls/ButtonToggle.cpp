@@ -13,9 +13,9 @@ namespace ml
         ButtonTheme::applyFrom(ThemeManager::get());
         syncFromSettings();
 
-        onHover([this]{ if (!checkFlag(Flag::DISABLED)) setState(State::HOVERED); });
-        onUnhover([this]{ if (!checkFlag(Flag::DISABLED)) setState(checkFlag(Flag::ON) ? State::ON : State::IDLE); });
-        onClick([this]{ if (!checkFlag(Flag::DISABLED)) toggle(); });
+        onHover([this]{ if (checkFlag(ml::Flag::ENABLED)) setState(State::HOVERED); });
+        onUnhover([this]{ if (checkFlag(ml::Flag::ENABLED)) setState(checkFlag(Flag::ON) ? State::ON : State::IDLE); });
+        onClick([this]{ if (checkFlag(ml::Flag::ENABLED)) toggle(); });
     }
 
     void ButtonToggle::onThemeApplied(const Theme& theme)
@@ -30,7 +30,7 @@ namespace ml
     void ButtonToggle::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         const bool on  = checkFlag(Flag::ON);
-        const bool dis = checkFlag(Flag::DISABLED);
+        const bool dis = !checkFlag(ml::Flag::ENABLED);
 
         const sf::Color bg = dis ? disabledColor : (on ? onColor   : offColor);
         const sf::Color tc = dis ? disabledTextColor : (on ? onTextColor : offTextColor);
@@ -122,13 +122,9 @@ namespace ml
     }
     void ButtonToggle::toggle()          { setOn(!checkFlag(Flag::ON)); }
     bool ButtonToggle::isOn()      const { return checkFlag(Flag::ON); }
-    void ButtonToggle::setEnabled(bool e)
-    {
-        Core::setEnabled(e);   // drive Flag::ENABLED so hit-testing excludes a disabled toggle
-        if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
-    }
-    bool ButtonToggle::isEnabled() const { return !checkFlag(Flag::DISABLED); }
+    // Enabled state lives entirely in ml::Flag::ENABLED (Core); draw() derives the
+    // disabled appearance from it live, so no setEnabled/onEnabledChanged override
+    // is needed.
 
     void ButtonToggle::onToggled(std::function<void(bool)> cb) { _onToggled = std::move(cb); }
 
