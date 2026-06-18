@@ -28,8 +28,8 @@ namespace ml
     class MALENA_API TextInputManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { DISABLED, READONLY };
-        enum class State { IDLE, FOCUSED, DISABLED, ERROR };
+        enum class Flag  { READONLY };
+        enum class State { IDLE, FOCUSED, ERROR };   // disabled derived from ml::Flag::ENABLED
     };
 
     /**
@@ -90,6 +90,7 @@ namespace ml
         void         handleChar(const sf::Event::TextEntered& te);
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // refresh colors
         void onThemeApplied(const Theme& theme) override;
 
     public:
@@ -196,8 +197,6 @@ namespace ml
         void setPlaceholder(const std::string& text);
         [[nodiscard]] std::string getPlaceholder() const;
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
         void setReadOnly(bool readonly);
         [[nodiscard]] bool isReadOnly() const;
 

@@ -99,10 +99,12 @@ namespace ml
         // ── Layout ────────────────────────────────────────────────────────────--
         void setPosition(const sf::Vector2f& pos) override;
         void setSize(const sf::Vector2f& size);
-        // Propagate to the rows too — they live in the ScrollPane (not this Panel's
-        // CoreManager), so the default propagation wouldn't reach them.
-        void setEnabled(bool enabled) override;
         void setVisible(bool visible) override;
+
+    protected:
+        // Rows live in the ScrollPane (not this Panel's child list), so mirror the
+        // enabled state onto them here — fires on both direct and cascade paths.
+        void onEnabledChanged(bool enabled) override;
 
     private:
         struct Row;                                      // defined in the .cpp

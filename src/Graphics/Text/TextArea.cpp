@@ -33,7 +33,7 @@ namespace ml
         // ── Multiline key handling ────────────────────────────────────────────
         onKeypress([this](const std::optional<sf::Event>& e){
             if (!checkFlag(ml::Flag::FOCUSED)) return;
-            if (checkFlag(Flag::DISABLED))     return;
+            if (!checkFlag(ml::Flag::ENABLED))     return;
             if (!e) return;
             if (const auto* kp = e->getIf<sf::Event::KeyPressed>())
                 handleTextAreaKeypress(*kp);
@@ -340,7 +340,7 @@ namespace ml
 
         if (_cursorVisible
             && checkFlag(ml::Flag::FOCUSED)
-            && !checkFlag(Flag::DISABLED)
+            && checkFlag(ml::Flag::ENABLED)
             && !_dragging)
         {
             _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), cursorColor);

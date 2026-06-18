@@ -296,10 +296,12 @@ namespace ml
     void EditableList::setPosition(const sf::Vector2f& pos) { Panel::setPosition(pos); relayout(); }
     void EditableList::setSize(const sf::Vector2f& size)    { Panel::setSize(size);     relayout(); }
 
-    void EditableList::setEnabled(bool enabled)
+    void EditableList::onEnabledChanged(bool enabled)
     {
-        Panel::setEnabled(enabled);                 // propagates to tracked _scroll/_addBtn
-        for (auto& r : _rows) r->setEnabled(enabled);   // rows live in the ScrollPane
+        // Core/Panel cascade reaches the tracked children; the rows live in the
+        // ScrollPane, so mirror the state onto them here. Fires on both the direct
+        // and cascade paths (the old setEnabled-only override missed the latter).
+        for (auto& r : _rows) r->setEnabled(enabled);
     }
 
     void EditableList::setVisible(bool visible)

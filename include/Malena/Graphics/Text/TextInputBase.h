@@ -36,7 +36,7 @@ namespace ml
          * | @c DISABLED  | Field cannot be interacted with                |
          * | @c READONLY  | Field can be focused but not edited            |
          */
-        enum class Flag { DISABLED, READONLY };
+        enum class Flag { READONLY };   // disabled derived from ml::Flag::ENABLED
 
         /**
          * @brief Visual interaction states.
@@ -45,10 +45,9 @@ namespace ml
          * |-----------|------------------------------------------|
          * | @c IDLE    | Default resting state                   |
          * | @c FOCUSED | Field has keyboard focus                |
-         * | @c DISABLED| Field cannot be interacted with         |
          * | @c ERROR   | Field is in an error / invalid state    |
          */
-        enum class State { IDLE, FOCUSED, DISABLED, ERROR };
+        enum class State { IDLE, FOCUSED, ERROR };   // disabled derived from ml::Flag::ENABLED
     };
 
     // ── TextInputBase ─────────────────────────────────────────────────────────
@@ -72,6 +71,8 @@ namespace ml
         using State = TextInputManifest::State;
 
     protected:
+        void onEnabledChanged(bool enabled) override;   // refresh background colors
+
         // ── Background ────────────────────────────────────────────────────────
         sf::RectangleShape _background;
         sf::Vector2f       _size     = {200.f, 36.f};
@@ -137,14 +138,8 @@ namespace ml
 
         // ── Enabled / disabled / readonly ─────────────────────────────────────
 
-        /**
-         * @brief Enable or disable the input field.
-         * @param enabled @c true to enable, @c false to disable.
-         */
-        void setEnabled(bool enabled);
-
-        /** @brief Return @c true if the field is currently enabled. */
-        [[nodiscard]] bool isEnabled() const;
+        // Enabled state is driven by Core::setEnabled (ml::Flag::ENABLED); react via
+        // the protected onEnabledChanged override — no setEnabled override needed.
 
         /**
          * @brief Set the field to read-only mode.

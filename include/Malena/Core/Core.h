@@ -113,10 +113,10 @@ namespace ml
         // paths. Do NOT override setEnabled/setParentEnabled to do that work, or
         // the cascade path silently skips it.
 
-        /// Set this component's own enabled intent (_selfEnabled). Public API.
-        /// @note Still virtual only for legacy controls that override it; new
-        ///       code should override onEnabledChanged instead.
-        virtual void setEnabled(bool enabled);
+        /// Set this component's own enabled intent (_selfEnabled). Public API and
+        /// non-virtual: there is exactly one enable mechanism. To react to an
+        /// enable/disable change, override onEnabledChanged — never this.
+        void setEnabled(bool enabled);
 
         /// Cascade plumbing: set the inherited (_parentEnabled) component of the
         /// effective state. Called by the framework when an ancestor's effective

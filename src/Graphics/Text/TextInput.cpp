@@ -42,7 +42,7 @@ namespace ml
 
         // ── Focus / blur ──────────────────────────────────────────────────────
         onFocus([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(State::FOCUSED);
             syncColors();
             _cursorClock.restart();
@@ -75,7 +75,7 @@ namespace ml
         // ── Keyboard ──────────────────────────────────────────────────────────
         onKeypress([this](const std::optional<sf::Event>& e){
             if (!checkFlag(ml::Flag::FOCUSED)) return;
-            if (checkFlag(Flag::DISABLED))     return;
+            if (!checkFlag(ml::Flag::ENABLED))     return;
             if (!e) return;
             if (const auto* kp = e->getIf<sf::Event::KeyPressed>())
                 handleKey(*kp);
@@ -83,7 +83,7 @@ namespace ml
 
         onTextEntered([this](const std::optional<sf::Event>& e){
             if (!checkFlag(ml::Flag::FOCUSED)) return;
-            if (checkFlag(Flag::DISABLED))     return;
+            if (!checkFlag(ml::Flag::ENABLED))     return;
             if (checkFlag(Flag::READONLY))     return;
             if (!e) return;
             if (const auto* te = e->getIf<sf::Event::TextEntered>())
@@ -250,7 +250,7 @@ namespace ml
 
     void TextInput::syncColors()
     {
-        if (checkFlag(Flag::DISABLED))
+        if (!checkFlag(ml::Flag::ENABLED))
         {
             _background.setFillColor(bgDisabled);
             _background.setOutlineColor(borderDisabled);
@@ -399,7 +399,7 @@ namespace ml
 
         if (_cursorVisible
             && checkFlag(ml::Flag::FOCUSED)
-            && !checkFlag(Flag::DISABLED)
+            && checkFlag(ml::Flag::ENABLED)
             && !_dragging)
         {
             _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), cursorColor);
@@ -641,15 +641,12 @@ namespace ml
 
     // ── Enabled / disabled / readonly ─────────────────────────────────────────
 
-    void TextInput::setEnabled(bool e)
+    void TextInput::onEnabledChanged(bool /*enabled*/)
     {
-        Core::setEnabled(e);
-        if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        // Disabled colors derive from Flag::ENABLED; refresh on both paths and
+        // leave State alone to preserve FOCUSED/ERROR.
         syncColors();
     }
-
-    bool TextInput::isEnabled()  const { return !checkFlag(Flag::DISABLED); }
 
     void TextInput::setReadOnly(bool r)
     { if (r) enableFlag(Flag::READONLY); else disableFlag(Flag::READONLY); }

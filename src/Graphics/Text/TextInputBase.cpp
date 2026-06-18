@@ -21,7 +21,7 @@ namespace ml
 
         // Focus / blur wiring
         onFocus([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(State::FOCUSED);
             applyBackgroundState();
         });
@@ -37,7 +37,7 @@ namespace ml
 
     void TextInputBase::applyBackgroundState()
     {
-        if (checkFlag(Flag::DISABLED))
+        if (!checkFlag(ml::Flag::ENABLED))
         {
             _background.setFillColor(_bgDisabledColor);
             _background.setOutlineColor(_borderDisabledColor);
@@ -97,25 +97,11 @@ namespace ml
 
     // ── Enabled / disabled / readonly ─────────────────────────────────────────
 
-    void TextInputBase::setEnabled(bool enabled)
+    void TextInputBase::onEnabledChanged(bool /*enabled*/)
     {
-        Core::setEnabled(enabled);   // drive Flag::ENABLED so hit-testing excludes a disabled input
-        if (enabled)
-        {
-            disableFlag(Flag::DISABLED);
-            setState(State::IDLE);
-        }
-        else
-        {
-            enableFlag(Flag::DISABLED);
-            setState(State::DISABLED);
-        }
+        // Disabled appearance derives from Flag::ENABLED inside applyBackgroundState;
+        // refresh on both paths. State is left alone to preserve FOCUSED/ERROR.
         applyBackgroundState();
-    }
-
-    bool TextInputBase::isEnabled() const
-    {
-        return !checkFlag(Flag::DISABLED);
     }
 
     void TextInputBase::setReadOnly(bool readonly)
