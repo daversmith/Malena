@@ -101,8 +101,29 @@ namespace ml
 
         virtual sf::RenderStates getRenderStates() const { return sf::RenderStates(); }
 
+        // ── Enabled state ──────────────────────────────────────────────────
+        // Two-flag model: effective enabled = _selfEnabled && _parentEnabled,
+        // mirrored into Flag::ENABLED (what hit-testing filters on). This keeps
+        // "a component I explicitly disabled stays disabled when its parent is
+        // re-enabled" working.
+        //
+        // To REACT to an enable/disable change (sync visuals, a private DISABLED
+        // flag, close a popup, …), override onEnabledChanged(bool effective) —
+        // it fires on BOTH the direct (setEnabled) and cascade (setParentEnabled)
+        // paths. Do NOT override setEnabled/setParentEnabled to do that work, or
+        // the cascade path silently skips it.
+
+        /// Set this component's own enabled intent (_selfEnabled). Public API.
+        /// @note Still virtual only for legacy controls that override it; new
+        ///       code should override onEnabledChanged instead.
         virtual void setEnabled(bool enabled);
-        virtual void setParentEnabled(bool enabled);
+
+        /// Cascade plumbing: set the inherited (_parentEnabled) component of the
+        /// effective state. Called by the framework when an ancestor's effective
+        /// state changes (and by Modal/Panel for explicit subtree gating). NOT
+        /// an override point — react via onEnabledChanged instead.
+        void setParentEnabled(bool enabled);
+
         virtual void setVisible(bool visible);
         virtual void setActive(bool active);
 
@@ -261,6 +282,12 @@ namespace ml
         static void unlinkAll(Core* core);
 
     protected:
+        /// THE hook for reacting to an enable/disable change. Fires whenever the
+        /// effective enabled state flips — on both the direct (setEnabled) and
+        /// cascade (setParentEnabled) paths — so visuals, a private DISABLED
+        /// flag, popup teardown, etc. stay correct no matter how the change
+        /// arrived. Override this instead of setEnabled/setParentEnabled.
+        /// @param enabled the new effective enabled state.
         virtual void onEnabledChanged(bool enabled) {}
 
         /// Read-only view of registered children, sorted by layer ascending.
