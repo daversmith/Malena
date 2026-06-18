@@ -13,15 +13,15 @@ namespace ml
         syncFromSettings();
 
         onHover([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(State::HOVERED);
         });
         onUnhover([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(checkFlag(Flag::ON) ? State::ON : State::IDLE);
         });
         onClick([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             toggle();
         });
         onUpdate([this]{
@@ -45,7 +45,7 @@ namespace ml
     void PillToggle::syncFromSettings()
     {
         updateThumbPosition();
-        _thumb.setFillColor(checkFlag(Flag::DISABLED) ? thumbDisabledColor : thumbColor);
+        _thumb.setFillColor(!checkFlag(ml::Flag::ENABLED) ? thumbDisabledColor : thumbColor);
     }
 
     void PillToggle::updateThumbPosition()
@@ -82,7 +82,7 @@ namespace ml
     void PillToggle::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         const bool on  = checkFlag(Flag::ON);
-        const bool dis = checkFlag(Flag::DISABLED);
+        const bool dis = !checkFlag(ml::Flag::ENABLED);
 
         if (!leftLabel.empty())
         {
@@ -147,14 +147,12 @@ namespace ml
     void PillToggle::toggle()          { setOn(!checkFlag(Flag::ON)); }
     bool PillToggle::isOn()      const { return checkFlag(Flag::ON); }
 
-    void PillToggle::setEnabled(bool e)
+    void PillToggle::onEnabledChanged(bool /*enabled*/)
     {
-        Core::setEnabled(e);   // drive Flag::ENABLED so hit-testing excludes a disabled toggle
-        if (e) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else   { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        // Disabled appearance derives from Flag::ENABLED; refresh on both paths.
+        setState(State::IDLE);
         syncFromSettings();
     }
-    bool PillToggle::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void PillToggle::onToggled(std::function<void(bool)> cb) { _onToggled = std::move(cb); }
 

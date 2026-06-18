@@ -26,8 +26,8 @@ namespace ml
     class MALENA_API RadioButtonManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { SELECTED, DISABLED };
-        enum class State { IDLE, HOVERED, SELECTED, DISABLED };
+        enum class Flag  { SELECTED };
+        enum class State { IDLE, HOVERED, SELECTED };   // disabled derives from ml::Flag::ENABLED
     };
 
     /**
@@ -62,6 +62,7 @@ namespace ml
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         void onThemeApplied(const Theme& theme) override;
+        void onEnabledChanged(bool enabled) override;
 
     public:
         explicit RadioButton(const std::string& label = "",
@@ -105,9 +106,6 @@ namespace ml
         [[nodiscard]] bool isSelected() const;
 
         // ── Enabled / disabled ────────────────────────────────────────────────
-
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
 
         // ── Label ─────────────────────────────────────────────────────────────
 

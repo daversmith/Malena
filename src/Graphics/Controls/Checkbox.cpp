@@ -23,21 +23,21 @@ namespace ml
         _label.setFillColor(labelColor);
 
         onHover([this]{
-            if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::CHECKED))
+            if (checkFlag(ml::Flag::ENABLED) && !checkFlag(Flag::CHECKED))
             {
                 setState(State::HOVERED);
                 applyVisualState();
             }
         });
         onUnhover([this]{
-            if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::CHECKED))
+            if (checkFlag(ml::Flag::ENABLED) && !checkFlag(Flag::CHECKED))
             {
                 setState(State::IDLE);
                 applyVisualState();
             }
         });
         onClick([this]{
-            if (!checkFlag(Flag::DISABLED)) toggle();
+            if (checkFlag(ml::Flag::ENABLED)) toggle();
         });
 
         setState(State::IDLE);
@@ -80,7 +80,7 @@ namespace ml
 
     void Checkbox::applyVisualState()
     {
-        const bool disabled = checkFlag(Flag::DISABLED);
+        const bool disabled = !checkFlag(ml::Flag::ENABLED);
         const bool checked  = checkFlag(Flag::CHECKED);
 
         if (disabled)
@@ -123,7 +123,7 @@ namespace ml
 
     void Checkbox::check()
     {
-        if (checkFlag(Flag::DISABLED)) return;
+        if (!checkFlag(ml::Flag::ENABLED)) return;
         enableFlag(Flag::CHECKED);
         setState(State::CHECKED);
         applyVisualState();
@@ -153,15 +153,13 @@ namespace ml
 
     bool Checkbox::isChecked() const { return checkFlag(Flag::CHECKED); }
 
-    void Checkbox::setEnabled(bool enabled)
+    void Checkbox::onEnabledChanged(bool /*enabled*/)
     {
-        Core::setEnabled(enabled);
-        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        // Disabled appearance is derived from Flag::ENABLED inside applyVisualState;
+        // recompute it on both the direct and cascade paths.
+        setState(State::IDLE);
         applyVisualState();
     }
-
-    bool Checkbox::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void Checkbox::setLabel(const std::string& label)
     {

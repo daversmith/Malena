@@ -24,8 +24,8 @@ namespace ml
     class MALENA_API PillToggleManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { ON, DISABLED };
-        enum class State { IDLE, HOVERED, ON, DISABLED };
+        enum class Flag  { ON };
+        enum class State { IDLE, HOVERED, ON };   // disabled derives from ml::Flag::ENABLED
     };
 
     /**
@@ -89,6 +89,7 @@ namespace ml
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         void onThemeApplied(const Theme& theme) override;
+        void onEnabledChanged(bool enabled) override;
 
     public:
         explicit PillToggle();
@@ -132,8 +133,6 @@ namespace ml
         void setOn(bool on);
         void toggle();
         [[nodiscard]] bool isOn()      const;
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
 
         // ── Convenience ───────────────────────────────────────────────────────
 

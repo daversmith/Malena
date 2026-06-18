@@ -29,8 +29,8 @@ namespace ml
     class MALENA_API ListItemManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { DISABLED };
-        enum class State { IDLE, HOVERED, DISABLED };
+        enum class Flag  {};   // no per-instance flags; disabled derives from ml::Flag::ENABLED
+        enum class State { IDLE, HOVERED };
     };
 
     // ── ListItem ──────────────────────────────────────────────────────────────
@@ -113,6 +113,7 @@ namespace ml
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         void onThemeApplied(const Theme& theme) override;
+        void onEnabledChanged(bool enabled) override;
 
     public:
         explicit ListItem(const sf::Font& font = FontManager<>::getDefault());
@@ -199,8 +200,6 @@ namespace ml
 
         // ── State ─────────────────────────────────────────────────────────────
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
 
         void setSelected(bool selected);
         [[nodiscard]] bool isSelected() const { return _selected; }
