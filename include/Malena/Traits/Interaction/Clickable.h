@@ -52,6 +52,7 @@ namespace ml
          * fires after the mouse button is released over this component.
          *
          * @param callback Function invoked with no arguments on click.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onClick(std::function<void()> callback, bool overwrite = true);
 

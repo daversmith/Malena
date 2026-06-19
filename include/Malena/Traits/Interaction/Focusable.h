@@ -50,6 +50,7 @@ namespace ml
          *        gains keyboard focus.
          *
          * @param callback Function invoked with no arguments when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onFocus(std::function<void()> callback, bool overwrite = true);
 
@@ -58,6 +59,7 @@ namespace ml
          *        focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onFocus(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
@@ -66,6 +68,7 @@ namespace ml
          *        loses keyboard focus.
          *
          * @param callback Function invoked with no arguments when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onBlur(std::function<void()> callback, bool overwrite = true);
 
@@ -74,6 +77,7 @@ namespace ml
          *        focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onBlur(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };

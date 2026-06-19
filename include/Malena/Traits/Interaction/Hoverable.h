@@ -51,6 +51,7 @@ namespace ml
          *        this component's bounds.
          *
          * @param callback Function invoked with no arguments on hover enter.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onHover(std::function<void()> callback, bool overwrite = true);
 
@@ -59,6 +60,7 @@ namespace ml
          *        component's bounds, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on hover enter.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onHover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
 
@@ -67,6 +69,7 @@ namespace ml
          *        this component's bounds.
          *
          * @param callback Function invoked with no arguments on hover leave.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onUnhover(std::function<void()> callback, bool overwrite = true);
 
@@ -75,6 +78,7 @@ namespace ml
          *        component's bounds, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on hover leave.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onUnhover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
     };

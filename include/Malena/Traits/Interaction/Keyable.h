@@ -61,6 +61,7 @@ namespace ml
          *        while this component has focus.
          *
          * @param callback Function invoked with no arguments on key press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onKeypress(std::function<void()> callback, bool overwrite = true);
 
@@ -69,6 +70,7 @@ namespace ml
          *        component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on key press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onKeypress(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
@@ -79,6 +81,7 @@ namespace ml
          *        while this component has focus.
          *
          * @param callback Function invoked with no arguments on key release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onKeyRelease(std::function<void()> callback, bool overwrite = true);
 
@@ -87,6 +90,7 @@ namespace ml
          *        component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on key release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onKeyRelease(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
@@ -101,6 +105,7 @@ namespace ml
          * correctly.
          *
          * @param callback Function invoked with no arguments when text is entered.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onTextEntered(std::function<void()> callback, bool overwrite = true);
 
@@ -109,6 +114,7 @@ namespace ml
          *        while this component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when text is entered.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onTextEntered(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };

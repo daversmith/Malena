@@ -69,6 +69,7 @@ namespace ml
          * components receive this regardless of hover or focus state.
          *
          * @param callback Function invoked with no arguments each frame.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onUpdate(std::function<void()> callback, bool overwrite = false);
 
@@ -80,6 +81,7 @@ namespace ml
          * need the optional parameter in your callback signature.
          *
          * @param callback Function invoked with the SFML event (always nullopt) each frame.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onUpdate(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
@@ -90,6 +92,7 @@ namespace ml
          *        window is resized.
          *
          * @param callback Function invoked with no arguments on window resize.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowResized(std::function<void()> callback, bool overwrite = false);
 
@@ -98,6 +101,7 @@ namespace ml
          *        resized, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on window resize.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowResized(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
@@ -106,6 +110,7 @@ namespace ml
          *        window gains OS focus.
          *
          * @param callback Function invoked with no arguments when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowFocusGained(std::function<void()> callback, bool overwrite = false);
 
@@ -114,6 +119,7 @@ namespace ml
          *        OS focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
@@ -122,6 +128,7 @@ namespace ml
          *        window loses OS focus.
          *
          * @param callback Function invoked with no arguments when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowFocusLost(std::function<void()> callback, bool overwrite = false);
 
@@ -130,6 +137,7 @@ namespace ml
          *        OS focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
     };

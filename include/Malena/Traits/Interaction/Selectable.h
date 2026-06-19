@@ -68,6 +68,7 @@ namespace ml
          *        is selected.
          *
          * @param callback Function invoked with no arguments on selection.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onSelected(std::function<void()> callback, bool overwrite = true);
 
@@ -77,6 +78,7 @@ namespace ml
          *        programmatic selection).
          *
          * @param callback Function invoked with the SFML event on selection.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onSelected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
@@ -87,6 +89,7 @@ namespace ml
          *        is deselected.
          *
          * @param callback Function invoked with no arguments on deselection.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onDeselected(std::function<void()> callback, bool overwrite = true);
 
@@ -96,6 +99,7 @@ namespace ml
          *        programmatic deselection).
          *
          * @param callback Function invoked with the SFML event on deselection.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
         void onDeselected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
