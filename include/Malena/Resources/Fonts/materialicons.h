@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
+// Copyright (c) 2025 Dave R. Smith.
 // Material Icons (Google) — Apache License 2.0. Embedded for icon glyphs.
 
 #pragma once

@@ -2,7 +2,7 @@
 
 **A lightweight, event-driven C++ UI framework built on top of SFML.**
 
-[**malena.app**](https://malena.app) · [Tutorials playlist](https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0) · [MIT License](#license)
+[**malena.app**](https://malena.app) · [Tutorials playlist](https://www.youtube.com/playlist?list=PLAK6gn2iUWAaOaDcVA5a3A7SFMW8ugor0) · [License](#license)
 
 ---
 
@@ -650,4 +650,14 @@ Full documentation is available at **[malena.app](https://malena.app)**.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+Malena is **source-available** under the
+[PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
+
+- ✅ **Free for any noncommercial use** — personal projects, learning, research,
+  education, hobby work, and nonprofit/government/charitable organizations.
+- 💼 **Commercial use requires a paid license.** If you use Malena in or for a
+  business or a product you sell, contact [malena.app](https://malena.app) for a
+  commercial license.
+
+See [`LICENSE`](LICENSE) for the full terms and third-party notices (SFML,
+nlohmann/json, cpp-httplib, IXWebSocket).
