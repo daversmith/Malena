@@ -17,7 +17,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for interactive UI controls.
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c GraphicTheme with tokens for hover, focus, disabled, and
      * text states. All controls — toggles, buttons, checkboxes, etc. —

@@ -16,7 +16,7 @@ namespace ml
 
     /**
      * @brief Theme tokens shared by all toggle variants.
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c ControlTheme with the active/inactive color pair used by
      * every toggle style — the "on" color, the "off" color, and the text

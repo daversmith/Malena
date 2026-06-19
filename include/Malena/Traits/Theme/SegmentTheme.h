@@ -16,7 +16,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for the @c SegmentToggle (Hotels/Apartments style).
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c ToggleTheme with color tokens for the segmented selector —
      * the track background, the sliding thumb pill, and the active/inactive

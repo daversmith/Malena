@@ -16,7 +16,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for the @c PillToggle (iOS-style oval switch).
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c ToggleTheme with all color tokens specific to the pill
      * switch — track colors, thumb color, and inside label colors.

@@ -94,6 +94,12 @@
  * @ingroup Engine
  */
 
+/**
+ * @defgroup EngineNetworking Engine/Networking
+ * @brief HTTP and WebSocket clients, requests, responses, and the network manager.
+ * @ingroup Engine
+ */
+
 /* =========================
    Graphics Subgroups
    ========================= */

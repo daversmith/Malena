@@ -17,7 +17,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for all visual components.
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Maps universal @c Theme tokens to the lowest-level visual variables
      * shared by every drawable component. All other theme structs inherit
