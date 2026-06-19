@@ -31,7 +31,10 @@ add_test(NAME ControlCascade COMMAND ControlCascadeTest)
 foreach(suite
         Flags            # FlagManager + custom manifest Flag/State
         Positionable     # position, bounds, layout helpers, move queue
-        CoreTopology)    # reparent / remove / effective-visibility / topmostMatching
+        CoreTopology     # reparent / remove / effective-visibility / topmostMatching
+        EventSystem      # subscribe / publish / filter / exclusive owner
+        Messaging        # typed MessageManager channels
+        SceneManager)    # bind / start / navigate / back / lazy construction
     add_executable(${suite}Test ${suite}/main.cpp)
     target_link_libraries(${suite}Test PRIVATE Malena::Malena)
     target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)
