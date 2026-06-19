@@ -1,0 +1,84 @@
+// Positionable invariants — position, bounds, relative-layout helpers, and the
+// movement-queue state. Uses ml::Rectangle (a concrete shape implementing the
+// setPosition/getPosition/getGlobalBounds contract). Window-free.
+
+#include <Malena/Graphics/Primitives/Rectangle.h>
+#include <cmath>
+#include <iostream>
+
+namespace {
+
+int failures = 0;
+#define CHECK(cond) do { \
+    if (!(cond)) { \
+        std::cerr << "FAIL: " #cond " at " << __FILE__ << ":" << __LINE__ << "\n"; \
+        ++failures; \
+    } \
+} while (0)
+
+bool near(float a, float b, float eps = 0.5f) { return std::fabs(a - b) < eps; }
+
+// ── Position + bounds track each other ───────────────────────────────────────
+void test_position_and_bounds()
+{
+    ml::Rectangle r;
+    r.setSize({120.f, 40.f});
+    r.setPosition({100.f, 200.f});
+
+    CHECK(near(r.getPosition().x, 100.f));
+    CHECK(near(r.getPosition().y, 200.f));
+
+    auto b = r.getGlobalBounds();
+    CHECK(near(b.position.x, 100.f));
+    CHECK(near(b.position.y, 200.f));
+    CHECK(near(b.size.x, 120.f));
+    CHECK(near(b.size.y, 40.f));
+
+    r.setPosition({300.f, 50.f});
+    CHECK(near(r.getGlobalBounds().position.x, 300.f));   // bounds follow position
+    CHECK(near(r.getGlobalBounds().position.y, 50.f));
+}
+
+// ── Relative-layout helpers compute deterministic geometry ───────────────────
+void test_relative_layout()
+{
+    ml::Rectangle a, b;
+    a.setSize({100.f, 50.f});
+    a.setPosition({0.f, 0.f});
+    b.setSize({30.f, 30.f});
+
+    b.setRightOf(a, 10.f);
+    CHECK(near(b.getPosition().x, 110.f));   // a.right (100) + gap (10)
+
+    b.setBelow(a, 5.f);
+    CHECK(near(b.getPosition().y, 55.f));     // a.bottom (50) + gap (5)
+
+    b.center(a);
+    CHECK(near(b.getPosition().x, 35.f));     // (100-30)/2
+    CHECK(near(b.getPosition().y, 10.f));     // (50-30)/2
+}
+
+// ── Movement queue: isScrolling reflects an in-flight animation ──────────────
+void test_movement_queue()
+{
+    ml::Rectangle r;
+    r.setSize({10.f, 10.f});
+    r.setPosition({0.f, 0.f});
+
+    CHECK(!r.isScrolling());                  // nothing queued at rest
+    r.moveTo({500.f, 0.f}, 1.f);
+    CHECK(r.isScrolling());                   // waypoints populated → animating
+}
+
+} // namespace
+
+int main()
+{
+    test_position_and_bounds();
+    test_relative_layout();
+    test_movement_queue();
+
+    if (failures == 0) { std::cout << "Positionable: all checks passed\n"; return 0; }
+    std::cerr << "Positionable: " << failures << " check(s) failed\n";
+    return 1;
+}

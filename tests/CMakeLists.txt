@@ -25,3 +25,15 @@ add_executable(ControlCascadeTest ControlCascade/main.cpp)
 target_link_libraries(ControlCascadeTest PRIVATE Malena::Malena)
 target_include_directories(ControlCascadeTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 add_test(NAME ControlCascade COMMAND ControlCascadeTest)
+
+# ── Framework-wide subsystem suites ─────────────────────────────────────────
+# Each locks the public invariants of one subsystem. Window-free.
+foreach(suite
+        Flags            # FlagManager + custom manifest Flag/State
+        Positionable     # position, bounds, layout helpers, move queue
+        CoreTopology)    # reparent / remove / effective-visibility / topmostMatching
+    add_executable(${suite}Test ${suite}/main.cpp)
+    target_link_libraries(${suite}Test PRIVATE Malena::Malena)
+    target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)
+    add_test(NAME ${suite} COMMAND ${suite}Test)
+endforeach()
