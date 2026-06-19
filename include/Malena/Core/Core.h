@@ -107,11 +107,13 @@ namespace ml
         // "a component I explicitly disabled stays disabled when its parent is
         // re-enabled" working.
         //
-        // To REACT to an enable/disable change (sync visuals, a private DISABLED
-        // flag, close a popup, …), override onEnabledChanged(bool effective) —
-        // it fires on BOTH the direct (setEnabled) and cascade (setParentEnabled)
-        // paths. Do NOT override setEnabled/setParentEnabled to do that work, or
-        // the cascade path silently skips it.
+        // To REACT to an enable/disable change (sync visuals/colors, reset a
+        // hover state, close a popup, …), override onEnabledChanged(bool
+        // effective) — it fires on BOTH the direct (setEnabled) and cascade
+        // (setParentEnabled) paths. Do NOT override setEnabled/setParentEnabled
+        // to do that work, or the cascade path silently skips it. Controls do
+        // NOT keep a separate "disabled" flag; disabled is read live from
+        // Flag::ENABLED, so the flag and the visuals can never disagree.
 
         /// Set this component's own enabled intent (_selfEnabled). Public API and
         /// non-virtual: there is exactly one enable mechanism. To react to an
@@ -284,9 +286,9 @@ namespace ml
     protected:
         /// THE hook for reacting to an enable/disable change. Fires whenever the
         /// effective enabled state flips — on both the direct (setEnabled) and
-        /// cascade (setParentEnabled) paths — so visuals, a private DISABLED
-        /// flag, popup teardown, etc. stay correct no matter how the change
-        /// arrived. Override this instead of setEnabled/setParentEnabled.
+        /// cascade (setParentEnabled) paths — so visuals, hover/press state,
+        /// popup teardown, etc. stay correct no matter how the change arrived.
+        /// Override this instead of setEnabled/setParentEnabled.
         /// @param enabled the new effective enabled state.
         virtual void onEnabledChanged(bool enabled) {}
 

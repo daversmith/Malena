@@ -33,10 +33,13 @@ namespace ml
          *
          * | Flag       | Effect                                           |
          * |------------|--------------------------------------------------|
-         * | @c DISABLED  | Field cannot be interacted with                |
          * | @c READONLY  | Field can be focused but not edited            |
+         *
+         * @note There is no @c DISABLED flag — the disabled state derives from
+         *       the framework-wide @c ml::Flag::ENABLED (set via @c setEnabled),
+         *       so hit-testing and the field's own visuals can never disagree.
          */
-        enum class Flag { READONLY };   // disabled derived from ml::Flag::ENABLED
+        enum class Flag { READONLY };
 
         /**
          * @brief Visual interaction states.
