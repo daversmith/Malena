@@ -480,7 +480,8 @@ namespace ml
 
     // ── Open / close ──────────────────────────────────────────────────────────
 
-    void Select::open()  { if (!checkFlag(Flag::OPEN)) openPanel(); }
+    void Select::open()  { if (!checkFlag(ml::Flag::ENABLED)) return;   // disabled can't open (so it can't grab exclusive input)
+                           if (!checkFlag(Flag::OPEN)) openPanel(); }
     void Select::close() { if (checkFlag(Flag::OPEN))  closePanel(); }
     bool Select::isOpen() const { return checkFlag(Flag::OPEN); }
 

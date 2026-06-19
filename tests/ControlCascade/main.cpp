@@ -8,6 +8,9 @@
 #include <Malena/Graphics/Controls/Select.h>
 #include <Malena/Graphics/Controls/List.h>
 #include <Malena/Graphics/Controls/ScrollPane.h>
+#include <Malena/Graphics/Controls/SplitPanel.h>
+#include <Malena/Graphics/Controls/TabbedPanel.h>
+#include <Malena/Graphics/Controls/Accordion.h>
 #include <Malena/Graphics/Controls/PillToggle.h>
 #include <Malena/Graphics/Controls/SegmentToggle.h>
 #include <Malena/Graphics/Controls/RadioButton.h>
@@ -150,6 +153,87 @@ void test_scrollpane_cascade()
     CHECK(child.checkFlag(ml::Flag::ENABLED));
 }
 
+// ── SplitPanel: disabling the split disables its panes ───────────────────────
+void test_splitpanel_cascade()
+{
+    ml::SplitPanel split;
+    auto& a = split.addPane(std::make_unique<Leaf>(), 100.f);
+    auto& b = split.addPane(std::make_unique<Leaf>());
+
+    CHECK(a.checkFlag(ml::Flag::ENABLED));
+    split.setEnabled(false);
+    CHECK(!a.checkFlag(ml::Flag::ENABLED));
+    CHECK(!b.checkFlag(ml::Flag::ENABLED));
+    split.setEnabled(true);
+    CHECK(a.checkFlag(ml::Flag::ENABLED));
+    CHECK(b.checkFlag(ml::Flag::ENABLED));
+}
+
+// ── TabbedPanel: only the active tab's content is live ───────────────────────
+// The toolbar bug lived in a tab container: a hidden tab's content stayed
+// click-testable. Two invariants here: (1) an inactive tab's content is NOT
+// enabled (so it can't be clicked through the active panel), and (2) disabling
+// the whole panel darkens the active tab too; re-enabling restores it while the
+// inactive tab stays dark.
+void test_tabbedpanel_cascade()
+{
+    ml::TabbedPanel tabs;
+    auto& first  = tabs.addTab("A", std::make_unique<Leaf>());   // active
+    auto& second = tabs.addTab("B", std::make_unique<Leaf>());   // inactive
+
+    CHECK(first.checkFlag(ml::Flag::ENABLED));     // active tab is live
+    CHECK(!second.checkFlag(ml::Flag::ENABLED));   // inactive tab is NOT click-testable
+
+    tabs.setEnabled(false);
+    CHECK(!first.checkFlag(ml::Flag::ENABLED));    // disabling the panel darkens active content
+    CHECK(!second.checkFlag(ml::Flag::ENABLED));
+
+    tabs.setEnabled(true);
+    CHECK(first.checkFlag(ml::Flag::ENABLED));     // active tab live again
+    CHECK(!second.checkFlag(ml::Flag::ENABLED));   // inactive tab stays dark
+
+    tabs.selectTab(1);                              // switch active tab
+    CHECK(second.checkFlag(ml::Flag::ENABLED));    // now-active tab becomes live
+    CHECK(!first.checkFlag(ml::Flag::ENABLED));    // now-inactive tab goes dark
+}
+
+// ── Accordion: disabling the accordion disables every section's header + list ─
+void test_accordion_cascade()
+{
+    ml::Accordion acc;
+    auto s0 = acc.addSection("One", 120.f);
+    auto s1 = acc.addSection("Two", 120.f);
+
+    CHECK(s0.header.checkFlag(ml::Flag::ENABLED));
+    CHECK(s0.list.checkFlag(ml::Flag::ENABLED));
+    acc.setEnabled(false);
+    CHECK(!s0.header.checkFlag(ml::Flag::ENABLED));
+    CHECK(!s0.list.checkFlag(ml::Flag::ENABLED));
+    CHECK(!s1.header.checkFlag(ml::Flag::ENABLED));
+    CHECK(!s1.list.checkFlag(ml::Flag::ENABLED));
+    acc.setEnabled(true);
+    CHECK(s0.header.checkFlag(ml::Flag::ENABLED));
+    CHECK(s1.list.checkFlag(ml::Flag::ENABLED));
+}
+
+// ── A disabled Select must not open (so it can't grab exclusive input) ───────
+// open() is now gated on Flag::ENABLED, closing the gap where calling open()
+// directly on a disabled Select would still grab ownership.
+void test_disabled_select_cannot_open()
+{
+    ml::AppManager::clearExclusiveOwner();
+    ml::Select s;
+    s.addOption("a", "a");
+    s.setEnabled(false);
+    s.open();
+    CHECK(ml::AppManager::exclusiveOwner() == nullptr);   // never grabbed input
+    s.setEnabled(true);
+    s.open();
+    CHECK(ml::AppManager::isUnderExclusiveOwner(&s));      // enabled one still opens
+    s.close();
+    ml::AppManager::clearExclusiveOwner();
+}
+
 } // namespace
 
 int main()
@@ -158,8 +242,12 @@ int main()
     test_select_disabled_by_parent_cascade();
     test_all_controls_enabled_flag_invariant();
     test_select_open_release_exclusive_owner();
+    test_disabled_select_cannot_open();
     test_list_cascade();
     test_scrollpane_cascade();
+    test_splitpanel_cascade();
+    test_tabbedpanel_cascade();
+    test_accordion_cascade();
 
     if (failures == 0) {
         std::cout << "ControlCascade: all checks passed\n";
