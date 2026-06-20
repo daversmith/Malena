@@ -20,14 +20,14 @@
 //  included in multiple translation units. Use ML_EXPORT for
 //  header-compatible registration.
 //
-//  This header must be included AFTER Fireable.h so that Fireable
-//  is a complete type. In practice this is guaranteed because
-//  Fireable.h includes this file at its bottom.
+//  Fireable and Plugin must be complete types here (MLExport<T> uses
+//  std::is_base_of against both), so this header includes them directly.
 //
 // ============================================================
 
 #include <Malena/Core/malena_export.h>
-#include <Malena/Events/Fireable.h>
+#include <Malena/Engine/Events/Fireable.h>
+#include <Malena/Engine/Plugins/Plugin.h>
 #include <type_traits>
 
 namespace ml
