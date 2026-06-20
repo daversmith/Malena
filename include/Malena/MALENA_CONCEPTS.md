@@ -12,22 +12,22 @@ A central goal of Malena is to make SFML applications feel more event-driven.
 
 Instead of objects tightly referencing each other, communication occurs through two complementary systems:
 
-### EventsManager — string-keyed pub-sub
+### EventManager — string-keyed pub-sub
 
-`EventsManager` is the central event bus. Components subscribe to named events and receive callbacks when those events fire. The `UIManager` polls SFML input each frame and translates it into Malena event names:
+`EventManager` is the central event bus. Components subscribe to named events and receive callbacks when those events fire. The `AppManager` polls SFML input each frame and translates it into Malena event names:
 
 ```
 SFML Input Event
-  → UIManager (translates + filters)
-    → EventsManager::fire("click" / "hover" / "update" / ...)
+  → AppManager (translates + filters)
+    → EventManager::fire(ml::Event::CLICK / HOVER / UPDATE / ...)
       → subscribed component callbacks
 ```
 
-Built-in event names: `"click"`, `"hover"`, `"unhover"`, `"focus"`, `"blur"`, `"update"`.
+Built-in event names: `ml::Event::CLICK`, `ml::Event::HOVER`, `ml::Event::UNHOVER`, `ml::Event::FOCUS`, `ml::Event::BLUR`, `ml::Event::UPDATE`.
 
-Subscriptions are registered through the `Messenger` trait methods (`onClick`, `onHover`, etc.) rather than the raw `EventsManager` API.
+Subscriptions are registered through the `Subscribable` trait methods (`onClick`, `onHover`, etc.) rather than the raw `EventManager` API.
 
-**Safety:** `EventsManager` tracks a `fireDepth` counter while iterating. Any `unsubscribe` call made during a callback is queued and processed only after the current fire completes. This prevents iterator invalidation and crash-on-unload bugs.
+**Safety:** `EventManager` tracks a `fireDepth` counter while iterating. Any `unsubscribe` call made during a callback is queued and processed only after the current fire completes. This prevents iterator invalidation and crash-on-unload bugs.
 
 ### MessageManager — typed enum-keyed messages
 
@@ -43,7 +43,7 @@ onMessage<bool>(MyEvent::Loaded, [](const bool& loaded) {
 });
 ```
 
-Like `EventsManager`, `MessageManager` uses a deferred removal pattern so that unsubscribing inside a message callback is always safe.
+Like `EventManager`, `MessageManager` uses a deferred removal pattern so that unsubscribing inside a message callback is always safe.
 
 ---
 
@@ -53,9 +53,9 @@ Traits are reusable behavior modules that can be composed into classes.
 
 Instead of deep inheritance hierarchies, Malena uses traits to attach capabilities to objects.
 
-### Messenger
+### Subscribable
 
-The most commonly used trait. Wraps `EventsManager` subscriptions with named convenience methods:
+The most commonly used trait. Wraps `EventManager` subscriptions with named convenience methods:
 
 ```cpp
 rect.onClick([]{ /* clicked */ });
@@ -63,7 +63,7 @@ rect.onHover([]{ /* hovered */ });
 rect.onUpdate([]{ /* every frame */ });
 ```
 
-`Component` inherits `Messenger` and automatically calls `unsubscribeAll()` in its destructor, so there are no dangling callbacks when a component is destroyed.
+`Component` inherits `Subscribable` and automatically calls `unsubscribeAll()` in its destructor, so there are no dangling callbacks when a component is destroyed.
 
 ### Flaggable / CustomFlaggable
 
@@ -85,7 +85,7 @@ Provides a consistent positional API (`setPosition`, `getPosition`, relative pla
 
 ### Subscribable
 
-Lower-level subscription infrastructure used by `Messenger`.
+Lower-level subscription infrastructure used by `Subscribable`.
 
 ### Customizable
 
@@ -97,7 +97,7 @@ Supports manifest-declared visual customization (colors, sizes, etc.).
 
 One of Malena's most important behind-the-scenes mechanisms.
 
-Any time a manager (`EventsManager`, `MessageManager`, `ComponentsManager`, `PluginManager`) is actively iterating its internal collection, destructive operations — unsubscribes, component removals, plugin unloads — are **queued** rather than executed immediately. They are then processed at the next safe point (typically at the start of the next public call on that manager).
+Any time a manager (`EventManager`, `MessageManager`, `CoreManager`, `PluginManager`) is actively iterating its internal collection, destructive operations — unsubscribes, component removals, plugin unloads — are **queued** rather than executed immediately. They are then processed at the next safe point (typically at the start of the next public call on that manager).
 
 This means user code can safely unsubscribe inside a callback, remove a component from a click handler, or unload a plugin from a message handler without risking crashes. The framework handles the timing automatically.
 
@@ -128,11 +128,11 @@ Examples:
 
 | Manager | Responsibility |
 |---|---|
-| `ComponentsManager` | Tracks registered UI components; calls update/draw |
+| `CoreManager` | Tracks registered UI components; calls update/draw |
 | `WindowManager` | Owns the SFML RenderWindow |
 | `PluginManager` | Loads, tracks, and safely unloads plugins |
 | `MessageManager` | Typed enum-keyed messaging |
-| `EventsManager` | String-keyed event pub-sub |
+| `EventManager` | String-keyed event pub-sub |
 | `TextureManager` | Texture loading and reuse |
 | `FontManager` | Font loading and reuse |
 | `SoundManager` | Sound buffer loading and reuse |
@@ -149,9 +149,9 @@ The `Graphics` module provides reusable visual components built on top of SFML.
 
 All graphics components inherit from `Component`, which provides:
 
-- the `Messenger` trait (click, hover, update, etc.)
+- the `Subscribable` trait (click, hover, update, etc.)
 - automatic unsubscription on destruction
-- integration with `ComponentsManager` for update/draw
+- integration with `CoreManager` for update/draw
 
 Components include:
 

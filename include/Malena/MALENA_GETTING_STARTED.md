@@ -56,7 +56,7 @@ int main()
 
 ## Adding Components
 
-Components are registered with `addComponent()` and are then automatically updated and drawn each frame by `ComponentsManager`.
+Components are registered with `addComponent()` and are then automatically updated and drawn each frame by `CoreManager`.
 
 ```cpp
 void onInit() override
@@ -77,7 +77,7 @@ void onInit() override
 
 ## Event Subscriptions
 
-Subscriptions are set up in `onReady()` using the `Messenger` trait methods available on any `Component`:
+Subscriptions are set up in `onReady()` using the `Subscribable` trait methods available on any `Component`:
 
 ```cpp
 void onReady() override
