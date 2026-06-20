@@ -91,7 +91,6 @@ namespace ml
         friend class AppManager;
         friend class PluginManager;
         friend struct ml::exports::FireableRegistrar;
-        template<typename T> friend struct MLExport;
 
     private:
         /// @cond INTERNAL
