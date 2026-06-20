@@ -150,7 +150,7 @@ namespace ml
         /**
          * @brief Return the axis-aligned bounding box in world space.
          *
-         * Used by @c UIManager for hit-testing (click, hover) and by
+         * Used by @c AppManager for hit-testing (click, hover) and by
          * layout helpers for relative placement. Returns a zero-size rect
          * by default, opting the component out of event routing.
          *

@@ -117,7 +117,7 @@ class MyApp : public ml::Application
 public:
     MyApp() : ml::Application(sf::VideoMode({800, 480}), "My App") {}
 
-    void initialization() override
+    void onInit() override
     {
         button.setSize({240, 64});
         button.setPosition({40, 40});
@@ -125,7 +125,7 @@ public:
         addComponent(button);
     }
 
-    void registerEvents() override
+    void onReady() override
     {
         button.onClick([this]{ button.setString("Clicked!"); });
     }
@@ -135,21 +135,21 @@ int main() { MyApp().run(); }
 ```
 
 **Where to put code:**
-- `initialization()` — create components, call `addComponent(...)`
-- `registerEvents()` — attach `onClick`, `onHover`, `onUpdate`, custom `subscribe`
+- `onInit()` — create components, call `addComponent(...)`
+- `onReady()` — attach `onClick`, `onHover`, `onUpdate`, custom `subscribe`
 
 ---
 
 ## Core Concepts
 
 ### Application shell
-`ml::Application` combines `AppManager` (window, loop, draw) and `UIController` (your logic) into one base class. Override `initialization()` and `registerEvents()`, then call `run()`.
+`ml::Application` (via `ApplicationBase`) inherits `AppManager` (window, loop, draw) and `Updatable`, giving you a single base class for both the window and your logic. Override `onInit()` to build components and `onReady()` to wire them, then call `run()`.
 
 ### Components
-All UI objects inherit from `ml::Core`, which mixes in `Positionable`, `Flaggable`, `Subscribable`, and `Draggable`. Components are registered with `addComponent(...)` to be updated and drawn each frame.
+All UI objects inherit from `ml::Core`, which mixes in `Subscribable`, `Flaggable`, `Positionable`, the interaction traits (`Clickable`, `Hoverable`, `Focusable`, `Keyable`, `Scrollable`), and `Updatable`. Components are registered with `addComponent(...)` to be updated and drawn each frame.
 
 ### Events
-String-keyed publish/subscribe system. Built-in events — `click`, `hover`, `unhover`, `focus`, `blur`, `keypress`, `textentered`, `mousemoved`, `update` — are fired automatically by the framework. You can publish your own events on any channel.
+Enum-keyed publish/subscribe system. Built-in events — `ml::Event::CLICK`, `HOVER`, `UNHOVER`, `FOCUS`, `BLUR`, `KEYPRESS`, `TEXT_ENTERED`, `MOUSE_MOVED`, `SCROLL`, `UPDATE` — are fired automatically by the framework. You subscribe with the trait helpers (`onClick`, `onHover`, …) or `subscribe(...)`, and can publish your own enum events on any channel.
 
 ### Flags
 Binary state bits like `HOVERED`, `FOCUSED`, `ENABLED`, `HIDDEN`. Many are updated automatically by the framework; you can check, set, and toggle them at any time.
@@ -166,18 +166,17 @@ A `Manifest` is a compile-time registry that maps `enum class` keys to asset fil
 ```cpp
 // Width, height, bit depth, and title
 ml::Application(unsigned int w, unsigned int h, unsigned int bitDepth,
-                const std::string& title);
+                const std::string& title,
+                std::uint32_t windowStyle = sf::Style::Default);
 
-// SFML VideoMode and title
-ml::Application(const sf::VideoMode& mode, const std::string& title);
-
-// With a separate UIController and an explicit render window
+// SFML VideoMode and title (with optional explicit window, architecture, style)
 ml::Application(const sf::VideoMode& mode, const std::string& title,
-                ml::UIController& controller,
-                sf::RenderWindow& window = ml::WindowManager::getWindow());
+                sf::RenderWindow& window = ml::WindowManager::getWindow(),
+                AppManager::Architecture architecture = AppManager::MVC,
+                std::uint32_t windowStyle = sf::Style::Default);
 ```
 
-Pass `*this` as the `UIController` argument when deriving from `Application` directly.
+Derive from `ml::Application` and override `onInit()` / `onReady()`; no controller object is needed.
 
 ### ApplicationWith — with a manifest
 
@@ -192,14 +191,14 @@ public:
         1280, 720, 32,
         Resources::get(Text::WindowTitle)) {}   // title from manifest
 
-    void initialization() override
+    void onInit() override
     {
         auto& icon = Resources::get(Images::Icon);
         auto& font = Resources::get(Fonts::Main);
         int   fps  = Resources::get(Ints::TargetFPS);
     }
 
-    void registerEvents() override { ... }
+    void onReady() override { ... }
 };
 ```
 
@@ -207,8 +206,8 @@ public:
 
 | Method | Purpose |
 |--------|---------|
-| `initialization()` | Create components, call `addComponent(...)` |
-| `registerEvents()` | Attach event callbacks |
+| `onInit()` | Create components, call `addComponent(...)` |
+| `onReady()` | Attach event callbacks |
 | `run()` | Start the loop — poll → fire → update → draw |
 | `reset()` | Tear down all events, messages, and components without closing the window |
 | `clearEvents()` | Clear event subscriptions only |
@@ -324,22 +323,30 @@ component.onTextEntered([](const std::optional<sf::Event>&){});
 
 ### Custom events
 
+Events are keyed by any `enum class` value — built-in `ml::Event` or your own.
+
 ```cpp
+enum class MyEvent { Pinged };
+
 // Subscribe
-box.subscribe("MyEvent", []{ /* ... */ });
+box.subscribe(MyEvent::Pinged, []{ /* ... */ });
 
 // Publish to all subscribers
-ml::Messenger::publish("MyEvent");
+box.publish(MyEvent::Pinged);
 
-// Publish with a filter predicate
-ml::Messenger::publish("MyEvent", [](ml::UIComponent& c){
-    return !c.checkFlag(ml::Flag::HIDDEN);
+// Publish with a filter predicate (receives the EventReceiver)
+box.publish(MyEvent::Pinged, [](ml::EventReceiver& r){
+    auto* c = dynamic_cast<ml::Core*>(&r);
+    return c && !c->checkFlag(ml::Flag::HIDDEN);
 });
 
 // Unsubscribe
-box.unsubscribe("MyEvent");
+box.unsubscribe(MyEvent::Pinged);
 box.unsubscribeAll();
 ```
+
+For typed point-to-point messages (each carrying a payload), inherit `ml::Messenger`
+and use `sendMessage<T>(event, data)` / `onMessage<T>(event, cb)`.
 
 ---
 
@@ -464,7 +471,7 @@ private:
 
 class MyWidget : public ml::ComponentWith<MyManifest>
 {
-    void initialization() override
+    void onInit() override
     {
         // Enum aliases are in scope — no MyManifest:: prefix needed
         auto& tex   = Resources::get(Images::Background);
@@ -565,7 +572,7 @@ class MyApp : public ml::Application
 public:
     MyApp() : ml::Application(sf::VideoMode({1280, 720}), "My App") {}
 
-    void initialization() override
+    void onInit() override
     {
         titleText.setFont(App::AssetMgr::get(AppManifest::Fonts::UI));
         titleText.setString(App::ConfigMgr::get(AppManifest::Text::AppTitle));
@@ -578,7 +585,7 @@ public:
         addComponent(splashSprite);
     }
 
-    void registerEvents() override {}
+    void onReady() override {}
 };
 
 int main() { MyApp().run(); }
@@ -618,7 +625,7 @@ enum class Images { THUMBNAIL, Background };
 ## Best Practices
 
 ### Lifecycle
-Create and configure components in `initialization()`. Wire all event callbacks in `registerEvents()`. Always call `addComponent(...)` for anything that should be updated and drawn.
+Create and configure components in `onInit()`. Wire all event callbacks in `onReady()`. Always call `addComponent(...)` for anything that should be updated and drawn.
 
 ### Events
 Prefer the component helper callbacks (`onClick`, `onHover`, `onUpdate`) over polling. Use custom event channels for decoupled, cross-component communication.

@@ -101,7 +101,7 @@ namespace ml
         /**
          * @brief Return the axis-aligned bounding box in world space.
          *
-         * Delegates to @c T::getGlobalBounds(). Used by @c UIManager for
+         * Delegates to @c T::getGlobalBounds(). Used by @c AppManager for
          * hit-testing (click, hover) and by layout helpers.
          *
          * @return Bounding rectangle in world coordinates.

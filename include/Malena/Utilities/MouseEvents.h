@@ -19,7 +19,7 @@ namespace ml
      * @brief Static helpers for mouse hit-testing against framework objects.
       * @ingroup Utilities
      *
-     * @c MouseEvents provides the low-level spatial queries that @c UIManager
+     * @c MouseEvents provides the low-level spatial queries that @c AppManager
      * uses each frame to determine which component the mouse is hovering over
      * or clicking on. Each method is overloaded to accept either a framework
      * object (queried via @c getGlobalBounds()) or a raw @c sf::FloatRect.
@@ -30,9 +30,9 @@ namespace ml
      *
      * @note User code rarely calls these directly. The preferred approach is
      *       to use the @c Subscribable event callbacks (@c onClick, @c onHover)
-     *       which are fired automatically by @c UIManager.
+     *       which are fired automatically by @c AppManager.
      *
-     * @see UIManager, Subscribable, Positionable
+     * @see AppManager, Subscribable, Positionable
      */
     class MALENA_API MouseEvents
     {
