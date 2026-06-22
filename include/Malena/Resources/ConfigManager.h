@@ -34,7 +34,7 @@ namespace ml
     template<typename T, typename = void>
     struct has_Booleans : std::false_type {};
     template<typename T>
-    struct has_Booleans<T, std::void_t<typename T::Floats>> : std::true_type {}; // BUG: should be T::Booleans
+    struct has_Booleans<T, std::void_t<typename T::Booleans>> : std::true_type {};
 
     /// @endcond
 
@@ -122,7 +122,7 @@ namespace ml
          */
         template<typename M = Manifest>
         static std::enable_if_t<has_Ints<M>::value, int>
-        get(typename M::Integers config);
+        get(typename M::Ints config);
 
         /**
          * @brief Retrieve a float config value.

@@ -22,9 +22,9 @@ namespace ml {
     template<typename Manifest>
     template<typename M>
     std::enable_if_t<has_Ints<M>::value, int>
-    ConfigManager<Manifest>::get(typename M::Integers config) {
+    ConfigManager<Manifest>::get(typename M::Ints config) {
         ensureInitialized();
-        return Manifest::template getConfig<typename M::Integers, int>(config);
+        return Manifest::template getConfig<typename M::Ints, int>(config);
     }
 
     template<typename Manifest>
