@@ -85,6 +85,31 @@ void test_topmost_matching()
     CHECK(only == &low);
 }
 
+// ── Topmost-wins click selection (the algorithm ClickableDispatcher::fire uses) ─
+// fire() walks components front-to-back and, via topmostMatching, picks the
+// single front-most component that passes the click gate (hovered + enabled +
+// effectively-visible + under-owner). Only it receives the click — so clicks no
+// longer fall through to widgets painted behind. Here a capture-set stands in
+// for the gate (the geometric/state checks need a live window).
+void test_topmost_wins_selection()
+{
+    Leaf root, back, front;
+    root.addComponent(back,  0);     // painted first (behind)
+    root.addComponent(front, 100);   // painted last  (in front)
+
+    bool frontPasses = true, backPasses = true;
+    auto gate = [&](ml::Core& c) {
+        return (&c == static_cast<ml::Core*>(&front) && frontPasses)
+            || (&c == static_cast<ml::Core*>(&back)  && backPasses);
+    };
+
+    CHECK(root.topmostMatching(gate) == &front);   // both gated → front-most wins
+    frontPasses = false;
+    CHECK(root.topmostMatching(gate) == &back);    // front blocked → the one behind is chosen
+    backPasses = false;
+    CHECK(root.topmostMatching(gate) == nullptr);  // none gated → no click target (click dropped)
+}
+
 } // namespace
 
 int main()
@@ -93,6 +118,7 @@ int main()
     test_remove_detaches();
     test_effective_visibility_chain();
     test_topmost_matching();
+    test_topmost_wins_selection();
 
     if (failures == 0) { std::cout << "CoreTopology: all checks passed\n"; return 0; }
     std::cerr << "CoreTopology: " << failures << " check(s) failed\n";

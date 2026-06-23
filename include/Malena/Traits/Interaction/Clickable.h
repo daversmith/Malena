@@ -73,6 +73,18 @@ namespace ml
     class MALENA_API ClickableDispatcher : public EventDispatcher
     {
         inline static EventReceiver* _focused = nullptr;
+
+        // Topmost-wins: the single front-most component under the cursor that
+        // passes the click gate this fire(). Only it receives the click, so a
+        // click can't fall through to widgets painted behind it. Recomputed at
+        // the start of each fire().
+        Core* _topTarget = nullptr;
+
+        // The per-component gate (positionable, effectively-visible, enabled,
+        // under the exclusive owner, hovered) — shared by fire()'s topmost
+        // search and filter().
+        static bool passesClickGate(Core* component);
+
     public:
         bool occurred(const std::optional<sf::Event>& event) override;
         bool filter(const std::optional<sf::Event>& event, Core* component) override;

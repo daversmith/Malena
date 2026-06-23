@@ -19,7 +19,7 @@ bool ml::ClickableDispatcher::occurred(const std::optional<sf::Event> &event)
 	}
 	return false;
 }
-bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core *component)
+bool ml::ClickableDispatcher::passesClickGate(Core *component)
 {
 	auto* positionable = dynamic_cast<Positionable*>(component);
 	if (!positionable) return false;
@@ -29,6 +29,14 @@ bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core
 	if (!component->isEffectivelyVisible() || !component->checkFlag(Flag::ENABLED)) return false;
 	if (!AppManager::isUnderExclusiveOwner(component)) return false;
 	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
+}
+
+bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &/*event*/, Core *component)
+{
+	// Topmost-wins: only the front-most gated component (chosen in fire())
+	// receives the click. Everything painted behind it is rejected, so clicks
+	// no longer fall through overlapping widgets.
+	return component != nullptr && component == _topTarget;
 }
 
 void ml::Clickable::onClick(std::function<void()> f, bool overwrite)
@@ -43,6 +51,23 @@ void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)>
 }
 void ml::ClickableDispatcher::fire(const std::optional<sf::Event>& event)
 {
+	// Resolve the single front-most gated component under the cursor. Top-level
+	// components draw in registration order, so the last one is painted in front;
+	// walk them front-to-back and, within each, let topmostMatching find the
+	// front-most descendant that passes the click gate. The first hit wins.
+	_topTarget = nullptr;
+	const auto& roots = AppManager::get().getComponents();
+	for (auto it = roots.rbegin(); it != roots.rend(); ++it)
+	{
+		Core* root = *it;
+		if (!root || !root->isVisible()) continue;
+		if (Core* hit = root->topmostMatching([](Core& c){ return passesClickGate(&c); }))
+		{
+			_topTarget = hit;
+			break;
+		}
+	}
+
 	EventManager::fire(Event::CLICK, this, event,
 		[this](EventReceiver* component, const std::optional<sf::Event>& e)
 		{
