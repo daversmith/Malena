@@ -185,6 +185,14 @@ namespace ml
          */
         void run();
 
+        /// @cond INTERNAL
+        /// Testing/automation hook: feed one synthetic input event through the
+        /// dispatcher pipeline exactly as the main loop does. Pair with
+        /// MouseEvents::setTestCursor for deterministic hit-testing without a
+        /// real cursor. Not for production use.
+        void injectInput(const std::optional<sf::Event>& event) { fireInputEvents(event); }
+        /// @endcond
+
         virtual ~AppManager() = default;
 
         // ── Window appearance ─────────────────────────────────────────────────

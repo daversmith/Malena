@@ -12,6 +12,7 @@
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
+#include <optional>
 
 namespace ml
 {
@@ -66,6 +67,18 @@ namespace ml
          * @return @c true if the mapped mouse position is inside @p bounds.
          */
         static bool isHovered(const sf::FloatRect& bounds, const sf::RenderWindow& window);
+
+        /// @cond INTERNAL
+        /**
+         * @brief Testing hook — pin the cursor position used by @c isHovered.
+         *
+         * When set, @c isHovered uses this window-pixel position instead of the
+         * live OS cursor (@c sf::Mouse::getPosition), so a synthetic-input smoke
+         * harness is deterministic and never moves the real mouse. Pass
+         * @c std::nullopt to restore live-cursor behaviour. Not for production use.
+         */
+        static void setTestCursor(std::optional<sf::Vector2i> pixelPos);
+        /// @endcond
 
         /**
          * @brief Return @c true if the left mouse button is held over a framework object.

@@ -3,11 +3,22 @@
 //
 #include <Malena/Utilities/MouseEvents.h>
 #include <iostream>
+#include <optional>
 namespace ml
 {
+	// Testing override: when set, isHovered() uses this window-pixel position
+	// instead of the live OS cursor (see MouseEvents::setTestCursor).
+	namespace { std::optional<sf::Vector2i> g_testCursor; }
+
+	void MouseEvents::setTestCursor(std::optional<sf::Vector2i> pixelPos)
+	{
+		g_testCursor = pixelPos;
+	}
+
 	bool MouseEvents::isHovered(const sf::FloatRect &bounds, const sf::RenderWindow &window)
 	{
-		auto mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		const sf::Vector2i pixel = g_testCursor ? *g_testCursor : sf::Mouse::getPosition(window);
+		auto mousePos = window.mapPixelToCoords(pixel);
 		return bounds.contains(mousePos);
 	}
 

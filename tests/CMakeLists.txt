@@ -42,3 +42,13 @@ foreach(suite
     target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)
     add_test(NAME ${suite} COMMAND ${suite}Test)
 endforeach()
+
+# ── Interactive dispatch smoke harness ──────────────────────────────────────
+# Real window + synthetic input — verifies CLICK routing end-to-end (the layer
+# headless tests can't reach). Built here, but deliberately NOT registered with
+# ctest: it opens a window and needs a display. Run it manually:
+#     cmake --build build-tests --target DispatchSmoke
+#     ./build-tests/tests/DispatchSmoke
+add_executable(DispatchSmoke ${CMAKE_SOURCE_DIR}/smoke/DispatchSmoke/main.cpp)
+target_link_libraries(DispatchSmoke PRIVATE Malena::Malena)
+target_include_directories(DispatchSmoke PRIVATE ${CMAKE_SOURCE_DIR}/include)
