@@ -119,7 +119,10 @@ namespace ml
         ComponentCore()
         {
             EventManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this));
-            this->onClick([](){});
+            // Passive CLICK subscription: present in the channel for focus/hover
+            // bookkeeping but NOT marked as wanting clicks, so a component only
+            // becomes a real click target once it registers its own onClick.
+            this->subscribeClickPassive();
             this->onHover([](){});
         }
 

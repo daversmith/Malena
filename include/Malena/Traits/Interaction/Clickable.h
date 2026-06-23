@@ -67,12 +67,39 @@ namespace ml
          * @param overwrite If @c true (default), replaces any existing callback.
          */
         void onClick(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
+
+        /// True once a *real* onClick has been registered (i.e. this component
+        /// actually wants clicks). The constructor's passive subscription does
+        /// not set it, so decorative/full-window containers stay click-transparent
+        /// and can't swallow a click meant for a real target behind them.
+        [[nodiscard]] bool wantsClick() const { return _wantsClick; }
+
+        /// @cond INTERNAL
+        /// Constructor hook: keeps the component present in the CLICK channel
+        /// (an empty handler) WITHOUT marking it as wanting clicks. Called by
+        /// ComponentCore in place of onClick([]{}).
+        void subscribeClickPassive();
+        /// @endcond
+
+    private:
+        bool _wantsClick = false;
     };
 
     /// @cond INTERNAL
     class MALENA_API ClickableDispatcher : public EventDispatcher
     {
-        inline static EventReceiver* _focused = nullptr;
+        inline static Core* _focused = nullptr;
+
+        // Resolved per fire(): the single front-most component under the cursor
+        // that WANTS clicks (receives the click), and the front-most gated
+        // component (gains focus — may be a focus-only widget with no handler).
+        Core* _clickTarget = nullptr;
+        Core* _focusTarget = nullptr;
+
+        // The per-component gate: positionable + effectively-visible + enabled +
+        // under the exclusive owner + hovered. Shared by the topmost searches.
+        static bool passesClickGate(Core* component);
+
     public:
         bool occurred(const std::optional<sf::Event>& event) override;
         bool filter(const std::optional<sf::Event>& event, Core* component) override;
