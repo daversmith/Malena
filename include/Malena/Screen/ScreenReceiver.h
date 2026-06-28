@@ -49,6 +49,21 @@ public:
     /** Stop the pipeline and release resources. */
     void stop();
 
+    /**
+     * Point this receiver at a different source. If the pipeline is running it
+     * restarts on the new URL (so a pane can be switched between sources — e.g.
+     * admin desktop ↔ tablet ↔ student-<id> — at runtime). No-op if unchanged.
+     */
+    void setUrl(const std::string& rtspUrl);
+
+    /**
+     * Freeze the displayed image: draw() keeps rendering the last decoded frame
+     * but stops pulling new ones (pipeline stays warm so unfreezing is instant).
+     * Lets the director hold a pane while talking over it.
+     */
+    void setFrozen(bool frozen);
+    bool isFrozen() const;
+
     /** True once decoded frames are arriving. */
     bool isConnected() const;
 

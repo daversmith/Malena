@@ -63,6 +63,7 @@ struct ScreenReceiverBase::Impl
     clock::time_point lastStart {};
     bool         wantRestart = false;
     bool         running     = false;
+    bool         frozen      = false;   // hold the last frame; stop pulling new ones
 
     std::vector<uint8_t> rgba;   // reused scratch buffer
 
@@ -219,6 +220,18 @@ void ScreenReceiverBase::stop()
     _impl->connected.store(false);
 }
 
+void ScreenReceiverBase::setUrl(const std::string& rtspUrl)
+{
+    if (rtspUrl == _impl->url) return;
+    _impl->url = rtspUrl;
+    _impl->connected.store(false);
+    _impl->textureReady = false;          // drop the stale source's last frame
+    if (_impl->running) _impl->startPipeline();   // re-aim at the new source
+}
+
+void ScreenReceiverBase::setFrozen(bool frozen) { _impl->frozen = frozen; }
+bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
+
 bool ScreenReceiverBase::isConnected() const { return _impl->connected.load(); }
 const std::string& ScreenReceiverBase::receiverName() const { return _impl->name; }
 const std::string& ScreenReceiverBase::url() const { return _impl->url; }
@@ -227,7 +240,9 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
     Impl* d = _impl.get();   // pointee is mutable even from a const method
 
-    if (d->running) {
+    // When frozen, keep the pipeline warm but stop updating the texture — draw()
+    // below just re-renders the last decoded frame.
+    if (d->running && !d->frozen) {
         d->pollBus();
         const auto now = Impl::clock::now();
 

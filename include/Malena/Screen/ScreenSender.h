@@ -52,6 +52,13 @@ public:
     /** Stop publishing and release the pipeline. */
     void stop();
 
+    /**
+     * Change the publish destination. Restarts the pipeline if running, so the
+     * caller can derive the URL at runtime (e.g. from a configured media host)
+     * rather than fixing it at construction. No-op if unchanged.
+     */
+    void setUrl(const std::string& rtspUrl);
+
     /** True while the pipeline is live (PLAYING with no recent error). */
     bool isPublishing() const;
 
