@@ -7,6 +7,7 @@
 #pragma once
 
 #include <Malena/Core/malena_export.h>
+#include <SFML/System/Vector2.hpp>
 #include <functional>
 #include <string>
 
@@ -50,6 +51,10 @@ namespace ml
         // Optional overrides — existing subclasses need no changes
         virtual std::string getTitle()   { return {}; }
         virtual ml::Core*   getContent() { return nullptr; }
+
+        // Preferred modal size for this dialog, or {0,0} to use the shell default.
+        // Lets a content-heavy dialog (e.g. a thumbnail grid) ask for a roomier panel.
+        virtual sf::Vector2f getPreferredSize() { return {0.f, 0.f}; }
 
         virtual ~DialogRequest() = default;
     };
