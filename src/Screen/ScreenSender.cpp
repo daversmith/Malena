@@ -12,7 +12,9 @@
 #include <thread>
 #include <vector>
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+  #include <windows.h>
+#else
   #include <spawn.h>
   #include <signal.h>
   #include <sys/wait.h>
@@ -37,7 +39,24 @@ namespace {
 std::string resolveGstLaunch()
 {
     if (const char* e = std::getenv("LOCKIN_GST_LAUNCH"); e && *e) return e;
-#if !defined(_WIN32)
+#if defined(_WIN32)
+    // The GStreamer Windows installer sets GSTREAMER_1_0_ROOT_MSVC_X86_64 (or _MINGW).
+    for (const char* root : { "GSTREAMER_1_0_ROOT_MSVC_X86_64",
+                              "GSTREAMER_1_0_ROOT_MINGW_X86_64",
+                              "GSTREAMER_1_0_ROOT_X86_64" }) {
+        if (const char* r = std::getenv(root); r && *r) {
+            std::string p = std::string(r) + "\\bin\\gst-launch-1.0.exe";
+            if (GetFileAttributesA(p.c_str()) != INVALID_FILE_ATTRIBUTES) return p;
+        }
+    }
+    const char* winCandidates[] = {
+        "C:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gst-launch-1.0.exe",
+        "C:\\gstreamer\\1.0\\mingw_x86_64\\bin\\gst-launch-1.0.exe",
+    };
+    for (const char* c : winCandidates)
+        if (GetFileAttributesA(c) != INVALID_FILE_ATTRIBUTES) return c;
+    return "gst-launch-1.0.exe";   // fall back to PATH lookup
+#else
     const char* candidates[] = {
   #if defined(__APPLE__)
         "/opt/homebrew/bin/gst-launch-1.0",
@@ -50,8 +69,8 @@ std::string resolveGstLaunch()
     };
     for (const char* c : candidates)
         if (::access(c, X_OK) == 0) return c;
-#endif
     return "gst-launch-1.0";   // fall back to PATH lookup
+#endif
 }
 
 // Split a pipeline description into whitespace-separated argv tokens. None of our
@@ -87,7 +106,9 @@ struct ScreenSenderBase::Impl
     std::atomic<bool> running    { false };
     std::thread       watcher;
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+    std::atomic<void*> childHandle { nullptr };   // HANDLE to the gst-launch child
+#else
     std::atomic<pid_t> childPid { -1 };
 #endif
 
@@ -193,10 +214,72 @@ struct ScreenSenderBase::Impl
         }
     }
 #else
-    // Windows out-of-process capture is not yet implemented (no posix_spawn).
-    void startPipeline() { std::fprintf(stderr, "[ScreenSender:%s] capture not implemented on Windows\n", name.c_str()); }
-    void stopPipeline()  {}
-    void watch()         { while (running.load()) std::this_thread::sleep_for(std::chrono::milliseconds(200)); }
+    // Windows: spawn gst-launch via CreateProcess (the d3d11/Media-Foundation
+    // capture pipeline runs in the child, never touching the host app's context).
+    void startPipeline()
+    {
+        stopPipeline();
+        if (url.empty()) return;
+
+        const std::string launch = resolveGstLaunch();
+        // CreateProcess takes one command line. Quote the exe (it may live under a
+        // path with spaces); the pipeline tokens themselves contain no spaces.
+        std::string cmd = "\"" + launch + "\" -e " + buildPipeline();
+        std::vector<char> cmdline(cmd.begin(), cmd.end());
+        cmdline.push_back('\0');
+
+        STARTUPINFOA si{};
+        si.cb = sizeof(si);
+        PROCESS_INFORMATION pi{};
+        const BOOL ok = CreateProcessA(
+            nullptr, cmdline.data(), nullptr, nullptr, FALSE,
+            CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi);   // no console window for the GUI app
+        if (!ok) {
+            std::fprintf(stderr, "[ScreenSender:%s] CreateProcess failed (%s): %lu\n",
+                         name.c_str(), launch.c_str(), static_cast<unsigned long>(GetLastError()));
+            childHandle.store(nullptr);
+            return;
+        }
+        CloseHandle(pi.hThread);
+        childHandle.store(pi.hProcess);
+        publishing.store(true);
+        std::fprintf(stderr, "[ScreenSender:%s] capturing → publishing %s (out-of-process pid %lu)\n",
+                     name.c_str(), url.c_str(), static_cast<unsigned long>(pi.dwProcessId));
+    }
+
+    void stopPipeline()
+    {
+        publishing.store(false);
+        HANDLE h = static_cast<HANDLE>(childHandle.exchange(nullptr));
+        if (!h) return;
+        TerminateProcess(h, 0);            // no clean EOS on Windows — abrupt is fine for a live publisher
+        WaitForSingleObject(h, 2000);
+        CloseHandle(h);
+    }
+
+    // Background watcher: respawn the capture process if it dies, with a backoff.
+    void watch()
+    {
+        using namespace std::chrono;
+        while (running.load()) {
+            HANDLE h = static_cast<HANDLE>(childHandle.load());
+            if (!h) { std::this_thread::sleep_for(milliseconds(200)); continue; }
+
+            if (WaitForSingleObject(h, 0) == WAIT_TIMEOUT) {     // still alive
+                std::this_thread::sleep_for(milliseconds(200));
+                continue;
+            }
+            // Exited → close the handle and back off before respawning.
+            HANDLE old = static_cast<HANDLE>(childHandle.exchange(nullptr));
+            if (old) CloseHandle(old);
+            publishing.store(false);
+            std::fprintf(stderr, "[ScreenSender:%s] capture process exited — retrying\n", name.c_str());
+            if (running.load()) {
+                std::this_thread::sleep_for(seconds(1));
+                if (running.load()) startPipeline();
+            }
+        }
+    }
 #endif
 };
 
