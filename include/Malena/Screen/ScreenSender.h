@@ -59,6 +59,13 @@ public:
      */
     void setUrl(const std::string& rtspUrl);
 
+    /**
+     * Choose which display (monitor) to capture. macOS: avfvideosrc device-index;
+     * other platforms currently ignore it (whole primary screen). Restarts if
+     * running. Default 0 (primary display).
+     */
+    void setCaptureIndex(int index);
+
     /** True while the pipeline is live (PLAYING with no recent error). */
     bool isPublishing() const;
 

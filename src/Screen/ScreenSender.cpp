@@ -101,6 +101,7 @@ struct ScreenSenderBase::Impl
 {
     std::string  name;
     std::string  url;
+    int          captureIndex = 0;   // which display (macOS avfvideosrc device-index)
 
     std::atomic<bool> publishing { false };
     std::atomic<bool> running    { false };
@@ -125,7 +126,8 @@ struct ScreenSenderBase::Impl
         // Downscale to 720p / cap 15fps before encode so the receiver's decoder
         // keeps up (a full Retina desktop at native fps grows latency to seconds).
         return
-            "avfvideosrc capture-screen=true capture-screen-cursor=true ! "
+            "avfvideosrc capture-screen=true capture-screen-cursor=true device-index="
+            + std::to_string(captureIndex) + " ! "
             "video/x-raw ! videorate ! videoscale add-borders=true ! "
             "video/x-raw,width=1280,height=720,framerate=15/1 ! "
             "videoconvert ! "
@@ -320,6 +322,15 @@ void ScreenSenderBase::setUrl(const std::string& rtspUrl)
     const bool wasRunning = _impl->running.load();
     if (wasRunning) stop();
     _impl->url = rtspUrl;
+    if (wasRunning) start();
+}
+
+void ScreenSenderBase::setCaptureIndex(int index)
+{
+    if (index == _impl->captureIndex) return;
+    const bool wasRunning = _impl->running.load();
+    if (wasRunning) stop();
+    _impl->captureIndex = index;
     if (wasRunning) start();
 }
 
