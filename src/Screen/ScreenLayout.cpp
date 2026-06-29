@@ -35,6 +35,12 @@ void ScreenLayout::setFrozen(int pane, bool frozen)
     ((pane == 1) ? _pane1 : _pane0).setFrozen(frozen);
 }
 
+void ScreenLayout::setScaleMode(ScreenReceiverBase::ScaleMode mode)
+{
+    _pane0.setScaleMode(mode);
+    _pane1.setScaleMode(mode);
+}
+
 void ScreenLayout::start()
 {
     _running = true;

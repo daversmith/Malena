@@ -34,6 +34,14 @@ class MALENA_API ScreenReceiverBase : public Graphic<sf::RectangleShape>
 {
 public:
     /**
+     * How the decoded frame is fit into the receiver's rect:
+     *  - Stretch: fill the rect, distorting aspect (the default; "skew").
+     *  - Fit:     uniform scale, fully visible + centered, letterboxed ("lightbox").
+     *  - Fill:    uniform scale to cover the rect, centre-cropping the overflow.
+     */
+    enum class ScaleMode { Stretch, Fit, Fill };
+
+    /**
      * @param name    Human-readable label for logs/status.
      * @param rtspUrl Source URL, e.g. "rtsp://127.0.0.1:8554/admin".
      */
@@ -63,6 +71,10 @@ public:
      */
     void setFrozen(bool frozen);
     bool isFrozen() const;
+
+    /** How to fit the frame into the rect (default Stretch). */
+    void setScaleMode(ScaleMode mode);
+    ScaleMode scaleMode() const;
 
     /** True once decoded frames are arriving. */
     bool isConnected() const;

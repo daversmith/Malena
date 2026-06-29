@@ -10,6 +10,7 @@
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdio>
@@ -64,6 +65,7 @@ struct ScreenReceiverBase::Impl
     bool         wantRestart = false;
     bool         running     = false;
     bool         frozen      = false;   // hold the last frame; stop pulling new ones
+    ScaleMode    scaleMode   = ScaleMode::Stretch;
 
     std::vector<uint8_t> rgba;   // reused scratch buffer
 
@@ -232,6 +234,9 @@ void ScreenReceiverBase::setUrl(const std::string& rtspUrl)
 void ScreenReceiverBase::setFrozen(bool frozen) { _impl->frozen = frozen; }
 bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
 
+void ScreenReceiverBase::setScaleMode(ScaleMode mode) { _impl->scaleMode = mode; }
+ScreenReceiverBase::ScaleMode ScreenReceiverBase::scaleMode() const { return _impl->scaleMode; }
+
 bool ScreenReceiverBase::isConnected() const { return _impl->connected.load(); }
 const std::string& ScreenReceiverBase::receiverName() const { return _impl->name; }
 const std::string& ScreenReceiverBase::url() const { return _impl->url; }
@@ -263,13 +268,41 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
     }
 
     if (d->textureReady) {
-        sf::Sprite s(d->texture);
-        s.setPosition(this->getPosition());
+        const sf::Vector2f pos = this->getPosition();
         const sf::Vector2f sz  = this->getSize();
         const sf::Vector2u tsz = d->texture.getSize();
-        if (tsz.x > 0 && tsz.y > 0)
-            s.setScale({ sz.x / static_cast<float>(tsz.x),
-                         sz.y / static_cast<float>(tsz.y) });
+        sf::Sprite s(d->texture);
+
+        if (tsz.x > 0 && tsz.y > 0) {
+            const float tw = static_cast<float>(tsz.x), th = static_cast<float>(tsz.y);
+            switch (d->scaleMode) {
+            case ScaleMode::Stretch:                       // fill, distort aspect
+                s.setPosition(pos);
+                s.setScale({ sz.x / tw, sz.y / th });
+                break;
+            case ScaleMode::Fit: {                         // letterbox, centered
+                const float k = std::min(sz.x / tw, sz.y / th);
+                s.setScale({ k, k });
+                s.setPosition({ pos.x + (sz.x - tw * k) * 0.5f,
+                                pos.y + (sz.y - th * k) * 0.5f });
+                break;
+            }
+            case ScaleMode::Fill: {                        // cover, centre-crop overflow
+                const float k = std::max(sz.x / tw, sz.y / th);
+                const float visW = std::min(tw, sz.x / k);
+                const float visH = std::min(th, sz.y / k);
+                s.setTextureRect(sf::IntRect(
+                    { static_cast<int>((tw - visW) * 0.5f),
+                      static_cast<int>((th - visH) * 0.5f) },
+                    { static_cast<int>(visW), static_cast<int>(visH) }));
+                s.setScale({ k, k });
+                s.setPosition(pos);
+                break;
+            }
+            }
+        } else {
+            s.setPosition(pos);
+        }
         target.draw(s, states);
     } else {
         sf::RectangleShape bg(this->getSize());

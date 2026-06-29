@@ -48,6 +48,9 @@ public:
     /** Freeze/unfreeze a pane (0 or 1) — holds its last frame. */
     void setFrozen(int pane, bool frozen);
 
+    /** How both panes fit their frame into their rect (Stretch/Fit/Fill). */
+    void setScaleMode(ScreenReceiverBase::ScaleMode mode);
+
     /** Start / stop both panes' pipelines (panes with no source stay idle). */
     void start();
     void stop();
