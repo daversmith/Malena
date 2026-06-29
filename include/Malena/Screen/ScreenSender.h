@@ -61,8 +61,8 @@ public:
 
     /**
      * Choose which display (monitor) to capture. macOS: avfvideosrc device-index;
-     * other platforms currently ignore it (whole primary screen). Restarts if
-     * running. Default 0 (primary display).
+     * Windows: d3d11screencapturesrc monitor-index; Linux currently ignores it
+     * (whole primary screen). Restarts if running. Default 0 (primary display).
      */
     void setCaptureIndex(int index);
 

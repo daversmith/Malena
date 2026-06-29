@@ -136,8 +136,11 @@ struct ScreenSenderBase::Impl
 
 #elif defined(_WIN32)
         // Media Foundation HW encoder (mfh264enc) — shipped with Windows, not GPL.
+        // monitor-index selects which display to capture (DXGI output order, which
+        // matches the picker's EnumDisplayMonitors order in the common case).
         return
-            "d3d11screencapturesrc ! videoconvert ! "
+            "d3d11screencapturesrc monitor-index=" + std::to_string(captureIndex) + " ! "
+            "videoconvert ! "
             "mfh264enc low-latency=true bitrate=6000 !" + sink;
 
 #else
