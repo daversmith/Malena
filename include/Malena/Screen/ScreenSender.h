@@ -63,8 +63,26 @@ public:
      * Choose which display (monitor) to capture. macOS: avfvideosrc device-index;
      * Windows: d3d11screencapturesrc monitor-index; Linux currently ignores it
      * (whole primary screen). Restarts if running. Default 0 (primary display).
+     * Also selects whole-display capture mode (the default).
      */
     void setCaptureIndex(int index);
+
+    /**
+     * Capture a single window instead of a whole display (macOS only). Streams via
+     * an external helper (set with setWindowHelperPath) that uses ScreenCaptureKit,
+     * since the built-in GStreamer screen sources can only grab a full display.
+     * If no helper is configured, falls back to whole-display capture. Restarts if
+     * running.
+     *
+     * @param windowId Native window id (macOS CGWindowID / SCWindow.windowID).
+     */
+    void setCaptureWindow(unsigned int windowId);
+
+    /**
+     * Path to the per-window capture helper executable (e.g. LockInWindowCapture).
+     * Spawned with `--window-id <id> --url <url>` when in window-capture mode.
+     */
+    void setWindowHelperPath(const std::string& path);
 
     /** True while the pipeline is live (PLAYING with no recent error). */
     bool isPublishing() const;

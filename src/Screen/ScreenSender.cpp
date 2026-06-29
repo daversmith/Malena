@@ -99,9 +99,14 @@ std::vector<std::string> tokenize(const std::string& s)
 
 struct ScreenSenderBase::Impl
 {
+    enum class Src { Display, Window };
+
     std::string  name;
     std::string  url;
     int          captureIndex = 0;   // which display (macOS avfvideosrc device-index)
+    Src          src          = Src::Display;
+    unsigned int windowId     = 0;   // when src == Window (macOS CGWindowID)
+    std::string  windowHelper;       // per-window capture helper executable
 
     std::atomic<bool> publishing { false };
     std::atomic<bool> running    { false };
@@ -152,33 +157,47 @@ struct ScreenSenderBase::Impl
 #endif
     }
 
+    // The child-process argv: the per-window helper for Src::Window (when one is
+    // configured), otherwise gst-launch with the per-platform display pipeline.
+    std::vector<std::string> launchArgs() const
+    {
+        if (src == Src::Window && !windowHelper.empty()) {
+            return { windowHelper, "--window-id", std::to_string(windowId),
+                     "--url", url, "--fps", "15", "--bitrate", "4000" };
+        }
+        std::vector<std::string> a;
+        a.push_back(resolveGstLaunch());
+        a.push_back("-e");                                   // EOS on shutdown → clean finalize
+        for (const std::string& t : tokenize(buildPipeline())) a.push_back(t);
+        return a;
+    }
+
 #if !defined(_WIN32)
     void startPipeline()
     {
         stopPipeline();
         if (url.empty()) return;
 
-        const std::string launch = resolveGstLaunch();
-        const std::vector<std::string> toks = tokenize(buildPipeline());
+        const std::vector<std::string> args = launchArgs();
+        if (args.empty()) return;
 
         std::vector<char*> argv;
-        argv.push_back(const_cast<char*>(launch.c_str()));
-        argv.push_back(const_cast<char*>("-e"));            // send EOS on shutdown → clean finalize
-        for (const std::string& t : toks) argv.push_back(const_cast<char*>(t.c_str()));
+        argv.reserve(args.size() + 1);
+        for (const std::string& s : args) argv.push_back(const_cast<char*>(s.c_str()));
         argv.push_back(nullptr);
 
         pid_t pid = -1;
-        const int rc = posix_spawnp(&pid, launch.c_str(), nullptr, nullptr, argv.data(), environ);
+        const int rc = posix_spawnp(&pid, args[0].c_str(), nullptr, nullptr, argv.data(), environ);
         if (rc != 0) {
             std::fprintf(stderr, "[ScreenSender:%s] spawn failed (%s): rc=%d\n",
-                         name.c_str(), launch.c_str(), rc);
+                         name.c_str(), args[0].c_str(), rc);
             childPid.store(-1);
             return;
         }
         childPid.store(pid);
         publishing.store(true);
-        std::fprintf(stderr, "[ScreenSender:%s] capturing → publishing %s (out-of-process pid %d)\n",
-                     name.c_str(), url.c_str(), static_cast<int>(pid));
+        std::fprintf(stderr, "[ScreenSender:%s] capturing via %s → publishing %s (out-of-process pid %d)\n",
+                     name.c_str(), args[0].c_str(), url.c_str(), static_cast<int>(pid));
     }
 
     void stopPipeline()
@@ -330,11 +349,27 @@ void ScreenSenderBase::setUrl(const std::string& rtspUrl)
 
 void ScreenSenderBase::setCaptureIndex(int index)
 {
-    if (index == _impl->captureIndex) return;
+    if (index == _impl->captureIndex && _impl->src == Impl::Src::Display) return;
     const bool wasRunning = _impl->running.load();
     if (wasRunning) stop();
     _impl->captureIndex = index;
+    _impl->src          = Impl::Src::Display;
     if (wasRunning) start();
+}
+
+void ScreenSenderBase::setCaptureWindow(unsigned int windowId)
+{
+    if (_impl->src == Impl::Src::Window && _impl->windowId == windowId) return;
+    const bool wasRunning = _impl->running.load();
+    if (wasRunning) stop();
+    _impl->src      = Impl::Src::Window;
+    _impl->windowId = windowId;
+    if (wasRunning) start();
+}
+
+void ScreenSenderBase::setWindowHelperPath(const std::string& path)
+{
+    _impl->windowHelper = path;
 }
 
 bool ScreenSenderBase::isPublishing() const { return _impl->publishing.load(); }
