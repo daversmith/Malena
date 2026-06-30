@@ -81,8 +81,11 @@ struct ScreenReceiverBase::Impl
         // touches GL, so SFML's context stays intact. (Hardware decode on the
         // Pi will use a non-GL v4l2 path; revisit per-platform later.)
         const std::string dec = chooseH264Decoder();
+        // drop-on-latency=true: discard frames the (possibly slow, e.g. Pi software)
+        // decoder can't keep up with, so the view stays current instead of buffering
+        // up and stalling. The appsink also keeps only the newest frame.
         return
-            "rtspsrc location=\"" + url + "\" latency=100 drop-on-latency=true ! "
+            "rtspsrc location=\"" + url + "\" latency=150 drop-on-latency=true ! "
             "rtph264depay ! h264parse ! " + dec + " ! "
             "videoconvert ! video/x-raw,format=RGBA ! "
             "appsink name=sink sync=false max-buffers=1 drop=true";
@@ -211,6 +214,11 @@ ScreenReceiverBase::~ScreenReceiverBase()
 
 void ScreenReceiverBase::start()
 {
+    // Idempotent: a live pipeline is left alone so repeated show instructions
+    // (every ratio/mode/scale tweak re-applies the source) don't tear it down and
+    // rebuild it — that restart froze the video for a second each time. A genuine
+    // source change goes through setUrl(), which restarts directly.
+    if (_impl->running && _impl->pipeline) return;
     _impl->running = true;
     _impl->startPipeline();
 }
