@@ -357,6 +357,13 @@ namespace ml
     {
         _content = &content;
         addComponent(content);
+        // A hidden modal's content must be inert. addComponent makes the content
+        // inherit the modal's ENABLED state — which is true even while the modal is
+        // HIDDEN (visible ≠ enabled) — so a modal that has never been shown would
+        // leave its content live, letting it hover-/focus-steal from whatever is
+        // actually on screen. Gate it on visibility here; show()/hide() keep it in
+        // sync thereafter.
+        content.setParentEnabled(checkFlag(Flag::VISIBLE));
         applyLayout();
     }
 

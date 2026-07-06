@@ -17,6 +17,15 @@ namespace ml
         this->font        = &font_;
         this->orientation = orientation_;
 
+        // SplitPanel is a full-covering container: its bounds span every pane, so
+        // like Panel it must not participate in the click/focus system, or it would
+        // fire after (and steal focus from) the child widgets inside its panes —
+        // e.g. a TextArea/CodeEditor answer field would never receive keyboard
+        // focus. ComponentCore auto-registers empty onClick/onHover/onDrag handlers
+        // for every Core; drop them here. Divider hover/drag is driven by the
+        // onUpdate poll below (raw mouse), so nothing interactive is lost.
+        unsubscribeAll();
+
         // ── Per-frame: hover + drag ───────────────────────────────────────────
         onUpdate([this]{
             if (!checkFlag(ml::Flag::ENABLED))
