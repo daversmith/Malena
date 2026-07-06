@@ -103,6 +103,7 @@ namespace ml
         mutable sf::RenderTexture _panelCanvas;
         mutable int               _hoveredIndex  = -1;
         ml::Core*                 _prevExclusiveOwner = nullptr;   // restored on close
+        ml::Core*                 _prevPopup          = nullptr;   // top-layer popup restored on close
         mutable bool              _openAbove     = false;
         bool                      _prevDown      = false;
 
@@ -134,6 +135,7 @@ namespace ml
 
     public:
         explicit Select(const sf::Font& font = FontManager<>::getDefault());
+        ~Select() override;
 
         // ── Apply ─────────────────────────────────────────────────────────────
 

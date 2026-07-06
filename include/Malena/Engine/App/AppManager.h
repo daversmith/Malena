@@ -144,6 +144,7 @@ namespace ml
         inline static float       _deltaTime       = 0.f;
         inline static AppManager* _instance        = nullptr;
         inline static Core*       _exclusiveOwner  = nullptr;
+        inline static Core*       _activePopup     = nullptr;
         inline static std::vector<std::function<void()>> _deferredUnloads;
         /// @endcond
 
@@ -328,6 +329,21 @@ namespace ml
 
         /** @brief The current exclusive-interaction owner, or @c nullptr. */
         static Core* exclusiveOwner() { return _exclusiveOwner; }
+
+        // ── Top popup layer ───────────────────────────────────────────────────
+
+        /** @brief Register a component to be drawn on top of everything else, after
+         *  the whole component tree, each frame. Intended for transient popups whose
+         *  content must escape their container's stacking order (e.g. a Select
+         *  dropdown occluded by later-drawn siblings). Save the previous popup and
+         *  restore it on close so nesting composes. Pass @c nullptr to clear. */
+        static void setActivePopup(Core* popup) { _activePopup = popup; }
+
+        /** @brief The component currently drawn as the top popup layer, or @c nullptr. */
+        static Core* activePopup() { return _activePopup; }
+
+        /** @brief Clear the top popup layer (equivalent to @c setActivePopup(nullptr)). */
+        static void clearActivePopup() { _activePopup = nullptr; }
 
         // ── Internal ──────────────────────────────────────────────────────────
 

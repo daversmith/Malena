@@ -107,6 +107,15 @@ namespace ml
         });
     }
 
+    Select::~Select()
+    {
+        // A Select can be destroyed while still open (e.g. its owner rebuilds its
+        // list). Release the global slots it may hold so nothing dereferences this
+        // freed object next frame.
+        if (AppManager::exclusiveOwner() == this) AppManager::setExclusiveOwner(_prevExclusiveOwner);
+        if (AppManager::activePopup()    == this) AppManager::setActivePopup(_prevPopup);
+    }
+
     void Select::onThemeApplied(const Theme& theme)
     {
         if (isThemeLocked()) return;
@@ -209,6 +218,11 @@ namespace ml
         // so closing restores it rather than clearing it outright.
         _prevExclusiveOwner = AppManager::exclusiveOwner();
         AppManager::setExclusiveOwner(this);
+        // Escalate the open dropdown to the top popup layer so it draws above any
+        // later-drawn siblings (e.g. the match rows below it) or a host modal.
+        // Save the prior popup so nested opens restore correctly.
+        _prevPopup = AppManager::activePopup();
+        AppManager::setActivePopup(this);
         if (_onOpen) _onOpen();
     }
 
@@ -221,6 +235,9 @@ namespace ml
         syncTriggerColors();
         AppManager::setExclusiveOwner(_prevExclusiveOwner);
         _prevExclusiveOwner = nullptr;
+        // Restore whatever popup was on top before we opened (usually nothing).
+        if (AppManager::activePopup() == this) AppManager::setActivePopup(_prevPopup);
+        _prevPopup = nullptr;
         if (_onClose) _onClose();
     }
 

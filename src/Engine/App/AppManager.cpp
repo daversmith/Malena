@@ -178,6 +178,13 @@ namespace ml
             }
         }
 
+        // Top popup layer: drawn after the whole component tree so a transient
+        // popup (e.g. an open Select dropdown) escapes its container's stacking
+        // order and is never occluded by later-drawn siblings or host overlays.
+        if (_activePopup && !_activePopup->checkFlag(Flag::HIDDEN))
+            if (auto* popup = dynamic_cast<sf::Drawable*>(_activePopup))
+                window->draw(*popup, _activePopup->getRenderStates());
+
         if (_postRenderHook)
             _postRenderHook();
 
