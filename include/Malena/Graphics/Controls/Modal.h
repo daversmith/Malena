@@ -109,6 +109,11 @@ namespace ml
         bool  _animating = false;
         bool  _fadingIn  = false;
         bool  _prevDown  = false;
+        // True when the current hide was triggered by the confirm button, so the
+        // fade-out completion fires _onConfirm (not _onDismiss). Firing the callback
+        // only once the modal is fully hidden lets a callback open a follow-up dialog
+        // on the SAME modal without the fresh show being clobbered by this fade-out.
+        bool  _confirmed = false;
 
         // ── Callbacks ─────────────────────────────────────────────────────────
         std::function<void()> _onConfirm;

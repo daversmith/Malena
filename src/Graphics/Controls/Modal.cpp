@@ -44,7 +44,21 @@ namespace ml
                         if (_content) _content->setParentEnabled(false);
                         disableFlag(Flag::VISIBLE);
                         setState(State::HIDDEN);
-                        if (_onDismiss) _onDismiss();
+                        // Fire the outcome callback now that the modal is fully hidden.
+                        // Copy it to a local first: the callback may open a new dialog
+                        // that reassigns _onConfirm/_onDismiss on this same modal, and
+                        // we must not destroy the callable that's currently executing.
+                        if (_confirmed)
+                        {
+                            _confirmed = false;
+                            auto cb = _onConfirm;
+                            if (cb) cb();
+                        }
+                        else
+                        {
+                            auto cb = _onDismiss;
+                            if (cb) cb();
+                        }
                     }
                     else
                     {
@@ -70,19 +84,25 @@ namespace ml
 
                     if (showCloseButton && _closeBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                     else if (hasButtons() && _confirmBounds.contains(wp))
                     {
+                        // Defer _onConfirm to the fade-out completion (see onUpdate):
+                        // firing it here, mid-animation and still inside the click
+                        // dispatch, is what let a follow-up dialog clobber this modal.
+                        _confirmed = true;
                         hide();
-                        if (_onConfirm) _onConfirm();
                     }
                     else if (hasButtons() && _cancelBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                     else if (dismissOnBackdrop && !_panelBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                 }
@@ -362,6 +382,7 @@ namespace ml
         enableFlag(Flag::VISIBLE);
         setState(State::ANIMATING);
         applyLayout();
+        _confirmed = false;
         _fadingIn  = true;
         _animating = true;
     }
@@ -372,6 +393,7 @@ namespace ml
         AppManager::setExclusiveOwner(this);
         if (_content) _content->setParentEnabled(true);
         _alpha     = 255.f;
+        _confirmed = false;
         _fadingIn  = false;
         _animating = false;
         enableFlag(Flag::VISIBLE);
