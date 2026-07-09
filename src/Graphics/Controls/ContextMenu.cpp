@@ -77,6 +77,14 @@ namespace ml
         _open = true;
         _prevMouseDown = true;       // ignore the click that opened it
         disableFlag(ml::Flag::HIDDEN);
+
+        // Claim the top popup layer (so AppManager draws us over everything) and
+        // exclusive input (so the selecting click doesn't also hit what's behind).
+        // Save the prior holders so nested/hosted use restores cleanly on hide.
+        _prevPopup = AppManager::activePopup();
+        _prevOwner = AppManager::exclusiveOwner();
+        AppManager::setActivePopup(this);
+        AppManager::setExclusiveOwner(this);
     }
 
     void ContextMenu::hide()
@@ -85,6 +93,12 @@ namespace ml
         _open  = false;
         _hover = -1;
         enableFlag(ml::Flag::HIDDEN);
+
+        if (was)
+        {
+            if (AppManager::activePopup()    == this) AppManager::setActivePopup(_prevPopup);
+            if (AppManager::exclusiveOwner() == this) AppManager::setExclusiveOwner(_prevOwner);
+        }
         if (was && _onClose) _onClose();
     }
 

@@ -68,6 +68,10 @@ namespace ml
         unsigned int _charSize = 14;
         mutable int  _hover = -1;
         std::function<void()> _onClose;
+        // While open, the menu claims the popup + exclusive-owner layers so it draws
+        // on top and blocks background clicks; these hold the prior holders to restore.
+        Core* _prevOwner = nullptr;
+        Core* _prevPopup = nullptr;
     };
 
 } // namespace ml
