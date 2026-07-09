@@ -31,6 +31,7 @@ add_test(NAME ControlCascade COMMAND ControlCascadeTest)
 foreach(suite
         Flags            # FlagManager + custom manifest Flag/State
         Animation        # Easing curves, Tweener<T>, AnimationManager, Animate facade
+        Anchors          # retained Align verbs: re-solve, detach, unanchored, scrub
         Positionable     # position, bounds, layout helpers, animate()
         CoreTopology     # reparent / remove / effective-visibility / topmostMatching
         EventSystem      # subscribe / publish / filter / exclusive owner

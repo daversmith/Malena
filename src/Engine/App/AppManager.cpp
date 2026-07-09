@@ -8,6 +8,7 @@
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Networking/NetworkManager.h>
 #include <Malena/Animation/AnimationManager.h>
+#include <Malena/Layout/AnchorManager.h>
 #include <SFML/Graphics/View.hpp>
 #include <algorithm>
 
@@ -245,6 +246,10 @@ namespace ml
                         // Broadcast so responsive components reflow to the new size.
                         for (auto* c : getComponents())
                             if (c) c->onWindowResize(resized->size.x, resized->size.y);
+
+                        // Re-solve retained anchors AFTER components reflow, so
+                        // anchored objects settle against the freshly-laid-out refs.
+                        AnchorManager::solveAll();
 
                         if (_resizeHandler) _resizeHandler(resized->size.x, resized->size.y);
                     }

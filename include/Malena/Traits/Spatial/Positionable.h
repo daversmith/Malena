@@ -86,6 +86,22 @@ namespace ml
          */
         Animate& animate();
 
+        // ── Retained-anchor control ──────────────────────────────────────────
+        // The relative-layout helpers below (setBelow/center*/…) are RETAINED by
+        // default: each records a live constraint against its reference and is
+        // re-solved on window resize, so layouts stay correct when the window
+        // changes. A direct setPosition detaches them (manual control wins).
+
+        /// Drop every retained anchor on this object, freezing its current place.
+        void unanchored();
+
+        /// Center this object within the window (retained; re-solves on resize).
+        void centerInWindow();
+        /// Center this object horizontally within the window (retained).
+        void centerXInWindow();
+        /// Center this object vertically within the window (retained).
+        void centerYInWindow();
+
         /**
          * @brief Set the world-space position immediately (no animation).
          *
