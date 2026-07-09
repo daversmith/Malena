@@ -163,6 +163,18 @@ namespace ml
         std::size_t addButton(const std::string& label,
                               std::function<void()> action = {});
 
+        /**
+         * @brief Add an icon + label button (icon left of the label).
+         *
+         * The icon is drawn as a sprite scaled to fit the bar height; the button
+         * widens to fit both. @p icon is referenced, NOT copied — it must outlive
+         * the toolbar (typically an app-owned/cached texture).
+         *
+         * @return The item index.
+         */
+        std::size_t addButton(const std::string& label, const sf::Texture& icon,
+                              std::function<void()> action = {});
+
         /** @brief Update the label of an owned button by item index. */
         void setItemLabel(std::size_t index, const std::string& label);
 

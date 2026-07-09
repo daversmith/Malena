@@ -251,9 +251,12 @@ namespace ml
     // Toolbar manages all hit-testing and events; no framework registration needed.
     struct ToolbarButton final : public sf::Drawable, public ml::Core
     {
-        sf::Text     text;
-        sf::Vector2f size;
-        sf::Vector2f pos;
+        sf::Text            text;
+        sf::Vector2f        size;
+        sf::Vector2f        pos;
+        const sf::Texture*  icon    = nullptr;   // optional; not owned — must outlive us
+        float               iconSz  = 0.f;
+        float               iconGap = 8.f;
 
         ToolbarButton(const sf::Font& f, const std::string& label,
                       const sf::Vector2f& sz, unsigned int charSz)
@@ -267,9 +270,25 @@ namespace ml
         void draw(sf::RenderTarget& t, sf::RenderStates s) const override
         {
             const sf::FloatRect lb = text.getLocalBounds();
+            const bool  hasIcon = icon && iconSz > 0.f && icon->getSize().y > 0;
+            const float iconW   = hasIcon ? iconSz : 0.f;
+            const float gap     = hasIcon ? iconGap : 0.f;
+            // Centre the [icon][gap][text] group in the button.
+            const float groupW  = iconW + gap + lb.size.x;
+            const float startX   = pos.x + (size.x - groupW) / 2.f;
+
+            if (hasIcon)
+            {
+                sf::Sprite sp(*icon);
+                const float sc = iconSz / static_cast<float>(icon->getSize().y);
+                sp.setScale({ sc, sc });
+                sp.setPosition({ startX, pos.y + (size.y - iconSz) / 2.f });
+                t.draw(sp, s);
+            }
+
             sf::Text tmp = text;
             tmp.setPosition({
-                pos.x + (size.x - lb.size.x) / 2.f - lb.position.x,
+                startX + iconW + gap - lb.position.x,
                 pos.y + (size.y - lb.size.y) / 2.f - lb.position.y
             });
             t.draw(tmp, s);
@@ -298,6 +317,39 @@ namespace ml
         auto btn = std::make_unique<ToolbarButton>(
             *font, label, sz, static_cast<unsigned int>(fontSize));
         btn->text.setFillColor(itemTextColor);   // themeable (default white)
+        ml::Core* corePtr = btn.get();
+        item.component = corePtr;
+        item.owned     = std::unique_ptr<ml::Core>(btn.release());
+
+        const std::size_t idx = _items.size();
+        _items.push_back(std::move(item));
+        addComponent(*corePtr);
+        layout();
+        return idx;
+    }
+
+    std::size_t Toolbar::addButton(const std::string& label, const sf::Texture& icon,
+                                    std::function<void()> action)
+    {
+        Item item;
+        item.label  = label;
+        item.action = std::move(action);
+
+        const float iconSz  = itemSize.y * 0.58f;   // icon box within the bar height
+        const float iconGap = 8.f;
+
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
+        const float textW = measure.getGlobalBounds().size.x;
+        const float w = std::max(itemSize.x, iconSz + iconGap + textW + padding * 2.f);
+        const sf::Vector2f sz{w, itemSize.y};
+
+        auto btn = std::make_unique<ToolbarButton>(
+            *font, label, sz, static_cast<unsigned int>(fontSize));
+        btn->text.setFillColor(itemTextColor);
+        btn->icon    = &icon;
+        btn->iconSz  = iconSz;
+        btn->iconGap = iconGap;
         ml::Core* corePtr = btn.get();
         item.component = corePtr;
         item.owned     = std::unique_ptr<ml::Core>(btn.release());
