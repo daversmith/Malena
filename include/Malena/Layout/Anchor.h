@@ -23,13 +23,18 @@ namespace ml
     /// and the Center/CenterOn ops the noted axes — so an x-op and a y-op compose.
     enum class AnchorOp
     {
-        LeftOf,   ///< my right edge to ref's left edge  (x)
-        RightOf,  ///< my left edge to ref's right edge  (x)
-        Above,    ///< my bottom edge to ref's top edge  (y)
-        Below,    ///< my top edge to ref's bottom edge  (y)
-        CenterX,  ///< center within ref horizontally     (x)
-        CenterY,  ///< center within ref vertically       (y)
-        CenterOn  ///< center within ref both axes        (x + y)
+        LeftOf,       ///< my right edge to ref's left edge   (x)
+        RightOf,      ///< my left edge to ref's right edge   (x)
+        Above,        ///< my bottom edge to ref's top edge   (y)
+        Below,        ///< my top edge to ref's bottom edge   (y)
+        CenterX,      ///< center within ref horizontally, + spacing offset (x)
+        CenterY,      ///< center within ref vertically,   + spacing offset (y)
+        CenterOn,     ///< center within ref both axes        (x + y)
+        // Window inside-edge ops (ref is always the window; spacing = inward margin).
+        WindowLeft,   ///< my left edge   at window left  + margin  (x)
+        WindowRight,  ///< my right edge  at window right − margin  (x)
+        WindowTop,    ///< my top edge    at window top   + margin  (y)
+        WindowBottom  ///< my bottom edge at window bottom − margin (y)
     };
 
     /// The axis (or axes) an op writes — used to de-duplicate and reason about
@@ -37,12 +42,14 @@ namespace ml
     inline bool anchorTouchesX(AnchorOp op)
     {
         return op == AnchorOp::LeftOf || op == AnchorOp::RightOf
-            || op == AnchorOp::CenterX || op == AnchorOp::CenterOn;
+            || op == AnchorOp::CenterX || op == AnchorOp::CenterOn
+            || op == AnchorOp::WindowLeft || op == AnchorOp::WindowRight;
     }
     inline bool anchorTouchesY(AnchorOp op)
     {
         return op == AnchorOp::Above || op == AnchorOp::Below
-            || op == AnchorOp::CenterY || op == AnchorOp::CenterOn;
+            || op == AnchorOp::CenterY || op == AnchorOp::CenterOn
+            || op == AnchorOp::WindowTop || op == AnchorOp::WindowBottom;
     }
 
     struct Anchor

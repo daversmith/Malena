@@ -64,19 +64,56 @@ namespace ml
         AnchorManager::recordBaseline(this);
     }
 
-    void Positionable::centerXInWindow()
+    void Positionable::centerXInWindow(float offset)
     {
         Align::centerHorizontally(windowBounds(), *this);
-        AnchorManager::set(this, AnchorOp::CenterX, nullptr, 0.f);
+        if (offset != 0.f) setPosition({ getPosition().x + offset, getPosition().y });
+        AnchorManager::set(this, AnchorOp::CenterX, nullptr, offset);
         AnchorManager::recordBaseline(this);
     }
 
-    void Positionable::centerYInWindow()
+    void Positionable::centerYInWindow(float offset)
     {
         Align::centerVertically(windowBounds(), *this);
-        AnchorManager::set(this, AnchorOp::CenterY, nullptr, 0.f);
+        if (offset != 0.f) setPosition({ getPosition().x, getPosition().y + offset });
+        AnchorManager::set(this, AnchorOp::CenterY, nullptr, offset);
         AnchorManager::recordBaseline(this);
     }
+
+    namespace
+    {
+        // Immediate placement of a window inside-edge op — mirrors the solver so
+        // the object lands correctly before the first resize.
+        void applyWindowEdge(Positionable& self, AnchorOp op, float margin)
+        {
+            const sf::FloatRect w = windowBounds();
+            const sf::FloatRect b = self.getGlobalBounds();
+            sf::Vector2f p = self.getPosition();
+            // Position is p; the visual bounds may be offset from p — preserve that delta.
+            const sf::Vector2f off = { p.x - b.position.x, p.y - b.position.y };
+            switch (op)
+            {
+                case AnchorOp::WindowLeft:   p.x = w.position.x + margin + off.x; break;
+                case AnchorOp::WindowRight:  p.x = w.position.x + w.size.x - b.size.x - margin + off.x; break;
+                case AnchorOp::WindowTop:    p.y = w.position.y + margin + off.y; break;
+                case AnchorOp::WindowBottom: p.y = w.position.y + w.size.y - b.size.y - margin + off.y; break;
+                default: break;
+            }
+            self.setPosition(p);
+        }
+
+        void setWindowEdge(Positionable* self, AnchorOp op, float margin)
+        {
+            applyWindowEdge(*self, op, margin);
+            AnchorManager::set(self, op, nullptr, margin);
+            AnchorManager::recordBaseline(self);
+        }
+    }
+
+    void Positionable::anchorLeftInWindow(float margin)   { setWindowEdge(this, AnchorOp::WindowLeft,   margin); }
+    void Positionable::anchorRightInWindow(float margin)  { setWindowEdge(this, AnchorOp::WindowRight,  margin); }
+    void Positionable::anchorTopInWindow(float margin)    { setWindowEdge(this, AnchorOp::WindowTop,    margin); }
+    void Positionable::anchorBottomInWindow(float margin) { setWindowEdge(this, AnchorOp::WindowBottom, margin); }
 
     void Positionable::centerText(sf::Text& obj)
     {

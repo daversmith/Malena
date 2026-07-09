@@ -98,9 +98,35 @@ namespace ml
                 case AnchorOp::RightOf:  Align::setRightOf(r, *owner, a.spacing);       break;
                 case AnchorOp::Above:    Align::setAbove(r, *owner, a.spacing);         break;
                 case AnchorOp::Below:    Align::setBelow(r, *owner, a.spacing);         break;
-                case AnchorOp::CenterX:  Align::centerHorizontally(r, *owner);          break;
-                case AnchorOp::CenterY:  Align::centerVertically(r, *owner);            break;
+                case AnchorOp::CenterX:
+                    Align::centerHorizontally(r, *owner);
+                    if (a.spacing != 0.f)
+                        owner->setPosition({ owner->getPosition().x + a.spacing, owner->getPosition().y });
+                    break;
+                case AnchorOp::CenterY:
+                    Align::centerVertically(r, *owner);
+                    if (a.spacing != 0.f)
+                        owner->setPosition({ owner->getPosition().x, owner->getPosition().y + a.spacing });
+                    break;
                 case AnchorOp::CenterOn: Align::centerOn(r, *owner);                    break;
+
+                // Window inside-edge ops: r is the window rect; keep the object's
+                // position→visual-bounds delta so outlined shapes land correctly.
+                case AnchorOp::WindowLeft:
+                case AnchorOp::WindowRight:
+                case AnchorOp::WindowTop:
+                case AnchorOp::WindowBottom:
+                {
+                    const sf::FloatRect b = owner->getGlobalBounds();
+                    sf::Vector2f p = owner->getPosition();
+                    const sf::Vector2f off = { p.x - b.position.x, p.y - b.position.y };
+                    if (a.op == AnchorOp::WindowLeft)   p.x = r.position.x + a.spacing + off.x;
+                    if (a.op == AnchorOp::WindowRight)  p.x = r.position.x + r.size.x - b.size.x - a.spacing + off.x;
+                    if (a.op == AnchorOp::WindowTop)    p.y = r.position.y + a.spacing + off.y;
+                    if (a.op == AnchorOp::WindowBottom) p.y = r.position.y + r.size.y - b.size.y - a.spacing + off.y;
+                    owner->setPosition(p);
+                    break;
+                }
             }
         }
     }

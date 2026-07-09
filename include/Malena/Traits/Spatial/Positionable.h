@@ -97,10 +97,16 @@ namespace ml
 
         /// Center this object within the window (retained; re-solves on resize).
         void centerInWindow();
-        /// Center this object horizontally within the window (retained).
-        void centerXInWindow();
-        /// Center this object vertically within the window (retained).
-        void centerYInWindow();
+        /// Center this object horizontally within the window, plus @p offset px (retained).
+        void centerXInWindow(float offset = 0.f);
+        /// Center this object vertically within the window, plus @p offset px (retained).
+        void centerYInWindow(float offset = 0.f);
+
+        // Pin an edge to the window's inside edge, @p margin px inward (retained).
+        void anchorLeftInWindow(float margin = 0.f);
+        void anchorRightInWindow(float margin = 0.f);
+        void anchorTopInWindow(float margin = 0.f);
+        void anchorBottomInWindow(float margin = 0.f);
 
         /**
          * @brief Set the world-space position immediately (no animation).

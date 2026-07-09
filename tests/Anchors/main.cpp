@@ -120,6 +120,24 @@ void test_dedup()
     CHECK(near(b.getPosition().y, 110.f));         // one clean effect, not thrice
 }
 
+// ── Center anchors honor a spacing offset ────────────────────────────────────
+void test_center_offset()
+{
+    ml::Rectangle parent = makeRect(0.f, 0.f, 100.f, 100.f);
+    ml::Rectangle c      = makeRect(0.f, 0.f, 10.f, 10.f);
+
+    // Drive the manager directly with an offset (the window helpers that expose
+    // this need a live window; the solver math is what we verify here).
+    ml::AnchorManager::set(&c, ml::AnchorOp::CenterX, &parent, 7.f);
+    ml::AnchorManager::solveAll();
+    CHECK(near(c.getPosition().x, 52.f));      // (100-10)/2 + 7
+
+    parent.setPosition({ 200.f, 0.f });
+    ml::AnchorManager::solveAll();
+    CHECK(near(c.getPosition().x, 252.f));     // re-centered + offset preserved
+    ml::AnchorManager::clear(&c);
+}
+
 // ── Destroying a referenced object scrubs the dangling anchor ────────────────
 void test_scrub_on_destroy()
 {
@@ -145,6 +163,7 @@ int main()
     test_compose_axes();
     test_dependency_chain();
     test_dedup();
+    test_center_offset();
     test_scrub_on_destroy();
 
     if (failures == 0) { std::cout << "Anchors: all checks passed\n"; return 0; }
