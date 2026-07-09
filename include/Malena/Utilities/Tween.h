@@ -15,6 +15,10 @@
 namespace ml
 {
     /**
+     * @deprecated Superseded by @c ml::Easing (Malena/Animation/Easing.h), which
+     * provides the full easing family as pure functions for @c Tweener / @c Animate.
+     * This two-value enum is retained only for source compatibility.
+     *
      * @brief Easing curve selection for animated movement.
       * @ingroup Utilities
      *

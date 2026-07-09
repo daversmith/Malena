@@ -30,7 +30,8 @@ add_test(NAME ControlCascade COMMAND ControlCascadeTest)
 # Each locks the public invariants of one subsystem. Window-free.
 foreach(suite
         Flags            # FlagManager + custom manifest Flag/State
-        Positionable     # position, bounds, layout helpers, move queue
+        Animation        # Easing curves, Tweener<T>, AnimationManager, Animate facade
+        Positionable     # position, bounds, layout helpers, animate()
         CoreTopology     # reparent / remove / effective-visibility / topmostMatching
         EventSystem      # subscribe / publish / filter / exclusive owner
         Messaging        # typed MessageManager channels

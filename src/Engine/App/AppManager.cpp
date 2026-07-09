@@ -7,6 +7,7 @@
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Networking/NetworkManager.h>
+#include <Malena/Animation/AnimationManager.h>
 #include <SFML/Graphics/View.hpp>
 #include <algorithm>
 
@@ -253,7 +254,10 @@ namespace ml
             }
 
             if (!_paused)
+            {
                 fireUpdateEvents();
+                AnimationManager::advance(_deltaTime);   // delta-time animation tick
+            }
 
             NetworkManager::flush();
 

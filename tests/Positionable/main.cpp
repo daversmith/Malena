@@ -1,8 +1,11 @@
-// Positionable invariants — position, bounds, relative-layout helpers, and the
-// movement-queue state. Uses ml::Rectangle (a concrete shape implementing the
-// setPosition/getPosition/getGlobalBounds contract). Window-free.
+// Positionable invariants — position, bounds, relative-layout helpers, and
+// delta-time position animation. Uses ml::Rectangle (a concrete shape implementing
+// the setPosition/getPosition/getGlobalBounds contract). Window-free.
 
 #include <Malena/Graphics/Primitives/Rectangle.h>
+#include <Malena/Animation/Animate.h>
+#include <Malena/Animation/AnimationManager.h>
+#include <Malena/Animation/Easing.h>
 #include <cmath>
 #include <iostream>
 
@@ -58,16 +61,23 @@ void test_relative_layout()
     CHECK(near(b.getPosition().y, 10.f));     // (50-30)/2
 }
 
-// ── Movement queue: isScrolling reflects an in-flight animation ──────────────
-void test_movement_queue()
+// ── Animate: position tween drives setPosition over delta time ───────────────
+void test_animate_position()
 {
     ml::Rectangle r;
     r.setSize({10.f, 10.f});
     r.setPosition({0.f, 0.f});
 
-    CHECK(!r.isScrolling());                  // nothing queued at rest
-    r.moveTo({500.f, 0.f}, 1.f);
-    CHECK(r.isScrolling());                   // waypoints populated → animating
+    CHECK(!r.animate().active());                          // idle at rest
+    r.animate().move({100.f, 0.f}, 1.f, ml::Easing::Linear);
+    CHECK(r.animate().active());                           // running
+
+    ml::AnimationManager::advance(0.5f);                   // halfway (linear)
+    CHECK(near(r.getPosition().x, 50.f));
+
+    ml::AnimationManager::advance(0.5f);                   // reaches the end
+    CHECK(near(r.getPosition().x, 100.f));
+    CHECK(!r.animate().active());                          // finished → idle
 }
 
 } // namespace
@@ -76,7 +86,7 @@ int main()
 {
     test_position_and_bounds();
     test_relative_layout();
-    test_movement_queue();
+    test_animate_position();
 
     if (failures == 0) { std::cout << "Positionable: all checks passed\n"; return 0; }
     std::cerr << "Positionable: " << failures << " check(s) failed\n";
