@@ -14,8 +14,21 @@ namespace ml
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
             const int hit = hitTestHeader(wp);
+            // Record the toggle; apply it on the next update (see _pendingToggle).
+            // Toggling here would relayout mid-dispatch and let the revealed row
+            // receive this same click.
             if (hit >= 0 && !_sections[static_cast<std::size_t>(hit)].header->isEndHit(wp))
-                toggle(static_cast<std::size_t>(hit));
+                _pendingToggle = hit;
+        });
+
+        // Apply a pending header toggle AFTER click dispatch has finished for this
+        // frame (the update phase runs after input events), so expanding a section
+        // never slides a row under the cursor during the click that opened it.
+        onUpdate([this]{
+            if (_pendingToggle < 0) return;
+            const std::size_t idx = static_cast<std::size_t>(_pendingToggle);
+            _pendingToggle = -1;
+            toggle(idx);
         });
     }
 

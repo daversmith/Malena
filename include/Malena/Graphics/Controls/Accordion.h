@@ -89,6 +89,14 @@ namespace ml
 
         std::function<void(std::size_t, bool)> _onSectionChanged;
 
+        // A header click records the section to toggle here and applies it on the
+        // next update — NOT synchronously inside onClick. Expanding a section
+        // mid-dispatch slides its rows under the cursor, and the same click event
+        // (which fires every hovered Clickable) would then also trigger the
+        // revealed row. Deferring the layout change to after click dispatch avoids
+        // that leak. -1 = nothing pending.
+        int _pendingToggle = -1;
+
         // ── Internal ──────────────────────────────────────────────────────────
         void layout();
         int  hitTestHeader(const sf::Vector2f& mousePos) const;
