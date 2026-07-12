@@ -11,6 +11,7 @@ namespace ml
                     _size.y - INPUT_H - 3.f * EDGE_PAD)
     {
         _sendBtn.setString("Send");
+        _sendBtn.setCharacterSize(15);   // without this the label falls back to the oversized default
         _sendBtn.setFillColor(sf::Color(0, 122, 255));
         _sendBtn.setTextColor(sf::Color::White);
         _sendBtn.onClick([this]() { doSend(); });
