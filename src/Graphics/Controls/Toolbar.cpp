@@ -4,6 +4,7 @@
 #include <Malena/Graphics/Controls/Toolbar.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <algorithm>
 
 namespace ml
@@ -257,6 +258,7 @@ namespace ml
         const sf::Texture*  icon    = nullptr;   // optional; not owned — must outlive us
         float               iconSz  = 0.f;
         float               iconGap = 8.f;
+        int                 badge   = 0;         // >0 → red count pill at the top-right
 
         ToolbarButton(const sf::Font& f, const std::string& label,
                       const sf::Vector2f& sz, unsigned int charSz)
@@ -292,6 +294,24 @@ namespace ml
                 pos.y + (size.y - lb.size.y) / 2.f - lb.position.y
             });
             t.draw(tmp, s);
+
+            // Notification badge — a small red count pill at the top-right corner.
+            if (badge > 0)
+            {
+                const float r = 8.f;
+                sf::CircleShape dot(r, 16);
+                dot.setFillColor(sf::Color(226, 88, 79));
+                dot.setPosition({ pos.x + size.x - 2.f * r - 3.f, pos.y + 1.f });
+                t.draw(dot, s);
+
+                const std::string bs = badge > 9 ? "9+" : std::to_string(badge);
+                sf::Text bt(text.getFont(), bs, 10);
+                bt.setFillColor(sf::Color::White);
+                const sf::FloatRect bb = bt.getLocalBounds();
+                bt.setPosition({ pos.x + size.x - 2.f * r - 3.f + r - (bb.position.x + bb.size.x / 2.f),
+                                 pos.y + 1.f + r - (bb.position.y + bb.size.y / 2.f) });
+                t.draw(bt, s);
+            }
         }
 
         void          setPosition(const sf::Vector2f& p) override { pos = p; }
@@ -387,6 +407,13 @@ namespace ml
     {
         if (index >= _items.size()) return;
         _items[index].selected = selected;
+    }
+
+    void Toolbar::setItemBadge(std::size_t index, int count)
+    {
+        if (index >= _items.size()) return;
+        if (auto* btn = dynamic_cast<ToolbarButton*>(_items[index].owned.get()))
+            btn->badge = count;
     }
 
     void Toolbar::add(ml::Core& component)

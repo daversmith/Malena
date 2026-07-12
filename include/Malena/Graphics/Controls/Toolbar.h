@@ -184,6 +184,9 @@ namespace ml
         /** @brief Set or clear the persistent selected highlight on an owned button. */
         void setItemSelected(std::size_t index, bool selected);
 
+        /** @brief Set a notification badge count on an owned button (0 hides it). */
+        void setItemBadge(std::size_t index, int count);
+
         /**
          * @brief Embed any @c ml::Core as a positioned toolbar item.
          *
