@@ -43,6 +43,12 @@ void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)>
 }
 void ml::ClickableDispatcher::fire(const std::optional<sf::Event>& event)
 {
+	// _focused is a raw static pointer to the last-focused widget. Nothing clears it
+	// when that widget is DESTROYED (e.g. a list row freed on rebuild), so it can
+	// dangle. The focus/blur bookkeeping below dynamic_cast's it — dereferencing freed
+	// memory (EXC_BAD_ACCESS). Drop it here if it's no longer a live subscriber.
+	if (_focused && !EventManager::hasReceiver(_focused)) _focused = nullptr;
+
 	EventManager::fire(Event::CLICK, this, event,
 		[this](EventReceiver* component, const std::optional<sf::Event>& e)
 		{

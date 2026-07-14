@@ -107,6 +107,16 @@ namespace ml
         static void clear();
 
         /**
+         * @brief True if @p receiver is still registered under any event key.
+         *
+         * A destroyed component is removed from all lists by @c forceUnsubscribeAll
+         * (from ~Core). Callers holding a raw @c EventReceiver* (e.g. the click
+         * dispatcher's static @c _focused) use this to detect that it was freed and
+         * avoid dereferencing a dangling pointer.
+         */
+        static bool hasReceiver(EventReceiver* receiver);
+
+        /**
          * @brief Fire an event to all matching subscribers.
          *
          * @tparam EnumType Any enum type.

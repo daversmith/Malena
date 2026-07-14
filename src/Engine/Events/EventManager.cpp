@@ -77,6 +77,15 @@ namespace ml
         doUnsubscribeAll(core);
     }
 
+    bool EventManager::hasReceiver(EventReceiver* receiver)
+    {
+        if (!receiver) return false;
+        for (const auto& [key, subs] : _subscribers)
+            for (const auto& s : subs)
+                if (s.receiver == receiver) return true;
+        return false;
+    }
+
     void EventManager::clear()
     {
         deferOrExecute([]()
