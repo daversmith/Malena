@@ -44,7 +44,7 @@ namespace ml
 
             if (down && !_prevMouseDown)
             {
-                const bool inSearch = _searchable && searchRect().contains(wp);
+                const bool inSearch = searchShown() && searchRect().contains(wp);
                 if (_hover >= 0)
                 {
                     const std::size_t item = _filtered[static_cast<std::size_t>(_scrollItem + _hover)];
@@ -52,7 +52,7 @@ namespace ml
                     hide();
                     if (action) action();           // run AFTER hiding
                 }
-                else if (!inSearch && !getGlobalBounds().contains(wp))
+                else if (!(inSearch && searchShown()) && !getGlobalBounds().contains(wp))
                 {
                     hide();                          // click outside dismisses
                 }
@@ -102,6 +102,28 @@ namespace ml
 
     void ContextMenu::setSearchable(bool on)    { _searchable = on; recomputeSize(); }
     void ContextMenu::setMaxVisibleItems(int n) { _maxVisible = std::max(1, n); recomputeSize(); }
+    void ContextMenu::setFixedWidth(float w)    { _fixedWidth = std::max(0.f, w); recomputeSize(); }
+
+    // Search box only earns its space once the list is longer than the visible cap.
+    bool ContextMenu::searchShown() const
+    {
+        return _searchable && static_cast<int>(_items.size()) > _maxVisible;
+    }
+
+    // Truncate a label to fit maxW (px) with a trailing ellipsis.
+    static std::string fitLabel(const sf::Font& font, const std::string& s, unsigned charSize, float maxW)
+    {
+        sf::Text probe(font, s, charSize);
+        if (probe.getLocalBounds().size.x <= maxW) return s;
+        std::string out = s;
+        while (!out.empty())
+        {
+            out.pop_back();
+            sf::Text t(font, out + "...", charSize);
+            if (t.getLocalBounds().size.x <= maxW) return out + "...";
+        }
+        return "...";
+    }
 
     void ContextMenu::recomputeFiltered()
     {
@@ -125,24 +147,29 @@ namespace ml
 
     float ContextMenu::itemsTop() const
     {
-        return _pos.y + _pad + (_searchable ? _searchH : 0.f);
+        return _pos.y + _pad + (searchShown() ? _searchH : 0.f);
     }
 
     void ContextMenu::recomputeSize()
     {
-        float maxW = 80.f;
-        const sf::Font& font = FontManager<>::getDefault();
-        for (const auto& it : _items)   // width from ALL items so it doesn't jump while filtering
+        if (_fixedWidth > 0.f)
+            _width = _fixedWidth;
+        else
         {
-            sf::Text t(font, it.label, _charSize);
-            maxW = std::max(maxW, t.getLocalBounds().size.x);
+            float maxW = 80.f;
+            const sf::Font& font = FontManager<>::getDefault();
+            for (const auto& it : _items)   // width from ALL items so it doesn't jump while filtering
+            {
+                sf::Text t(font, it.label, _charSize);
+                maxW = std::max(maxW, t.getLocalBounds().size.x);
+            }
+            _width = maxW + _pad * 4.f;
         }
-        _width = maxW + _pad * 4.f;
 
         recomputeFiltered();
         clampScroll();
         const int vis = _filtered.empty() ? 1 : visibleCount();   // 1 row for "(no matches)"
-        const float h = _pad * 2.f + (_searchable ? _searchH : 0.f) + static_cast<float>(vis) * _itemH;
+        const float h = _pad * 2.f + (searchShown() ? _searchH : 0.f) + static_cast<float>(vis) * _itemH;
         this->setSize({ _width, h });
     }
 
@@ -210,8 +237,8 @@ namespace ml
 
         const sf::Font& font = FontManager<>::getDefault();
 
-        // ── search box ──
-        if (_searchable)
+        // ── search box (only when the list overflows the visible cap) ──
+        if (searchShown())
         {
             const sf::FloatRect sr = searchRect();
             sf::RectangleShape box({ sr.size.x - _pad * 2.f, sr.size.y - _pad * 2.f });
@@ -248,7 +275,8 @@ namespace ml
                 target.draw(hl, states);
             }
             const std::size_t item = _filtered[static_cast<std::size_t>(_scrollItem + vi)];
-            sf::Text t(font, _items[item].label, _charSize);
+            const float textMaxW = _width - _pad * 4.f - (searchShown() || static_cast<int>(_filtered.size()) > _maxVisible ? 8.f : 0.f);
+            sf::Text t(font, fitLabel(font, _items[item].label, _charSize, textMaxW), _charSize);
             t.setFillColor(sf::Color(230, 230, 235));
             t.setPosition({ r.position.x + _pad * 2.f, r.position.y + 4.f });
             target.draw(t, states);

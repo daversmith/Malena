@@ -39,11 +39,15 @@ namespace ml
         void addItem(const std::string& label, std::function<void()> action);
         void clearItems();
 
-        /** Opt in to a filter box at the top + wheel-scrolling for long lists.
-         *  Type while the menu is open to narrow it; Backspace edits, Esc closes. */
+        /** Opt in to a filter box + wheel-scrolling for long lists. The search row
+         *  only appears once the item count exceeds the visible cap (a short list
+         *  stays a plain menu). Type to narrow; Backspace edits, Esc closes. */
         void setSearchable(bool on);
         /** Max rows shown before the list scrolls (default 12). */
         void setMaxVisibleItems(int n);
+        /** Fixed menu width in px (0 = auto-size to the widest label, the default).
+         *  Labels wider than the box are truncated with an ellipsis. */
+        void setFixedWidth(float w);
 
         void showAt(const sf::Vector2f& pos);
         void hide();
@@ -65,6 +69,7 @@ namespace ml
         [[nodiscard]] sf::FloatRect searchRect() const;
         [[nodiscard]] float itemsTop() const;                       // y where rows begin
         [[nodiscard]] int   visibleCount() const;                   // rows shown this frame
+        [[nodiscard]] bool  searchShown() const;                    // search row visible this frame
         void recomputeFiltered();                                   // rebuild _filtered from _filter
         void clampScroll();
         void recomputeSize();
@@ -84,6 +89,7 @@ namespace ml
         float        _searchH   = 30.f;
         int          _maxVisible = 12;
         int          _scrollItem = 0;                 // first visible filtered row
+        float        _fixedWidth = 0.f;               // 0 = auto-size to widest label
         std::vector<std::size_t> _filtered;           // item indices matching _filter
         std::function<void()> _onClose;
         // While open, the menu claims the popup + exclusive-owner layers so it draws
