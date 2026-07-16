@@ -129,6 +129,13 @@ namespace ml
         virtual void setVisible(bool visible);
         virtual void setActive(bool active);
 
+        /// Opt this component OUT of a parent container's visibility/active cascade
+        /// (e.g. @c Panel::setVisible). An independent child manages its own
+        /// visibility, so a container showing itself won't force it back on. Use
+        /// for pooled/parked children that are shown selectively per render.
+        void setVisibilityIndependent(bool independent) { setFlag(Flag::VISIBILITY_INDEPENDENT, independent); }
+        bool isVisibilityIndependent() const { return checkFlag(Flag::VISIBILITY_INDEPENDENT); }
+
         /// Called by AppManager on every registered component when the window is
         /// resized. Override in responsive components to reflow to the new pixel
         /// size (the framework keeps a 1:1 view, so width/height are window pixels).

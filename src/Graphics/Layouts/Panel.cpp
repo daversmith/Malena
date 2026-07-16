@@ -82,14 +82,16 @@ namespace ml {
     {
         Core::setVisible(visible);
         for (const auto& e : getChildren())
-            e.component->setVisible(visible);
+            if (!e.component->isVisibilityIndependent())   // opted-out children manage their own visibility
+                e.component->setVisible(visible);
     }
 
     void Panel::setActive(bool active)
     {
         Core::setActive(active);
         for (const auto& e : getChildren())
-            e.component->setActive(active);
+            if (!e.component->isVisibilityIndependent())
+                e.component->setActive(active);
     }
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const

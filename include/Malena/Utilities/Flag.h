@@ -73,6 +73,7 @@ namespace ml
         DRAGGING,   ///< A drag gesture is currently in progress (set by DraggableDispatcher).
         VERTICAL,   ///< Layout/scroll axis hint: vertical.
         HORIZONTAL, ///< Layout/scroll axis hint: horizontal.
+        VISIBILITY_INDEPENDENT, ///< This child opts OUT of a parent container's setVisible/setActive cascade (it manages its own visibility).
         LAST_FLAG   ///< Sentinel — do not use as an actual flag value.
     };
 
