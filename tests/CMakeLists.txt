@@ -39,7 +39,8 @@ foreach(suite
         SceneManager     # bind / start / navigate / back / lazy construction
         ControlBehavior  # control value semantics (selection, values, text)
         ManifestResources # manifest set/get + default-font singleton
-        VisibilityIndependent) # Flag::VISIBILITY_INDEPENDENT opt-out of the Panel setVisible/setActive cascade
+        VisibilityIndependent # Flag::VISIBILITY_INDEPENDENT opt-out of the Panel setVisible/setActive cascade
+        DynamicPanel) # retained pooled rebuild: reuse/hide, keyed inputs, invalidate flag
     add_executable(${suite}Test ${suite}/main.cpp)
     target_link_libraries(${suite}Test PRIVATE Malena::Malena)
     target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)
