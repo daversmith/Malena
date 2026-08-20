@@ -8,6 +8,10 @@ include(GNUInstallDirs)
 option(MALENA_BUILD_EXAMPLES "Build Malena examples" ON)
 option(MALENA_BUILD_TESTS    "Build Malena tests"    OFF)
 option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
+# ScreenReceiver pulls in GStreamer, which on macOS means Homebrew dylibs linked
+# by absolute path (/opt/homebrew/...) and an arm64-only build. Apps that don't
+# need screen sharing turn this OFF to stay self-contained and universal.
+option(MALENA_ENABLE_SCREENSHARE "Enable the RTSP/GStreamer ScreenReceiver" ON)
 
 # FetchContent is used for SFML, networking, and JSON dependencies
 include(FetchContent)
@@ -171,12 +175,18 @@ endif()
 
 # GStreamer — used by the ScreenReceiver (RTSP/H.264 → sf::Texture) and the
 # AirPlay Phase-2 decode. Discovered independently of AirPlay so screen-sharing
-# works even when AirPlay is disabled.
-find_package(PkgConfig QUIET)
-if(PkgConfig_FOUND OR PKG_CONFIG_FOUND)
-    pkg_check_modules(GSTREAMER  IMPORTED_TARGET gstreamer-1.0)
-    pkg_check_modules(GST_APP    IMPORTED_TARGET gstreamer-app-1.0)
-    pkg_check_modules(GST_VIDEO  IMPORTED_TARGET gstreamer-video-1.0)
+# works even when AirPlay is disabled. Gated on MALENA_ENABLE_SCREENSHARE so a
+# consumer can opt out explicitly rather than having it switch itself on
+# wherever pkg-config happens to find GStreamer installed.
+if(MALENA_ENABLE_SCREENSHARE)
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND OR PKG_CONFIG_FOUND)
+        pkg_check_modules(GSTREAMER  IMPORTED_TARGET gstreamer-1.0)
+        pkg_check_modules(GST_APP    IMPORTED_TARGET gstreamer-app-1.0)
+        pkg_check_modules(GST_VIDEO  IMPORTED_TARGET gstreamer-video-1.0)
+    endif()
+else()
+    message(STATUS "Malena: MALENA_ENABLE_SCREENSHARE=OFF — ScreenReceiver disabled")
 endif()
 
 # Add the library

@@ -33,9 +33,14 @@ namespace
     // Build a temporary NFD filter list from our Filter structs.
     // The returned vector's c_str() pointers stay valid as long as the
     // source Filter vector lives (same call frame).
-    std::vector<nfdnfilteritem_t> makeNFDFilters(const std::vector<FileDialog::Filter>& filters)
+    //
+    // These must be the U8 (char) item type, not the "native" one: every call
+    // site below uses NFD's ...U8 entry points. On macOS/Linux nfdnchar_t IS
+    // char so the two are the same type and the mismatch is invisible, but on
+    // Windows the native type is wchar_t and the build fails (C2664).
+    std::vector<nfdu8filteritem_t> makeNFDFilters(const std::vector<FileDialog::Filter>& filters)
     {
-        std::vector<nfdnfilteritem_t> out;
+        std::vector<nfdu8filteritem_t> out;
         out.reserve(filters.size());
         for (const auto& f : filters)
             out.push_back({f.name.c_str(), f.spec.c_str()});

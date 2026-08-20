@@ -6,9 +6,15 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
+// GStreamer is only linked when MALENA_ENABLE_SCREENSHARE is ON. With it OFF the
+// stub implementation at the bottom of this file keeps the public API intact —
+// consumers (ScreenLayout and its users) compile and run unchanged; a receiver
+// pane simply never connects and draws its placeholder.
+#ifdef MALENA_SCREENSHARE_ENABLED
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -20,6 +26,8 @@
 #include <vector>
 
 namespace ml {
+
+#ifdef MALENA_SCREENSHARE_ENABLED
 
 namespace {
     // gst_init must run exactly once per process.
@@ -321,5 +329,56 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
         target.draw(bg, states);
     }
 }
+
+#else   // !MALENA_SCREENSHARE_ENABLED — no GStreamer, no decode
+
+// Same API, no pipeline: state is held so getters/setters behave normally, the
+// receiver never reports connected, and draw() renders the placeholder the live
+// implementation shows before its first frame arrives.
+struct ScreenReceiverBase::Impl
+{
+    std::string name;
+    std::string url;
+    bool        frozen    = false;
+    ScaleMode   scaleMode = ScaleMode::Stretch;
+};
+
+ScreenReceiverBase::ScreenReceiverBase(const char* name, const char* rtspUrl)
+    : _impl(std::make_unique<Impl>())
+{
+    _impl->name = name    ? name    : "Screen";
+    _impl->url  = rtspUrl ? rtspUrl : "";
+    this->setFillColor(sf::Color::Black);
+    this->setSize({ 320.f, 240.f });
+}
+
+ScreenReceiverBase::~ScreenReceiverBase() = default;
+
+void ScreenReceiverBase::start() {}
+void ScreenReceiverBase::stop()  {}
+
+void ScreenReceiverBase::setUrl(const std::string& rtspUrl) { _impl->url = rtspUrl; }
+
+void ScreenReceiverBase::setFrozen(bool frozen) { _impl->frozen = frozen; }
+bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
+
+void ScreenReceiverBase::setScaleMode(ScaleMode mode) { _impl->scaleMode = mode; }
+ScreenReceiverBase::ScaleMode ScreenReceiverBase::scaleMode() const { return _impl->scaleMode; }
+
+bool ScreenReceiverBase::isConnected() const { return false; }
+const std::string& ScreenReceiverBase::receiverName() const { return _impl->name; }
+const std::string& ScreenReceiverBase::url() const { return _impl->url; }
+
+void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    sf::RectangleShape bg(this->getSize());
+    bg.setPosition(this->getPosition());
+    bg.setFillColor(sf::Color(10, 10, 10));
+    bg.setOutlineColor(sf::Color(60, 60, 60));
+    bg.setOutlineThickness(1.f);
+    target.draw(bg, states);
+}
+
+#endif  // MALENA_SCREENSHARE_ENABLED
 
 } // namespace ml
