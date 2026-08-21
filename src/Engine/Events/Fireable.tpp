@@ -7,14 +7,15 @@ namespace ml
 	template<typename EnumType>
 	void Fireable::addCallback(EnumType eventEnum,
 						 EventReceiver* component,
-						 EventCallback callback)
+						 EventCallback callback,
+						 bool overwrite)
 	{
 		static_assert(std::is_enum_v<EnumType>,
 			"[Malena] Fireable::addCallback — first argument must be an enum value.");
 
 		std::string key = EnumKey::get(eventEnum);
 		auto& cbs = component->getCallbacks(key);
-		cbs.clear();
+		if (overwrite) cbs.clear();
 		cbs.push_back(std::move(callback));
 		EventManager::subscribe(eventEnum, component);  // enum passed directly
 	}

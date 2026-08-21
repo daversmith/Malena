@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 11/13/22.
@@ -15,6 +15,10 @@
 namespace ml
 {
     /**
+     * @deprecated Superseded by @c ml::Easing (Malena/Animation/Easing.h), which
+     * provides the full easing family as pure functions for @c Tweener / @c Animate.
+     * This two-value enum is retained only for source compatibility.
+     *
      * @brief Easing curve selection for animated movement.
       * @ingroup Utilities
      *

@@ -27,6 +27,7 @@ namespace ml
     {
         sf::Color bgIdle          = sf::Color::Transparent;
         sf::Color bgHover         = sf::Color(255, 255, 255, 18);
+        sf::Color bgSelected      = sf::Color(0, 122, 255, 70);
         sf::Color bgDisabled      = sf::Color::Transparent;
         sf::Color dividerColor    = sf::Color(80,  80,  80);
         float     dividerThickness = 1.f;

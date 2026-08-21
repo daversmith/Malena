@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 3/20/26.
@@ -51,32 +51,36 @@ namespace ml
          *        this component's bounds.
          *
          * @param callback Function invoked with no arguments on hover enter.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onHover(std::function<void()> callback);
+        void onHover(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse enters this
          *        component's bounds, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on hover enter.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onHover(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onHover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
 
         /**
          * @brief Register a no-argument callback invoked when the mouse leaves
          *        this component's bounds.
          *
          * @param callback Function invoked with no arguments on hover leave.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onUnhover(std::function<void()> callback);
+        void onUnhover(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse leaves this
          *        component's bounds, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on hover leave.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onUnhover(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onUnhover(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

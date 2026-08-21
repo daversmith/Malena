@@ -16,6 +16,7 @@
 #include <Malena/Utilities/ImageRects.h>
 #include <Malena/Utilities/LoaderFunctions.h>
 #include <Malena/Utilities/MouseEvents.h>
+#include <Malena/Utilities/Paths.h>
 #include <Malena/Utilities/ShaderLibrary.h>
 #include <Malena/Utilities/TextManipulators.h>
 #include <Malena/Utilities/TextureSlicer.h>

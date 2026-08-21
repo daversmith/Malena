@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #ifndef MALENA_MODAL_H
 #define MALENA_MODAL_H
@@ -108,6 +108,12 @@ namespace ml
         float _alpha     = 0.f;
         bool  _animating = false;
         bool  _fadingIn  = false;
+        bool  _prevDown  = false;
+        // True when the current hide was triggered by the confirm button, so the
+        // fade-out completion fires _onConfirm (not _onDismiss). Firing the callback
+        // only once the modal is fully hidden lets a callback open a follow-up dialog
+        // on the SAME modal without the fresh show being clobbered by this fade-out.
+        bool  _confirmed = false;
 
         // ── Callbacks ─────────────────────────────────────────────────────────
         std::function<void()> _onConfirm;
@@ -147,6 +153,7 @@ namespace ml
         // ── Control ───────────────────────────────────────────────────────────
 
         void show();
+        void showImmediate();
         void hide();
         void toggle();
         [[nodiscard]] bool isVisible() const;

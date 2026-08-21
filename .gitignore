@@ -9,3 +9,11 @@ out
 /cmake-build-release
 /cmake-build-relwithdebinfoexamples/cmake-build-debug/
 Documentation/
+
+# OS / editor / archive noise
+.DS_Store
+*.zip
+*.bak
+
+/build-tests
+/build-cli

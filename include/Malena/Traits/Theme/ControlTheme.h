@@ -17,7 +17,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for interactive UI controls.
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c GraphicTheme with tokens for hover, focus, disabled, and
      * text states. All controls — toggles, buttons, checkboxes, etc. —
@@ -53,7 +53,12 @@ namespace ml
     		textColor         = t.onSurface;
     		mutedColor        = t.muted;
     		padding           = t.spacing;
-    		font              = t.font ? t.font : &FontManager<>::getDefault();  // ← guard
+    		// Only adopt the theme's font when it actually specifies one. Built-in
+    		// themes leave font == nullptr ("no opinion"); overriding to the default
+    		// font there would silently clobber a component's explicitly-set font
+    		// (e.g. a Toolbar handed the icon font) → its glyphs render as "notdef"
+    		// boxes once a theme is applied. Keep whatever the component already has.
+    		if (t.font) font = t.font;
     		fontSize          = t.fontSize;
     		fontSizeSmall     = t.fontSizeSmall;
     		return *this;

@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Traits/Interaction/Selectable.h>
 #include <Malena/Engine/Events/Event.h>
@@ -9,28 +9,28 @@ namespace ml
 {
     // ── onSelected ────────────────────────────────────────────────────────────
 
-    void Selectable::onSelected(std::function<void()> callback)
+    void Selectable::onSelected(std::function<void()> callback, bool overwrite)
     {
         Fireable::addCallback(ml::Event::SELECTED, this,
-            [cb = std::move(callback)](const std::optional<sf::Event>&){ cb(); });
+            [cb = std::move(callback)](const std::optional<sf::Event>&){ cb(); }, overwrite);
     }
 
-    void Selectable::onSelected(std::function<void(const std::optional<sf::Event>&)> callback)
+    void Selectable::onSelected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite)
     {
-        Fireable::addCallback(ml::Event::SELECTED, this, std::move(callback));
+        Fireable::addCallback(ml::Event::SELECTED, this, std::move(callback), overwrite);
     }
 
     // ── onDeselected ──────────────────────────────────────────────────────────
 
-    void Selectable::onDeselected(std::function<void()> callback)
+    void Selectable::onDeselected(std::function<void()> callback, bool overwrite)
     {
         Fireable::addCallback(ml::Event::DESELECTED, this,
-            [cb = std::move(callback)](const std::optional<sf::Event>&){ cb(); });
+            [cb = std::move(callback)](const std::optional<sf::Event>&){ cb(); }, overwrite);
     }
 
-    void Selectable::onDeselected(std::function<void(const std::optional<sf::Event>&)> callback)
+    void Selectable::onDeselected(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite)
     {
-        Fireable::addCallback(ml::Event::DESELECTED, this, std::move(callback));
+        Fireable::addCallback(ml::Event::DESELECTED, this, std::move(callback), overwrite);
     }
 
     // ── Programmatic triggers ─────────────────────────────────────────────────

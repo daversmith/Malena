@@ -1,8 +1,9 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/SplitPanel.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Utilities/ClipView.h>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
 #include <numeric>
@@ -16,8 +17,23 @@ namespace ml
         this->font        = &font_;
         this->orientation = orientation_;
 
+        // SplitPanel is a full-covering container: its bounds span every pane, so
+        // like Panel it must not participate in the click/focus system, or it would
+        // fire after (and steal focus from) the child widgets inside its panes —
+        // e.g. a TextArea/CodeEditor answer field would never receive keyboard
+        // focus. ComponentCore auto-registers empty onClick/onHover/onDrag handlers
+        // for every Core; drop them here. Divider hover/drag is driven by the
+        // onUpdate poll below (raw mouse), so nothing interactive is lost.
+        unsubscribeAll();
+
         // ── Per-frame: hover + drag ───────────────────────────────────────────
         onUpdate([this]{
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                return;
+            }
+
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
@@ -209,37 +225,20 @@ namespace ml
         const bool horiz = (orientation == Orientation::HORIZONTAL);
         float offset = horiz ? _position.x : _position.y;
 
-        const sf::View savedView = target.getView();
-        const auto targetSize = target.getSize();
-        const float tw = static_cast<float>(targetSize.x);
-        const float th = static_cast<float>(targetSize.y);
-
         for (int i = 0; i < static_cast<int>(_panes.size()); ++i)
         {
             const auto& pane = _panes[i];
 
-            sf::Vector2f pos = horiz
+            const sf::Vector2f pos = horiz
                 ? sf::Vector2f{offset, _position.y}
                 : sf::Vector2f{_position.x, offset};
-            sf::Vector2f sz = horiz
+            const sf::Vector2f sz = horiz
                 ? sf::Vector2f{pane.size, _size.y}
                 : sf::Vector2f{_size.x, pane.size};
 
-            // Set a viewport-clipped view so nothing draws outside this pane.
-            // The view center/size map the same world-space region, so all
-            // existing absolute coordinates remain correct — content that
-            // extends beyond the pane edge is simply not rendered.
-            if (sz.x > 0.f && sz.y > 0.f)
-            {
-                sf::View paneView;
-                paneView.setCenter({pos.x + sz.x / 2.f, pos.y + sz.y / 2.f});
-                paneView.setSize(sz);
-                paneView.setViewport(sf::FloatRect{
-                    {pos.x / tw, pos.y / th},
-                    {sz.x / tw,  sz.y / th}
-                });
-                target.setView(paneView);
-
+            // Each pane runs inside its own clip view so its content (which
+            // uses absolute world coords) doesn't bleed past the pane edges.
+            ml::withClipView(target, {pos, sz}, [&]{
                 if (paneBg.a > 0)
                 {
                     sf::RectangleShape bg(sz);
@@ -249,17 +248,13 @@ namespace ml
                 }
 
                 if (pane.content)
-                {
-                    auto* drawable = dynamic_cast<const sf::Drawable*>(pane.content.get());
-                    if (drawable) target.draw(*drawable, states);
-                }
-
-                target.setView(savedView);
-            }
+                    if (auto* d = dynamic_cast<const sf::Drawable*>(pane.content.get()))
+                        target.draw(*d, states);
+            });
 
             offset += pane.size;
 
-            // Divider (before next pane) — drawn with original view, no clipping needed
+            // Divider (before next pane) — drawn with the outer view, no clip.
             if (i < static_cast<int>(_panes.size()) - 1)
             {
                 drawDivider(target, states, i,
@@ -360,6 +355,9 @@ namespace ml
 
     void SplitPanel::onDividerMoved(std::function<void(std::size_t, float)> cb)
     { _onDividerMoved = std::move(cb); }
+
+    // Enable cascade is handled by Core::setEnabled / Core::setParentEnabled
+    // — pane content components are registered via addComponent() in addPane().
 
     // ── Size / position ───────────────────────────────────────────────────────
 

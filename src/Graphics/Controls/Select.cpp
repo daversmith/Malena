@@ -1,8 +1,9 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Select.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
@@ -39,24 +40,25 @@ namespace ml
         syncTrigger();
 
         onHover([this]{
-            if (checkFlag(Flag::DISABLED) || checkFlag(Flag::OPEN)) return;
+            if (!checkFlag(ml::Flag::ENABLED) || checkFlag(Flag::OPEN)) return;
             setState(State::HOVERED);
             syncTriggerColors();
         });
 
         onUnhover([this]{
-            if (checkFlag(Flag::DISABLED) || checkFlag(Flag::OPEN)) return;
+            if (!checkFlag(ml::Flag::ENABLED) || checkFlag(Flag::OPEN)) return;
             setState(State::IDLE);
             syncTriggerColors();
         });
 
         onClick([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             if (checkFlag(Flag::OPEN)) closePanel();
             else                       openPanel();
         });
 
         onUpdate([this]{
+            if (!checkFlag(ml::Flag::ENABLED)) { _hoveredIndex = -1; _prevDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left); return; }
             if (!checkFlag(Flag::OPEN)) { _hoveredIndex = -1; return; }
 
             const sf::Vector2f wp =
@@ -65,10 +67,14 @@ namespace ml
 
             _hoveredIndex = hitTestPanel(wp);
 
-            static bool prevDown = false;
             const bool  mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-            if (mouseDown && !prevDown)
+            // Act on the RELEASE edge, not press. Input events (incl. the CLICK on
+            // release) are dispatched before onUpdate each frame; committing here on
+            // release means this Select still owns exclusivity while that CLICK is
+            // dispatched, so an overlapping control behind the dropdown can't receive
+            // the same click. (Committing on press would clear ownership too early.)
+            if (!mouseDown && _prevDown)
             {
                 const int idx = hitTestPanel(wp);
                 if (idx >= 0 && idx < static_cast<int>(_options.size()))
@@ -87,7 +93,7 @@ namespace ml
                         closePanel();
                 }
             }
-            prevDown = mouseDown;
+            _prevDown = mouseDown;
         });
 
         onScroll([this](const std::optional<sf::Event>& e){
@@ -99,6 +105,15 @@ namespace ml
             _scrollOffset -= scroll->delta * itemHeight;
             _scrollOffset  = std::clamp(_scrollOffset, 0.f, maxScroll);
         });
+    }
+
+    Select::~Select()
+    {
+        // A Select can be destroyed while still open (e.g. its owner rebuilds its
+        // list). Release the global slots it may hold so nothing dereferences this
+        // freed object next frame.
+        if (AppManager::exclusiveOwner() == this) AppManager::setExclusiveOwner(_prevExclusiveOwner);
+        if (AppManager::activePopup()    == this) AppManager::setActivePopup(_prevPopup);
     }
 
     void Select::onThemeApplied(const Theme& theme)
@@ -138,7 +153,7 @@ namespace ml
 
     void Select::syncTriggerColors()
     {
-        const bool disabled = checkFlag(Flag::DISABLED);
+        const bool disabled = !checkFlag(ml::Flag::ENABLED);
         const bool open     = checkFlag(Flag::OPEN);
         const bool hovered  = isState(State::HOVERED);
         const bool hasValue = _selectedIndex >= 0;
@@ -198,6 +213,17 @@ namespace ml
         setState(State::OPEN);
         _arrow.setString(L"\u25B2");
         syncTriggerColors();
+        // Claim exclusive interaction so the open dropdown doesn't let clicks fall
+        // through to widgets behind it. Remember the prior owner (e.g. a host modal)
+        // so closing restores it rather than clearing it outright.
+        _prevExclusiveOwner = AppManager::exclusiveOwner();
+        AppManager::setExclusiveOwner(this);
+        // Escalate the open dropdown to the top popup layer so it draws above any
+        // later-drawn siblings (e.g. the match rows below it) or a host modal.
+        // Save the prior popup so nested opens restore correctly.
+        _prevPopup = AppManager::activePopup();
+        AppManager::setActivePopup(this);
+        if (_onOpen) _onOpen();
     }
 
     void Select::closePanel()
@@ -207,6 +233,12 @@ namespace ml
         _hoveredIndex = -1;
         _arrow.setString(L"\u25BC");
         syncTriggerColors();
+        AppManager::setExclusiveOwner(_prevExclusiveOwner);
+        _prevExclusiveOwner = nullptr;
+        // Restore whatever popup was on top before we opened (usually nothing).
+        if (AppManager::activePopup() == this) AppManager::setActivePopup(_prevPopup);
+        _prevPopup = nullptr;
+        if (_onClose) _onClose();
     }
 
     void Select::commitSelection(int index)
@@ -377,12 +409,26 @@ namespace ml
 
         target.draw(_panel, states);
 
-        _panelCanvas.clear(sf::Color::Transparent);
-
         const float panelOriginY = _panel.getPosition().y;
+        const float ph           = panelHeight();
 
-        sf::RenderStates cs;
-        cs.transform.translate({-_position.x, -panelOriginY});
+        // Draw options DIRECTLY to the target, clipped to the panel via a viewport
+        // sub-view. Routing them through an intermediate RenderTexture sampled the
+        // shared font atlas after the editor had grown it with large heading sizes,
+        // which left some glyphs garbled. Direct drawing (as the trigger does) is
+        // always crisp.
+        const sf::Vector2u tsz = target.getSize();
+        const float TW = static_cast<float>(tsz.x);
+        const float TH = static_cast<float>(tsz.y);
+
+        const sf::View prevView = target.getView();
+        sf::View clip;
+        clip.setSize({ size.x, ph });
+        clip.setCenter({ _position.x + size.x * 0.5f, panelOriginY + ph * 0.5f });
+        clip.setViewport(sf::FloatRect(
+            { _position.x / TW, panelOriginY / TH },
+            { size.x / TW,      ph / TH }));
+        target.setView(clip);
 
         for (int i = 0; i < static_cast<int>(_options.size()); ++i)
         {
@@ -391,19 +437,15 @@ namespace ml
                                    - _scrollOffset;
 
             if (itemWorldY + itemHeight < panelOriginY) continue;
-            if (itemWorldY > panelOriginY + panelHeight())  continue;
+            if (itemWorldY > panelOriginY + ph)         continue;
 
-            drawOption(_panelCanvas, cs,
+            drawOption(target, states,
                        _options[i], itemWorldY,
                        i == _hoveredIndex,
                        _options[i].selected);
         }
 
-        _panelCanvas.display();
-
-        sf::Sprite sprite(_panelCanvas.getTexture());
-        sprite.setPosition({_position.x, panelOriginY});
-        target.draw(sprite, states);
+        target.setView(prevView);
     }
 
     // ── Adding options ────────────────────────────────────────────────────────
@@ -455,7 +497,8 @@ namespace ml
 
     // ── Open / close ──────────────────────────────────────────────────────────
 
-    void Select::open()  { if (!checkFlag(Flag::OPEN)) openPanel(); }
+    void Select::open()  { if (!checkFlag(ml::Flag::ENABLED)) return;   // disabled can't open (so it can't grab exclusive input)
+                           if (!checkFlag(Flag::OPEN)) openPanel(); }
     void Select::close() { if (checkFlag(Flag::OPEN))  closePanel(); }
     bool Select::isOpen() const { return checkFlag(Flag::OPEN); }
 
@@ -464,6 +507,9 @@ namespace ml
     void Select::onSelectionChanged(
         std::function<void(const std::string&, std::size_t)> cb)
     { _onSelectionChanged = std::move(cb); }
+
+    void Select::onOpen(std::function<void()> cb)  { _onOpen  = std::move(cb); }
+    void Select::onClose(std::function<void()> cb) { _onClose = std::move(cb); }
 
     // ── Placeholder ───────────────────────────────────────────────────────────
 
@@ -477,14 +523,14 @@ namespace ml
 
     // ── Enabled / disabled ────────────────────────────────────────────────────
 
-    void Select::setEnabled(bool enabled)
+    void Select::onEnabledChanged(bool enabled)
     {
-        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); closePanel(); }
+        // Single source of truth is Flag::ENABLED (driven by Core); just react to
+        // the change on both the direct and cascade paths: drop an open dropdown
+        // when disabled, and refresh trigger colors (which read ENABLED).
+        if (!enabled && checkFlag(Flag::OPEN)) closePanel();
         syncTriggerColors();
     }
-
-    bool Select::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void Select::setOptionEnabled(std::size_t index, bool enabled)
     { if (index < _options.size()) _options[index].enabled = enabled; }

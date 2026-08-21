@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Text/RichTextBuffer.h>
 #include <SFML/Window/Clipboard.hpp>
@@ -27,10 +27,12 @@ namespace ml
     {
         _cursor = std::min(pos, _text.size());
         clearSelection();
+        _hasPending = false;   // moving the caret discards the pending typing style
     }
 
     void RichTextBuffer::moveCursor(int delta, bool extendSelection)
     {
+        _hasPending = false;   // arrow navigation discards the pending typing style
         const std::size_t newPos = (delta < 0)
             ? (_cursor >= static_cast<std::size_t>(-delta) ? _cursor + delta : 0)
             : std::min(_cursor + static_cast<std::size_t>(delta), _text.size());
@@ -159,10 +161,50 @@ namespace ml
         if (hasSelection())
             deleteRange(getSelectionStart(), getSelectionEnd());
 
+        const std::size_t at = _cursor;
         shiftAttributesAfterInsert(_cursor, text.size());
         _text.insert(_cursor, text);
         _cursor += text.size();
         clearSelection();
+
+        // Style the inserted text. Start from the preceding character's explicit
+        // attributes (so typing continues the surrounding run — code/bold/list/
+        // indent), then overlay any pending style (set by a no-selection format
+        // change) which takes precedence per-field. Pending is KEPT so continued
+        // typing stays styled (cleared when the caret moves — see setCursor/
+        // moveCursor). Merging (rather than pending replacing inheritance) is what
+        // lets e.g. Tab's pending indent ride on top of an inherited list type.
+        TextAttribute inh;
+        bool has = false;
+        if (at > 0)
+            for (const auto& a : _attributes)
+                if (a.start <= at - 1 && a.end > at - 1)
+                {
+                    if (a.font)                  { inh.font        = a.font;        has = true; }
+                    if (a.charSize.has_value())  { inh.charSize    = a.charSize;    has = true; }
+                    if (a.color.has_value())     { inh.color       = a.color;       has = true; }
+                    if (a.bold.has_value())      { inh.bold        = a.bold;        has = true; }
+                    if (a.italic.has_value())    { inh.italic      = a.italic;      has = true; }
+                    if (a.underline.has_value()) { inh.underline   = a.underline;   has = true; }
+                    if (a.align.has_value())     { inh.align       = a.align;       has = true; }
+                    if (a.listType.has_value())  { inh.listType    = a.listType;    has = true; }
+                    if (a.indentLevel.has_value()){ inh.indentLevel = a.indentLevel; has = true; }
+                }
+        if (_hasPending)
+        {
+            const TextAttribute& p = _pendingAttr;
+            if (p.font)                  { inh.font        = p.font;        has = true; }
+            if (p.charSize.has_value())  { inh.charSize    = p.charSize;    has = true; }
+            if (p.color.has_value())     { inh.color       = p.color;       has = true; }
+            if (p.bold.has_value())      { inh.bold        = p.bold;        has = true; }
+            if (p.italic.has_value())    { inh.italic      = p.italic;      has = true; }
+            if (p.underline.has_value()) { inh.underline   = p.underline;   has = true; }
+            if (p.align.has_value())     { inh.align       = p.align;       has = true; }
+            if (p.listType.has_value())  { inh.listType    = p.listType;    has = true; }
+            if (p.indentLevel.has_value()){ inh.indentLevel = p.indentLevel; has = true; }
+        }
+        if (has)
+            applyAttributeRange(at, at + text.size(), inh);
     }
 
     void RichTextBuffer::insertChar(char32_t unicode)
@@ -240,29 +282,77 @@ namespace ml
     {
         if (!hasSelection())
         {
-            // Store as pending for next insert
-            _pendingAttr = attr;
-            _hasPending  = true;
+            // Merge into the pending style (applied to the next inserted text),
+            // so several no-selection changes (font + size + bold) accumulate
+            // instead of the last one replacing the rest.
+            if (!_hasPending) _pendingAttr = TextAttribute{};
+            if (attr.font)                  _pendingAttr.font      = attr.font;
+            if (attr.charSize.has_value())  _pendingAttr.charSize  = attr.charSize;
+            if (attr.color.has_value())     _pendingAttr.color     = attr.color;
+            if (attr.bold.has_value())      _pendingAttr.bold      = attr.bold;
+            if (attr.italic.has_value())    _pendingAttr.italic    = attr.italic;
+            if (attr.underline.has_value()) _pendingAttr.underline = attr.underline;
+            if (attr.align.has_value())     _pendingAttr.align     = attr.align;
+            if (attr.listType.has_value())  _pendingAttr.listType  = attr.listType;
+            if (attr.indentLevel.has_value())_pendingAttr.indentLevel = attr.indentLevel;
+            _hasPending = true;
             return;
         }
 
-        attr.start = getSelectionStart();
-        attr.end   = getSelectionEnd();
+        applyAttributeRange(getSelectionStart(), getSelectionEnd(), attr);
+    }
 
-        // Split existing attributes at boundaries
-        splitAttributeAt(attr.start);
-        splitAttributeAt(attr.end);
+    void RichTextBuffer::applyAttributeRange(std::size_t start, std::size_t end,
+                                             TextAttribute attr)
+    {
+        end = std::min(end, _text.size());
+        if (start >= end) return;
 
-        // Remove ranges fully inside the new range
-        _attributes.erase(
-            std::remove_if(_attributes.begin(), _attributes.end(),
-                [&](const TextAttribute& a){
-                    return a.start >= attr.start && a.end <= attr.end;
-                }),
-            _attributes.end());
+        // Split existing attributes at boundaries so ranges are either fully
+        // inside [start, end) or fully outside.
+        splitAttributeAt(start);
+        splitAttributeAt(end);
 
-        _attributes.push_back(attr);
+        // Overlay only the fields the caller actually set, preserving the rest —
+        // so bold + italic + underline + color accumulate instead of replacing.
+        auto overlay = [](TextAttribute& dst, const TextAttribute& src) {
+            if (src.font)                  dst.font      = src.font;
+            if (src.charSize.has_value())  dst.charSize  = src.charSize;
+            if (src.color.has_value())     dst.color     = src.color;
+            if (src.bold.has_value())      dst.bold      = src.bold;
+            if (src.italic.has_value())    dst.italic    = src.italic;
+            if (src.underline.has_value()) dst.underline = src.underline;
+            if (src.align.has_value())     dst.align     = src.align;
+            if (src.listType.has_value())  dst.listType  = src.listType;
+            if (src.indentLevel.has_value())dst.indentLevel = src.indentLevel;
+        };
+
+        // Merge into existing ranges inside [start, end); record their coverage.
+        std::vector<std::pair<std::size_t, std::size_t>> covered;
+        for (auto& a : _attributes)
+            if (a.start >= start && a.end <= end)
+            {
+                overlay(a, attr);
+                covered.emplace_back(a.start, a.end);
+            }
+
+        // Fill any uncovered gaps with a fresh range carrying just the new attr.
+        std::sort(covered.begin(), covered.end());
+        std::size_t cur = start;
+        for (const auto& [s, e] : covered)
+        {
+            if (s > cur) { TextAttribute g = attr; g.start = cur; g.end = s; _attributes.push_back(g); }
+            cur = std::max(cur, e);
+        }
+        if (cur < end) { TextAttribute g = attr; g.start = cur; g.end = end; _attributes.push_back(g); }
+
         normalizeAttributes();
+    }
+
+    void RichTextBuffer::clearAttributes()
+    {
+        _attributes.clear();
+        _hasPending = false;
     }
 
     TextAttribute RichTextBuffer::getAttributeAt(
@@ -286,6 +376,9 @@ namespace ml
                 if (attr.bold.has_value())     result.bold     = attr.bold;
                 if (attr.italic.has_value())   result.italic   = attr.italic;
                 if (attr.underline.has_value())result.underline= attr.underline;
+                if (attr.align.has_value())    result.align    = attr.align;
+                if (attr.listType.has_value()) result.listType = attr.listType;
+                if (attr.indentLevel.has_value()) result.indentLevel = attr.indentLevel;
             }
         }
         return result;

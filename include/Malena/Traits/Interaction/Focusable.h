@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 3/21/26.
@@ -50,32 +50,36 @@ namespace ml
          *        gains keyboard focus.
          *
          * @param callback Function invoked with no arguments when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onFocus(std::function<void()> callback);
+        void onFocus(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component gains keyboard
          *        focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onFocus(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onFocus(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         /**
          * @brief Register a no-argument callback invoked when this component
          *        loses keyboard focus.
          *
          * @param callback Function invoked with no arguments when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onBlur(std::function<void()> callback);
+        void onBlur(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component loses keyboard
          *        focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onBlur(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onBlur(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
 } // namespace ml

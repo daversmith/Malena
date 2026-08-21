@@ -28,8 +28,8 @@ namespace ml
     class MALENA_API TextInputManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { DISABLED, READONLY };
-        enum class State { IDLE, FOCUSED, DISABLED, ERROR };
+        enum class Flag  { READONLY };
+        enum class State { IDLE, FOCUSED, ERROR };   // disabled derived from ml::Flag::ENABLED
     };
 
     /**
@@ -60,7 +60,10 @@ namespace ml
         float              _scrollX  = 0.f;
 
         sf::Text _placeholder;
+        sf::Text _maskDisplay;
         bool     _showPlaceholder = true;
+        bool     _clearSelectionOnBlur = true;
+        const sf::Font* _monoFont = nullptr;   // alternate font for rich-text round-trip
 
         mutable sf::Clock _cursorClock;
         mutable bool      _cursorVisible = false;
@@ -87,6 +90,7 @@ namespace ml
         void         handleChar(const sf::Event::TextEntered& te);
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // refresh colors
         void onThemeApplied(const Theme& theme) override;
 
     public:
@@ -133,6 +137,14 @@ namespace ml
         [[nodiscard]] std::string getValue() const;
         void clear();
 
+        // ── Rich content (JSON spans) ─────────────────────────────────────────
+        // Serialize/restore the text AND its styling as a portable JSON string:
+        //   {"text":"...","spans":[{"start":,"end":,"bold":,"italic":,
+        //    "underline":,"size":,"color":{"r","g","b","a"}}]}
+        // Lossless round-trip of the rich-text buffer; ideal for storage/transport.
+        [[nodiscard]] std::string getRichText() const;
+        void setRichText(const std::string& json);
+
         // ── Selection styling ─────────────────────────────────────────────────
 
         void setSelectionFont(const sf::Font& font);
@@ -141,20 +153,57 @@ namespace ml
         void setSelectionBold(bool bold);
         void setSelectionItalic(bool italic);
         void setSelectionUnderline(bool underline);
+        void setSelectionAlign(int align);   // 0 left, 1 center, 2 right (paragraph)
+        void setSelectionListType(int listType);   // 0 none, 1 bullet, 2 numbered (paragraph)
+        void changeSelectionIndent(int delta);      // +1 indent / -1 outdent (paragraph)
 
         void selectAll();
         void setSelection(std::size_t start, std::size_t end);
         [[nodiscard]] std::string getSelectedText() const;
+        [[nodiscard]] std::size_t getSelectionStart() const;
+        [[nodiscard]] std::size_t getSelectionEnd()   const;
+        [[nodiscard]] std::size_t getCursor()         const;
+
+        /**
+         * @brief Register an alternate "monospace" font so it survives rich-text
+         * round-trips. Spans using this exact font serialize as @c "mono":true and
+         * are restored to it on load (fonts are pointers and can't be serialized
+         * directly). Used for inline code runs.
+         */
+        void setMonospaceFont(const sf::Font* font) { _monoFont = font; }
+
+        /** Effective font at a character index (for detecting e.g. code runs). */
+        [[nodiscard]] const sf::Font* getFontAt(std::size_t index) const;
+        /** Effective text color at a character index (default if unstyled). */
+        [[nodiscard]] sf::Color getColorAt(std::size_t index) const;
+        /** Effective character size at a character index (default if unstyled). */
+        [[nodiscard]] unsigned int getCharSizeAt(std::size_t index) const;
+
+        /**
+         * @brief The style that applies to text typed/selected at the caret right
+         * now — selection start if a selection is active, else the character before
+         * the caret, with any pending (next-keystroke) style overlaid. Drives
+         * toolbar controls so they mirror the caret. Unset fields are @c nullopt.
+         */
+        [[nodiscard]] TextAttribute getActiveStyle() const;
+
+        /** Whether this field currently holds keyboard focus. */
+        [[nodiscard]] bool isFocused() const { return checkFlag(ml::Flag::FOCUSED); }
+        /** The default (unstyled) text color. */
+        [[nodiscard]] sf::Color getTextColor() const;
 
         // ── Options ───────────────────────────────────────────────────────────
 
         void setPlaceholder(const std::string& text);
         [[nodiscard]] std::string getPlaceholder() const;
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
         void setReadOnly(bool readonly);
         [[nodiscard]] bool isReadOnly() const;
+
+        /** When false, the selection is NOT cleared when the field loses focus.
+         *  Useful when an external toolbar (bold/italic/color) needs the
+         *  selection to survive a click outside the field. Default true. */
+        void setClearSelectionOnBlur(bool enabled);
 
         void setError(bool error);
         [[nodiscard]] bool hasError() const;

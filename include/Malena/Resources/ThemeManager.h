@@ -69,19 +69,6 @@ namespace ml
         // ── Applying themes ───────────────────────────────────────────────────
 
         /**
-         * @brief Apply a theme stored in a @c Manifest enum.
-         *
-         * Retrieves the theme registered under @p themeKey, sets it as the
-         * active theme, and notifies all subscribed @c Themeable components.
-         *
-         * @tparam MANIFEST  A @c Manifest subclass declaring a @c Themes enum.
-         * @param  themeKey  Enum value identifying which theme to apply.
-         *
-         * @code
-         * ml::ThemeManager::apply<GameManifest>(GameManifest::Themes::Home);
-         * @endcode
-         */
-        /**
          * @brief Apply a theme registered via @c Manifest::set().
          *
          * Retrieves the theme stored in @c ThemeStore by @c Manifest::set(),

@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Text/TextArea.h>
 #include <SFML/Window/Keyboard.hpp>
@@ -33,7 +33,7 @@ namespace ml
         // ── Multiline key handling ────────────────────────────────────────────
         onKeypress([this](const std::optional<sf::Event>& e){
             if (!checkFlag(ml::Flag::FOCUSED)) return;
-            if (checkFlag(Flag::DISABLED))     return;
+            if (!checkFlag(ml::Flag::ENABLED))     return;
             if (!e) return;
             if (const auto* kp = e->getIf<sf::Event::KeyPressed>())
                 handleTextAreaKeypress(*kp);
@@ -58,6 +58,8 @@ namespace ml
         });
 
         // ── Per-frame: scroll sync + scrollbar thumb drag ─────────────────────
+        // overwrite=false: preserve TextInput's onUpdate (cursor blink, click,
+        // drag selection) and add this handler alongside it.
         onUpdate([this]{
             // Sync renderer when scroll offset changes (wheel events)
             const float scrollY = _scrollPane.getScrollOffsetY();
@@ -83,6 +85,13 @@ namespace ml
                 (maxScroll > 0.f ? (curScroll / maxScroll) * (size.y - thumbH) : 0.f);
 
             const sf::FloatRect thumbRect({trackX, thumbTop}, {scrollBarWidth, thumbH});
+
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _thumbDragging = false;
+                _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+                return;
+            }
 
             const bool mouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
@@ -117,7 +126,7 @@ namespace ml
             }
 
             _prevMouseDown = mouseDown;
-        });
+        }, false);
 
         // Enable word wrap — reserve scrollBarWidth on the right for the scrollbar
         _renderer.setMaxWidth(size.x - padding * 2.f - scrollBarWidth);
@@ -136,8 +145,8 @@ namespace ml
         // the renderer origin in reflow(), identical to TextInput's horizontal
         // scroll. Content outside the canvas bounds is clipped by the RenderTexture.
         _canvas.resize({
-            static_cast<unsigned int>(size.x),
-            static_cast<unsigned int>(size.y)
+            std::max(1u, static_cast<unsigned int>(size.x)),
+            std::max(1u, static_cast<unsigned int>(size.y))
         });
 
         // Tell ScrollPane the TOTAL content height for scrollbar calibration.
@@ -260,6 +269,19 @@ namespace ml
             return;
         }
 
+        if (kp.code == sf::Keyboard::Key::Tab)
+        {
+            if (!checkFlag(Flag::READONLY))
+            {
+                changeSelectionIndent(kp.shift ? -1 : +1);   // Shift+Tab outdents
+                if (_onChange) _onChange(_buffer.getText());
+                rebuildAndScroll();
+                _cursorClock.restart();
+                _cursorVisible = true;
+            }
+            return;
+        }
+
         if (kp.code == sf::Keyboard::Key::Up)
         {
             const std::size_t newIdx = _renderer.charIndexAbove(_buffer.getCursor());
@@ -281,6 +303,8 @@ namespace ml
             _cursorVisible = true;
             return;
         }
+
+        handleKey(kp);
     }
 
     // ── draw ──────────────────────────────────────────────────────────────────
@@ -316,7 +340,7 @@ namespace ml
 
         if (_cursorVisible
             && checkFlag(ml::Flag::FOCUSED)
-            && !checkFlag(Flag::DISABLED)
+            && checkFlag(ml::Flag::ENABLED)
             && !_dragging)
         {
             _renderer.drawCursor(_canvas, cs, _buffer.getCursor(), cursorColor);

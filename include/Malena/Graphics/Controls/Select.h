@@ -32,8 +32,8 @@ namespace ml
     class MALENA_API SelectManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { OPEN, DISABLED };
-        enum class State { IDLE, HOVERED, OPEN, DISABLED };
+        enum class Flag  { OPEN };
+        enum class State { IDLE, HOVERED, OPEN };   // disabled is derived from ml::Flag::ENABLED
     };
 
     struct SelectOptionStyle
@@ -102,9 +102,14 @@ namespace ml
         float                     _scrollOffset  = 0.f;
         mutable sf::RenderTexture _panelCanvas;
         mutable int               _hoveredIndex  = -1;
+        ml::Core*                 _prevExclusiveOwner = nullptr;   // restored on close
+        ml::Core*                 _prevPopup          = nullptr;   // top-layer popup restored on close
         mutable bool              _openAbove     = false;
+        bool                      _prevDown      = false;
 
         std::function<void(const std::string&, std::size_t)> _onSelectionChanged;
+        std::function<void()> _onOpen;
+        std::function<void()> _onClose;
 
         void syncTrigger();
         void syncTriggerColors();
@@ -125,10 +130,12 @@ namespace ml
 
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // close dropdown + refresh colors
         void onThemeApplied(const Theme& theme) override;
 
     public:
         explicit Select(const sf::Font& font = FontManager<>::getDefault());
+        ~Select() override;
 
         // ── Apply ─────────────────────────────────────────────────────────────
 
@@ -190,13 +197,15 @@ namespace ml
         void onSelectionChanged(
             std::function<void(const std::string&, std::size_t)> callback);
 
+        /** Fired when the option panel opens / closes. */
+        void onOpen(std::function<void()> callback);
+        void onClose(std::function<void()> callback);
+
         // ── Misc ──────────────────────────────────────────────────────────────
 
         void setPlaceholder(const std::string& text);
         [[nodiscard]] std::string getPlaceholder() const;
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
         void setOptionEnabled(std::size_t index, bool enabled);
 
         void setFont(const sf::Font& f);

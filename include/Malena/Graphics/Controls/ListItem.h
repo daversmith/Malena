@@ -29,8 +29,8 @@ namespace ml
     class MALENA_API ListItemManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { DISABLED };
-        enum class State { IDLE, HOVERED, DISABLED };
+        enum class Flag  {};   // no per-instance flags; disabled derives from ml::Flag::ENABLED
+        enum class State { IDLE, HOVERED };
     };
 
     // ── ListItem ──────────────────────────────────────────────────────────────
@@ -103,6 +103,8 @@ namespace ml
         // ── Callbacks ─────────────────────────────────────────────────────────
         std::function<void()> _onClickCb;
 
+        bool _selected = false;
+
         // ── Internal ──────────────────────────────────────────────────────────
         void layout();
         void applyVisualState();
@@ -111,6 +113,7 @@ namespace ml
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         void onThemeApplied(const Theme& theme) override;
+        void onEnabledChanged(bool enabled) override;
 
     public:
         explicit ListItem(const sf::Font& font = FontManager<>::getDefault());
@@ -192,10 +195,14 @@ namespace ml
         /** @brief Register a callback fired when the row is clicked. */
         void onClick(std::function<void()> callback);
 
+        /** @brief Returns true if @p point is within the end slot component's bounds. */
+        [[nodiscard]] bool isEndHit(const sf::Vector2f& point) const;
+
         // ── State ─────────────────────────────────────────────────────────────
 
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
+
+        void setSelected(bool selected);
+        [[nodiscard]] bool isSelected() const { return _selected; }
 
         // ── Width ─────────────────────────────────────────────────────────────
 

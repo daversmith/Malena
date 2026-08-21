@@ -129,6 +129,8 @@ namespace ml
         void onThemeApplied(const Theme& theme) override;
 
     public:
+
+    public:
         explicit SplitPanel(Orientation orientation = Orientation::HORIZONTAL,
                             const sf::Font& font = FontManager<>::getDefault());
 
@@ -197,6 +199,7 @@ namespace ml
                 pane.resizeFn = [ptr](sf::Vector2f sz){ ptr->setSize(sz); };
 
             _panes.push_back(std::move(pane));
+            addComponent(*ptr);
             distributeSizes();
             layoutPanes();
 

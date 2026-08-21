@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #ifndef MALENA_CONFIGMANAGER_H
 #define MALENA_CONFIGMANAGER_H
@@ -34,7 +34,7 @@ namespace ml
     template<typename T, typename = void>
     struct has_Booleans : std::false_type {};
     template<typename T>
-    struct has_Booleans<T, std::void_t<typename T::Floats>> : std::true_type {}; // BUG: should be T::Booleans
+    struct has_Booleans<T, std::void_t<typename T::Booleans>> : std::true_type {};
 
     /// @endcond
 
@@ -122,7 +122,7 @@ namespace ml
          */
         template<typename M = Manifest>
         static std::enable_if_t<has_Ints<M>::value, int>
-        get(typename M::Integers config);
+        get(typename M::Ints config);
 
         /**
          * @brief Retrieve a float config value.

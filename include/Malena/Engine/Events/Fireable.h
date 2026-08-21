@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 3/20/26.
@@ -72,7 +72,8 @@ namespace ml
         template<typename EnumType>
         static void addCallback(EnumType eventEnum,
                                 EventReceiver* component,
-                                EventCallback callback);
+                                EventCallback callback,
+                                bool overwrite = true);
 
         struct MALENA_API Cleanup { ~Cleanup(); };
 
@@ -90,7 +91,6 @@ namespace ml
         friend class AppManager;
         friend class PluginManager;
         friend struct ml::exports::FireableRegistrar;
-        template<typename T> friend struct MLExport;
 
     private:
         /// @cond INTERNAL

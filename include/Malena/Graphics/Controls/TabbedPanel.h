@@ -160,7 +160,15 @@ namespace ml
         // ── Tab management ────────────────────────────────────────────────────
 
         /**
-         * @brief Add a tab with owned content.
+         * @brief Add a pre-built @c Tab.
+         *
+         * @param tab  A @c Tab constructed by the caller. Ownership of the
+         *             tab's content is transferred to this panel.
+         */
+        void addTab(Tab tab);
+
+        /**
+         * @brief Convenience overload — constructs a @c Tab with owned content inline.
          *
          * The panel takes ownership of @p content. It is responsible for
          * drawing, resizing, and destroying it. If @c T has a @c setSize()
@@ -172,18 +180,7 @@ namespace ml
          * @param content   Owned content component.
          * @param icon      Optional icon texture. Pass @c nullptr for none.
          * @param closeable Whether this tab has a close button.
-         * @return Zero-based index of the new tab.
-         */
-        /**
-         * @brief Add a pre-built @c Tab.
-         *
-         * @param tab  A @c Tab constructed by the caller. Ownership of the
-         *             tab's content is transferred to this panel.
-         */
-        void addTab(Tab tab);
-
-        /**
-         * @brief Convenience overload — constructs a @c Tab inline.
+         * @return Reference to the owned content component.
          */
         template<typename T>
         T& addTab(const std::string& label,
@@ -244,6 +241,7 @@ namespace ml
         void          setPosition(const sf::Vector2f& position) override;
         sf::Vector2f  getPosition()     const override;
         sf::FloatRect getGlobalBounds() const override;
+
     };
 
     template<typename MANIFEST>

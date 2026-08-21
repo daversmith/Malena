@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #ifndef MALENA_GRAPHIC_H
 #define MALENA_GRAPHIC_H
@@ -101,7 +101,7 @@ namespace ml
         /**
          * @brief Return the axis-aligned bounding box in world space.
          *
-         * Delegates to @c T::getGlobalBounds(). Used by @c UIManager for
+         * Delegates to @c T::getGlobalBounds(). Used by @c AppManager for
          * hit-testing (click, hover) and by layout helpers.
          *
          * @return Bounding rectangle in world coordinates.

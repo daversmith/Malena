@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Application.h
@@ -39,6 +39,11 @@ namespace ml
         /**
          * @brief Construct with an explicit video mode and window title.
          *
+         * @param videoMode    Window size/bit-depth as an @c sf::VideoMode.
+         * @param title        Window title bar text.
+         * @param window       Render window to drive. Defaults to the shared
+         *                     @c WindowManager window.
+         * @param architecture App architecture (@c AppManager::MVC by default).
          * @param windowStyle  SFML style flags (e.g. @c sf::Style::Default,
          *                     @c sf::Style::None). Defaults to @c sf::Style::Default.
          */
@@ -51,6 +56,10 @@ namespace ml
         /**
          * @brief Construct from pixel dimensions and bit depth.
          *
+         * @param screenWidth  Window width in pixels.
+         * @param screenHeight Window height in pixels.
+         * @param bitDepth     Color bit depth (e.g. 32).
+         * @param title        Window title bar text.
          * @param windowStyle  SFML style flags. Defaults to @c sf::Style::Default.
          */
         ApplicationBase(unsigned int screenWidth,

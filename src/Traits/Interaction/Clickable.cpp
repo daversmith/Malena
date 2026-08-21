@@ -23,23 +23,32 @@ bool ml::ClickableDispatcher::filter(const std::optional<sf::Event> &event, Core
 {
 	auto* positionable = dynamic_cast<Positionable*>(component);
 	if (!positionable) return false;
-	if (component->checkFlag(Flag::HIDDEN) || !component->checkFlag(Flag::ENABLED)) return false;
+	// Effective visibility, not the bare HIDDEN flag: a component inside a
+	// hidden container (e.g. a collapsed Accordion section) is not drawn and
+	// must not be hit-testable either, even though its own flag says visible.
+	if (!component->isEffectivelyVisible() || !component->checkFlag(Flag::ENABLED)) return false;
+	if (!AppManager::isUnderExclusiveOwner(component)) return false;
 	return MouseEvents::isHovered(*positionable, WindowManager::getWindow());
 }
 
-void ml::Clickable::onClick(std::function<void()> f)
+void ml::Clickable::onClick(std::function<void()> f, bool overwrite)
 {
 	EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-	Fireable::addCallback(Event::CLICK, this, std::move(cb));
+	Fireable::addCallback(Event::CLICK, this, std::move(cb), overwrite);
 }
 
-void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)> f)
+void ml::Clickable::onClick(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 {
-	EventCallback cb = std::move(f);
-	Fireable::addCallback(Event::CLICK, this, std::move(cb));
+	Fireable::addCallback(Event::CLICK, this, std::move(f), overwrite);
 }
 void ml::ClickableDispatcher::fire(const std::optional<sf::Event>& event)
 {
+	// _focused is a raw static pointer to the last-focused widget. Nothing clears it
+	// when that widget is DESTROYED (e.g. a list row freed on rebuild), so it can
+	// dangle. The focus/blur bookkeeping below dynamic_cast's it — dereferencing freed
+	// memory (EXC_BAD_ACCESS). Drop it here if it's no longer a live subscriber.
+	if (_focused && !EventManager::hasReceiver(_focused)) _focused = nullptr;
+
 	EventManager::fire(Event::CLICK, this, event,
 		[this](EventReceiver* component, const std::optional<sf::Event>& e)
 		{

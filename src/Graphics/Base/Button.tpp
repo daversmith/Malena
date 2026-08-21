@@ -9,6 +9,8 @@
 #include <SFML/Graphics/Text.hpp>
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>
+#include <Malena/Traits/Theme/ButtonTheme.h>
+#include <Malena/Resources/ThemeManager.h>
 #include <string>
 
 namespace ml
@@ -21,8 +23,20 @@ namespace ml
 		{
 			*static_cast<T *>(this) = T(buttonSize.value()); // Assign after construction
 		}
-		// T::centerText(*dynamic_cast<T *>(this), *dynamic_cast<sf::Text *>(this));
-		T::centerText( _text);
+		T::centerText(_text);
+		onThemeApplied(ThemeManager::get());
+	}
+
+	template<typename T, typename S>
+	void Button<T, S>::onThemeApplied(const Theme& theme)
+	{
+		if (isThemeLocked()) return;
+		ButtonTheme t;
+		t.applyFrom(theme);
+		T::setFillColor(t.offColor);
+		T::setOutlineColor(t.borderColor);
+		T::setOutlineThickness(t.borderThickness);
+		_text.setFillColor(t.offTextColor);
 	}
 
 	template<typename T, typename S>
@@ -42,24 +56,24 @@ namespace ml
 		// shrink the button so the text fills exactly 80 % of the width.
 		// Only applies to vector-sized buttons (e.g. RectangleButton);
 		// skipped for scalar-sized buttons (e.g. CircleButton).
-		if constexpr (std::is_same_v<S, sf::Vector2f>)
-		{
-			const sf::FloatRect lb     = _text.getLocalBounds();
-			const float         textW  = lb.size.x;
-			const float         textH  = lb.size.y + lb.position.y;
-			const sf::FloatRect bounds = T::getGlobalBounds();
-
-			// Width: always auto-size so text fills 80 % of the button.
-			// Height: keep existing height if already set; otherwise derive
-			//         from font metrics so setSize() is not required.
-			const float newW = textW / 0.8f;
-			const float newH = bounds.size.y > 0.f
-			                   ? bounds.size.y
-			                   : std::ceil(textH / 0.6f);
-
-			if (bounds.size.x == 0.f || textW < bounds.size.x * 0.8f)
-				T::setSize(sf::Vector2f{ newW, newH });
-		}
+		// if constexpr (std::is_same_v<S, sf::Vector2f>)
+		// {
+		// 	const sf::FloatRect lb     = _text.getLocalBounds();
+		// 	const float         textW  = lb.size.x;
+		// 	const float         textH  = lb.size.y + lb.position.y;
+		// 	const sf::FloatRect bounds = T::getGlobalBounds();
+		//
+		// 	// Width: always auto-size so text fills 80 % of the button.
+		// 	// Height: keep existing height if already set; otherwise derive
+		// 	//         from font metrics so setSize() is not required.
+		// 	const float newW = textW / 0.8f;
+		// 	const float newH = bounds.size.y > 0.f
+		// 	                   ? bounds.size.y
+		// 	                   : std::ceil(textH / 0.6f);
+		//
+		// 	if (bounds.size.x == 0.f || textW < bounds.size.x * 0.8f)
+		// 		T::setSize(sf::Vector2f{ newW, newH });
+		// }
 
 		T::centerText(_text);
 	}
@@ -68,6 +82,7 @@ namespace ml
 	void Button<T, S>::setCharacterSize(unsigned int size)
 	{
 		_text.setCharacterSize(size);
+		T::centerText(_text);   // label bounds changed — keep it centered
 	}
 
 	template<typename T, typename S>
@@ -146,6 +161,7 @@ namespace ml
 	void Button<T, S>::setFont(const sf::Font& font)
 	{
 		_text.setFont(font);
+		T::centerText(_text);   // glyph metrics changed — keep the label centered
 	}
 
 	template<typename T, typename S>

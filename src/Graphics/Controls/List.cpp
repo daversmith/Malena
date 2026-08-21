@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/List.h>
 #include <algorithm>
@@ -50,6 +50,7 @@ namespace ml
             item->onClick(std::move(onClick));
 
         ListItem* ptr = item.get();
+        addComponent(*ptr);
         _rows.push_back({ptr, std::move(item)});
 
         layout();
@@ -63,9 +64,33 @@ namespace ml
         if (auto* nested = dynamic_cast<List*>(&component))
             nested->setIndentOffset(_indent + indent);
 
+        addComponent(component);
         _rows.push_back({&component, nullptr});
         layout();
         rebuildDividers();
+    }
+
+    ListItem& List::addPinnedBottom(const std::string& label, std::function<void()> onClick)
+    {
+        auto item = std::make_unique<ListItem>(*font);
+        {
+            ListItemTheme t;
+            t.applyFrom(ThemeManager::get());
+            t.font = font;
+            item->applyTheme(t);
+        }
+        item->setWidth(_width);
+        item->setLabel(label);
+        if (onClick)
+            item->onClick(std::move(onClick));
+
+        ListItem* ptr = item.get();
+        addComponent(*ptr);
+        _pinnedBottom = { ptr, std::move(item) };
+        _hasPinnedBottom = true;
+        layout();
+        rebuildDividers();
+        return *ptr;
     }
 
     bool List::removeAt(std::size_t index)
@@ -112,6 +137,8 @@ namespace ml
             if (row.owned)
                 row.owned->applyTheme(t);
         }
+        if (_hasPinnedBottom && _pinnedBottom.owned)
+            _pinnedBottom.owned->applyTheme(t);
     }
 
     void List::applySettingsToOwnedItems()
@@ -130,7 +157,7 @@ namespace ml
 
     void List::layout()
     {
-        if (_rows.empty()) return;
+        if (_rows.empty() && !_hasPinnedBottom) return;
 
         float y = _position.y;
         const float x = _position.x + _indent;
@@ -141,7 +168,12 @@ namespace ml
             y += row.component->getGlobalBounds().size.y;
         }
 
-        // Resize background to cover all rows
+        if (_hasPinnedBottom)
+        {
+            _pinnedBottom.component->setPosition({x, y});
+            y += _pinnedBottom.component->getGlobalBounds().size.y;
+        }
+
         if (showBackground)
         {
             _background.setPosition({x, _position.y});
@@ -153,7 +185,7 @@ namespace ml
     void List::rebuildDividers()
     {
         _dividers.clear();
-        if (!showDividers || _rows.size() < 2) return;
+        if (!showDividers) return;
 
         const float x = _position.x + _indent;
 
@@ -167,7 +199,20 @@ namespace ml
             div.setFillColor(dividerColor);
             _dividers.push_back(div);
         }
+
+        if (_hasPinnedBottom && !_rows.empty())
+        {
+            const sf::FloatRect b = _rows.back().component->getGlobalBounds();
+            const float divY      = b.position.y + b.size.y;
+            sf::RectangleShape div({_width, dividerThickness});
+            div.setPosition({x, divY - dividerThickness / 2.f});
+            div.setFillColor(dividerColor);
+            _dividers.push_back(div);
+        }
     }
+
+    // Enable cascade is handled by Core::setParentEnabled — row content and
+    // the pinned-bottom row are both registered via addComponent().
 
     // ── draw ──────────────────────────────────────────────────────────────────
 
@@ -183,6 +228,9 @@ namespace ml
             if (showDividers && i < _dividers.size())
                 target.draw(_dividers[i], states);
         }
+
+        if (_hasPinnedBottom)
+            target.draw(*dynamic_cast<sf::Drawable*>(_pinnedBottom.component), states);
     }
 
     // ── Sizing ────────────────────────────────────────────────────────────────
@@ -192,6 +240,8 @@ namespace ml
         _width = w;
         for (auto& row : _rows)
             if (row.owned) row.owned->setWidth(w);
+        if (_hasPinnedBottom && _pinnedBottom.owned)
+            _pinnedBottom.owned->setWidth(w);
         layout();
         rebuildDividers();
     }
@@ -201,6 +251,8 @@ namespace ml
         float h = 0.f;
         for (const auto& row : _rows)
             h += row.component->getGlobalBounds().size.y;
+        if (_hasPinnedBottom)
+            h += _pinnedBottom.component->getGlobalBounds().size.y;
         return h;
     }
 

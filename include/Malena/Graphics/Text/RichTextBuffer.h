@@ -40,6 +40,16 @@ namespace ml
         std::optional<bool>           italic;    ///< nullopt = inherit
         std::optional<bool>           underline; ///< nullopt = inherit
 
+        // Paragraph-level (uniform across a line): horizontal alignment.
+        // 0 = left, 1 = center, 2 = right. nullopt = inherit (left).
+        std::optional<int>            align;
+
+        // Paragraph-level list style. 0 = none, 1 = bullet, 2 = numbered.
+        std::optional<int>            listType;
+
+        // Paragraph-level indent depth (Tab/Shift+Tab). 0 = flush left.
+        std::optional<int>            indentLevel;
+
         TextAttribute() : font(nullptr) {}
     };
 
@@ -213,6 +223,26 @@ namespace ml
         void applyAttribute(TextAttribute attr);
 
         /**
+         * @brief Apply an attribute to an explicit character range.
+         *
+         * Unlike @c applyAttribute, this does NOT depend on (or modify) the
+         * cursor/selection — useful for programmatic styling such as syntax
+         * highlighting. Existing ranges are split at the boundaries and ranges
+         * fully inside [start, end) are replaced.
+         *
+         * @param start First character index (inclusive).
+         * @param end   Last character index (exclusive); clamped to size().
+         * @param attr  Attribute to apply; its @c start/@c end are overwritten.
+         */
+        void applyAttributeRange(std::size_t start, std::size_t end, TextAttribute attr);
+
+        /**
+         * @brief Remove all attribute ranges (and any pending style), leaving
+         *        the text and cursor untouched. The text reverts to defaults.
+         */
+        void clearAttributes();
+
+        /**
          * @brief Return the effective @c TextAttribute at a given character index.
          *
          * Merges all attribute ranges that cover @p index, with later ranges
@@ -228,6 +258,12 @@ namespace ml
             const sf::Font* defaultFont,
             unsigned int    defaultSize,
             sf::Color       defaultColor) const;
+
+        /** @brief Whether a pending (next-insert) style is active. */
+        [[nodiscard]] bool hasPendingAttribute() const { return _hasPending; }
+
+        /** @brief The pending (next-insert) style; only meaningful when @c hasPendingAttribute(). */
+        [[nodiscard]] const TextAttribute& getPendingAttribute() const { return _pendingAttr; }
 
         // ── Clipboard helpers ─────────────────────────────────────────────────
 

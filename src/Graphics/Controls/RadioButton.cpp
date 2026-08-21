@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/RadioButton.h>
 #include <Malena/Utilities/Align.h>
@@ -25,14 +25,14 @@ namespace ml
         _label.setFillColor(labelColor);
 
         onHover([this]{
-            if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::SELECTED))
+            if (checkFlag(ml::Flag::ENABLED) && !checkFlag(Flag::SELECTED))
             {
                 setState(State::HOVERED);
                 applyVisualState();
             }
         });
         onUnhover([this]{
-            if (!checkFlag(Flag::DISABLED) && !checkFlag(Flag::SELECTED))
+            if (checkFlag(ml::Flag::ENABLED) && !checkFlag(Flag::SELECTED))
             {
                 setState(State::IDLE);
                 applyVisualState();
@@ -73,7 +73,7 @@ namespace ml
 
     void RadioButton::applyVisualState()
     {
-        const bool disabled = checkFlag(Flag::DISABLED);
+        const bool disabled = !checkFlag(ml::Flag::ENABLED);
         const bool selected = checkFlag(Flag::SELECTED);
 
         if (disabled)
@@ -110,7 +110,7 @@ namespace ml
 
     void RadioButton::select()
     {
-        if (checkFlag(Flag::DISABLED)) return;
+        if (!checkFlag(ml::Flag::ENABLED)) return;
         enableFlag(Flag::SELECTED);
         setState(State::SELECTED);
         applyVisualState();
@@ -127,14 +127,12 @@ namespace ml
 
     bool RadioButton::isSelected() const { return checkFlag(Flag::SELECTED); }
 
-    void RadioButton::setEnabled(bool enabled)
+    void RadioButton::onEnabledChanged(bool /*enabled*/)
     {
-        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        // Disabled appearance derives from Flag::ENABLED; refresh on both paths.
+        setState(State::IDLE);
         applyVisualState();
     }
-
-    bool RadioButton::isEnabled() const { return !checkFlag(Flag::DISABLED); }
 
     void RadioButton::setLabel(const std::string& label)
     {

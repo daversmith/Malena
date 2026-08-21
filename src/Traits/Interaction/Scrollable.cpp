@@ -12,48 +12,48 @@ namespace ml
 {
     // ── Scrollable ────────────────────────────────────────────────────────────
 
-    void Scrollable::onScroll(std::function<void()> f)
+    void Scrollable::onScroll(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::SCROLL, this, std::move(cb));
+        Fireable::addCallback(Event::SCROLL, this, std::move(cb), overwrite);
     }
 
-    void Scrollable::onScroll(std::function<void(const std::optional<sf::Event>&)> f)
+    void Scrollable::onScroll(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::SCROLL, this, std::move(f));
+        Fireable::addCallback(Event::SCROLL, this, std::move(f), overwrite);
     }
 
-    void Scrollable::onMouseMoved(std::function<void()> f)
-    {
-        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::MOUSE_MOVED, this, std::move(cb));
-    }
-
-    void Scrollable::onMouseMoved(std::function<void(const std::optional<sf::Event>&)> f)
-    {
-        Fireable::addCallback(Event::MOUSE_MOVED, this, std::move(f));
-    }
-
-    void Scrollable::onMousePressed(std::function<void()> f)
+    void Scrollable::onMouseMoved(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::MOUSE_PRESSED, this, std::move(cb));
+        Fireable::addCallback(Event::MOUSE_MOVED, this, std::move(cb), overwrite);
     }
 
-    void Scrollable::onMousePressed(std::function<void(const std::optional<sf::Event>&)> f)
+    void Scrollable::onMouseMoved(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::MOUSE_PRESSED, this, std::move(f));
+        Fireable::addCallback(Event::MOUSE_MOVED, this, std::move(f), overwrite);
     }
 
-    void Scrollable::onMouseReleased(std::function<void()> f)
+    void Scrollable::onMousePressed(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::MOUSE_RELEASED, this, std::move(cb));
+        Fireable::addCallback(Event::MOUSE_PRESSED, this, std::move(cb), overwrite);
     }
 
-    void Scrollable::onMouseReleased(std::function<void(const std::optional<sf::Event>&)> f)
+    void Scrollable::onMousePressed(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::MOUSE_RELEASED, this, std::move(f));
+        Fireable::addCallback(Event::MOUSE_PRESSED, this, std::move(f), overwrite);
+    }
+
+    void Scrollable::onMouseReleased(std::function<void()> f, bool overwrite)
+    {
+        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
+        Fireable::addCallback(Event::MOUSE_RELEASED, this, std::move(cb), overwrite);
+    }
+
+    void Scrollable::onMouseReleased(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
+    {
+        Fireable::addCallback(Event::MOUSE_RELEASED, this, std::move(f), overwrite);
     }
 
     // ── ScrollableDispatcher ──────────────────────────────────────────────────

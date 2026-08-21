@@ -1,5 +1,5 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/SideMenu.h>
 #include <Malena/Engine/Window/WindowManager.h>
@@ -224,6 +224,7 @@ namespace ml
     void SideMenu::setContent(ml::Core& c)
     {
         _content = &c;
+        addComponent(c);
         updatePanelTransform();
     }
 

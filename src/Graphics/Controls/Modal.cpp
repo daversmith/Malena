@@ -1,7 +1,8 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/Modal.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <algorithm>
@@ -39,9 +40,25 @@ namespace ml
                     _animating = false;
                     if (!_fadingIn)
                     {
+                        AppManager::clearExclusiveOwner();
+                        if (_content) _content->setParentEnabled(false);
                         disableFlag(Flag::VISIBLE);
                         setState(State::HIDDEN);
-                        if (_onDismiss) _onDismiss();
+                        // Fire the outcome callback now that the modal is fully hidden.
+                        // Copy it to a local first: the callback may open a new dialog
+                        // that reassigns _onConfirm/_onDismiss on this same modal, and
+                        // we must not destroy the callable that's currently executing.
+                        if (_confirmed)
+                        {
+                            _confirmed = false;
+                            auto cb = _onConfirm;
+                            if (cb) cb();
+                        }
+                        else
+                        {
+                            auto cb = _onDismiss;
+                            if (cb) cb();
+                        }
                     }
                     else
                     {
@@ -57,10 +74,9 @@ namespace ml
             // Backdrop or close-button click while visible
             if (checkFlag(Flag::VISIBLE) || _animating)
             {
-                static bool prevDown = false;
                 const bool  down     = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
-                if (down && !prevDown)
+                if (down && !_prevDown)
                 {
                     const auto& win = WindowManager::getWindow();
                     const sf::Vector2f wp =
@@ -68,23 +84,29 @@ namespace ml
 
                     if (showCloseButton && _closeBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                     else if (hasButtons() && _confirmBounds.contains(wp))
                     {
+                        // Defer _onConfirm to the fade-out completion (see onUpdate):
+                        // firing it here, mid-animation and still inside the click
+                        // dispatch, is what let a follow-up dialog clobber this modal.
+                        _confirmed = true;
                         hide();
-                        if (_onConfirm) _onConfirm();
                     }
                     else if (hasButtons() && _cancelBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                     else if (dismissOnBackdrop && !_panelBounds.contains(wp))
                     {
+                        _confirmed = false;
                         hide();
                     }
                 }
-                prevDown = down;
+                _prevDown = down;
             }
         });
     }
@@ -334,6 +356,14 @@ namespace ml
     void Modal::setContent(ml::Core& content)
     {
         _content = &content;
+        addComponent(content);
+        // A hidden modal's content must be inert. addComponent makes the content
+        // inherit the modal's ENABLED state — which is true even while the modal is
+        // HIDDEN (visible ≠ enabled) — so a modal that has never been shown would
+        // leave its content live, letting it hover-/focus-steal from whatever is
+        // actually on screen. Gate it on visibility here; show()/hide() keep it in
+        // sync thereafter.
+        content.setParentEnabled(checkFlag(Flag::VISIBLE));
         applyLayout();
     }
 
@@ -354,11 +384,28 @@ namespace ml
     void Modal::show()
     {
         if (checkFlag(Flag::VISIBLE) && !_animating) return;
+        AppManager::setExclusiveOwner(this);
+        if (_content) _content->setParentEnabled(true);
         enableFlag(Flag::VISIBLE);
         setState(State::ANIMATING);
         applyLayout();
+        _confirmed = false;
         _fadingIn  = true;
         _animating = true;
+    }
+
+    void Modal::showImmediate()
+    {
+        if (checkFlag(Flag::VISIBLE) && !_animating) return;
+        AppManager::setExclusiveOwner(this);
+        if (_content) _content->setParentEnabled(true);
+        _alpha     = 255.f;
+        _confirmed = false;
+        _fadingIn  = false;
+        _animating = false;
+        enableFlag(Flag::VISIBLE);
+        setState(State::VISIBLE);
+        applyLayout();
     }
 
     void Modal::hide()

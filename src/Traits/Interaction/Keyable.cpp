@@ -11,37 +11,37 @@ namespace ml
 {
     // ── Keyable ───────────────────────────────────────────────────────────────
 
-    void Keyable::onKeypress(std::function<void()> f)
+    void Keyable::onKeypress(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::KEYPRESS, this, std::move(cb));
+        Fireable::addCallback(Event::KEYPRESS, this, std::move(cb), overwrite);
     }
 
-    void Keyable::onKeypress(std::function<void(const std::optional<sf::Event>&)> f)
+    void Keyable::onKeypress(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::KEYPRESS, this, std::move(f));
+        Fireable::addCallback(Event::KEYPRESS, this, std::move(f), overwrite);
     }
 
-    void Keyable::onKeyRelease(std::function<void()> f)
-    {
-        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::KEY_RELEASE, this, std::move(cb));
-    }
-
-    void Keyable::onKeyRelease(std::function<void(const std::optional<sf::Event>&)> f)
-    {
-        Fireable::addCallback(Event::KEY_RELEASE, this, std::move(f));
-    }
-
-    void Keyable::onTextEntered(std::function<void()> f)
+    void Keyable::onKeyRelease(std::function<void()> f, bool overwrite)
     {
         EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-        Fireable::addCallback(Event::TEXT_ENTERED, this, std::move(cb));
+        Fireable::addCallback(Event::KEY_RELEASE, this, std::move(cb), overwrite);
     }
 
-    void Keyable::onTextEntered(std::function<void(const std::optional<sf::Event>&)> f)
+    void Keyable::onKeyRelease(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
     {
-        Fireable::addCallback(Event::TEXT_ENTERED, this, std::move(f));
+        Fireable::addCallback(Event::KEY_RELEASE, this, std::move(f), overwrite);
+    }
+
+    void Keyable::onTextEntered(std::function<void()> f, bool overwrite)
+    {
+        EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
+        Fireable::addCallback(Event::TEXT_ENTERED, this, std::move(cb), overwrite);
+    }
+
+    void Keyable::onTextEntered(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
+    {
+        Fireable::addCallback(Event::TEXT_ENTERED, this, std::move(f), overwrite);
     }
 
     // ── KeyableDispatcher ─────────────────────────────────────────────────────

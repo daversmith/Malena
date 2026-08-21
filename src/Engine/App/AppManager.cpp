@@ -7,6 +7,28 @@
 #include <Malena/Engine/Events/Fireable.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Networking/NetworkManager.h>
+#include <Malena/Animation/AnimationManager.h>
+#include <Malena/Layout/AnchorManager.h>
+#include <SFML/Graphics/View.hpp>
+#include <algorithm>
+
+#ifdef __APPLE__
+#import <AppKit/AppKit.h>
+#import <objc/runtime.h>
+
+static BOOL ml_acceptsFirstMouse(id, SEL, NSEvent*) { return YES; }
+
+static void ml_patchAcceptsFirstMouse(NSWindow* nsWin)
+{
+    NSView* cv = [nsWin contentView];
+    if (!cv) return;
+    Class cls = [cv class];
+    class_replaceMethod(cls,
+                        @selector(acceptsFirstMouse:),
+                        (IMP)ml_acceptsFirstMouse,
+                        "c@:@");
+}
+#endif
 
 namespace ml
 {
@@ -22,8 +44,31 @@ namespace ml
         , _windowStyle(windowStyle)
     {
         window.create(videoMode, title, windowStyle);
+#ifdef __APPLE__
+        // VSync synchronizes frame submission with the display refresh, preventing
+        // Metal command buffer accumulation when multiple GL apps run simultaneously.
+        // setFramerateLimit() uses sf::sleep() which is imprecise and lets frames
+        // pile up, exhausting Metal's transient memory pool (MTLCommandBufferError Code=8).
+        window.setVerticalSyncEnabled(true);
+#else
         window.setFramerateLimit(_framerateLimit);
+#endif
         _instance = this;
+#ifdef __APPLE__
+        ml_patchAcceptsFirstMouse((NSWindow*)window.getNativeHandle());
+#endif
+    }
+
+    // ── Exclusive interaction ─────────────────────────────────────────────────
+
+    void AppManager::setExclusiveOwner(Core* owner)  { _exclusiveOwner = owner; }
+    void AppManager::clearExclusiveOwner()            { _exclusiveOwner = nullptr; }
+
+    bool AppManager::isUnderExclusiveOwner(Core* component)
+    {
+        if (!_exclusiveOwner) return true;
+        return component == _exclusiveOwner
+            || Core::isDescendantOf(_exclusiveOwner, component);
     }
 
     // ── Window appearance ─────────────────────────────────────────────────────
@@ -53,7 +98,14 @@ namespace ml
     {
         _windowStyle = style;
         window->create(_videoMode, _title, style);
+#ifdef __APPLE__
+        window->setVerticalSyncEnabled(true);
+#else
         window->setFramerateLimit(_framerateLimit);
+#endif
+#ifdef __APPLE__
+        ml_patchAcceptsFirstMouse((NSWindow*)window->getNativeHandle());
+#endif
     }
 
     // ── Timing ────────────────────────────────────────────────────────────────
@@ -96,6 +148,7 @@ namespace ml
         _resizeHandler = std::move(handler);
     }
 
+
     // ── Core loop helpers ─────────────────────────────────────────────────────
 
     void AppManager::flushDeferredUnloads()
@@ -127,6 +180,13 @@ namespace ml
             }
         }
 
+        // Top popup layer: drawn after the whole component tree so a transient
+        // popup (e.g. an open Select dropdown) escapes its container's stacking
+        // order and is never occluded by later-drawn siblings or host overlays.
+        if (_activePopup && !_activePopup->checkFlag(Flag::HIDDEN))
+            if (auto* popup = dynamic_cast<sf::Drawable*>(_activePopup))
+                window->draw(*popup, _activePopup->getRenderStates());
+
         if (_postRenderHook)
             _postRenderHook();
 
@@ -147,6 +207,10 @@ namespace ml
     {
         onInit();
         onReady();
+
+#ifdef __APPLE__
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+#endif
 
         _clock.restart();
 
@@ -169,11 +233,25 @@ namespace ml
 
                 if (event->is<sf::Event::Resized>())
                 {
-                    if (_resizeHandler)
+                    const auto* resized = event->getIf<sf::Event::Resized>();
+                    if (resized)
                     {
-                        const auto* resized = event->getIf<sf::Event::Resized>();
-                        if (resized)
-                            _resizeHandler(resized->size.x, resized->size.y);
+                        // Keep a 1:1 view so coordinates equal window pixels (crisp,
+                        // no scaling/letterbox); apps reflow their layout in onResize.
+                        window->setView(sf::View(sf::FloatRect(
+                            {0.f, 0.f},
+                            {static_cast<float>(resized->size.x),
+                             static_cast<float>(resized->size.y)})));
+
+                        // Broadcast so responsive components reflow to the new size.
+                        for (auto* c : getComponents())
+                            if (c) c->onWindowResize(resized->size.x, resized->size.y);
+
+                        // Re-solve retained anchors AFTER components reflow, so
+                        // anchored objects settle against the freshly-laid-out refs.
+                        AnchorManager::solveAll();
+
+                        if (_resizeHandler) _resizeHandler(resized->size.x, resized->size.y);
                     }
                 }
 
@@ -181,7 +259,10 @@ namespace ml
             }
 
             if (!_paused)
+            {
                 fireUpdateEvents();
+                AnimationManager::advance(_deltaTime);   // delta-time animation tick
+            }
 
             NetworkManager::flush();
 

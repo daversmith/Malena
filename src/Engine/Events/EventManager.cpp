@@ -40,12 +40,23 @@ namespace ml
 
             bool alive = std::any_of(liveIt->second.begin(), liveIt->second.end(),
                 [&sub](const Subscriber& s){ return s.receiver == sub.receiver; });
-            if (!alive) continue;
+            if (!alive) continue;   // freed/unsubscribed by an earlier handler this dispatch
 
             if (dispatcher->filter(event, sub.core))
             {
                 sub.receiver->process(key, event);
-                if (resolve) resolve(sub.receiver, event);
+
+                // process() (the receiver's own handler) may have DESTROYED this very
+                // receiver — self-freeing clicks are legitimate (a delete/close button
+                // that removes its own row, a click that rebuilds its widget pool). The
+                // resolve callback (focus/blur bookkeeping) would then dereference freed
+                // memory: EXC_BAD_ACCESS in dynamic_cast inside ClickableDispatcher::fire.
+                // Re-check liveness against the live list before running it.
+                auto postIt = _subscribers.find(key);
+                const bool stillAlive = postIt != _subscribers.end() &&
+                    std::any_of(postIt->second.begin(), postIt->second.end(),
+                        [&sub](const Subscriber& s){ return s.receiver == sub.receiver; });
+                if (stillAlive && resolve) resolve(sub.receiver, event);
             }
             else
             {
@@ -64,6 +75,15 @@ namespace ml
     void EventManager::forceUnsubscribeAll(Core* core)
     {
         doUnsubscribeAll(core);
+    }
+
+    bool EventManager::hasReceiver(EventReceiver* receiver)
+    {
+        if (!receiver) return false;
+        for (const auto& [key, subs] : _subscribers)
+            for (const auto& s : subs)
+                if (s.receiver == receiver) return true;
+        return false;
     }
 
     void EventManager::clear()

@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Scrollable.h
@@ -61,16 +61,18 @@ namespace ml
          *        is scrolled while the cursor is over this component.
          *
          * @param callback Function invoked with no arguments on scroll.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onScroll(std::function<void()> callback);
+        void onScroll(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when the mouse wheel is scrolled
          *        while the cursor is over this component, receiving the SFML event.
          *
          * @param callback Function invoked with the SFML event on scroll.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onScroll(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onScroll(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse moved (fires for all components regardless of hover) ─────────
 
@@ -82,16 +84,18 @@ namespace ml
          * whether the cursor is over it.
          *
          * @param callback Function invoked with no arguments on mouse move.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMouseMoved(std::function<void()> callback);
+        void onMouseMoved(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked whenever the mouse moves anywhere
          *        in the window, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on mouse move.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMouseMoved(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMouseMoved(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse button pressed (raw — before click logic) ───────────────────
 
@@ -103,16 +107,18 @@ namespace ml
          * standard click handling.
          *
          * @param callback Function invoked with no arguments on mouse press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMousePressed(std::function<void()> callback);
+        void onMousePressed(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a mouse button is pressed,
          *        receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on mouse press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMousePressed(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMousePressed(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Mouse button released (raw — before click logic) ──────────────────
 
@@ -124,16 +130,18 @@ namespace ml
          * standard click handling.
          *
          * @param callback Function invoked with no arguments on mouse release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMouseReleased(std::function<void()> callback);
+        void onMouseReleased(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a mouse button is released,
          *        receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on mouse release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onMouseReleased(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onMouseReleased(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

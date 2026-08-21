@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave R. Smith on 3/5/25.
@@ -140,9 +140,11 @@ namespace ml
         std::function<void(unsigned int, unsigned int)> _resizeHandler;
 
         /// @cond INTERNAL
-        inline static bool        _isDrawing = false;
-        inline static float       _deltaTime = 0.f;
-        inline static AppManager* _instance  = nullptr;
+        inline static bool        _isDrawing       = false;
+        inline static float       _deltaTime       = 0.f;
+        inline static AppManager* _instance        = nullptr;
+        inline static Core*       _exclusiveOwner  = nullptr;
+        inline static Core*       _activePopup     = nullptr;
         inline static std::vector<std::function<void()>> _deferredUnloads;
         /// @endcond
 
@@ -315,10 +317,40 @@ namespace ml
         /** @brief Return the architectural mode set at construction. */
         Architecture getArchitecture() const { return _architecture; }
 
+        // ── Exclusive interaction ─────────────────────────────────────────────
+
+        /** @brief Restrict click and hover dispatch to @p owner and its descendants.
+         *  Any component outside that subtree silently receives no events.
+         *  Pass @c nullptr (or call @c clearExclusiveOwner) to lift the restriction. */
+        static void setExclusiveOwner(Core* owner);
+
+        /** @brief Lift any active exclusive-owner restriction. */
+        static void clearExclusiveOwner();
+
+        /** @brief The current exclusive-interaction owner, or @c nullptr. */
+        static Core* exclusiveOwner() { return _exclusiveOwner; }
+
+        // ── Top popup layer ───────────────────────────────────────────────────
+
+        /** @brief Register a component to be drawn on top of everything else, after
+         *  the whole component tree, each frame. Intended for transient popups whose
+         *  content must escape their container's stacking order (e.g. a Select
+         *  dropdown occluded by later-drawn siblings). Save the previous popup and
+         *  restore it on close so nesting composes. Pass @c nullptr to clear. */
+        static void setActivePopup(Core* popup) { _activePopup = popup; }
+
+        /** @brief The component currently drawn as the top popup layer, or @c nullptr. */
+        static Core* activePopup() { return _activePopup; }
+
+        /** @brief Clear the top popup layer (equivalent to @c setActivePopup(nullptr)). */
+        static void clearActivePopup() { _activePopup = nullptr; }
+
         // ── Internal ──────────────────────────────────────────────────────────
 
         /// @cond INTERNAL
         static bool isDrawing() { return _isDrawing; }
+
+        static bool isUnderExclusiveOwner(Core* component);
 
         static void deferUnload(std::function<void()> op)
         {

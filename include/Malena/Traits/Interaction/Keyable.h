@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Keyable.h
@@ -61,16 +61,18 @@ namespace ml
          *        while this component has focus.
          *
          * @param callback Function invoked with no arguments on key press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onKeypress(std::function<void()> callback);
+        void onKeypress(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a key is pressed while this
          *        component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on key press.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onKeypress(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onKeypress(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Key release ───────────────────────────────────────────────────────
 
@@ -79,16 +81,18 @@ namespace ml
          *        while this component has focus.
          *
          * @param callback Function invoked with no arguments on key release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onKeyRelease(std::function<void()> callback);
+        void onKeyRelease(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a key is released while this
          *        component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on key release.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onKeyRelease(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onKeyRelease(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
 
         // ── Text entered (unicode) ────────────────────────────────────────────
 
@@ -101,16 +105,18 @@ namespace ml
          * correctly.
          *
          * @param callback Function invoked with no arguments when text is entered.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onTextEntered(std::function<void()> callback);
+        void onTextEntered(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when a unicode character is entered
          *        while this component has focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when text is entered.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onTextEntered(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onTextEntered(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

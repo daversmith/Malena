@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 10/5/25.
@@ -73,6 +73,7 @@ namespace ml
         DRAGGING,   ///< A drag gesture is currently in progress (set by DraggableDispatcher).
         VERTICAL,   ///< Layout/scroll axis hint: vertical.
         HORIZONTAL, ///< Layout/scroll axis hint: horizontal.
+        VISIBILITY_INDEPENDENT, ///< This child opts OUT of a parent container's setVisible/setActive cascade (it manages its own visibility).
         LAST_FLAG   ///< Sentinel — do not use as an actual flag value.
     };
 

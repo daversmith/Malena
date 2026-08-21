@@ -7,6 +7,7 @@
 #include <Malena/Traits/Spatial/Positionable.h>
 #include <Malena/Traits/State/Flaggable.h>
 #include <Malena/Core/Core.h>
+#include <Malena/Engine/App/AppManager.h>
 #include <Malena/Engine/Events/EventManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Utilities/MouseEvents.h>
@@ -22,29 +23,30 @@ namespace ml
 		auto* core = dynamic_cast<Core*>(component);
 		if (!core) return false;
 		if (core->checkFlag(Flag::HIDDEN) || !core->checkFlag(Flag::ENABLED)) return false;
+	if (!AppManager::isUnderExclusiveOwner(core)) return false;
 		return MouseEvents::isHovered(*core, WindowManager::getWindow());
 	}
 
-	void Hoverable::onHover(std::function<void()> f)
+	void Hoverable::onHover(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::HOVER, this, std::move(cb));
+		Fireable::addCallback(Event::HOVER, this, std::move(cb), overwrite);
 	}
 
-	void Hoverable::onHover(std::function<void(const std::optional<sf::Event>&)> f)
+	void Hoverable::onHover(std::function<void(const std::optional<sf::Event>&)> f, bool overwrite)
 	{
 		EventCallback cb = std::move(f);
-		Fireable::addCallback(Event::HOVER, this, std::move(cb));
+		Fireable::addCallback(Event::HOVER, this, std::move(cb), overwrite);
 	}
-	void  Hoverable::onUnhover(std::function<void()> f)
+	void  Hoverable::onUnhover(std::function<void()> f, bool overwrite)
 	{
 		EventCallback cb = [f = std::move(f)](const std::optional<sf::Event>&){ f(); };
-		Fireable::addCallback(Event::UNHOVER, this, std::move(cb));
+		Fireable::addCallback(Event::UNHOVER, this, std::move(cb), overwrite);
 	}
-	void Hoverable::onUnhover(std::function<void(const std::optional<sf::Event> &event)> f)
+	void Hoverable::onUnhover(std::function<void(const std::optional<sf::Event> &event)> f, bool overwrite)
 	{
 		EventCallback cb = std::move(f);
-		Fireable::addCallback(Event::UNHOVER, this, std::move(cb));
+		Fireable::addCallback(Event::UNHOVER, this, std::move(cb), overwrite);
 	}
 
 	void HoverableDispatcher::fire(const std::optional<sf::Event>& event)

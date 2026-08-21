@@ -16,7 +16,7 @@ namespace ml
 
     /**
      * @brief Theme tokens for the @c ButtonToggle (rectangular toggle button).
-     * @ingroup Settings
+     * @ingroup Traits
      *
      * Extends @c ToggleTheme with color tokens for the button style — the
      * on/off background colors, their corresponding text colors, and the

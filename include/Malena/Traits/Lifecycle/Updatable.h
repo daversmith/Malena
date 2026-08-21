@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Updatable.h
@@ -69,8 +69,9 @@ namespace ml
          * components receive this regardless of hover or focus state.
          *
          * @param callback Function invoked with no arguments each frame.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onUpdate(std::function<void()> callback);
+        void onUpdate(std::function<void()> callback, bool overwrite = false);
 
         /**
          * @brief Register a callback invoked every frame, receiving the SFML event.
@@ -80,8 +81,9 @@ namespace ml
          * need the optional parameter in your callback signature.
          *
          * @param callback Function invoked with the SFML event (always nullopt) each frame.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onUpdate(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onUpdate(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
         // ── Window events ─────────────────────────────────────────────────────
 
@@ -90,48 +92,54 @@ namespace ml
          *        window is resized.
          *
          * @param callback Function invoked with no arguments on window resize.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowResized(std::function<void()> callback);
+        void onWindowResized(std::function<void()> callback, bool overwrite = false);
 
         /**
          * @brief Register a callback invoked when the application window is
          *        resized, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event on window resize.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowResized(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowResized(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
         /**
          * @brief Register a no-argument callback invoked when the application
          *        window gains OS focus.
          *
          * @param callback Function invoked with no arguments when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowFocusGained(std::function<void()> callback);
+        void onWindowFocusGained(std::function<void()> callback, bool overwrite = false);
 
         /**
          * @brief Register a callback invoked when the application window gains
          *        OS focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is gained.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowFocusGained(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
 
         /**
          * @brief Register a no-argument callback invoked when the application
          *        window loses OS focus.
          *
          * @param callback Function invoked with no arguments when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowFocusLost(std::function<void()> callback);
+        void onWindowFocusLost(std::function<void()> callback, bool overwrite = false);
 
         /**
          * @brief Register a callback invoked when the application window loses
          *        OS focus, receiving the raw SFML event.
          *
          * @param callback Function invoked with the SFML event when focus is lost.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> callback);
+        void onWindowFocusLost(std::function<void(const std::optional<sf::Event>&)> callback, bool overwrite = false);
     };
 
     /// @cond INTERNAL

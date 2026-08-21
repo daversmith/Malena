@@ -1,9 +1,10 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Toolbar.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
+#include <SFML/Graphics/CircleShape.hpp>
 #include <algorithm>
 
 namespace ml
@@ -51,6 +52,16 @@ namespace ml
                 }
             }
         });
+
+        onScroll([this](const std::optional<sf::Event>& event) {
+            if (overflow != Overflow::SCROLL) return;
+            if (!event) return;
+            const auto* scroll = event->getIf<sf::Event::MouseWheelScrolled>();
+            if (!scroll) return;
+            const float maxScroll = std::max(0.f, _totalItemsLen - _barLength + barPadding);
+            _scrollOffsetX = std::clamp(_scrollOffsetX - scroll->delta * 30.f, 0.f, maxScroll);
+            layout();
+        });
     }
 
     // ── layout ────────────────────────────────────────────────────────────────
@@ -58,11 +69,47 @@ namespace ml
     void Toolbar::layout()
     {
         const bool horiz   = (orientation == Orientation::HORIZONTAL);
-        const float thick  = getBarThickness();
         const float sepW   = 1.f;
         const float sepPad = 4.f;
 
-        float offset = barPadding;
+        // ── WRAP: flow items onto extra rows (H) / columns (V) within the bar length ─
+        if (overflow == Overflow::WRAP && _barLength > 0.f)
+        {
+            const float rowStep = (horiz ? itemSize.y : itemSize.x) + itemSpacing;
+            float along = barPadding;    // position along the bar axis
+            int   row   = 0;
+            for (auto& item : _items)
+            {
+                const float w = item.separator ? (sepPad + sepW + sepPad)
+                    : (horiz ? item.component->getGlobalBounds().size.x
+                             : item.component->getGlobalBounds().size.y);
+
+                // Wrap before placing if it would exceed the bar length (but never
+                // wrap when it's the first item on a row).
+                if (along > barPadding && along + w > _barLength - barPadding)
+                {
+                    along = barPadding;
+                    ++row;
+                }
+                if (!item.separator)
+                {
+                    const float cross = barPadding + static_cast<float>(row) * rowStep;
+                    item.component->setPosition(horiz
+                        ? sf::Vector2f{ _position.x + along,  _position.y + cross }
+                        : sf::Vector2f{ _position.x + cross, _position.y + along });
+                }
+                along += w + (item.separator ? 0.f : itemSpacing);
+            }
+            _rowCount      = row + 1;
+            _totalItemsLen = _barLength;
+            return;
+        }
+
+        _rowCount          = 1;
+        const float thick  = getBarThickness();
+
+        const float scrollOffset = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
+        float offset = barPadding - scrollOffset;
 
         for (auto& item : _items)
         {
@@ -75,7 +122,6 @@ namespace ml
             sf::Vector2f pos;
             if (horiz)
             {
-                // Center vertically in bar
                 const float h = item.component->getGlobalBounds().size.y;
                 pos = {_position.x + offset, _position.y + (thick - h) / 2.f};
                 offset += item.component->getGlobalBounds().size.x + itemSpacing;
@@ -89,6 +135,8 @@ namespace ml
 
             item.component->setPosition(pos);
         }
+
+        _totalItemsLen = offset + scrollOffset - barPadding;
     }
 
     // ── onThemeApplied ────────────────────────────────────────────────────────
@@ -117,9 +165,14 @@ namespace ml
         target.draw(bg, states);
 
         // ── Items ─────────────────────────────────────────────────────────────
-        float offset = barPadding;
+        const float scrollOff = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
+        float offset = barPadding - scrollOff;
         const float sepW   = 1.f;
         const float sepPad = 4.f;
+
+        const bool clipItems = (horiz && overflow == Overflow::SCROLL);
+        const float clipLeft  = _position.x;
+        const float clipRight = _position.x + _barLength;
 
         for (int i = 0; i < static_cast<int>(_items.size()); ++i)
         {
@@ -128,28 +181,46 @@ namespace ml
             if (item.separator)
             {
                 offset += sepPad;
-                // Draw separator line
-                sf::RectangleShape sep;
-                if (horiz)
+                if (!clipItems || ((_position.x + offset) >= clipLeft && (_position.x + offset) <= clipRight))
                 {
-                    sep.setSize({sepW, thick - barPadding * 2.f});
-                    sep.setPosition({_position.x + offset, _position.y + barPadding});
+                    sf::RectangleShape sep;
+                    if (horiz)
+                    {
+                        sep.setSize({sepW, thick - barPadding * 2.f});
+                        sep.setPosition({_position.x + offset, _position.y + barPadding});
+                    }
+                    else
+                    {
+                        sep.setSize({thick - barPadding * 2.f, sepW});
+                        sep.setPosition({_position.x + barPadding, _position.y + offset});
+                    }
+                    sep.setFillColor(separatorColor);
+                    target.draw(sep, states);
                 }
-                else
-                {
-                    sep.setSize({thick - barPadding * 2.f, sepW});
-                    sep.setPosition({_position.x + barPadding, _position.y + offset});
-                }
-                sep.setFillColor(separatorColor);
-                target.draw(sep, states);
                 offset += sepW + sepPad;
                 continue;
+            }
+
+            const sf::FloatRect b = item.component->getGlobalBounds();
+            if (clipItems && (b.position.x + b.size.x < clipLeft || b.position.x > clipRight))
+            {
+                if (horiz) offset += b.size.x + itemSpacing;
+                else       offset += b.size.y + itemSpacing;
+                continue;
+            }
+
+            // Selected (active) highlight for owned buttons
+            if (item.owned && item.selected)
+            {
+                sf::RectangleShape hl(b.size + sf::Vector2f{4.f, 4.f});
+                hl.setFillColor(itemActiveBg);
+                hl.setPosition(b.position - sf::Vector2f{2.f, 2.f});
+                target.draw(hl, states);
             }
 
             // Hover highlight for owned buttons
             if (item.owned && i == _hoveredIdx && item.enabled)
             {
-                const sf::FloatRect b = item.component->getGlobalBounds();
                 sf::RectangleShape hl(b.size + sf::Vector2f{4.f, 4.f});
                 hl.setFillColor(itemHoverBg);
                 hl.setPosition(b.position - sf::Vector2f{2.f, 2.f});
@@ -162,7 +233,6 @@ namespace ml
             // Dim disabled items
             if (item.owned && !item.enabled)
             {
-                const sf::FloatRect b = item.component->getGlobalBounds();
                 sf::RectangleShape dim(b.size);
                 dim.setFillColor({0, 0, 0, 120});
                 dim.setPosition(b.position);
@@ -170,9 +240,9 @@ namespace ml
             }
 
             if (horiz)
-                offset += item.component->getGlobalBounds().size.x + itemSpacing;
+                offset += b.size.x + itemSpacing;
             else
-                offset += item.component->getGlobalBounds().size.y + itemSpacing;
+                offset += b.size.y + itemSpacing;
         }
     }
 
@@ -182,13 +252,17 @@ namespace ml
     // Toolbar manages all hit-testing and events; no framework registration needed.
     struct ToolbarButton final : public sf::Drawable, public ml::Core
     {
-        sf::Text     text;
-        sf::Vector2f size;
-        sf::Vector2f pos;
+        sf::Text            text;
+        sf::Vector2f        size;
+        sf::Vector2f        pos;
+        const sf::Texture*  icon    = nullptr;   // optional; not owned — must outlive us
+        float               iconSz  = 0.f;
+        float               iconGap = 8.f;
+        int                 badge   = 0;         // >0 → red count pill at the top-right
 
         ToolbarButton(const sf::Font& f, const std::string& label,
                       const sf::Vector2f& sz, unsigned int charSz)
-            : text(f, label, charSz), size(sz)
+            : text(f, sf::String::fromUtf8(label.begin(), label.end()), charSz), size(sz)
         {
             text.setFillColor(sf::Color::White);
             // Silence from event system — toolbar handles interaction
@@ -198,12 +272,46 @@ namespace ml
         void draw(sf::RenderTarget& t, sf::RenderStates s) const override
         {
             const sf::FloatRect lb = text.getLocalBounds();
+            const bool  hasIcon = icon && iconSz > 0.f && icon->getSize().y > 0;
+            const float iconW   = hasIcon ? iconSz : 0.f;
+            const float gap     = hasIcon ? iconGap : 0.f;
+            // Centre the [icon][gap][text] group in the button.
+            const float groupW  = iconW + gap + lb.size.x;
+            const float startX   = pos.x + (size.x - groupW) / 2.f;
+
+            if (hasIcon)
+            {
+                sf::Sprite sp(*icon);
+                const float sc = iconSz / static_cast<float>(icon->getSize().y);
+                sp.setScale({ sc, sc });
+                sp.setPosition({ startX, pos.y + (size.y - iconSz) / 2.f });
+                t.draw(sp, s);
+            }
+
             sf::Text tmp = text;
             tmp.setPosition({
-                pos.x + (size.x - lb.size.x) / 2.f - lb.position.x,
+                startX + iconW + gap - lb.position.x,
                 pos.y + (size.y - lb.size.y) / 2.f - lb.position.y
             });
             t.draw(tmp, s);
+
+            // Notification badge — a small red count pill at the top-right corner.
+            if (badge > 0)
+            {
+                const float r = 8.f;
+                sf::CircleShape dot(r, 16);
+                dot.setFillColor(sf::Color(226, 88, 79));
+                dot.setPosition({ pos.x + size.x - 2.f * r - 3.f, pos.y + 1.f });
+                t.draw(dot, s);
+
+                const std::string bs = badge > 9 ? "9+" : std::to_string(badge);
+                sf::Text bt(text.getFont(), bs, 10);
+                bt.setFillColor(sf::Color::White);
+                const sf::FloatRect bb = bt.getLocalBounds();
+                bt.setPosition({ pos.x + size.x - 2.f * r - 3.f + r - (bb.position.x + bb.size.x / 2.f),
+                                 pos.y + 1.f + r - (bb.position.y + bb.size.y / 2.f) });
+                t.draw(bt, s);
+            }
         }
 
         void          setPosition(const sf::Vector2f& p) override { pos = p; }
@@ -220,19 +328,55 @@ namespace ml
         item.action = std::move(action);
 
         // Measure label to compute natural width
-        sf::Text measure(*font, label, static_cast<unsigned int>(fontSize));
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
         const float w = std::max(itemSize.x,
             measure.getGlobalBounds().size.x + padding * 2.f);
         const sf::Vector2f sz{w, itemSize.y};
 
         auto btn = std::make_unique<ToolbarButton>(
             *font, label, sz, static_cast<unsigned int>(fontSize));
+        btn->text.setFillColor(itemTextColor);   // themeable (default white)
         ml::Core* corePtr = btn.get();
         item.component = corePtr;
         item.owned     = std::unique_ptr<ml::Core>(btn.release());
 
         const std::size_t idx = _items.size();
         _items.push_back(std::move(item));
+        addComponent(*corePtr);
+        layout();
+        return idx;
+    }
+
+    std::size_t Toolbar::addButton(const std::string& label, const sf::Texture& icon,
+                                    std::function<void()> action)
+    {
+        Item item;
+        item.label  = label;
+        item.action = std::move(action);
+
+        const float iconSz  = itemSize.y * 0.58f;   // icon box within the bar height
+        const float iconGap = 8.f;
+
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
+        const float textW = measure.getGlobalBounds().size.x;
+        const float w = std::max(itemSize.x, iconSz + iconGap + textW + padding * 2.f);
+        const sf::Vector2f sz{w, itemSize.y};
+
+        auto btn = std::make_unique<ToolbarButton>(
+            *font, label, sz, static_cast<unsigned int>(fontSize));
+        btn->text.setFillColor(itemTextColor);
+        btn->icon    = &icon;
+        btn->iconSz  = iconSz;
+        btn->iconGap = iconGap;
+        ml::Core* corePtr = btn.get();
+        item.component = corePtr;
+        item.owned     = std::unique_ptr<ml::Core>(btn.release());
+
+        const std::size_t idx = _items.size();
+        _items.push_back(std::move(item));
+        addComponent(*corePtr);
         layout();
         return idx;
     }
@@ -242,10 +386,11 @@ namespace ml
         if (index >= _items.size() || !_items[index].owned) return;
         _items[index].label = label;
         auto* btn = static_cast<ToolbarButton*>(_items[index].owned.get());
-        btn->text.setString(label);
+        btn->text.setString(sf::String::fromUtf8(label.begin(), label.end()));
 
         // Re-measure and resize
-        sf::Text measure(*font, label, static_cast<unsigned int>(fontSize));
+        sf::Text measure(*font, sf::String::fromUtf8(label.begin(), label.end()),
+                         static_cast<unsigned int>(fontSize));
         const float w = std::max(itemSize.x,
             measure.getGlobalBounds().size.x + padding * 2.f);
         btn->size = {w, itemSize.y};
@@ -258,11 +403,25 @@ namespace ml
         _items[index].enabled = enabled;
     }
 
+    void Toolbar::setItemSelected(std::size_t index, bool selected)
+    {
+        if (index >= _items.size()) return;
+        _items[index].selected = selected;
+    }
+
+    void Toolbar::setItemBadge(std::size_t index, int count)
+    {
+        if (index >= _items.size()) return;
+        if (auto* btn = dynamic_cast<ToolbarButton*>(_items[index].owned.get()))
+            btn->badge = count;
+    }
+
     void Toolbar::add(ml::Core& component)
     {
         Item item;
         item.component = &component;
         _items.push_back(std::move(item));
+        addComponent(component);
         layout();
     }
 
@@ -281,6 +440,8 @@ namespace ml
 
     void Toolbar::clear()
     {
+        for (auto& item : _items)
+            if (item.component) Core::removeComponent(*item.component);
         _items.clear();
     }
 
@@ -294,9 +455,16 @@ namespace ml
 
     float Toolbar::getBarThickness() const
     {
-        return (orientation == Orientation::HORIZONTAL)
-               ? itemSize.y + barPadding * 2.f
-               : itemSize.x + barPadding * 2.f;
+        const float base = (orientation == Orientation::HORIZONTAL) ? itemSize.y : itemSize.x;
+        const int   rows = (overflow == Overflow::WRAP) ? std::max(1, _rowCount) : 1;
+        return base * rows + itemSpacing * (rows - 1) + barPadding * 2.f;
+    }
+
+    float Toolbar::getContentExtent() const
+    {
+        // _totalItemsLen is the summed item run (widths + spacings); add the
+        // leading bar padding to measure from the bar origin to past the last item.
+        return barPadding + _totalItemsLen;
     }
 
     // ── Positionable ──────────────────────────────────────────────────────────
@@ -316,14 +484,6 @@ namespace ml
             return sf::FloatRect{_position, {_barLength, thick}};
         else
             return sf::FloatRect{_position, {thick, _barLength}};
-    }
-
-    void Toolbar::setEnabled(bool enabled)
-    {
-        Core::setEnabled(enabled);
-        for (auto& item : _items)
-            if (item.component)
-                item.component->setEnabled(enabled);
     }
 
 } // namespace ml

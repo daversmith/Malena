@@ -4,6 +4,36 @@
 #include "Malena/Engine/Messaging/MessageManager.h"
 #include "Malena/Resources/ThemeManager.h"
 
+#ifdef __APPLE__
+#import <AppKit/AppKit.h>
+// Ensure NSApp is SFApplication before any sf::GlResource is constructed.
+//
+// On macOS 14+, NSOpenGLContext creation fails silently when NSApp is
+// uninitialized, leaving SFML's SharedContext with a nil m_context. That nil
+// causes a false-positive in makeCurrent(true), poisoning currentContext.id and
+// later making gladLoadGL run with no real GL context — all GLAD pointers stay
+// null and the first GL call crashes at PC=0.
+//
+// SFML's own fix (setUpProcess) runs too late — after WindowManager::getWindow()
+// already triggered SharedContext creation as a default argument. We must beat it.
+//
+// SFApplication is registered with the ObjC runtime during image loading, which
+// happens before any static initializer. NSClassFromString finds it here safely.
+// Calling [SFApplication sharedApplication] installs SFML's subclass as NSApp,
+// which is exactly what setUpProcess() would do — so setUpProcess() becomes a
+// no-op when it runs later during window.create().
+namespace {
+    struct NSAppEnsurer {
+        NSAppEnsurer() {
+            Class cls = NSClassFromString(@"SFApplication");
+            if (!cls) cls = [NSApplication class];
+            [cls sharedApplication];
+        }
+    };
+    [[maybe_unused]] static NSAppEnsurer _ensureNSApp;
+}
+#endif
+
 namespace ml
 {
     ApplicationBase::ApplicationBase(const sf::VideoMode& videoMode,

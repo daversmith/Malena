@@ -1,8 +1,10 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/ListItem.h>
 #include <Malena/Utilities/Align.h>
+#include <Malena/Engine/Window/WindowManager.h>
+#include <SFML/Window/Mouse.hpp>
 #include <algorithm>
 #include <cmath>
 
@@ -25,12 +27,12 @@ namespace ml
 
         // Hover
         onHover([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(State::HOVERED);
             applyVisualState();
         });
         onUnhover([this]{
-            if (checkFlag(Flag::DISABLED)) return;
+            if (!checkFlag(ml::Flag::ENABLED)) return;
             setState(State::IDLE);
             applyVisualState();
         });
@@ -39,8 +41,16 @@ namespace ml
         // Must call Clickable::onClick explicitly — ListItem::onClick only
         // updates _onClickCb and does NOT touch the event subscription.
         Clickable::onClick([this]{
-            if (!checkFlag(Flag::DISABLED) && _onClickCb)
-                _onClickCb();
+            if (!checkFlag(ml::Flag::ENABLED) || !_onClickCb) return;
+            // A start/end slot widget (e.g. an action button) owns its own click —
+            // don't ALSO fire the row's callback (that's the "click-through" where
+            // pressing an end-slot button also selects/toggles the row behind it).
+            const auto& win = WindowManager::getWindow();
+            const sf::Vector2f wp = win.mapPixelToCoords(sf::Mouse::getPosition(win));
+            if ((_start && _start->getGlobalBounds().contains(wp)) ||
+                (_end   && _end->getGlobalBounds().contains(wp)))
+                return;
+            _onClickCb();
         });
 
         setState(State::IDLE);
@@ -66,15 +76,21 @@ namespace ml
 
     void ListItem::applyVisualState()
     {
-        if (checkFlag(Flag::DISABLED))
+        if (!checkFlag(ml::Flag::ENABLED))
         {
             _background.setFillColor(bgDisabled);
             _label.setFillColor(disabledTextColor);
             _description.setFillColor(disabledTextColor);
         }
-        else if (isState(State::HOVERED))
+        else if (isState(State::HOVERED) && !_selected)
         {
             _background.setFillColor(bgHover);
+            _label.setFillColor(textColor);
+            _description.setFillColor(mutedColor);
+        }
+        else if (_selected)
+        {
+            _background.setFillColor(bgSelected);
             _label.setFillColor(textColor);
             _description.setFillColor(mutedColor);
         }
@@ -192,12 +208,14 @@ namespace ml
     void ListItem::setStart(ml::Core& c)
     {
         _start = &c;
+        addComponent(c);
         layout();
     }
 
     void ListItem::setEnd(ml::Core& c)
     {
         _end = &c;
+        addComponent(c);
         layout();
     }
 
@@ -205,6 +223,7 @@ namespace ml
     {
         _content           = &c;
         _hasCustomContent  = true;
+        addComponent(c);
         layout();
     }
 
@@ -240,16 +259,25 @@ namespace ml
         _onClickCb = std::move(cb);
     }
 
+    bool ListItem::isEndHit(const sf::Vector2f& point) const
+    {
+        return _end && _end->getGlobalBounds().contains(point);
+    }
+
     // ── State ─────────────────────────────────────────────────────────────────
 
-    void ListItem::setEnabled(bool enabled)
+    void ListItem::onEnabledChanged(bool /*enabled*/)
     {
-        if (enabled) { disableFlag(Flag::DISABLED); setState(State::IDLE); }
-        else         { enableFlag(Flag::DISABLED);  setState(State::DISABLED); }
+        // Disabled appearance derives from Flag::ENABLED; refresh on both paths.
+        setState(State::IDLE);
         applyVisualState();
     }
 
-    bool ListItem::isEnabled() const { return !checkFlag(Flag::DISABLED); }
+    void ListItem::setSelected(bool selected)
+    {
+        _selected = selected;
+        applyVisualState();
+    }
 
     // ── Width ─────────────────────────────────────────────────────────────────
 

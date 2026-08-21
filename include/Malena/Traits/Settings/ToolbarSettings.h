@@ -11,7 +11,7 @@ namespace ml
     struct ToolbarSettings : ControlSettings
     {
         enum class Orientation { HORIZONTAL, VERTICAL };
-        enum class Overflow    { CLIP, SCROLL };
+        enum class Overflow    { CLIP, SCROLL, WRAP };   // WRAP: flow items onto extra rows
 
         Orientation  orientation  = Orientation::HORIZONTAL;
         Overflow     overflow     = Overflow::CLIP;

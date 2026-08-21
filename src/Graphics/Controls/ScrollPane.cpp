@@ -1,15 +1,11 @@
 #include <Malena/Graphics/Controls/ScrollPane.h>
+#include <Malena/Utilities/ClipView.h>
 
 namespace ml
 {
 	ScrollPane::ScrollPane(float width, float height)
     : _width(width), _height(height)
 	{
-	    _renderTexture.resize({
-	        static_cast<unsigned int>(width),
-	        static_cast<unsigned int>(height)
-	    });
-
 	    _background.setSize({width, height});
 	    _background.setFillColor(sf::Color(40, 40, 40, 200));
 
@@ -77,17 +73,16 @@ namespace ml
 
 	void ScrollPane::addComponent(ml::Core& component)
 	{
-	    _children.push_back(&component);
+	    if (_embedded)
+	        component.unsubscribeAll();
+	    Core::addComponent(component);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
 	}
 
 	void ScrollPane::removeComponent(ml::Core& component)
 	{
-	    _children.erase(
-	        std::remove(_children.begin(), _children.end(), &component),
-	        _children.end()
-	    );
+	    Core::removeComponent(component);
 	    enableFlag(Flag::DIRTY);
 	    updateScrollBar();
 	}
@@ -118,29 +113,31 @@ namespace ml
 
 	    target.draw(_background, states);
 
-	    _renderTexture.clear(sf::Color::Transparent);
-
-	    sf::View view;
-	    view.setSize({_width, _height});
-	    view.setCenter({_position.x + _width / 2.f, _position.y + _height / 2.f});
-	    _renderTexture.setView(view);
-
-	    for (auto* child : _children)
+	    // Children are positioned in real on-screen coords by stackChildren(),
+	    // so we draw them directly inside a clipped view — keeps hit-boxes
+	    // aligned with visuals (clickable children stay interactive) and
+	    // composes correctly under nested views.
+	    if (!getChildren().empty())
 	    {
-	        sf::Vector2f  pos    = child->getPosition();
-	        sf::FloatRect bounds = child->getGlobalBounds();
+	        ml::withClipView(target, {_position, {_width, _height}}, [&]{
+	            for (const auto& entry : getChildren())
+	            {
+	                ml::Core* child = entry.component;
+	                if (!child->isVisible()) continue;
 
-	        if (pos.y + bounds.size.y < _position.y || pos.y > _position.y + _height) continue;
-	        if (pos.x + bounds.size.x < _position.x || pos.x > _position.x + _width)  continue;
+	                const sf::Vector2f  pos    = child->getPosition();
+	                const sf::FloatRect bounds = child->getGlobalBounds();
 
-	        _renderTexture.draw(*dynamic_cast<sf::Drawable*>(child), states);
+	                // Cull fully off-pane children — saves draw calls when many
+	                // children sit off-screen. The viewport handles partial clips.
+	                if (pos.y + bounds.size.y < _position.y || pos.y > _position.y + _height) continue;
+	                if (pos.x + bounds.size.x < _position.x || pos.x > _position.x + _width)  continue;
+
+	                if (auto* drawable = dynamic_cast<sf::Drawable*>(child))
+	                    target.draw(*drawable, states);
+	            }
+	        });
 	    }
-
-	    _renderTexture.display();
-
-	    sf::Sprite sprite(_renderTexture.getTexture());
-	    sprite.setPosition(_position);
-	    target.draw(sprite, states);
 
 	    float contentHeight = getTotalContentHeight();
 	    if (checkFlag(Flag::VERTICAL) && contentHeight > _height)
@@ -157,8 +154,9 @@ namespace ml
 	    if (!checkFlag(Flag::DIRTY)) return;
 
 	    float yOffset = 0.f;
-	    for (auto* child : _children)
+	    for (const auto& entry : getChildren())
 	    {
+	        ml::Core* child = entry.component;
 	        child->setPosition({
 	            _position.x - _scrollOffsetX,
 	            _position.y + yOffset - _scrollOffsetY
@@ -173,16 +171,16 @@ namespace ml
 	{
 	    if (_contentHeightOverride > 0.f) return _contentHeightOverride;
 	    float total = 0.f;
-	    for (auto* child : _children)
-	        total += child->getGlobalBounds().size.y;
+	    for (const auto& entry : getChildren())
+	        total += entry.component->getGlobalBounds().size.y;
 	    return total;
 	}
 
 	float ScrollPane::getTotalContentWidth() const
 	{
 	    float total = 0.f;
-	    for (auto* child : _children)
-	        total += child->getGlobalBounds().size.x;
+	    for (const auto& entry : getChildren())
+	        total += entry.component->getGlobalBounds().size.x;
 	    return total;
 	}
 
@@ -214,10 +212,6 @@ namespace ml
 		_width  = width;
 		_height = height;
 		_background.setSize({width, height});
-		_renderTexture.resize({
-			static_cast<unsigned int>(width),
-			static_cast<unsigned int>(height)
-		});
 	}
 	void ScrollPane::setScrollOffsetY(float y)
 	{
@@ -259,6 +253,7 @@ namespace ml
 	{
 		// Silence this pane and its internal thumb from the event system.
 		// Both are Components with auto-subscriptions from ComponentCore.
+		_embedded = true;
 		this->unsubscribeAll();
 		_scrollBarThumb.unsubscribeAll();
 	}

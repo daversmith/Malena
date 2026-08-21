@@ -1,0 +1,6 @@
+add_executable(InfoButtonDemo main.cpp)
+target_link_libraries(InfoButtonDemo PRIVATE Malena::Malena)
+if(APPLE)
+    set_target_properties(InfoButtonDemo PROPERTIES OSX_ARCHITECTURES "arm64")
+endif()
+target_include_directories(InfoButtonDemo PRIVATE ${CMAKE_SOURCE_DIR}/include)

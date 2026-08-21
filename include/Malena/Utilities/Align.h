@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 11/13/22.
@@ -29,7 +29,7 @@ namespace ml
      *
      * - **Framework object** @c T — any type with @c getGlobalBounds()
      * - **@c sf::FloatRect** — a raw bounding rectangle
-     * - **@c sf::Vector2<U>** — treated as a size (width × height) anchored at the origin
+     * - **An @c sf::Vector2** — treated as a size (width × height) anchored at the origin
      *
      * Each operation calls @c setPosition on the target object @c S, so @c S
      * must provide @c setPosition(sf::Vector2f) and @c getGlobalBounds().

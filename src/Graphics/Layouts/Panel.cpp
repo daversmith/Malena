@@ -28,25 +28,30 @@ namespace ml {
         setFillColor(theme.surface);
     }
 
-    void Panel::addRef(Core& child)
+    void Panel::addUntracked(Core& child)
     {
-        // No position tracking — caller manages the child's position entirely.
-        // Just register it with CoreManager so it appears in the draw pass.
-        CoreManager<Core>::addComponent(child);
+        Core::addComponent(child);
     }
+
+    void Panel::addRef(Core& child) { addUntracked(child); }
 
     bool Panel::removeComponent(Core& child)
     {
         _relativePositions.erase(&child);
         _fillChildren.erase(&child);
-        return CoreManager<Core>::removeComponent(child);
+        Core::removeComponent(child);
+        return true;
     }
 
     void Panel::clear()
     {
+        // Snapshot — Core::removeComponent mutates _children, which is what
+        // getChildren() returns.
+        const auto kids = getChildren();
+        for (const auto& e : kids) e.component->setParentEnabled(false);
         _relativePositions.clear();
         _fillChildren.clear();
-        CoreManager<Core>::clear();
+        for (const auto& e : kids) Core::removeComponent(*e.component);
     }
 
     void Panel::setSize(const sf::Vector2f& size)
@@ -58,38 +63,41 @@ namespace ml {
 
     void Panel::setPosition(const sf::Vector2f& newPos)
     {
+        const sf::Vector2f delta = newPos - getPosition();
         RectangleWith<PanelManifest>::setPosition(newPos);
-        for (auto* c : getComponents())
+        for (const auto& e : getChildren())
         {
-            auto it = _relativePositions.find(c);
-            if (it != _relativePositions.end())
-                c->setPosition(newPos + it->second);
+            if (_relativePositions.count(e.component))
+                e.component->setPosition(e.component->getPosition() + delta);
         }
     }
 
-    void Panel::setEnabled(bool enabled)
-    {
-        Core::setEnabled(enabled);
-        for (auto* c : getComponents())
-            c->setEnabled(enabled);
-    }
+    // Enable cascade is handled by Core::setEnabled / Core::setParentEnabled
+    // — Panel no longer needs to override them. Visibility, however, does NOT
+    // cascade automatically (Core::setVisible just toggles its own HIDDEN
+    // flag), so Panel keeps explicit overrides for setVisible / setActive to
+    // preserve the existing "hide the panel, hide its children" semantics.
 
     void Panel::setVisible(bool visible)
     {
         Core::setVisible(visible);
-        for (auto* c : getComponents())
-            c->setVisible(visible);
+        for (const auto& e : getChildren())
+            if (!e.component->isVisibilityIndependent())   // opted-out children manage their own visibility
+                e.component->setVisible(visible);
+    }
+
+    void Panel::setActive(bool active)
+    {
+        Core::setActive(active);
+        for (const auto& e : getChildren())
+            if (!e.component->isVisibilityIndependent())
+                e.component->setActive(active);
     }
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        RectangleWith<PanelManifest>::draw(target, states);
-        for (auto* component : getComponents())
-        {
-            auto* drawable = dynamic_cast<sf::Drawable*>(component);
-            if (drawable)
-                target.draw(*drawable, states);
-        }
+        RectangleWith<PanelManifest>::draw(target, states);   // background
+        drawChildren(target, states);                          // children loop
     }
 
 } // ml

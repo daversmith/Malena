@@ -27,8 +27,8 @@ namespace ml
     class MALENA_API CheckboxManifest : public ml::Manifest
     {
     public:
-        enum class Flag  { CHECKED, DISABLED };
-        enum class State { IDLE, HOVERED, CHECKED, DISABLED };
+        enum class Flag  { CHECKED };
+        enum class State { IDLE, HOVERED, CHECKED };   // disabled derived from ml::Flag::ENABLED
     };
 
     /**
@@ -65,6 +65,7 @@ namespace ml
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
         void onThemeApplied(const Theme& theme) override;
+        void onEnabledChanged(bool enabled) override;
 
     public:
         explicit Checkbox(const std::string& label = "",
@@ -106,12 +107,8 @@ namespace ml
         void check();
         void uncheck();
         void toggle();
+        void setChecked(bool checked);
         [[nodiscard]] bool isChecked() const;
-
-        // ── Enabled / disabled ────────────────────────────────────────────────
-
-        void setEnabled(bool enabled);
-        [[nodiscard]] bool isEnabled() const;
 
         // ── Label ─────────────────────────────────────────────────────────────
 

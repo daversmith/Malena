@@ -116,6 +116,8 @@ namespace ml
 
         std::vector<Row>              _rows;
         std::vector<sf::RectangleShape> _dividers;
+        Row  _pinnedBottom;
+        bool _hasPinnedBottom = false;
 
         // ── Layout ────────────────────────────────────────────────────────────
         sf::RectangleShape _background;
@@ -204,6 +206,15 @@ namespace ml
         void add(ml::Core& component);
 
         /**
+         * @brief Create a @c ListItem pinned to the bottom of the list.
+         *
+         * All items added via @c addItem after this call appear above it.
+         * Only one pinned item is supported — calling this again replaces it.
+         */
+        ListItem& addPinnedBottom(const std::string& label,
+                                  std::function<void()> onClick = nullptr);
+
+        /**
          * @brief Remove a row by index.
          *
          * If the row contains an owned @c ListItem, it is destroyed.
@@ -230,6 +241,21 @@ namespace ml
 
         /** @brief Return the number of rows. */
         [[nodiscard]] std::size_t rowCount() const { return _rows.size(); }
+
+        /**
+         * @brief Return a pointer to the last added owned @c ListItem, or
+         *        @c nullptr if the list is empty or the last row is an
+         *        external component (added via @c add()).
+         *
+         * Prefer capturing the return value of @c addItem() directly when
+         * possible — this method is a convenience for call sites that cannot
+         * easily chain the return value.
+         */
+        [[nodiscard]] ListItem* back()
+        {
+            if (_rows.empty()) return nullptr;
+            return dynamic_cast<ListItem*>(_rows.back().component);
+        }
 
         // ── Sizing ────────────────────────────────────────────────────────────
 

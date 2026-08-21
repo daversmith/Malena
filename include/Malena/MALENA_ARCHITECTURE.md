@@ -27,7 +27,7 @@ Malena uses traits to compose behavior into objects. Capabilities such as messag
 
 ### Safety through deferred operations
 
-A fundamental concern in event-driven and plugin-based systems is mutation during iteration — for example, an event callback unloading a plugin while the event system is still iterating its subscriber list. Malena addresses this through a consistent **deferred operations pattern**: `EventsManager`, `MessageManager`, `ComponentsManager`, and `PluginManager` all track when they are actively iterating and queue destructive operations (removals, unloads, unsubscribes) to be processed safely afterward. User code does not need to manage this manually.
+A fundamental concern in event-driven and plugin-based systems is mutation during iteration — for example, an event callback unloading a plugin while the event system is still iterating its subscriber list. Malena addresses this through a consistent **deferred operations pattern**: `EventManager`, `MessageManager`, `CoreManager`, and `PluginManager` all track when they are actively iterating and queue destructive operations (removals, unloads, unsubscribes) to be processed safely afterward. User code does not need to manage this manually.
 
 ### Framework-level abstraction over SFML
 
@@ -51,7 +51,7 @@ Important responsibilities include:
 
 - defining common base types such as `Core`, `Component`, and `Manager`
 - adapting framework objects through `CoreAdapter`
-- managing collections of core objects through `CoreManager` / `ComponentsManager`
+- managing collections of core objects through `CoreManager`
 - supporting deferred changes through `DeferredOperationsManager`
 - wrapping drawable behavior through `DrawableWrapper`
 
@@ -81,29 +81,29 @@ void onReady() override;  // called after onInit(); set up subscriptions here
 
 #### Events
 
-The `Engine/Events` subsystem contains `EventsManager`, which is the centralized publish-subscribe event bus for framework-level events.
+The `Engine/Events` subsystem contains `EventManager`, which is the centralized publish-subscribe event bus for framework-level events.
 
 **How it works:**
 
-- Components subscribe to named events (e.g., `"click"`, `"hover"`, `"update"`) via the `Messenger` trait.
-- `UIManager` polls SFML events each frame, translates them into Malena event names, and calls `EventsManager::fire()`.
-- `EventsManager` iterates its subscriber map and invokes registered callbacks.
+- Components subscribe to named events (e.g., `ml::Event::CLICK`, `ml::Event::HOVER`, `ml::Event::UPDATE`) via the `Subscribable` trait.
+- `AppManager` polls SFML events each frame, translates them into Malena event names, and calls `EventManager::fire()`.
+- `EventManager` iterates its subscriber map and invokes registered callbacks.
 - A `fireDepth` counter tracks nested firing. Any unsubscribe calls made during firing are queued and processed safely once `fireDepth` returns to zero. This prevents iterator invalidation crashes.
 
-**Event names fired by UIManager:**
-- `"click"` — mouse button released over a component that was also pressed
-- `"hover"` — mouse entered a component's bounds
-- `"unhover"` — mouse left a component's bounds
-- `"focus"` / `"blur"` — keyboard focus gained/lost
-- `"update"` — fired every frame
+**Event names fired by AppManager:**
+- `ml::Event::CLICK` — mouse button released over a component that was also pressed
+- `ml::Event::HOVER` — mouse entered a component's bounds
+- `ml::Event::UNHOVER` — mouse left a component's bounds
+- `ml::Event::FOCUS` / `ml::Event::BLUR` — keyboard focus gained/lost
+- `ml::Event::UPDATE` — fired every frame
 
 #### Messaging
 
 The `Engine/Messaging` subsystem contains `MessageManager`, which provides **typed, enum-keyed messaging** distinct from the string-based event system.
 
-Where `EventsManager` handles input-driven events fired by name, `MessageManager` handles structured communication between framework objects — for example, a plugin signaling another plugin that loading is complete, or a game notifying the launcher to stop. Messages are keyed by enum value and carry a typed payload.
+Where `EventManager` handles input-driven events fired by name, `MessageManager` handles structured communication between framework objects — for example, a plugin signaling another plugin that loading is complete, or a game notifying the launcher to stop. Messages are keyed by enum value and carry a typed payload.
 
-Like `EventsManager`, `MessageManager` uses the deferred operations pattern internally so that unsubscription during a message callback is safe.
+Like `EventManager`, `MessageManager` uses the deferred operations pattern internally so that unsubscription during a message callback is safe.
 
 #### Plugins
 
@@ -133,7 +133,7 @@ The `Engine/Window` subsystem contains `WindowManager`, which centralizes owners
 
 ### Graphics
 
-The `Graphics` module contains Malena's reusable visual and UI-oriented components built on top of SFML drawing primitives. All graphics components inherit from `Component`, which provides the `Messenger` trait, auto-unsubscription on destruction, and integration with `EventsManager` and `ComponentsManager`.
+The `Graphics` module contains Malena's reusable visual and UI-oriented components built on top of SFML drawing primitives. All graphics components inherit from `Component`, which provides the `Subscribable` trait, auto-unsubscription on destruction, and integration with `EventManager` and `CoreManager`.
 
 #### Base
 
@@ -222,9 +222,9 @@ Important managers include:
 
 The `Traits` module is one of the most important architectural features of Malena. Traits provide reusable behavior that can be mixed into framework classes, supporting composition-based design and reducing duplication.
 
-#### Messenger
+#### Subscribable
 
-The primary trait for event-driven interaction. Provides named convenience methods over the raw `EventsManager` subscription API:
+The primary trait for event-driven interaction. Provides named convenience methods over the raw `EventManager` subscription API:
 
 ```cpp
 onClick([]{});             // fires on mouse click
@@ -235,11 +235,11 @@ onBlur([]{});              // fires on keyboard focus loss
 onUpdate([](){}); // fires every frame
 ```
 
-`Component` inherits `Messenger` and auto-calls `unsubscribeAll()` in its destructor, preventing dangling callbacks after a component is destroyed.
+`Component` inherits `Subscribable` and auto-calls `unsubscribeAll()` in its destructor, preventing dangling callbacks after a component is destroyed.
 
 #### Subscribable
 
-Lower-level subscription infrastructure underlying `Messenger`.
+Lower-level subscription infrastructure underlying `Subscribable`.
 
 #### Flaggable / CustomFlaggable
 
@@ -305,10 +305,10 @@ A typical Malena application follows this flow:
 1. An `Application` subclass is instantiated.
 2. `WindowManager` takes ownership of the `sf::RenderWindow`.
 3. `AppManager` enters the main loop.
-4. Each frame, `UIManager` polls SFML events and fires corresponding Malena events through `EventsManager`.
+4. Each frame, `AppManager` polls SFML events and fires corresponding Malena events through `EventManager`.
 5. `MessageManager` delivers any queued typed messages.
-6. Subscribed callbacks on `Component` instances are invoked via their `Messenger` trait.
-7. `ComponentsManager` calls `update()` and `draw()` on all registered components.
+6. Subscribed callbacks on `Component` instances are invoked via their `Subscribable` trait.
+7. `CoreManager` calls `update()` and `draw()` on all registered components.
 8. Deferred operations accumulated during the frame (unsubscribes, component removals, plugin unloads) are processed at safe points — typically at the start of the next public method call on the relevant manager.
 
 This flow allows interactive behavior while keeping systems decoupled and safe from mutation-during-iteration crashes.
@@ -321,15 +321,15 @@ This flow allows interactive behavior while keeping systems decoupled and safe f
 |---|---|
 | `Application` | Framework entry point; subclassed by users |
 | `AppManager` | Main loop coordinator |
-| `Component` | Base visual class; inherits `Messenger`; auto-unsubscribes on destruction |
-| `EventsManager` | Centralized string-keyed pub-sub bus with deferred removal |
+| `Component` | Base visual class; inherits `Subscribable`; auto-unsubscribes on destruction |
+| `EventManager` | Centralized string-keyed pub-sub bus with deferred removal |
 | `MessageManager` | Typed enum-keyed messaging with deferred removal |
 | `PluginManager` | Loads, queries, and safely unloads plugins |
 | `Plugin` / `PluginWith<M>` | Plugin base; `PluginWith` adds manifest support |
-| `CoreManager` / `ComponentsManager` | Manages registered framework objects with deferred removal |
+| `CoreManager` | Manages registered framework objects with deferred removal |
 | `DeferredOperationsManager` | Shared deferred-operation infrastructure used by all managers |
 | `Manifest` / `Context` | Declarative resource and config metadata |
-| `Messenger` trait | Convenience subscription API for events |
+| `Subscribable` trait | Convenience subscription API for events |
 | `Flaggable` trait | Runtime boolean flags declared in manifests |
 
 ---
@@ -388,7 +388,7 @@ When documenting Malena code, public API comments should describe each class in 
 
 This document should be refined over time with:
 
-- event flow diagrams showing EventsManager and MessageManager side by side
+- event flow diagrams showing EventManager and MessageManager side by side
 - plugin lifecycle diagram (load → onLoad → use → deferred unload → onUnload → close)
 - trait interaction examples
 - `With<Manifest>` pattern cookbook

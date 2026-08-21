@@ -1,8 +1,9 @@
 // Copyright 2025 Dave R. Smith
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/TabbedPanel.h>
 #include <Malena/Engine/Window/WindowManager.h>
+#include <Malena/Utilities/ClipView.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
@@ -20,6 +21,12 @@ namespace ml
             // Safe to destroy here: Panel has no UPDATE subscription, so there
             // is no CLICK/HOVER subscriber entry being iterated right now.
             _pendingDelete.clear();
+
+            if (!checkFlag(ml::Flag::ENABLED))
+            {
+                _hoveredIdx = -1;
+                return;
+            }
 
             const sf::Vector2f wp = WindowManager::getWindow().mapPixelToCoords(
                 sf::Mouse::getPosition(WindowManager::getWindow()));
@@ -137,13 +144,19 @@ namespace ml
             offset   += tab.width;
         }
 
-        // Reposition and resize content for active tab
+        // Reposition and resize content for active tab.
+        // Guard matches draw(): skip when content area has non-positive dimensions
+        // (e.g. panel not yet sized), which would otherwise pass negative heights
+        // to nested components and corrupt their RenderTexture canvas.
         if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
         {
             const sf::FloatRect cr = contentRect();
-            _tabs[_activeIdx].content->setPosition(cr.position);
-            if (_tabs[_activeIdx].resizeFn)
-                _tabs[_activeIdx].resizeFn(cr.size);
+            if (cr.size.x > 0.f && cr.size.y > 0.f)
+            {
+                _tabs[_activeIdx].content->setPosition(cr.position);
+                if (_tabs[_activeIdx].resizeFn)
+                    _tabs[_activeIdx].resizeFn(cr.size);
+            }
         }
     }
 
@@ -200,7 +213,7 @@ namespace ml
 
     void TabbedPanel::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        // ── Content area background (skipped if transparent) ─────────────────
+        // Content area background (skipped if transparent).
         const sf::FloatRect cr = contentRect();
         if (contentBg.a > 0)
         {
@@ -212,38 +225,15 @@ namespace ml
             target.draw(bg, states);
         }
 
-        // ── Tab strip ─────────────────────────────────────────────────────────
+        // Tab strip (procedural — not a registered child).
         drawStrip(target, states);
 
-        // ── Active tab content (clipped to content rect) ──────────────────────
-        if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()))
-        {
-            auto* comp = _tabs[_activeIdx].content.get();
-            if (comp)
-            {
-                const auto targetSize = target.getSize();
-                const float tw = static_cast<float>(targetSize.x);
-                const float th = static_cast<float>(targetSize.y);
-
-                if (cr.size.x > 0.f && cr.size.y > 0.f)
-                {
-                    const sf::View savedView = target.getView();
-
-                    sf::View contentView;
-                    contentView.setCenter({cr.position.x + cr.size.x / 2.f,
-                                           cr.position.y + cr.size.y / 2.f});
-                    contentView.setSize(cr.size);
-                    contentView.setViewport(sf::FloatRect{
-                        {cr.position.x / tw, cr.position.y / th},
-                        {cr.size.x / tw,     cr.size.y / th}
-                    });
-
-                    target.setView(contentView);
-                    target.draw(*dynamic_cast<const sf::Drawable*>(comp), states);
-                    target.setView(savedView);
-                }
-            }
-        }
+        // Tab contents — only the active tab is visible (selectTab keeps
+        // visibility in sync). drawChildren auto-skips invisible entries, so
+        // the loop renders just the one active tab inside the clip.
+        ml::withClipView(target, cr, [&]{
+            drawChildren(target, states);
+        });
     }
 
     void TabbedPanel::drawStrip(sf::RenderTarget& target,
@@ -413,10 +403,26 @@ namespace ml
 
     void TabbedPanel::addTab(Tab tab)
     {
+        auto* content = tab.content.get();
+        const bool willBecomeActive = (_activeIdx < 0);
+
+        // Non-active tab content starts both invisible and disabled — the
+        // framework's draw loop and event dispatchers gate on these flags, so
+        // inactive tabs cleanly don't render and don't receive clicks.
+        if (!willBecomeActive && content)
+            content->setActive(false);
+
         _tabs.push_back(std::move(tab));
+
+        // Register with Core so isDescendantOf / enable cascade / framework
+        // draw loop all see this child. addComponent also syncs _parentEnabled
+        // to our current enabled state.
+        if (content)
+            addComponent(*content);
+
         computeTabLayout();
 
-        if (_activeIdx < 0)
+        if (willBecomeActive)
             selectTab(0);
     }
 
@@ -429,7 +435,10 @@ namespace ml
         // that include this Panel's entry; keeping it alive avoids a
         // use-after-free when filter() dereferences the Core*.
         if (_tabs[index].content)
+        {
+            Core::removeComponent(*_tabs[index].content);
             _pendingDelete.push_back(std::move(_tabs[index].content));
+        }
 
         _tabs.erase(_tabs.begin() + static_cast<std::ptrdiff_t>(index));
 
@@ -454,12 +463,29 @@ namespace ml
     void TabbedPanel::selectTab(std::size_t index)
     {
         if (index >= _tabs.size()) return;
+
+        // Hide + disable the outgoing tab. setActive toggles both flags so the
+        // framework draw loop skips it and the event system stops dispatching.
+        if (_activeIdx >= 0 && _activeIdx < static_cast<int>(_tabs.size()) &&
+            _activeIdx != static_cast<int>(index))
+        {
+            if (_tabs[_activeIdx].content)
+                _tabs[_activeIdx].content->setActive(false);
+        }
+
         _activeIdx = static_cast<int>(index);
 
+        // Activate the incoming tab.
+        if (_tabs[index].content)
+            _tabs[index].content->setActive(true);
+
         const sf::FloatRect cr = contentRect();
-        _tabs[index].content->setPosition(cr.position);
-        if (_tabs[index].resizeFn)
-            _tabs[index].resizeFn(cr.size);
+        if (cr.size.x > 0.f && cr.size.y > 0.f)
+        {
+            _tabs[index].content->setPosition(cr.position);
+            if (_tabs[index].resizeFn)
+                _tabs[index].resizeFn(cr.size);
+        }
 
         if (_onTabChanged)
             _onTabChanged(index, _tabs[index].label);

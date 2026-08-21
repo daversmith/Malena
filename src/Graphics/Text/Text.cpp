@@ -13,6 +13,7 @@ namespace ml
 	void Text::setWordWrap(bool word_wrap)
 	{
 		wordWrap = word_wrap;
+		this->setString(this->getString());
 	}
 
 
@@ -26,6 +27,7 @@ namespace ml
 	{
 		sf::Text::setString(text);
 		if (wordWrap)
-			TextManipulators::wordwrap(*this, maxWidth);
+			sf::Text::setString(TextManipulators::wordwrap(*this, maxWidth));
+
 	}
 } // namespace ml

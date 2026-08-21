@@ -2,111 +2,122 @@
 // Created by Dave Smith on 11/13/22.
 //
 
-
-#include <iostream>
-
 #include <Malena/Traits/Spatial/Positionable.h>
-
-#include <cmath>
+#include <Malena/Animation/Animate.h>
+#include <Malena/Layout/Anchor.h>
+#include <Malena/Layout/AnchorManager.h>
+#include <Malena/Engine/Window/WindowManager.h>
+#include <memory>
+#include <unordered_map>
 
 namespace ml
 {
+    namespace
+    {
+        // Animate controllers live outside Positionable so the trait keeps no data
+        // member (a unique_ptr member would delete the copy-assignment the framework
+        // uses for value-type shapes). Keyed by owner pointer; created lazily,
+        // released in ~Positionable. Owners are identity objects, so the pointer is
+        // a stable key for the object's lifetime.
+        std::unordered_map<const Positionable*, std::unique_ptr<Animate>>& animators()
+        {
+            static std::unordered_map<const Positionable*, std::unique_ptr<Animate>> m;
+            return m;
+        }
 
-	void Positionable::generatePoints(sf::Vector2f position, float duration, Tween tween)
-	{
-		switch (tween)
-		{
-			case EXPONENTIAL:
-				if (points.empty())
-					generateExponential(position, duration);
-				else
-					return;
-		}
-	}
+        sf::FloatRect windowBounds()
+        {
+            const auto sz = static_cast<sf::Vector2f>(WindowManager::getWindow().getSize());
+            return sf::FloatRect({ 0.f, 0.f }, sz);
+        }
+    }
 
-	void Positionable::generateExponential(sf::Vector2f position, float duration)
-	{
-		float x = velocityX, y = 0.0;
-		std::cout << "abs: " << std::abs(velocityX * points.size()) << std::endl;
-		std::cout << "size: " << points.size() << std::endl;
-		float count{};
-		do
-		{
-			x += velocityX;
-			y = (0.001f * std::pow(x, 2.f));
-			points.emplace(velocityX, y);
-			count += y;
-		} while (count < 720);
-	}
+    Positionable::~Positionable()
+    {
+        auto& m = animators();
+        auto it = m.find(this);
+        if (it != m.end())
+            m.erase(it);            // ~Animate cancels any in-flight animations
 
-	void Positionable::centerText(sf::Text &obj)
-	{
-		Align::centerText(*this, obj);
-	}
+        // Drop this object's anchors AND any anchor that referenced it, so the
+        // solver never dereferences a destroyed object.
+        AnchorManager::release(this);
+    }
 
-	void Positionable::moveTo(sf::Vector2f position, float seconds)
-	{
-		if (seconds == 0)
-		{
-			setPosition(position);
-			return;
-		}
+    Animate& Positionable::animate()
+    {
+        auto& slot = animators()[this];
+        if (!slot)
+            slot = std::make_unique<Animate>(this);
+        return *slot;
+    }
 
-		if (!scrolling && !error(getPosition(), position, 1.f))
-		{
-			calcVelocity(position, seconds);
-		}
-		else if (scrolling && !error(getPosition(), position, 1.f))
-		{
-			sf::Vector2f v = getPosition();
-			setPosition({v.x + velocityX, v.y + velocityY});
-		}
-		else
-		{
-			setPosition(position);
-			scrolling = false;
-			initialPosition = sf::Vector2f(FLT_MAX, FLT_MAX);
-		}
-	}
+    void Positionable::unanchored()
+    {
+        AnchorManager::clear(this);
+    }
 
-	void Positionable::moveDistance(sf::Vector2f distance, float seconds)
-	{
-		if (initialPosition == sf::Vector2f(FLT_MAX, FLT_MAX))
-		{
-			initialPosition = {getPosition().x + distance.x, getPosition().y + distance.y};
-		}
-		moveTo(initialPosition, seconds);
-	}
+    void Positionable::centerInWindow()
+    {
+        Align::centerOn(windowBounds(), *this);
+        AnchorManager::set(this, AnchorOp::CenterOn, nullptr, 0.f);
+        AnchorManager::recordBaseline(this);
+    }
 
-	void Positionable::calcVelocity(sf::Vector2f position, float seconds)
-	{
-		if (!scrolling)
-		{
-			velocityX = (position.x - getPosition().x) / seconds / framerate;
-			velocityY = (position.y - getPosition().y) / seconds / framerate;
-			scrolling = true;
-		}
-	}
+    void Positionable::centerXInWindow(float offset)
+    {
+        Align::centerHorizontally(windowBounds(), *this);
+        if (offset != 0.f) setPosition({ getPosition().x + offset, getPosition().y });
+        AnchorManager::set(this, AnchorOp::CenterX, nullptr, offset);
+        AnchorManager::recordBaseline(this);
+    }
 
-	bool Positionable::error(sf::Vector2f a, sf::Vector2f b, float err)
-	{
-		return abs( a.x - b.x) <= err && abs(a.y - b.y) <= err;
-	}
+    void Positionable::centerYInWindow(float offset)
+    {
+        Align::centerVertically(windowBounds(), *this);
+        if (offset != 0.f) setPosition({ getPosition().x, getPosition().y + offset });
+        AnchorManager::set(this, AnchorOp::CenterY, nullptr, offset);
+        AnchorManager::recordBaseline(this);
+    }
 
-	void Positionable::moveTo(sf::FloatRect position, float seconds)
-	{
-		moveTo(position.position, seconds);
-	}
+    namespace
+    {
+        // Immediate placement of a window inside-edge op — mirrors the solver so
+        // the object lands correctly before the first resize.
+        void applyWindowEdge(Positionable& self, AnchorOp op, float margin)
+        {
+            const sf::FloatRect w = windowBounds();
+            const sf::FloatRect b = self.getGlobalBounds();
+            sf::Vector2f p = self.getPosition();
+            // Position is p; the visual bounds may be offset from p — preserve that delta.
+            const sf::Vector2f off = { p.x - b.position.x, p.y - b.position.y };
+            switch (op)
+            {
+                case AnchorOp::WindowLeft:   p.x = w.position.x + margin + off.x; break;
+                case AnchorOp::WindowRight:  p.x = w.position.x + w.size.x - b.size.x - margin + off.x; break;
+                case AnchorOp::WindowTop:    p.y = w.position.y + margin + off.y; break;
+                case AnchorOp::WindowBottom: p.y = w.position.y + w.size.y - b.size.y - margin + off.y; break;
+                default: break;
+            }
+            self.setPosition(p);
+        }
 
-	void Positionable::setFramerate(float framerate)
-	{
-		Positionable::framerate = framerate;
-	}
+        void setWindowEdge(Positionable* self, AnchorOp op, float margin)
+        {
+            applyWindowEdge(*self, op, margin);
+            AnchorManager::set(self, op, nullptr, margin);
+            AnchorManager::recordBaseline(self);
+        }
+    }
 
-	bool Positionable::isScrolling()
-	{
-		return scrolling;
-	}
+    void Positionable::anchorLeftInWindow(float margin)   { setWindowEdge(this, AnchorOp::WindowLeft,   margin); }
+    void Positionable::anchorRightInWindow(float margin)  { setWindowEdge(this, AnchorOp::WindowRight,  margin); }
+    void Positionable::anchorTopInWindow(float margin)    { setWindowEdge(this, AnchorOp::WindowTop,    margin); }
+    void Positionable::anchorBottomInWindow(float margin) { setWindowEdge(this, AnchorOp::WindowBottom, margin); }
 
+    void Positionable::centerText(sf::Text& obj)
+    {
+        Align::centerText(*this, obj);
+    }
 
 } // namespace ml

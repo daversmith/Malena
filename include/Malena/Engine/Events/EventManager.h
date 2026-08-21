@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // EventManager.h
@@ -105,6 +105,16 @@ namespace ml
          * Deferred if called during @c fire().
          */
         static void clear();
+
+        /**
+         * @brief True if @p receiver is still registered under any event key.
+         *
+         * A destroyed component is removed from all lists by @c forceUnsubscribeAll
+         * (from ~Core). Callers holding a raw @c EventReceiver* (e.g. the click
+         * dispatcher's static @c _focused) use this to detect that it was freed and
+         * avoid dereferencing a dangling pointer.
+         */
+        static bool hasReceiver(EventReceiver* receiver);
 
         /**
          * @brief Fire an event to all matching subscribers.

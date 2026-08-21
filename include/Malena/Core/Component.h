@@ -1,6 +1,6 @@
 
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #ifndef MALENA_COMPONENT_H
 #define MALENA_COMPONENT_H
@@ -143,6 +143,7 @@ namespace ml
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::isState;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::onStateEnter;
         using GatherStates<ComponentManifest, Draggable, Traits...>::type::onStateExit;
+        using GatherStates<ComponentManifest, Draggable, Traits...>::type::syncState;
     };
 
     // =========================================================================
@@ -222,6 +223,18 @@ namespace ml
 
     public:
         using Resources = ml::ManifestResources<ComponentManifest>;
+
+        /// Framework default draw: walk registered children in layer order via
+        /// @c Core::drawChildren. Components that compose other components and
+        /// have no own visuals (ChatWindow, future composites) inherit this
+        /// and override nothing. Components that need procedural rendering or
+        /// to wrap the children loop in a clip view / transform override
+        /// @c draw and either call @c drawChildren themselves at the right
+        /// point or replace the loop entirely.
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            this->drawChildren(target, states);
+        }
     };
 
     // =========================================================================
@@ -233,6 +246,10 @@ namespace ml
     struct ComponentBase<void, Traits...> : public sf::Drawable,
                                             public ComponentCore<void, Traits...>
     {
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+        {
+            this->drawChildren(target, states);
+        }
     };
     /// @endcond
 

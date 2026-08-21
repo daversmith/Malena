@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 3/20/26.
@@ -52,18 +52,21 @@ namespace ml
          * fires after the mouse button is released over this component.
          *
          * @param callback Function invoked with no arguments on click.
+         * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
          */
-        void onClick(std::function<void()> callback);
+        void onClick(std::function<void()> callback, bool overwrite = true);
 
         /**
          * @brief Register a callback invoked when this component is clicked,
          *        receiving the raw SFML event.
          *
-         * Replaces any previously registered @c onClick callback.
+         * Replaces any previously registered @c onClick callback unless
+         * @p overwrite is @c false, in which case the callback is appended.
          *
          * @param callback Function invoked with the SFML event on click.
+         * @param overwrite If @c true (default), replaces any existing callback.
          */
-        void onClick(std::function<void(const std::optional<sf::Event>& event)> callback);
+        void onClick(std::function<void(const std::optional<sf::Event>& event)> callback, bool overwrite = true);
     };
 
     /// @cond INTERNAL

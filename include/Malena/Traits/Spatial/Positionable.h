@@ -1,5 +1,5 @@
-// Copyright (c) 2025 Dave R. Smith. All rights reserved.
-// Malena Framework — Proprietary Software. See LICENSE for terms.
+// Copyright (c) 2025 Dave R. Smith.
+// Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 //
 // Created by Dave Smith on 11/13/22.
@@ -12,13 +12,12 @@
 
 #include <Malena/Core/malena_export.h>
 #include <SFML/Graphics.hpp>
-#include <float.h>
-#include <queue>
+#include <memory>
 #include <Malena/Traits/Base/Trait.h>
-#include <Malena/Utilities/Tween.h>
 
 namespace ml
 {
+    class Animate;
     /**
      * @brief Trait that provides position, bounds, and animated movement.
       * @ingroup Traits
@@ -66,70 +65,48 @@ namespace ml
      */
     class MALENA_API Positionable : public Trait
     {
-    private:
-        float velocityX{}, velocityY{}, framerate = 60.f;
-        sf::Vector2f initialPosition = {FLT_MIN, FLT_MAX};
-        sf::Clock clock;
-        std::queue<sf::Vector2f> points;
-        bool scrolling = false;
-
-        bool error(sf::Vector2f a, sf::Vector2f b, float err = 0.1f);
-        void generatePoints(sf::Vector2f position, float duration, Tween tween);
-        void generateExponential(sf::Vector2f position, float duration);
-        void calcVelocity(sf::Vector2f velocity, float seconds);
-
     public:
-        /**
-         * @brief Set the assumed framerate for movement interpolation.
-         *
-         * @c moveTo generates a queue of intermediate positions based on
-         * this value. Defaults to 60 fps. Call this if your application
-         * runs at a different target rate to keep animation timing accurate.
-         *
-         * @param framerate Target framerate in frames per second.
-         */
-        void setFramerate(float framerate);
+        // Positionable stores NO animation member (that would delete the copy
+        // assignment the framework relies on for value-type shapes). The Animate
+        // controller is owned in an external pointer-keyed registry; this destructor
+        // releases it. Declared out-of-line so Animate stays a forward declaration here.
+        virtual ~Positionable();
 
         /**
-         * @brief Animate to an absolute world-space position.
+         * @brief Access this object's animation controller.
          *
-         * Populates an internal waypoint queue and advances through it
-         * on successive @c onUpdate ticks. The object's position at the
-         * start of the call is the implicit start point.
+         * Lazily created on first use. Drives tweened position (and any
+         * app-supplied property) via delta-time @c Tweener / @c Easing.
          *
-         * @param position  Target position in world coordinates.
-         * @param seconds   Duration of the animation. Defaults to 1.0 s.
+         * @code
+         * comp.animate().move({400.f, 300.f}, 0.4f, ml::Easing::EaseOutCubic);
+         * @endcode
+         *
+         * @return Reference to this object's @c Animate controller.
          */
-        void moveTo(sf::Vector2f position, float seconds = 1.f);
+        Animate& animate();
 
-        /**
-         * @brief Animate to a position defined by a @c FloatRect origin.
-         *
-         * Convenience overload that uses the top-left of @p position as
-         * the target. Useful when positioning relative to layout rects.
-         *
-         * @param position  Rect whose origin is the animation target.
-         * @param seconds   Duration of the animation. Defaults to 1.0 s.
-         */
-        void moveTo(sf::FloatRect position, float seconds = 1.f);
+        // ── Retained-anchor control ──────────────────────────────────────────
+        // The relative-layout helpers below (setBelow/center*/…) are RETAINED by
+        // default: each records a live constraint against its reference and is
+        // re-solved on window resize, so layouts stay correct when the window
+        // changes. A direct setPosition detaches them (manual control wins).
 
-        /**
-         * @brief Animate by a relative offset from the current position.
-         *
-         * Equivalent to @c moveTo(getPosition() + distance, seconds).
-         *
-         * @param distance  Offset in world coordinates to move by.
-         * @param seconds   Duration of the animation. Defaults to 1.0 s.
-         */
-        void moveDistance(sf::Vector2f distance, float seconds = 1.f);
+        /// Drop every retained anchor on this object, freezing its current place.
+        void unanchored();
 
-        /**
-         * @brief Return @c true while a @c moveTo or @c moveDistance
-         *        animation is in progress.
-         *
-         * @return @c true if the waypoint queue is non-empty.
-         */
-        bool isScrolling();
+        /// Center this object within the window (retained; re-solves on resize).
+        void centerInWindow();
+        /// Center this object horizontally within the window, plus @p offset px (retained).
+        void centerXInWindow(float offset = 0.f);
+        /// Center this object vertically within the window, plus @p offset px (retained).
+        void centerYInWindow(float offset = 0.f);
+
+        // Pin an edge to the window's inside edge, @p margin px inward (retained).
+        void anchorLeftInWindow(float margin = 0.f);
+        void anchorRightInWindow(float margin = 0.f);
+        void anchorTopInWindow(float margin = 0.f);
+        void anchorBottomInWindow(float margin = 0.f);
 
         /**
          * @brief Set the world-space position immediately (no animation).
@@ -150,7 +127,7 @@ namespace ml
         /**
          * @brief Return the axis-aligned bounding box in world space.
          *
-         * Used by @c UIManager for hit-testing (click, hover) and by
+         * Used by @c AppManager for hit-testing (click, hover) and by
          * layout helpers for relative placement. Returns a zero-size rect
          * by default, opting the component out of event routing.
          *
