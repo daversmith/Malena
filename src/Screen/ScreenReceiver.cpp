@@ -330,6 +330,23 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
     }
 }
 
+// Push path (native screen sharing): decode a still frame handed to us and show
+// it. Shared shape in both builds — with GStreamer present this simply coexists
+// with the streaming path, replacing whatever frame is on screen.
+void ScreenReceiverBase::pushFrame(const std::uint8_t* data, std::size_t size)
+{
+    if (!data || size == 0) return;
+    if (_impl->frozen) return;          // holding the last frame on purpose
+
+    sf::Image img;
+    if (!img.loadFromMemory(data, size)) return;
+    if (!_impl->texture.loadFromImage(img)) return;
+
+    _impl->texture.setSmooth(true);
+    _impl->textureReady = true;
+    _impl->connected.store(true);
+}
+
 #else   // !MALENA_SCREENSHARE_ENABLED — no GStreamer, no decode
 
 // Same API, no pipeline: state is held so getters/setters behave normally, the
@@ -341,6 +358,13 @@ struct ScreenReceiverBase::Impl
     std::string url;
     bool        frozen    = false;
     ScaleMode   scaleMode = ScaleMode::Stretch;
+
+    // Even with no decoder, this build still displays frames handed to it via
+    // pushFrame() — that is how native screen sharing works, and it is the only
+    // source of pixels here.
+    mutable sf::Texture texture;
+    bool                textureReady = false;
+    std::atomic<bool>   connected { false };
 };
 
 ScreenReceiverBase::ScreenReceiverBase(const char* name, const char* rtspUrl)
@@ -365,18 +389,78 @@ bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
 void ScreenReceiverBase::setScaleMode(ScaleMode mode) { _impl->scaleMode = mode; }
 ScreenReceiverBase::ScaleMode ScreenReceiverBase::scaleMode() const { return _impl->scaleMode; }
 
-bool ScreenReceiverBase::isConnected() const { return false; }
+bool ScreenReceiverBase::isConnected() const { return _impl->connected.load(); }
 const std::string& ScreenReceiverBase::receiverName() const { return _impl->name; }
 const std::string& ScreenReceiverBase::url() const { return _impl->url; }
 
 void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    if (_impl->textureReady)
+    {
+        const sf::Vector2f pos = this->getPosition();
+        const sf::Vector2f sz  = this->getSize();
+        const sf::Vector2u tsz = _impl->texture.getSize();
+        sf::Sprite s(_impl->texture);
+
+        if (tsz.x > 0 && tsz.y > 0)
+        {
+            const float tw = static_cast<float>(tsz.x), th = static_cast<float>(tsz.y);
+            switch (_impl->scaleMode)
+            {
+            case ScaleMode::Stretch:
+                s.setPosition(pos);
+                s.setScale({ sz.x / tw, sz.y / th });
+                break;
+            case ScaleMode::Fit: {
+                const float k = std::min(sz.x / tw, sz.y / th);
+                s.setScale({ k, k });
+                s.setPosition({ pos.x + (sz.x - tw * k) * 0.5f,
+                                pos.y + (sz.y - th * k) * 0.5f });
+                break;
+            }
+            case ScaleMode::Fill: {
+                const float k = std::max(sz.x / tw, sz.y / th);
+                const float visW = std::min(tw, sz.x / k);
+                const float visH = std::min(th, sz.y / k);
+                s.setTextureRect(sf::IntRect(
+                    { static_cast<int>((tw - visW) * 0.5f),
+                      static_cast<int>((th - visH) * 0.5f) },
+                    { static_cast<int>(visW), static_cast<int>(visH) }));
+                s.setScale({ k, k });
+                s.setPosition(pos);
+                break;
+            }
+            }
+        }
+        else s.setPosition(pos);
+
+        target.draw(s, states);
+        return;
+    }
+
     sf::RectangleShape bg(this->getSize());
     bg.setPosition(this->getPosition());
     bg.setFillColor(sf::Color(10, 10, 10));
     bg.setOutlineColor(sf::Color(60, 60, 60));
     bg.setOutlineThickness(1.f);
     target.draw(bg, states);
+}
+
+// Push path (native screen sharing): decode a still frame handed to us and show
+// it. Shared shape in both builds — with GStreamer present this simply coexists
+// with the streaming path, replacing whatever frame is on screen.
+void ScreenReceiverBase::pushFrame(const std::uint8_t* data, std::size_t size)
+{
+    if (!data || size == 0) return;
+    if (_impl->frozen) return;          // holding the last frame on purpose
+
+    sf::Image img;
+    if (!img.loadFromMemory(data, size)) return;
+    if (!_impl->texture.loadFromImage(img)) return;
+
+    _impl->texture.setSmooth(true);
+    _impl->textureReady = true;
+    _impl->connected.store(true);
 }
 
 #endif  // MALENA_SCREENSHARE_ENABLED

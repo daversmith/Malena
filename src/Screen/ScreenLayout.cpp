@@ -97,4 +97,9 @@ void ScreenLayout::draw(sf::RenderTarget& target, sf::RenderStates states) const
         _pane1.draw(target, states);
 }
 
+void ScreenLayout::pushFrame(int pane, const std::uint8_t* data, std::size_t size)
+{
+    (pane == 1 ? _pane1 : _pane0).pushFrame(data, size);
+}
+
 } // namespace ml
