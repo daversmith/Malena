@@ -46,8 +46,13 @@ target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
 # (httplib, ixwebsocket) are included only in .cpp files, not public headers.
 target_link_libraries(Malena PRIVATE httplib::httplib ixwebsocket)
 
-# Native file dialogs — PRIVATE, NFD headers are only in the .cpp implementation
-target_link_libraries(Malena PRIVATE "$<BUILD_INTERFACE:nfd>")
+# Native file dialogs — PRIVATE, NFD headers are only in the .cpp implementation.
+# NOT wrapped in $<BUILD_INTERFACE:> : that reads as a usage requirement and still
+# leaves a reference to the `nfd` target in Malena's exported interface, so
+# install(EXPORT) fails with "requires target nfd that is not in any export set".
+# Plain PRIVATE keeps it out of the interface for a shared build; a STATIC build
+# still needs nfd at link time, which the install() below handles.
+target_link_libraries(Malena PRIVATE nfd)
 
 # nlohmann/json — header-only. BUILD_INTERFACE limits the dependency to the
 # build tree so it does not appear in the install export set (which would
@@ -91,6 +96,18 @@ if(GSTREAMER_FOUND AND GST_APP_FOUND AND GST_VIDEO_FOUND)
 else()
     message(STATUS "Malena: GStreamer not found — ScreenReceiver disabled")
 endif()
+
+# nfd is a PRIVATE dependency, but CMake still records private deps of an
+# exported target in its interface (as $<LINK_ONLY:...>), so install(EXPORT)
+# refuses to generate unless nfd is exported too — and a consumer linking a
+# STATIC Malena really does need nfd's objects at link time. Export it in the
+# same set rather than pretending the dependency isn't there.
+install(TARGETS nfd
+        EXPORT Malena-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 # Install the library
 install(TARGETS Malena
