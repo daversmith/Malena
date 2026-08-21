@@ -20,6 +20,7 @@
 #include <optional>
 namespace ml
 {
+    class Core;   // fwd: EventReceiver stores its owning Core (see _selfCore)
     /**
      * @brief Base class for all event-receiving traits.
      * @ingroup EngineEvents
@@ -77,6 +78,19 @@ namespace ml
          */
         std::vector<EventCallback>& getCallbacks(const std::string& key);
         /// @endcond
+
+        /**
+         * The owning Core, stamped by Core's constructor.
+         *
+         * Traits subscribe from inside their OWN constructors (ml::TextInput
+         * calls onFocus(), ComponentCore subscribes to CLICK/HOVER/DRAG), at
+         * which point the derived type does not exist yet. Recovering the Core
+         * by dynamic_cast there is undefined: Clang returns something usable,
+         * MSVC throws "Access violation - no RTTI data!" and aborts the process.
+         * Core sets this on every one of its EventReceiver subobjects before any
+         * derived constructor runs, so no RTTI is ever needed.
+         */
+        Core* _selfCore = nullptr;
 
     private:
         std::map<std::string, std::vector<EventCallback>> _callbacks;

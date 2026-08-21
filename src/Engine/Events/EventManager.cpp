@@ -15,9 +15,11 @@ namespace ml
     	for (const auto& sub : subs)
     		if (sub.receiver == component) return;  // already subscribed
 
-    	// Only reach for RTTI when the caller could not tell us. A caller that
-    	// subscribes from inside its own constructor MUST pass `core` — see the
-    	// note on subscribe().
+    	// Prefer what we were told, then the identity Core stamped on the
+    	// receiver. RTTI is the last resort and is only safe for a fully
+    	// constructed non-Core receiver — never for something subscribing from
+    	// inside its own constructor (see EventReceiver::_selfCore).
+    	if (!core) core = component->_selfCore;
     	if (!core) core = dynamic_cast<Core*>(component);
     	subs.push_back({component, core});
     }
