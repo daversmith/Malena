@@ -66,9 +66,14 @@ namespace ml
          * @param  component The trait @c EventReceiver* subobject.
          */
         template<typename EnumType>
-        static void subscribe(EnumType eventEnum, EventReceiver* component)
+        static void subscribe(EnumType eventEnum, EventReceiver* component, Core* core = nullptr)
         {
-            doSubscribe(EnumKey::get(eventEnum), component);
+            // `core` may be supplied by callers that already KNOW the Core
+            // identity — notably ComponentCore, which subscribes from inside its
+            // own constructor. Resolving it there by dynamic_cast would be a
+            // cast on a partially-constructed object: undefined, tolerated by
+            // Clang, and a hard RTTI failure on MSVC (0xC0000409 at startup).
+            doSubscribe(EnumKey::get(eventEnum), component, core);
         }
 
         /**
@@ -150,7 +155,7 @@ namespace ml
 
 
 
-        static void doSubscribe(const std::string& key, EventReceiver* component);
+        static void doSubscribe(const std::string& key, EventReceiver* component, Core* core = nullptr);
         static void doFire(const std::string& key,
                            Fireable* dispatcher,
                            const std::optional<sf::Event>& event,

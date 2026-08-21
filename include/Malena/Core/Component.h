@@ -118,9 +118,16 @@ namespace ml
 
         ComponentCore()
         {
-            EventManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this));
-            this->onClick([](){});
-            this->onHover([](){});
+            // These subscriptions happen while THIS object is still being
+            // constructed, so nothing here may use RTTI on it. static_cast to
+            // Core is valid (Core is an unambiguous base already constructed);
+            // dynamic_cast would be undefined and hard-fails on MSVC.
+            Core* self = static_cast<Core*>(this);
+            EventManager::subscribe(ml::Event::DRAG, static_cast<Draggable*>(this), self);
+            Fireable::addCallback(ml::Event::CLICK, static_cast<Clickable*>(this),
+                                  [](const std::optional<sf::Event>&){}, true, self);
+            Fireable::addCallback(ml::Event::HOVER, static_cast<Hoverable*>(this),
+                                  [](const std::optional<sf::Event>&){}, true, self);
         }
 
         // ── System flags (ml::Flag) ──────────────────────────────────────────

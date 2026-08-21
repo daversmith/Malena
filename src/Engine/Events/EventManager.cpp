@@ -9,13 +9,16 @@
 
 namespace ml
 {
-    void EventManager::doSubscribe(const std::string& key, EventReceiver* component)
+    void EventManager::doSubscribe(const std::string& key, EventReceiver* component, Core* core)
     {
     	auto& subs = _subscribers[key];
     	for (const auto& sub : subs)
     		if (sub.receiver == component) return;  // already subscribed
 
-    	auto* core = dynamic_cast<Core*>(component);
+    	// Only reach for RTTI when the caller could not tell us. A caller that
+    	// subscribes from inside its own constructor MUST pass `core` — see the
+    	// note on subscribe().
+    	if (!core) core = dynamic_cast<Core*>(component);
     	subs.push_back({component, core});
     }
 

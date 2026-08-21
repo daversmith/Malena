@@ -73,7 +73,8 @@ namespace ml
         static void addCallback(EnumType eventEnum,
                                 EventReceiver* component,
                                 EventCallback callback,
-                                bool overwrite = true);
+                                bool overwrite = true,
+                                Core* core = nullptr);
 
         struct MALENA_API Cleanup { ~Cleanup(); };
 

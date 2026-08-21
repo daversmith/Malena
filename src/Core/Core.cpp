@@ -21,6 +21,10 @@ namespace ml
 
     Core::Core()
     {
+        // Stamp our identity for Unsubscribable before ANY derived constructor
+        // runs, so unsubscribeAll() from inside a widget's own constructor does
+        // not need RTTI on a half-built object (see Unsubscribable::_selfCore).
+        Unsubscribable::_selfCore = this;
         enableFlag(Flag::ENABLED);
     }
 

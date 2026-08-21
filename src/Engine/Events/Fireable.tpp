@@ -8,7 +8,8 @@ namespace ml
 	void Fireable::addCallback(EnumType eventEnum,
 						 EventReceiver* component,
 						 EventCallback callback,
-						 bool overwrite)
+						 bool overwrite,
+						 Core* core)
 	{
 		static_assert(std::is_enum_v<EnumType>,
 			"[Malena] Fireable::addCallback — first argument must be an enum value.");
@@ -17,7 +18,7 @@ namespace ml
 		auto& cbs = component->getCallbacks(key);
 		if (overwrite) cbs.clear();
 		cbs.push_back(std::move(callback));
-		EventManager::subscribe(eventEnum, component);  // enum passed directly
+		EventManager::subscribe(eventEnum, component, core);  // enum passed directly
 	}
 
 }
