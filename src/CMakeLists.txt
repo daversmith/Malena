@@ -28,6 +28,21 @@ target_compile_features(Malena PUBLIC cxx_std_17)
 if(APPLE)
     target_compile_options(Malena PUBLIC -x objective-c++)
     target_link_libraries(Malena PUBLIC "-framework AppKit")
+    # ScreenSource captures the desktop with CoreGraphics (no GStreamer needed).
+    target_link_libraries(Malena PRIVATE "-framework CoreGraphics")
+endif()
+
+# ScreenSource's X11 backend. Optional: without it Malena still builds and
+# ScreenSource::isSupported() reports false rather than failing the build.
+if(UNIX AND NOT APPLE)
+    find_package(X11 QUIET)
+    if(X11_FOUND)
+        target_include_directories(Malena PRIVATE ${X11_INCLUDE_DIR})
+        target_link_libraries(Malena PRIVATE ${X11_LIBRARIES})
+        message(STATUS "Malena: ScreenSource X11 capture enabled")
+    else()
+        message(STATUS "Malena: X11 not found — ScreenSource capture disabled")
+    endif()
 endif()
 
 # MALENA_EXPORTS: consumed by malena_export.h to emit dllexport when building the DLL.
