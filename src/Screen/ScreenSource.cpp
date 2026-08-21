@@ -8,6 +8,7 @@
 
 #if defined(__APPLE__)
 #  include <CoreGraphics/CoreGraphics.h>
+#  include <dlfcn.h>
 #elif defined(_WIN32)
 #  include <windows.h>
 #else
@@ -85,7 +86,23 @@ std::optional<sf::Image> ScreenSource::grab()
         (count > 0 && _impl->display < static_cast<int>(count)) ? ids[_impl->display]
                                                                 : CGMainDisplayID();
 
-    CGImageRef img = CGDisplayCreateImage(did);
+    // CGDisplayCreateImage is *obsoleted* in the macOS 15 SDK — not merely
+    // deprecated, the declaration is gone, so naming it fails to COMPILE on a
+    // newer SDK even though the function is still present at runtime on the
+    // systems we target. Resolve it dynamically so one source builds against
+    // any SDK; where it is genuinely absent we report unsupported rather than
+    // failing the build. ScreenCaptureKit is the real replacement — see
+    // LockIn/SCREEN_SHARE_NATIVE_PLAN.md phase 2.
+    using CGDisplayCreateImageFn = CGImageRef (*)(CGDirectDisplayID);
+    static const auto createImage = reinterpret_cast<CGDisplayCreateImageFn>(
+        dlsym(RTLD_DEFAULT, "CGDisplayCreateImage"));
+    if (!createImage)
+    {
+        _impl->error = "screen capture unavailable on this macOS (needs ScreenCaptureKit)";
+        return std::nullopt;
+    }
+
+    CGImageRef img = createImage(did);
     if (!img) { _impl->error = "CGDisplayCreateImage failed (Screen Recording permission?)"; return std::nullopt; }
 
     const std::size_t w = CGImageGetWidth(img);
