@@ -36,6 +36,15 @@ class MALENA_API DynamicPanel : public Panel
 public:
     DynamicPanel();
 
+    // Non-copyable. Required, not stylistic: __declspec(dllexport) on a class
+    // instantiates EVERY member, including the implicit copy assignment — and
+    // that cannot be formed for a std::vector<std::unique_ptr<...>> member, so
+    // MSVC fails the shared/DLL build with C2280. (Static builds and Clang/GCC
+    // never instantiate it, which is why this only broke Windows Shared.)
+    // Copying a scene-graph node was never valid anyway.
+    DynamicPanel(const DynamicPanel&)            = delete;
+    DynamicPanel& operator=(const DynamicPanel&) = delete;
+
     /// The builder handed to your onBuild callback. Each call reuses a pooled
     /// widget positioned RELATIVE to the panel's own origin.
     class MALENA_API Builder

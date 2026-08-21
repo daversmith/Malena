@@ -64,6 +64,15 @@ namespace ml
         EditableList();
         ~EditableList() override;   // out-of-line for the pimpl-style Row
 
+        // Non-copyable. Required, not stylistic: __declspec(dllexport) on a class
+        // instantiates EVERY member, including the implicit copy assignment — and
+        // that cannot be formed for a std::vector<std::unique_ptr<...>> member, so
+        // MSVC fails the shared/DLL build with C2280. (Static builds and Clang/GCC
+        // never instantiate it, which is why this only broke Windows Shared.)
+        // Copying a scene-graph node was never valid anyway.
+        EditableList(const EditableList&)            = delete;
+        EditableList& operator=(const EditableList&) = delete;
+
         // ── Configuration ──────────────────────────────────────────────────────
         void setSelectionMode(SelectionMode mode);
         void setContentFactory(ContentFactory factory);
