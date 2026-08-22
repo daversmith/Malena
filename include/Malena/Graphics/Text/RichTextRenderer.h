@@ -162,6 +162,11 @@ namespace ml
         void     buildSegments();
         void     computeListMarkers();   // assign listType/indent/marker per line + numbering
         void     layoutLines();
+        // Places one paragraph's segments into word-wrapped rows; returns the
+        // number of extra rows used. Shared by layoutLines() and reflow() so the
+        // two cannot drift apart again.
+        int      placeLine(RenderedLine& line, float top,
+                           float maxSize, float rowStep) const;
         // Height basis for an empty line: the size text typed there would take
         // (the preceding character's size), so a blank line after small text isn't
         // stuck at the default height. Falls back to the default.

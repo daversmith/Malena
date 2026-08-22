@@ -43,7 +43,8 @@ foreach(suite
         DynamicPanel # retained pooled rebuild: reuse/hide, keyed inputs, invalidate flag
         Avatar # initials + name-hashed colour chip control
         DragList # drag-to-reorder + tap state machine
-        Utf8Text) # UTF-8 decode/round-trip, caret + delete over multi-byte chars
+        Utf8Text # UTF-8 decode/round-trip, caret + delete over multi-byte chars
+        TextWrap) # rich-text wraps between words, long words hard-break, reflow==layout
     add_executable(${suite}Test ${suite}/main.cpp)
     target_link_libraries(${suite}Test PRIVATE Malena::Malena)
     target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)

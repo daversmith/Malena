@@ -210,28 +210,8 @@ namespace ml
                 line.markerPos = { _origin.x + line.indent - 26.f,
                                    y + (maxSize - static_cast<float>(_defaultSize)) };
 
-            float x         = left;
-            float rowStartY = y;
-            int   wrapCount = 0;
-
-            for (auto& seg : line.segments)
-            {
-                seg.position = {x, baselineY(seg, y)};
-                seg.sfText.setPosition(seg.position);
-
-                const float segWidth = segAdvance(seg.sfText);
-
-                if (_maxWidth > 0.f && x + segWidth - left > _maxWidth - line.indent && x > left)
-                {
-                    y += rowStep;
-                    x  = left;
-                    ++wrapCount;
-                    seg.position = {x, baselineY(seg, y)};
-                    seg.sfText.setPosition(seg.position);
-                }
-
-                x += segAdvance(seg.sfText);
-            }
+            const float rowStartY = y;
+            const int   wrapCount = placeLine(line, rowStartY, maxSize, rowStep);
 
             alignLineRows(line, maxSize);   // apply paragraph alignment
 
@@ -328,6 +308,96 @@ namespace ml
         _lines.push_back(std::move(currentLine));
     }
 
+    // Place one paragraph's segments into rows, wrapping at WORD boundaries.
+    // Returns the number of ADDITIONAL rows used (0 = it fits on one row).
+    //
+    // buildSegments() splits at every character when wrapping is on, so that the
+    // caret can sit anywhere and an unbreakable word can still be broken. A
+    // naive per-segment wrap therefore chopped words in half — "submission"
+    // came out as "submiss/ion". Two passes fix that: decide each segment's row
+    // first, retreating to the start of the current word when it would overflow,
+    // then position them. A word wider than the whole line still hard-breaks,
+    // since the alternative is running off the edge.
+    //
+    // Shared by layoutLines() and reflow(). They used to hold separate copies of
+    // this loop, which is precisely how they drifted: reflow() runs on every
+    // setOrigin(), so its copy was the one on screen.
+    int RichTextRenderer::placeLine(RenderedLine& line, float top,
+                                    float maxSize, float rowStep) const
+    {
+        if (line.segments.empty()) return 0;
+
+        constexpr std::size_t NO_WORD = static_cast<std::size_t>(-1);
+
+        const float left  = _origin.x + line.indent;
+        const float avail = _maxWidth - line.indent;
+
+        const auto baselineY = [maxSize](const RenderedSegment& sg, float rowTop) {
+            return rowTop + (maxSize - static_cast<float>(sg.sfText.getCharacterSize()));
+        };
+        const auto isSpaceSeg = [](const RenderedSegment& sg) {
+            const sf::String& str = sg.sfText.getString();
+            return str.getSize() == 1 && (str[0] == U' ' || str[0] == U'\t');
+        };
+
+        // Pass 1 — assign a row to each segment.
+        std::vector<int> rowOf(line.segments.size(), 0);
+        int         rows      = 0;
+        float       x         = left;
+        std::size_t rowFirst  = 0;         // first segment on the current row
+        std::size_t wordStart = NO_WORD;   // first segment of the current word
+        float       wordX     = left;      // x at which that word began
+
+        for (std::size_t i = 0; i < line.segments.size(); ++i)
+        {
+            const float w     = segAdvance(line.segments[i].sfText);
+            const bool  space = isSpaceSeg(line.segments[i]);
+
+            if (!space && (i == 0 || isSpaceSeg(line.segments[i - 1])))
+            { wordStart = i; wordX = x; }
+
+            // A trailing space may overhang the edge; only content forces a wrap.
+            if (!space && _maxWidth > 0.f && x + w - left > avail && x > left)
+            {
+                ++rows;
+                if (wordStart != NO_WORD && wordStart > rowFirst)
+                {
+                    for (std::size_t j = wordStart; j < i; ++j)   // carry the word down
+                        rowOf[j] = rows;
+                    x        = left + (x - wordX);
+                    rowFirst = wordStart;
+                    wordX    = left;
+                }
+                else                                             // word alone and too wide
+                {
+                    x         = left;
+                    rowFirst  = i;
+                    wordStart = i;
+                    wordX     = left;
+                }
+            }
+
+            rowOf[i] = rows;
+            x += w;
+        }
+
+        // Pass 2 — position them.
+        int   curRow = 0;
+        float penX   = left;
+        for (std::size_t i = 0; i < line.segments.size(); ++i)
+        {
+            auto& seg = line.segments[i];
+            if (rowOf[i] != curRow) { curRow = rowOf[i]; penX = left; }
+
+            const float rowTop = top + static_cast<float>(curRow) * rowStep;
+            seg.position = {penX, baselineY(seg, rowTop)};
+            seg.sfText.setPosition(seg.position);
+            penX += segAdvance(seg.sfText);
+        }
+
+        return rows;
+    }
+
     void RichTextRenderer::layoutLines()
     {
         float y = _origin.y;
@@ -363,28 +433,8 @@ namespace ml
                 line.markerPos = { _origin.x + line.indent - 26.f,
                                    y + (maxSize - static_cast<float>(_defaultSize)) };
 
-            float x        = left;
-            float rowStartY = y;
-            int   wrapCount = 0;
-
-            for (auto& seg : line.segments)
-            {
-                seg.position = {x, baselineY(seg, y)};
-                seg.sfText.setPosition(seg.position);
-
-                const float segWidth = segAdvance(seg.sfText);
-
-                if (_maxWidth > 0.f && x + segWidth - left > _maxWidth - line.indent && x > left)
-                {
-                    y += lineHeight;
-                    x  = left;
-                    ++wrapCount;
-                    seg.position = {x, baselineY(seg, y)};
-                    seg.sfText.setPosition(seg.position);
-                }
-
-                x += segAdvance(seg.sfText);
-            }
+            const float rowStartY = y;
+            const int   wrapCount = placeLine(line, rowStartY, maxSize, lineHeight);
 
             alignLineRows(line, maxSize);   // apply paragraph alignment
 
