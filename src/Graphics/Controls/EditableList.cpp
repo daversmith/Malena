@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/EditableList.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Graphics/Text/TextInput.h>
 #include <Malena/Resources/IconFont.h>
 #include <algorithm>
@@ -69,7 +70,7 @@ namespace ml
         setFillColor(sf::Color::Transparent);
         _scroll.setBackgroundColor(sf::Color::Transparent);
 
-        _addBtn.setString(_addLabel);
+        _addBtn.setString(ml::utf8(_addLabel));
         _addBtn.setCharacterSize(13);
         _addBtn.setFillColor(sf::Color(50, 90, 160));
         _addBtn.setTextColor(sf::Color::White);
@@ -121,7 +122,7 @@ namespace ml
     }
 
     void EditableList::setShowAddButton(bool show)      { _showAdd = show; relayout(); }
-    void EditableList::setAddButtonLabel(const std::string& label) { _addLabel = label; _addBtn.setString(label); }
+    void EditableList::setAddButtonLabel(const std::string& label) { _addLabel = label; _addBtn.setString(ml::utf8(label)); }
     void EditableList::setMinRows(int n)                { _minRows = n; }
     void EditableList::setMaxRows(int n)                { _maxRows = n; }
     void EditableList::setRowHeight(float h)            { _rowHeight = h; relayout(); }

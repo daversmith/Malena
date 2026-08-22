@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Select.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Engine/App/AppManager.h>
 #include <SFML/Window/Mouse.hpp>
@@ -26,7 +27,7 @@ namespace ml
 
         _triggerLabel.setCharacterSize(fontSize);
         _triggerLabel.setFillColor(placeholderColor);
-        _triggerLabel.setString(_placeholder);
+        _triggerLabel.setString(ml::utf8(_placeholder));
 
         _arrow.setCharacterSize(fontSize);
         _arrow.setFillColor(arrowColor);
@@ -255,7 +256,7 @@ namespace ml
         const std::string& lbl = _options[index].label.empty()
                                  ? _options[index].value
                                  : _options[index].label;
-        _triggerLabel.setString(lbl);
+        _triggerLabel.setString(ml::utf8(lbl));
 
         if (_options[index].style.color.has_value())
             _triggerLabel.setFillColor(*_options[index].style.color);
@@ -344,7 +345,7 @@ namespace ml
             ? option.style.color.value_or(itemLabelColor)
             : itemDisabledColor;
 
-        sf::Text label(f, option.label, sz);
+        sf::Text label(f, ml::utf8(option.label), sz);
         label.setFillColor(labelCol);
 
         sf::Text::Style style = sf::Text::Style::Regular;
@@ -384,7 +385,7 @@ namespace ml
                 ? option.style.descColor.value_or(itemDescColor)
                 : itemDisabledColor;
 
-            sf::Text desc(f, option.style.description, dSz);
+            sf::Text desc(f, ml::utf8(option.style.description), dSz);
             desc.setFillColor(dCol);
 
             const float halfH = itemHeight / 2.f;
@@ -461,7 +462,7 @@ namespace ml
     {
         _options.clear();
         _selectedIndex = -1;
-        _triggerLabel.setString(_placeholder);
+        _triggerLabel.setString(ml::utf8(_placeholder));
         _triggerLabel.setFillColor(placeholderColor);
         syncTrigger();
         syncPanel();
@@ -484,7 +485,7 @@ namespace ml
         if (_selectedIndex >= 0 && _selectedIndex < static_cast<int>(_options.size()))
             _options[_selectedIndex].selected = false;
         _selectedIndex = -1;
-        _triggerLabel.setString(_placeholder);
+        _triggerLabel.setString(ml::utf8(_placeholder));
         syncTriggerColors();
         syncTrigger();
     }
@@ -516,7 +517,7 @@ namespace ml
     void Select::setPlaceholder(const std::string& text)
     {
         _placeholder = text;
-        if (_selectedIndex < 0) { _triggerLabel.setString(text); syncTrigger(); }
+        if (_selectedIndex < 0) { _triggerLabel.setString(ml::utf8(text)); syncTrigger(); }
     }
 
     std::string Select::getPlaceholder() const { return _placeholder; }

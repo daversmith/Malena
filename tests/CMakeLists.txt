@@ -42,7 +42,8 @@ foreach(suite
         VisibilityIndependent # Flag::VISIBILITY_INDEPENDENT opt-out of the Panel setVisible/setActive cascade
         DynamicPanel # retained pooled rebuild: reuse/hide, keyed inputs, invalidate flag
         Avatar # initials + name-hashed colour chip control
-        DragList) # drag-to-reorder + tap state machine
+        DragList # drag-to-reorder + tap state machine
+        Utf8Text) # UTF-8 decode/round-trip, caret + delete over multi-byte chars
     add_executable(${suite}Test ${suite}/main.cpp)
     target_link_libraries(${suite}Test PRIVATE Malena::Malena)
     target_include_directories(${suite}Test PRIVATE ${CMAKE_SOURCE_DIR}/include)

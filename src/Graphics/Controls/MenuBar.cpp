@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/MenuBar.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -195,7 +196,7 @@ namespace ml
 
         for (auto& entry : _entries)
         {
-            measure.setString(entry.label);
+            measure.setString(ml::utf8(entry.label));
             entry.labelX = x;
             entry.labelW = measure.getGlobalBounds().size.x;
             x += entry.labelW + entryPadding * 2.f;
@@ -298,7 +299,7 @@ namespace ml
                 else if (!item.shortcut.empty())
                 {
                     auto sc = std::make_unique<ml::Text>(*font);
-                    sc->setString(item.shortcut);
+                    sc->setString(ml::utf8(item.shortcut));
                     sc->setCharacterSize(fontSizeSmall);
                     sc->setFillColor(item.enabled ? shortcutColor : itemDisabledColor);
                     sc->unsubscribeAll();
@@ -353,11 +354,11 @@ namespace ml
         float maxW = dropdownMinW;
         for (const auto& item : _entries[idx].items)
         {
-            measure.setString(item.label);
+            measure.setString(ml::utf8(item.label));
             float w = measure.getGlobalBounds().size.x + padding * 2.f;
             if (!item.shortcut.empty())
             {
-                measure.setString(item.shortcut);
+                measure.setString(ml::utf8(item.shortcut));
                 w += measure.getGlobalBounds().size.x + padding * 2.f;
             }
             if (item.hasSubmenu()) w += 14.f;
@@ -440,7 +441,7 @@ namespace ml
                 target.draw(hl, states);
             }
 
-            label.setString(entry.label);
+            label.setString(ml::utf8(entry.label));
             const sf::FloatRect lb = label.getLocalBounds();
             label.setPosition({
                 _position.x + entry.labelX,
@@ -497,7 +498,7 @@ namespace ml
             sf::Text m(*font, "", static_cast<unsigned int>(fontSize));
             for (const auto& si : item.submenu)
             {
-                m.setString(si.label);
+                m.setString(ml::utf8(si.label));
                 smW = std::max(smW, m.getGlobalBounds().size.x + padding * 4.f);
             }
         }
@@ -523,7 +524,7 @@ namespace ml
         {
             if (!si.separator)
             {
-                lbl.setString(si.label);
+                lbl.setString(ml::utf8(si.label));
                 lbl.setFillColor(si.enabled ? textColor : itemDisabledColor);
                 const sf::FloatRect b = lbl.getLocalBounds();
                 lbl.setPosition({

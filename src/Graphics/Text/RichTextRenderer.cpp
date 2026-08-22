@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Text/RichTextRenderer.h>
+#include <Malena/Utilities/Utf8.h>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -270,6 +271,21 @@ namespace ml
                     boundaries.push_back(i);
         }
 
+        // Never split inside a UTF-8 character. The buffer is byte-indexed, so
+        // every boundary source above (attribute runs, and especially the
+        // split-at-every-index wrap loop) can land mid-sequence. A segment
+        // holding half a character cannot be decoded, so "é" rendered as two
+        // tofu boxes and "—" as three. Snap each boundary back to the start of
+        // its character: a UTF-8 continuation byte is 10xxxxxx.
+        const auto snapToCharStart = [&text](std::size_t i) {
+            while (i > 0 && i < text.size() &&
+                   (static_cast<unsigned char>(text[i]) & 0xC0) == 0x80)
+                --i;
+            return i;
+        };
+        for (auto& b : boundaries)
+            b = snapToCharStart(b);
+
         std::sort(boundaries.begin(), boundaries.end());
         boundaries.erase(std::unique(boundaries.begin(), boundaries.end()), boundaries.end());
 
@@ -431,7 +447,7 @@ namespace ml
         unsigned int    size = attr.charSize.value_or(_defaultSize);
         sf::Color       col  = attr.color.value_or(_defaultColor);
 
-        sf::Text t(font, str, size);
+        sf::Text t(font, ml::utf8(str), size);
         t.setFillColor(col);
 
         auto combineStyle = [](sf::Text::Style a, sf::Text::Style b) {

@@ -77,6 +77,19 @@ namespace ml
         void setString(const sf::String& text);
 
         /**
+         * @brief Set the text from a UTF-8 encoded string.
+         *
+         * These overloads exist because @c sf::String's implicit constructor from
+         * @c std::string / @c const char* decodes using the current locale — i.e.
+         * ANSI — so a UTF-8 byte sequence becomes one codepoint PER BYTE. An
+         * em-dash ("—", 3 bytes) rendered as three tofu boxes. Anything the app
+         * feeds in from JSON, a file, or a text field is UTF-8, so decode it as
+         * such.
+         */
+        void setString(const std::string& bytes);
+        void setString(const char* bytes);
+
+        /**
          * @brief Enable or disable automatic word wrapping.
          *
          * When enabled, @c setString inserts line breaks at word boundaries

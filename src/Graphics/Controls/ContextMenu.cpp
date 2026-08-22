@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/ContextMenu.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Engine/App/AppManager.h>   // exclusive-owner (modal) input gating
 #include <Malena/Resources/FontManager.h>
@@ -113,13 +114,13 @@ namespace ml
     // Truncate a label to fit maxW (px) with a trailing ellipsis.
     static std::string fitLabel(const sf::Font& font, const std::string& s, unsigned charSize, float maxW)
     {
-        sf::Text probe(font, s, charSize);
+        sf::Text probe(font, ml::utf8(s), charSize);
         if (probe.getLocalBounds().size.x <= maxW) return s;
         std::string out = s;
         while (!out.empty())
         {
             out.pop_back();
-            sf::Text t(font, out + "...", charSize);
+            sf::Text t(font, ml::utf8(out + "..."), charSize);
             if (t.getLocalBounds().size.x <= maxW) return out + "...";
         }
         return "...";
@@ -160,7 +161,7 @@ namespace ml
             const sf::Font& font = FontManager<>::getDefault();
             for (const auto& it : _items)   // width from ALL items so it doesn't jump while filtering
             {
-                sf::Text t(font, it.label, _charSize);
+                sf::Text t(font, ml::utf8(it.label), _charSize);
                 maxW = std::max(maxW, t.getLocalBounds().size.x);
             }
             _width = maxW + _pad * 4.f;
@@ -249,7 +250,7 @@ namespace ml
             target.draw(box, states);
 
             const bool empty = _filter.empty();
-            sf::Text t(font, empty ? std::string("Search...") : _filter, _charSize);
+            sf::Text t(font, ml::utf8(empty ? std::string("Search...") : _filter), _charSize);
             t.setFillColor(empty ? sf::Color(130, 130, 140) : sf::Color(235, 235, 240));
             t.setPosition({ sr.position.x + _pad * 3.f, sr.position.y + 6.f });
             target.draw(t, states);
@@ -259,7 +260,7 @@ namespace ml
         const int vis = visibleCount();
         if (_filtered.empty())
         {
-            sf::Text t(font, std::string("(no matches)"), _charSize);
+            sf::Text t(font, ml::utf8(std::string("(no matches)")), _charSize);
             t.setFillColor(sf::Color(140, 140, 150));
             t.setPosition({ _pos.x + _pad * 2.f, itemsTop() + 4.f });
             target.draw(t, states);
@@ -276,7 +277,7 @@ namespace ml
             }
             const std::size_t item = _filtered[static_cast<std::size_t>(_scrollItem + vi)];
             const float textMaxW = _width - _pad * 4.f - (searchShown() || static_cast<int>(_filtered.size()) > _maxVisible ? 8.f : 0.f);
-            sf::Text t(font, fitLabel(font, _items[item].label, _charSize, textMaxW), _charSize);
+            sf::Text t(font, ml::utf8(fitLabel(font, _items[item].label, _charSize, textMaxW)), _charSize);
             t.setFillColor(sf::Color(230, 230, 235));
             t.setPosition({ r.position.x + _pad * 2.f, r.position.y + 4.f });
             target.draw(t, states);

@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/Modal.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/App/AppManager.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
@@ -199,7 +200,7 @@ namespace ml
             _confirmShape.setSize(_confirmBounds.size);
             _confirmShape.setPosition(_confirmBounds.position);
 
-            _confirmText.setString(_confirmStr);
+            _confirmText.setString(ml::utf8(_confirmStr));
             const auto cb = _confirmText.getGlobalBounds();
             _confirmText.setPosition({
                 _confirmBounds.position.x + (_confirmBounds.size.x - cb.size.x) * 0.5f,
@@ -211,7 +212,7 @@ namespace ml
                 _cancelShape.setSize(_cancelBounds.size);
                 _cancelShape.setPosition(_cancelBounds.position);
 
-                _cancelText.setString(_cancelStr);
+                _cancelText.setString(ml::utf8(_cancelStr));
                 const auto kb = _cancelText.getGlobalBounds();
                 _cancelText.setPosition({
                     _cancelBounds.position.x + (_cancelBounds.size.x - kb.size.x) * 0.5f,
@@ -348,7 +349,7 @@ namespace ml
     void Modal::setTitle(const std::string& title)
     {
         _titleStr = title;
-        _titleText.setString(title);
+        _titleText.setString(ml::utf8(title));
         _titleText.setFillColor(titleTextColor);
         applyLayout();
     }

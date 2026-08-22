@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Text/TextInput.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Utilities/Json.h>
 #include <SFML/Window/Keyboard.hpp>
@@ -634,10 +635,10 @@ namespace ml
     // ── Placeholder ───────────────────────────────────────────────────────────
 
     void TextInput::setPlaceholder(const std::string& t)
-    { _placeholder.setString(t); syncPlaceholder(); }
+    { _placeholder.setString(ml::utf8(t)); syncPlaceholder(); }
 
     std::string TextInput::getPlaceholder() const
-    { return _placeholder.getString(); }
+    { return ml::toUtf8(_placeholder.getString()); }
 
     // ── Enabled / disabled / readonly ─────────────────────────────────────────
 

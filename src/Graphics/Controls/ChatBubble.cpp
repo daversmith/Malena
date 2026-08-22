@@ -3,6 +3,7 @@
 //
 
 #include <Malena/Graphics/Controls/ChatBubble.h>
+#include <Malena/Utilities/Utf8.h>
 #include <algorithm>
 #include <limits>
 namespace ml
@@ -23,7 +24,7 @@ namespace ml
 
         // ── Sender label (only shown for others' messages) ────────────────────────
         if (!msg.isMine && !msg.sender.empty()) {
-            _senderText.setString(msg.sender);
+            _senderText.setString(ml::utf8(msg.sender));
             _senderText.setFillColor(sf::Color(160, 160, 255));
             _senderH = _senderText.getGlobalBounds().size.y + SENDER_GAP;
         } else {
@@ -33,14 +34,14 @@ namespace ml
         // ── Message text ─────────────────────────────────────────────────────────
         float textMaxW = containerWidth * MAX_W_RATIO - 2.f * PADDING;
         _messageText.setMaxWidth(textMaxW);
-        _messageText.setString(msg.text);
+        _messageText.setString(ml::utf8(msg.text));
         _messageText.setFillColor(sf::Color::White);
 
         float msgW = std::min(_messageText.getGlobalBounds().size.x, textMaxW);
         float msgH = _messageText.getGlobalBounds().size.y;
 
         // ── Timestamp ─────────────────────────────────────────────────────────────
-        _timestampText.setString(msg.timestamp);
+        _timestampText.setString(ml::utf8(msg.timestamp));
         _timestampText.setFillColor(sf::Color(255, 255, 255, 160));
 
         float tsW = _timestampText.getGlobalBounds().size.x;

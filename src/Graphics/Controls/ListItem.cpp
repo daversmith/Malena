@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/ListItem.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Utilities/Align.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
@@ -231,7 +232,7 @@ namespace ml
 
     void ListItem::setLabel(const std::string& text)
     {
-        _label.setString(text);
+        _label.setString(ml::utf8(text));
         layout();
     }
 
@@ -242,7 +243,7 @@ namespace ml
 
     void ListItem::setDescription(const std::string& text)
     {
-        _description.setString(text);
+        _description.setString(ml::utf8(text));
         _hasDescription = !text.empty();
         layout();
     }

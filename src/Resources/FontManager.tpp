@@ -1,4 +1,5 @@
 #include <Malena/Resources/FontManager.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Resources/Fonts/arial.h>
 
 #include <cstring>
@@ -26,7 +27,7 @@ namespace ml
 		sf::String all;
 		for (char32_t c = 32; c < 127; ++c)
 			all += c;
-		warmup.setString(all);
+		warmup.setString(ml::utf8(all));
 		static_cast<void>(warmup.getLocalBounds()); // forces ALL glyphs to load into atlas NOW
 	}
 

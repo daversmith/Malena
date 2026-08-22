@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/ButtonToggle.h>
+#include <Malena/Utilities/Utf8.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <algorithm>
 #include <cmath>
@@ -58,7 +59,7 @@ namespace ml
         const float cx = _position.x + size.x / 2.f;
         const float cy = _position.y + size.y / 2.f;
 
-        sf::Text label(*font, str, fontSize);
+        sf::Text label(*font, ml::utf8(str), fontSize);
         label.setFillColor(tc);
         const sf::FloatRect lb = label.getLocalBounds();
 

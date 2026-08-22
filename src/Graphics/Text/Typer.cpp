@@ -1,5 +1,6 @@
 
 #include <Malena/Graphics/Text/Typer.h>
+#include <Malena/Utilities/Utf8.h>
 
 namespace ml
 {
@@ -24,7 +25,7 @@ namespace ml
 				if (c >= ' ' || c == '\n' || c == '\t')
 					text.push_back(c);
 
-				this->setString(text);
+				this->setString(ml::utf8(text));
 			}
 		});
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Table.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Resources/ThemeManager.h>
 #include <algorithm>
 #include <cmath>
@@ -128,14 +129,14 @@ std::vector<float> Table::resolveWidths() const
 std::string Table::clampText(const sf::Font& font, unsigned charSize,
                               const std::string& text, float maxWidth)
 {
-    sf::Text t(font, text, charSize);
+    sf::Text t(font, ml::utf8(text), charSize);
     if (t.getLocalBounds().size.x <= maxWidth) return text;
 
     std::string s = text;
     while (!s.empty())
     {
         s.pop_back();
-        sf::Text probe(font, s + "...", charSize);
+        sf::Text probe(font, ml::utf8(s + "..."), charSize);
         if (probe.getLocalBounds().size.x <= maxWidth)
             return s + "...";
     }
@@ -159,7 +160,7 @@ void Table::drawHeader(sf::RenderTarget& target, const sf::RenderStates& states,
         const float maxTextW = colW - _padding * 2.f;
 
         sf::Text label(*_font,
-                        clampText(*_font, _headerFontSize, _columns[i].header, maxTextW),
+                        ml::utf8(clampText(*_font, _headerFontSize, _columns[i].header, maxTextW)),
                         _headerFontSize);
         label.setFillColor(_headerTxtColor);
 
@@ -206,7 +207,7 @@ void Table::drawDataRow(sf::RenderTarget& target, const sf::RenderStates& states
         if (!cell.empty())
         {
             sf::Text label(*_font,
-                            clampText(*_font, _fontSize, cell, maxTextW),
+                            ml::utf8(clampText(*_font, _fontSize, cell, maxTextW)),
                             _fontSize);
             label.setFillColor(_textColor);
 
