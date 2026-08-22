@@ -143,6 +143,11 @@ namespace ml
         _closeHandler = std::move(handler);
     }
 
+    void AppManager::onEvent(std::function<bool(const sf::Event&)> handler)
+    {
+        _eventHandler = std::move(handler);
+    }
+
     void AppManager::onResize(std::function<void(unsigned int, unsigned int)> handler)
     {
         _resizeHandler = std::move(handler);
@@ -254,6 +259,10 @@ namespace ml
                         if (_resizeHandler) _resizeHandler(resized->size.x, resized->size.y);
                     }
                 }
+
+                // App-global interception (e.g. the kiosk escape chord) before
+                // components see the event; returning true consumes it.
+                if (_eventHandler && _eventHandler(*event)) continue;
 
                 fireInputEvents(event);
             }

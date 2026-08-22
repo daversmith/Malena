@@ -208,6 +208,15 @@ struct ScreenReceiverBase::Impl
 ScreenReceiverBase::ScreenReceiverBase(const char* name, const char* rtspUrl)
     : _impl(std::make_unique<Impl>())
 {
+    // A video pane is a passive display surface: it never handles a click, and
+    // it must not COMPETE for one. ComponentCore auto-registers click/hover
+    // subscriptions on every Core, and a pane belonging to an inactive scene
+    // still matches — SceneManager::deactivate only clears ENABLED, and a pane
+    // that was never laid out sits at (0,0) with its default size, right on top
+    // of whatever the visible scene is showing. Focus goes to whichever
+    // subscriber matches LAST, so an unshown pane silently stole focus from the
+    // login fields underneath it.
+    unsubscribeAll();
     ensureGstInit();
     _impl->name = name ? name : "Screen";
     _impl->url  = rtspUrl ? rtspUrl : "";
@@ -370,6 +379,15 @@ struct ScreenReceiverBase::Impl
 ScreenReceiverBase::ScreenReceiverBase(const char* name, const char* rtspUrl)
     : _impl(std::make_unique<Impl>())
 {
+    // A video pane is a passive display surface: it never handles a click, and
+    // it must not COMPETE for one. ComponentCore auto-registers click/hover
+    // subscriptions on every Core, and a pane belonging to an inactive scene
+    // still matches — SceneManager::deactivate only clears ENABLED, and a pane
+    // that was never laid out sits at (0,0) with its default size, right on top
+    // of whatever the visible scene is showing. Focus goes to whichever
+    // subscriber matches LAST, so an unshown pane silently stole focus from the
+    // login fields underneath it.
+    unsubscribeAll();
     _impl->name = name    ? name    : "Screen";
     _impl->url  = rtspUrl ? rtspUrl : "";
     this->setFillColor(sf::Color::Black);
