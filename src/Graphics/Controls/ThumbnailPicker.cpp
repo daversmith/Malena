@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/ThumbnailPicker.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -142,12 +143,12 @@ namespace ml
             }
 
             // Caption, centred and clipped to the tile width.
-            sf::Text label(*_font, _captions[i], 12);
+            sf::Text label(*_font, ml::utf8(_captions[i]), 12);
             std::string s = _captions[i];
             while (!s.empty() && label.getLocalBounds().size.x > _tileW - 8.f)
             {
                 s.pop_back();
-                label.setString(s + "...");
+                label.setString(ml::utf8(s + "..."));
             }
             label.setFillColor(sel ? sf::Color(210, 225, 250) : sf::Color(170, 176, 188));
             const auto lb = label.getLocalBounds();

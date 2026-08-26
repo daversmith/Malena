@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Text/TextInputBase.h>
+#include <Malena/Utilities/Utf8.h>
 
 namespace ml
 {
@@ -86,7 +87,7 @@ namespace ml
 
     void TextInputBase::setPlaceholder(const std::string& text)
     {
-        _placeholder.setString(text);
+        _placeholder.setString(ml::utf8(text));
         updatePlaceholderPosition();
     }
 

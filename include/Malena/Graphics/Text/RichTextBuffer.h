@@ -285,6 +285,11 @@ namespace ml
         void pasteFromClipboard();
 
     private:
+        // UTF-8 aware stepping — see RichTextBuffer.cpp. Indices are byte
+        // offsets, so these snap to whole-character boundaries.
+        [[nodiscard]] std::size_t prevCharIndex(std::size_t i) const;
+        [[nodiscard]] std::size_t nextCharIndex(std::size_t i) const;
+
         std::string              _text;
         std::vector<TextAttribute> _attributes;
 

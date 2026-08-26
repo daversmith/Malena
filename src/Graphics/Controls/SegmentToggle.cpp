@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/SegmentToggle.h>
+#include <Malena/Utilities/Utf8.h>
 #include <algorithm>
 #include <cmath>
 
@@ -72,7 +73,7 @@ namespace ml
         const bool on = checkFlag(Flag::ON);
         auto drawLabel = [&](const std::string& str, float cx, bool active)
         {
-            sf::Text t(*font, str, fontSize);
+            sf::Text t(*font, ml::utf8(str), fontSize);
             t.setFillColor(active ? activeTextColor : inactiveTextColor);
             const sf::FloatRect lb = t.getLocalBounds();
             t.setPosition({

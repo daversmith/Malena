@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/InfoButton.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Engine/App/AppManager.h>   // exclusive-owner (modal) input gating
 
@@ -36,7 +37,7 @@ namespace ml
                 while (words >> w)
                 {
                     const std::string trial = line.empty() ? w : line + " " + w;
-                    probe.setString(trial);
+                    probe.setString(ml::utf8(trial));
                     if (probe.getLocalBounds().size.x > maxWidth && !line.empty())
                     {
                         out += line + "\n";
@@ -116,7 +117,7 @@ namespace ml
         {
             const unsigned int cs  = 13;
             const float pad = 8.f;
-            sf::Text body(*_font, wrap(*_font, cs, _popWidth - 2.f * pad, _text), cs);
+            sf::Text body(*_font, ml::utf8(wrap(*_font, cs, _popWidth - 2.f * pad, _text)), cs);
             body.setFillColor(sf::Color(230, 232, 238));
             const sf::FloatRect bb = body.getLocalBounds();
 

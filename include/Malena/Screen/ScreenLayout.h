@@ -8,6 +8,8 @@
 #include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <Malena/Screen/ScreenReceiver.h>
+#include <cstddef>
+#include <cstdint>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <string>
 
@@ -47,6 +49,14 @@ public:
 
     /** Freeze/unfreeze a pane (0 or 1) — holds its last frame. */
     void setFrozen(int pane, bool frozen);
+
+    /**
+     * Hand a pane a frame directly, for the native (push) screen-share path:
+     * the sender captures and encodes locally and the frame arrives over the
+     * app's own socket, so there is no RTSP source and no media runtime.
+     * Pane-indexed to match setSource()/setFrozen().
+     */
+    void pushFrame(int pane, const std::uint8_t* data, std::size_t size);
 
     /** How both panes fit their frame into their rect (Stretch/Fit/Fill). */
     void setScaleMode(ScreenReceiverBase::ScaleMode mode);

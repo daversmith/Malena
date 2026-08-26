@@ -30,12 +30,32 @@ namespace ml
         _hasPending = false;   // moving the caret discards the pending typing style
     }
 
+    // The buffer is byte-indexed but holds UTF-8, so stepping by one BYTE lands
+    // the caret inside a multi-byte character — and a delete from there leaves a
+    // dangling half-sequence that can never render. These step over whole
+    // characters by skipping continuation bytes (10xxxxxx).
+    std::size_t RichTextBuffer::prevCharIndex(std::size_t i) const
+    {
+        if (i == 0) return 0;
+        --i;
+        while (i > 0 && (static_cast<unsigned char>(_text[i]) & 0xC0) == 0x80) --i;
+        return i;
+    }
+
+    std::size_t RichTextBuffer::nextCharIndex(std::size_t i) const
+    {
+        if (i >= _text.size()) return _text.size();
+        ++i;
+        while (i < _text.size() && (static_cast<unsigned char>(_text[i]) & 0xC0) == 0x80) ++i;
+        return i;
+    }
+
     void RichTextBuffer::moveCursor(int delta, bool extendSelection)
     {
         _hasPending = false;   // arrow navigation discards the pending typing style
-        const std::size_t newPos = (delta < 0)
-            ? (_cursor >= static_cast<std::size_t>(-delta) ? _cursor + delta : 0)
-            : std::min(_cursor + static_cast<std::size_t>(delta), _text.size());
+        std::size_t newPos = _cursor;
+        for (int n = delta; n < 0 && newPos > 0; ++n)            newPos = prevCharIndex(newPos);
+        for (int n = delta; n > 0 && newPos < _text.size(); --n) newPos = nextCharIndex(newPos);
 
         if (extendSelection)
         {
@@ -245,7 +265,7 @@ namespace ml
         }
         if (_cursor > 0)
         {
-            deleteRange(_cursor - 1, _cursor);
+            deleteRange(prevCharIndex(_cursor), _cursor);
         }
     }
 
@@ -257,7 +277,7 @@ namespace ml
             return;
         }
         if (_cursor < _text.size())
-            deleteRange(_cursor, _cursor + 1);
+            deleteRange(_cursor, nextCharIndex(_cursor));
     }
 
     void RichTextBuffer::clear()

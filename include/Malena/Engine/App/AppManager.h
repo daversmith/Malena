@@ -137,6 +137,7 @@ namespace ml
         std::function<void()>                           _preRenderHook;
         std::function<void()>                           _postRenderHook;
         std::function<bool()>                           _closeHandler;
+        std::function<bool(const sf::Event&)>           _eventHandler;
         std::function<void(unsigned int, unsigned int)> _resizeHandler;
 
         /// @cond INTERNAL
@@ -304,6 +305,19 @@ namespace ml
          *                @c false to cancel the close (e.g. show a "save changes?" dialog).
          */
         void onClose(std::function<bool()> handler);
+
+        /**
+         * @brief Intercept raw window events before they reach components.
+         *
+         * Return @c true to consume the event so components never see it.
+         * Intended for genuinely app-global input — a kiosk escape chord, a
+         * debug overlay toggle — that must work regardless of which component
+         * currently has focus.
+         *
+         * Prefer component callbacks (onClick, onKeypress) for anything scoped
+         * to a widget: this bypasses focus entirely and is easy to overuse.
+         */
+        void onEvent(std::function<bool(const sf::Event&)> handler);
 
         /**
          * @brief Register a callback invoked whenever the window is resized.

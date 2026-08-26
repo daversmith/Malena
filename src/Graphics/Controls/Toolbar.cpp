@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Toolbar.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -305,7 +306,7 @@ namespace ml
                 t.draw(dot, s);
 
                 const std::string bs = badge > 9 ? "9+" : std::to_string(badge);
-                sf::Text bt(text.getFont(), bs, 10);
+                sf::Text bt(text.getFont(), ml::utf8(bs), 10);
                 bt.setFillColor(sf::Color::White);
                 const sf::FloatRect bb = bt.getLocalBounds();
                 bt.setPosition({ pos.x + size.x - 2.f * r - 3.f + r - (bb.position.x + bb.size.x / 2.f),

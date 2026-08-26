@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/TabbedPanel.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <Malena/Utilities/ClipView.h>
 #include <SFML/Window/Mouse.hpp>
@@ -134,7 +135,7 @@ namespace ml
 
         for (auto& tab : _tabs)
         {
-            measure.setString(tab.label);
+            measure.setString(ml::utf8(tab.label));
             float labelW = measure.getGlobalBounds().size.x;
             if (tab.icon) labelW += iconSize + 4.f;
             if (tab.closeable || closeable) labelW += closeSize + 4.f;
@@ -350,7 +351,7 @@ namespace ml
             contentX += iconSize + 4.f;
         }
 
-        sf::Text label(*font, tab.label, static_cast<unsigned int>(fontSize));
+        sf::Text label(*font, ml::utf8(tab.label), static_cast<unsigned int>(fontSize));
         label.setFillColor(active ? tabActiveText : tabIdleText);
         const sf::FloatRect lb = label.getLocalBounds();
 

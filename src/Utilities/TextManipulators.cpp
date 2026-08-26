@@ -3,12 +3,13 @@
 //
 
 #include <Malena/Utilities/TextManipulators.h>
+#include <Malena/Utilities/Utf8.h>
 
 namespace ml
 {
 	std::string TextManipulators::wordwrap(const sf::Text &text, float maxwidth)
 	{
-		return wordwrap(text.getString(), text.getFont(), text.getCharacterSize(), maxwidth);
+		return wordwrap(ml::toUtf8(text.getString()), text.getFont(), text.getCharacterSize(), maxwidth);
 	}
 
 	std::string TextManipulators::wordwrap(const std::string &input, const sf::Font &font,
@@ -18,7 +19,7 @@ namespace ml
 		text.setCharacterSize(characterSize);
 
 		auto lineWidth = [&](const std::string &s) -> float {
-			text.setString(s);
+			text.setString(ml::utf8(s));
 			const auto b = text.getLocalBounds();
 			return b.position.x + b.size.x;   // include left bearing
 		};

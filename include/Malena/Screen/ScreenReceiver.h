@@ -8,6 +8,8 @@
 #include <Malena/Core/malena_export.h>
 #include <Malena/Graphics/Base/Graphic.h>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -60,7 +62,7 @@ public:
     /**
      * Point this receiver at a different source. If the pipeline is running it
      * restarts on the new URL (so a pane can be switched between sources — e.g.
-     * admin desktop ↔ tablet ↔ student-<id> — at runtime). No-op if unchanged.
+     * admin desktop, tablet, or @c student-{id} — at runtime). No-op if unchanged.
      */
     void setUrl(const std::string& rtspUrl);
 
@@ -75,6 +77,23 @@ public:
     /** How to fit the frame into the rect (default Stretch). */
     void setScaleMode(ScaleMode mode);
     ScaleMode scaleMode() const;
+
+    /**
+     * Display a frame handed to us directly, instead of pulling one from a
+     * stream. This is the push path used by native screen sharing: the sender
+     * captures and encodes locally and the frame arrives over the app's own
+     * control socket, so there is no RTSP source to connect to and no media
+     * runtime involved.
+     *
+     * Accepts any still image format SFML can read (JPEG today, whatever the
+     * codec becomes later). Marks the receiver connected, so existing status UI
+     * keeps working, and honours setFrozen()/setScaleMode() exactly as the
+     * streaming path does.
+     *
+     * Safe to mix with start()/stop(): a pushed frame simply replaces whatever
+     * is currently displayed.
+     */
+    void pushFrame(const std::uint8_t* data, std::size_t size);
 
     /** True once decoded frames are arriving. */
     bool isConnected() const;

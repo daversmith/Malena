@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/Checkbox.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Utilities/Align.h>
 #include <algorithm>
 #include <cmath>
@@ -18,7 +19,7 @@ namespace ml
 
         _box.setOutlineThickness(1.5f);
         _labelStr = label;
-        _label.setString(label);
+        _label.setString(ml::utf8(label));
         _label.setCharacterSize(fontSize);
         _label.setFillColor(labelColor);
 
@@ -164,7 +165,7 @@ namespace ml
     void Checkbox::setLabel(const std::string& label)
     {
         _labelStr = label;
-        _label.setString(label);
+        _label.setString(ml::utf8(label));
         layout();
     }
 

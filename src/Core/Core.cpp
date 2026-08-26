@@ -21,6 +21,21 @@ namespace ml
 
     Core::Core()
     {
+        // Stamp our identity on every base that can be subscribed or can
+        // unsubscribe, BEFORE any derived constructor runs. Widgets register
+        // callbacks from inside their own constructors, and recovering the Core
+        // by dynamic_cast at that point is undefined — it aborts on MSVC. Each
+        // trait below derives from EventReceiver NON-virtually, so each is a
+        // distinct subobject and each needs stamping.
+        // NOTE: add a line here when Core gains another EventReceiver base.
+        Subscribable::_selfCore = this;
+        Clickable::_selfCore    = this;
+        Hoverable::_selfCore    = this;
+        Focusable::_selfCore    = this;
+        Keyable::_selfCore      = this;
+        Scrollable::_selfCore   = this;
+        Updatable::_selfCore    = this;
+        Unsubscribable::_selfCore = this;
         enableFlag(Flag::ENABLED);
     }
 

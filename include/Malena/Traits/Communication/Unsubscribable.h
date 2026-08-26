@@ -15,6 +15,7 @@
 #include <Malena/Utilities/EnumKey.h>
 namespace ml
 {
+    class Core;   // fwd: Unsubscribable stores the Core identity (see _selfCore)
     /**
      * @brief Trait that gives components the ability to unsubscribe from events.
      * @ingroup Traits
@@ -84,6 +85,19 @@ namespace ml
         virtual ~Unsubscribable() = default;
     private:
     	void doUnsubscribe(const std::string& key);
+
+        // Core's own identity, stamped by Core's constructor.
+        //
+        // Why not just dynamic_cast<Core*>(this) at the point of use: widgets
+        // call unsubscribeAll() from INSIDE their own constructor (ml::Panel
+        // does, and several app scenes do) to drop the empty click/hover
+        // subscriptions ComponentCore auto-registers. At that moment the object
+        // is still under construction, so RTTI on it is undefined — Clang
+        // tolerates it, MSVC hard-fails the process (0xC0000409). Core sets this
+        // pointer before any derived constructor runs, so it is always valid by
+        // then and needs no RTTI at all.
+        Core* _selfCore = nullptr;
+        friend class Core;
     };
 
 } // namespace ml

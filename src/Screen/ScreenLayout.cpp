@@ -12,6 +12,18 @@ ScreenLayout::ScreenLayout()
 {
     this->setFillColor(sf::Color::Black);
     this->setSize({ 640.f, 360.f });
+
+    // The panes are drawn by hand in draw(), but they must still be LINKED into
+    // the component tree. Malena's rule: anything that visually attaches a Core*
+    // has to call linkChild, or that component is invisible to the enable
+    // cascade and to tree walks like topmostMatching. Unlinked, these panes
+    // stayed ENABLED while their scene was inactive and — sitting at (0,0) with
+    // their default size, never having been laid out — kept matching clicks over
+    // whatever was actually on screen, stealing focus from the login fields.
+    // linkChild (not addComponent) because draw() paints them itself; adding
+    // them to the draw list too would paint them twice.
+    Core::linkChild(this, &_pane0);
+    Core::linkChild(this, &_pane1);
 }
 
 void ScreenLayout::setMode(Mode mode) { _mode = mode; }
@@ -95,6 +107,11 @@ void ScreenLayout::draw(sf::RenderTarget& target, sf::RenderStates states) const
     _pane0.draw(target, states);
     if (_mode != Mode::Single)
         _pane1.draw(target, states);
+}
+
+void ScreenLayout::pushFrame(int pane, const std::uint8_t* data, std::size_t size)
+{
+    (pane == 1 ? _pane1 : _pane0).pushFrame(data, size);
 }
 
 } // namespace ml

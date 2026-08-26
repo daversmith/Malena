@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Controls/Toast.h>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Engine/Window/WindowManager.h>
 #include <algorithm>
 
@@ -35,14 +36,14 @@ namespace ml
 
     void Toast::setMessage(const std::string& text)
     {
-        _message.setString(text);
+        _message.setString(ml::utf8(text));
         if (_visible) layout();
     }
 
     void Toast::setActionLabel(const std::string& label)
     {
         _hasAction = !label.empty();
-        if (_hasAction) _action.setString(label);
+        if (_hasAction) _action.setString(ml::utf8(label));
         if (_visible)
         {
             _action.setEnabled(_hasAction);

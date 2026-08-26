@@ -9,13 +9,18 @@
 
 namespace ml
 {
-    void EventManager::doSubscribe(const std::string& key, EventReceiver* component)
+    void EventManager::doSubscribe(const std::string& key, EventReceiver* component, Core* core)
     {
     	auto& subs = _subscribers[key];
     	for (const auto& sub : subs)
     		if (sub.receiver == component) return;  // already subscribed
 
-    	auto* core = dynamic_cast<Core*>(component);
+    	// Prefer what we were told, then the identity Core stamped on the
+    	// receiver. RTTI is the last resort and is only safe for a fully
+    	// constructed non-Core receiver — never for something subscribing from
+    	// inside its own constructor (see EventReceiver::_selfCore).
+    	if (!core) core = component->_selfCore;
+    	if (!core) core = dynamic_cast<Core*>(component);
     	subs.push_back({component, core});
     }
 

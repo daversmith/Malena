@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 #include <Malena/Graphics/Controls/PillToggle.h>
+#include <Malena/Utilities/Utf8.h>
 #include <algorithm>
 #include <cmath>
 
@@ -86,7 +87,7 @@ namespace ml
 
         if (!leftLabel.empty())
         {
-            sf::Text t(*font, leftLabel, fontSize);
+            sf::Text t(*font, ml::utf8(leftLabel), fontSize);
             t.setFillColor(dis ? disabledTextColor : textColor);
             const sf::FloatRect lb = t.getLocalBounds();
             t.setPosition({
@@ -106,7 +107,7 @@ namespace ml
             auto drawInside = [&](const std::string& str, float cx, bool active)
             {
                 if (str.empty()) return;
-                sf::Text t(*font, str, insideSize);
+                sf::Text t(*font, ml::utf8(str), insideSize);
                 t.setFillColor(active ? pillLabelActiveColor : pillLabelInactiveColor);
                 const sf::FloatRect lb = t.getLocalBounds();
                 t.setPosition({
@@ -123,7 +124,7 @@ namespace ml
 
         if (!rightLabel.empty())
         {
-            sf::Text t(*font, rightLabel, fontSize);
+            sf::Text t(*font, ml::utf8(rightLabel), fontSize);
             t.setFillColor(dis ? disabledTextColor : textColor);
             const sf::FloatRect lb = t.getLocalBounds();
             t.setPosition({
@@ -173,13 +174,13 @@ namespace ml
 
         if (!leftLabel.empty())
         {
-            sf::Text t(*font, leftLabel, fontSize);
+            sf::Text t(*font, ml::utf8(leftLabel), fontSize);
             const sf::FloatRect lb = t.getLocalBounds();
             left = std::min(left, _position.x - lb.size.x - labelOffset);
         }
         if (!rightLabel.empty())
         {
-            sf::Text t(*font, rightLabel, fontSize);
+            sf::Text t(*font, ml::utf8(rightLabel), fontSize);
             const sf::FloatRect lb = t.getLocalBounds();
             right = std::max(right, _position.x + trackSize.x + labelOffset + lb.size.x);
         }

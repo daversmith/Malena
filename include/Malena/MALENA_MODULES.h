@@ -60,6 +60,19 @@
  * @ingroup Malena
  */
 
+/**
+ * @defgroup Animation Animation
+ * @brief Time-based tweening — Animate, Easing curves, Tweener and the manager
+ *        that advances them.
+ * @ingroup Malena
+ */
+
+/**
+ * @defgroup Screen Screen
+ * @brief Screen capture, streaming and display.
+ * @ingroup Malena
+ */
+
 /* =========================
    Engine Subgroups
    ========================= */

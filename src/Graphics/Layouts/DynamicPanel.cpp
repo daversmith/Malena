@@ -2,6 +2,7 @@
 // Malena Framework — Licensed under PolyForm Noncommercial 1.0.0; commercial use requires a paid license. See LICENSE.
 
 #include <Malena/Graphics/Layouts/DynamicPanel.h>
+#include <Malena/Utilities/Utf8.h>
 
 namespace ml {
 
@@ -71,7 +72,7 @@ Text& DynamicPanel::Builder::text(const std::string& s, float x, float y, unsign
                                   const sf::Color& color, bool center)
 {
     Text& t = _p.acquireText();
-    t.setString(s);
+    t.setString(ml::utf8(s));
     t.setCharacterSize(size);
     t.setFillColor(color);
     float px = x;
@@ -85,7 +86,7 @@ RectangleButton& DynamicPanel::Builder::button(const std::string& label, float x
                                                int style, std::function<void()> onClick)
 {
     RectangleButton& b = _p.acquireButton();
-    b.setString(label);
+    b.setString(ml::utf8(label));
     if (_p._styler) _p._styler(b, style, w, h);
     else            b.setSize({ w, h });
     b.setPosition(_p.getPosition() + sf::Vector2f{ x, y });

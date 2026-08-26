@@ -6,6 +6,7 @@
 
 // IXWebSocket — included only in this translation unit
 #include <ixwebsocket/IXWebSocket.h>
+#include <ixwebsocket/IXNetSystem.h>
 
 #include <atomic>
 #include <mutex>
@@ -90,9 +91,23 @@ namespace ml
 
     // ── WebSocketClient ───────────────────────────────────────────────────────
 
+    namespace {
+        // Windows needs WSAStartup before any socket call; IXWebSocket wraps that
+        // in initNetSystem(). Without it every connect fails with "Either the
+        // application has not called WSAStartup, or WSAStartup failed" — the app
+        // runs but can never reach the hub. No-op on other platforms, so it is
+        // unconditional and done once per process.
+        void ensureNetSystem()
+        {
+            static std::once_flag once;
+            std::call_once(once, []{ ix::initNetSystem(); });
+        }
+    }
+
     WebSocketClient::WebSocketClient()
         : _impl(std::make_unique<Impl>())
     {
+        ensureNetSystem();
     }
 
     WebSocketClient::~WebSocketClient()

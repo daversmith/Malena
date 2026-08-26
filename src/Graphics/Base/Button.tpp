@@ -7,6 +7,7 @@
 #pragma once
 
 #include <SFML/Graphics/Text.hpp>
+#include <Malena/Utilities/Utf8.h>
 #include <Malena/Core/Core.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Traits/Theme/ButtonTheme.h>
@@ -50,7 +51,7 @@ namespace ml
 	template<typename T, typename S>
 	void Button<T, S>::setString(const sf::String &text)
 	{
-		_text.setString(text);
+		_text.setString(ml::utf8(text));
 
 		// Auto-size: if the text occupies less than 80 % of the button width,
 		// shrink the button so the text fills exactly 80 % of the width.
