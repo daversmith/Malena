@@ -20,7 +20,7 @@ namespace ml {
  *  - Launched from Finder, a macOS .app has a working directory of "/" — every
  *    CWD-relative asset path misses.
  *  - Writing next to the executable fails once the app lives in /Applications or
- *    C:\Program Files, which are not user-writable.
+ *    C:\\Program Files, which are not user-writable.
  *
  * These two helpers give the app an install-safe answer on every platform. Use
  * resourceDir() for read-only files that ship with the app (assets, bundled
@@ -43,9 +43,9 @@ public:
     /**
      * Absolute path to a per-user, writable directory for this app, created on
      * first call:
-     *   macOS:   ~/Library/Application Support/<appName>
-     *   Windows: %APPDATA%\<appName>
-     *   Linux:   $XDG_CONFIG_HOME/<appName>, else ~/.config/<appName>
+     *   macOS:   ~/Library/Application Support/{appName}
+     *   Windows: <code>%%APPDATA%%\\{appName}</code>
+     *   Linux:   $XDG_CONFIG_HOME/{appName}, else ~/.config/{appName}
      *
      * Falls back to "." if neither the home directory nor the platform variable
      * is available, and if the directory can't be created.

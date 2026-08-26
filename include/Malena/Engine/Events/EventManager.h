@@ -64,6 +64,13 @@ namespace ml
          * @tparam EnumType Any enum type.
          * @param  eventEnum The enum value identifying the event.
          * @param  component The trait @c EventReceiver* subobject.
+         * @param  core      Owning @c Core, when the caller already knows it.
+         *                   Supplying it avoids recovering the Core by
+         *                   @c dynamic_cast from a trait subobject, which is
+         *                   undefined behaviour while the object is still under
+         *                   construction and aborts on MSVC. Defaults to
+         *                   @c nullptr, in which case the stamped @c _selfCore
+         *                   is preferred and RTTI is a last resort.
          */
         template<typename EnumType>
         static void subscribe(EnumType eventEnum, EventReceiver* component, Core* core = nullptr)

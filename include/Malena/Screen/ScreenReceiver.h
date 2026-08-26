@@ -62,7 +62,7 @@ public:
     /**
      * Point this receiver at a different source. If the pipeline is running it
      * restarts on the new URL (so a pane can be switched between sources — e.g.
-     * admin desktop ↔ tablet ↔ student-<id> — at runtime). No-op if unchanged.
+     * admin desktop, tablet, or @c student-{id} — at runtime). No-op if unchanged.
      */
     void setUrl(const std::string& rtspUrl);
 
