@@ -130,7 +130,20 @@ struct ScreenReceiverBase::Impl
         // decoder can't keep up with, so the view stays current instead of buffering
         // up and stalling. The appsink also keeps only the newest frame.
         return
-            "rtspsrc location=\"" + url + "\" latency=150 drop-on-latency=true ! "
+            // protocols=tcp — RTP interleaved on the RTSP connection, not UDP.
+            //
+            // The default tries UDP first, and when those packets do not arrive
+            // rtspsrc waits 5s, warns "Could not receive any UDP packets ...
+            // maybe your firewall is blocking it", then retries over TCP. In
+            // practice that produced a permanent reconnect loop: the pipeline
+            // reached PLAYING, starved, restarted, over and over, with a black
+            // display and NOTHING logged as an error. Observed on the classroom
+            // Pi pulling from a relay on its own loopback.
+            //
+            // Interleaving costs a little latency and gains a path that works
+            // through firewalls and NAT — which is the situation on every
+            // network this runs on.
+            "rtspsrc location=\"" + url + "\" protocols=tcp latency=150 drop-on-latency=true ! "
             "rtph264depay ! h264parse ! " + dec + " ! "
             "videoconvert ! video/x-raw,format=RGBA ! "
             "appsink name=sink sync=false max-buffers=1 drop=true";
