@@ -11,6 +11,9 @@
 // consumers (ScreenLayout and its users) compile and run unchanged; a receiver
 // pane simply never connects and draws its placeholder.
 #ifdef MALENA_SCREENSHARE_ENABLED
+#include <Malena/Utilities/Paths.h>
+#include <sys/stat.h>
+#include <cstdlib>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
@@ -30,11 +33,45 @@ namespace ml {
 #ifdef MALENA_SCREENSHARE_ENABLED
 
 namespace {
+    // Point GStreamer at plugins shipped INSIDE the application bundle, before
+    // gst_init reads the environment.
+    //
+    // GStreamer plugins are dlopen'd rather than linked, so the usual "vendor
+    // every dylib the binary needs" packaging step never sees them: the bundle
+    // ships the libraries and none of the plugins, and the first pipeline fails
+    // with `no element "appsrc"`. Falling back to a system GStreamer is not an
+    // option either — an end user's Mac has none, and macOS's hardened runtime
+    // refuses to dlopen a library signed by a different team.
+    //
+    // Silently does nothing when there is no bundle (a dev build from a build
+    // directory), leaving GStreamer's compiled-in search path in force. Every
+    // setenv is non-overwriting so an explicit environment still wins.
+    void useBundledPlugins()
+    {
+#ifdef __APPLE__
+        const std::string plugins = Paths::join(Paths::resourceDir(), "gstreamer-1.0");
+        struct stat st{};
+        if (::stat(plugins.c_str(), &st) != 0) return;
+
+        ::setenv("GST_PLUGIN_SYSTEM_PATH", plugins.c_str(), 0);
+        ::setenv("GST_PLUGIN_PATH",        plugins.c_str(), 0);
+        // Scan in-process: forking would need gst-plugin-scanner bundled and
+        // signed as well.
+        ::setenv("GST_REGISTRY_FORK",      "no", 0);
+
+        // The registry cache must be writable; the bundle is not. Without this
+        // GStreamer rescans every plugin on every launch.
+        const std::string cache = Paths::userDataDir("Malena");
+        if (!cache.empty())
+            ::setenv("GST_REGISTRY", Paths::join(cache, "gst-registry.bin").c_str(), 0);
+#endif
+    }
+
     // gst_init must run exactly once per process.
     void ensureGstInit()
     {
         static std::once_flag once;
-        std::call_once(once, [] { gst_init(nullptr, nullptr); });
+        std::call_once(once, [] { useBundledPlugins(); gst_init(nullptr, nullptr); });
     }
 
     // Choose the H.264 decoder. We use software (avdec_h264) on every platform:
