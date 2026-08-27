@@ -79,8 +79,16 @@ public:
     void setCaptureWindow(unsigned int windowId);
 
     /**
-     * Path to the per-window capture helper executable (e.g. LockInWindowCapture).
-     * Spawned with `--window-id <id> --url <url>` when in window-capture mode.
+     * Path to the ScreenCaptureKit capture helper (e.g. LockInWindowCapture).
+     *
+     * On macOS this is used for BOTH modes — `--window-id <id>` for a single
+     * window and `--display-index <n>` for a whole display — because the
+     * alternative for displays, a gst-launch child, is a separate unsigned
+     * binary with its own TCC identity: Screen Recording then has to be granted
+     * to gst-launch-1.0 rather than to your app, and a Homebrew upgrade voids it.
+     * Ship the helper inside your bundle, signed with the same identity.
+     *
+     * With no helper configured, display capture falls back to gst-launch.
      */
     void setWindowHelperPath(const std::string& path);
 

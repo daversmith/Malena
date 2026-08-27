@@ -94,6 +94,24 @@ namespace ml
         window->setPosition({ x, y });
     }
 
+    void AppManager::setWindowMode(const sf::VideoMode& mode, std::uint32_t style)
+    {
+        if (mode.size == _videoMode.size && style == _windowStyle) return;   // already there
+
+        _videoMode = mode;
+        setWindowStyle(style);          // recreates the window at the new _videoMode
+
+        // A recreated window produces no Resized event, so nothing downstream
+        // would ever learn the size changed: scenes would stay laid out for the
+        // old mode and anchored objects would sit against stale references.
+        // This mirrors what the main loop does for a real resize.
+        const auto w = mode.size.x, h = mode.size.y;
+        for (auto* c : getComponents())
+            if (c) c->onWindowResize(w, h);
+        AnchorManager::solveAll();
+        if (_resizeHandler) _resizeHandler(w, h);
+    }
+
     void AppManager::setWindowStyle(std::uint32_t style)
     {
         _windowStyle = style;

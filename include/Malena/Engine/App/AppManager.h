@@ -232,6 +232,32 @@ namespace ml
          */
         void setWindowStyle(std::uint32_t style);
 
+        /**
+         * @brief Recreate the window at a new size AND style in one step.
+         *
+         * The use this exists for is going borderless-fullscreen and back:
+         * @code
+         * app.setWindowMode(sf::VideoMode::getDesktopMode(), sf::Style::None); // fill the screen
+         * app.setWindowMode({{720, 420}, 32}, sf::Style::Default);             // back to a window
+         * @endcode
+         *
+         * @c setWindowStyle() cannot do this — it reuses the stored video mode,
+         * so asking for @c Style::None alone yields a borderless window still the
+         * size of the old one.
+         *
+         * Recreating the window resets SFML's view and gives components no
+         * @c Resized event to react to, so this broadcasts @c onWindowResize() to
+         * the component tree and re-solves retained anchors itself. Without that
+         * every scene stays laid out for the previous size.
+         *
+         * @param mode  New video mode, e.g. @c sf::VideoMode::getDesktopMode().
+         * @param style Combination of @c sf::Style flags.
+         *
+         * @note The GL context is destroyed and rebuilt. Anything holding raw GL
+         *       state across the call must be prepared to rebuild it.
+         */
+        void setWindowMode(const sf::VideoMode& mode, std::uint32_t style);
+
         // ── Timing ────────────────────────────────────────────────────────────
 
         /**

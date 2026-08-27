@@ -165,6 +165,25 @@ struct ScreenSenderBase::Impl
             return { windowHelper, "--window-id", std::to_string(windowId),
                      "--url", url, "--fps", "15", "--bitrate", "4000" };
         }
+
+#if defined(__APPLE__)
+        // Whole-display capture ALSO goes through the helper when one is
+        // configured, not just single windows.
+        //
+        // The alternative — gst-launch-1.0 with avfvideosrc — is a separate,
+        // Homebrew-installed, unsigned binary, so macOS assigns it its own TCC
+        // identity. Screen Recording then has to be granted to gst-launch-1.0
+        // rather than to the host app: the toggle in System Settings looks right,
+        // capture still fails, and the prompt keeps returning. Worse, a Homebrew
+        // upgrade replaces the binary and silently voids the grant.
+        //
+        // The helper ships inside the app bundle and is signed with the same
+        // Developer ID, so macOS attributes it to the app and one grant holds.
+        if (src == Src::Display && !windowHelper.empty()) {
+            return { windowHelper, "--display-index", std::to_string(captureIndex),
+                     "--url", url, "--fps", "15", "--bitrate", "4000" };
+        }
+#endif
         std::vector<std::string> a;
         a.push_back(resolveGstLaunch());
         a.push_back("-e");                                   // EOS on shutdown → clean finalize
