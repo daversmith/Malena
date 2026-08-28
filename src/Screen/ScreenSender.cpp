@@ -40,6 +40,25 @@ std::string resolveGstLaunch()
 {
     if (const char* e = std::getenv("LOCKIN_GST_LAUNCH"); e && *e) return e;
 #if defined(_WIN32)
+    // A BUNDLED copy first, beside the executable. A shipped app cannot assume
+    // GStreamer is installed — the machine it runs on belongs to an instructor,
+    // not a developer — so distribution puts gstreamer\bin next to the .exe and
+    // this finds it before any system install. GStreamer derives its plugin path
+    // from where its own DLLs live, so a bundled layout needs no further hints.
+    {
+        char self[MAX_PATH] = {0};
+        if (GetModuleFileNameA(nullptr, self, MAX_PATH)) {
+            std::string dir(self);
+            const auto slash = dir.find_last_of("\\/");
+            if (slash != std::string::npos) {
+                const std::string bundled =
+                    dir.substr(0, slash) + "\\gstreamer\\bin\\gst-launch-1.0.exe";
+                if (GetFileAttributesA(bundled.c_str()) != INVALID_FILE_ATTRIBUTES)
+                    return bundled;
+            }
+        }
+    }
+
     // The GStreamer Windows installer sets GSTREAMER_1_0_ROOT_MSVC_X86_64 (or _MINGW).
     for (const char* root : { "GSTREAMER_1_0_ROOT_MSVC_X86_64",
                               "GSTREAMER_1_0_ROOT_MINGW_X86_64",
