@@ -185,6 +185,54 @@ if(MALENA_ENABLE_SCREENSHARE)
         pkg_check_modules(GST_APP    IMPORTED_TARGET gstreamer-app-1.0)
         pkg_check_modules(GST_VIDEO  IMPORTED_TARGET gstreamer-video-1.0)
     endif()
+
+    # Windows has no pkg-config, so the block above finds nothing and screen
+    # sharing silently compiles out — the build succeeds and the feature is just
+    # missing, which is the worst way for it to fail. The official GStreamer MSI
+    # sets GSTREAMER_1_0_ROOT_MSVC_X86_64, so locate it directly from there.
+    if(WIN32 AND NOT GSTREAMER_FOUND)
+        set(_gst_root "$ENV{GSTREAMER_1_0_ROOT_MSVC_X86_64}")
+        if(NOT _gst_root)
+            set(_gst_root "$ENV{GSTREAMER_1_0_ROOT_X86_64}")
+        endif()
+
+        if(_gst_root AND EXISTS "${_gst_root}/include/gstreamer-1.0")
+            find_library(GST_LIB      NAMES gstreamer-1.0      HINTS "${_gst_root}/lib")
+            find_library(GST_BASE_LIB NAMES gstbase-1.0        HINTS "${_gst_root}/lib")
+            find_library(GST_APP_LIB  NAMES gstapp-1.0         HINTS "${_gst_root}/lib")
+            find_library(GST_VIDEO_LIB NAMES gstvideo-1.0      HINTS "${_gst_root}/lib")
+            find_library(GLIB_LIB     NAMES glib-2.0           HINTS "${_gst_root}/lib")
+            find_library(GOBJECT_LIB  NAMES gobject-2.0        HINTS "${_gst_root}/lib")
+
+            if(GST_LIB AND GST_APP_LIB AND GST_VIDEO_LIB AND GLIB_LIB AND GOBJECT_LIB)
+                # Hand-rolled imported targets with the same names the rest of the
+                # build already expects from pkg-config, so nothing downstream has
+                # to know which route found GStreamer.
+                add_library(PkgConfig::GSTREAMER INTERFACE IMPORTED)
+                target_include_directories(PkgConfig::GSTREAMER INTERFACE
+                    "${_gst_root}/include/gstreamer-1.0"
+                    "${_gst_root}/include/glib-2.0"
+                    "${_gst_root}/lib/glib-2.0/include")
+                target_link_libraries(PkgConfig::GSTREAMER INTERFACE
+                    "${GST_LIB}" "${GST_BASE_LIB}" "${GLIB_LIB}" "${GOBJECT_LIB}")
+
+                add_library(PkgConfig::GST_APP INTERFACE IMPORTED)
+                target_link_libraries(PkgConfig::GST_APP INTERFACE "${GST_APP_LIB}")
+
+                add_library(PkgConfig::GST_VIDEO INTERFACE IMPORTED)
+                target_link_libraries(PkgConfig::GST_VIDEO INTERFACE "${GST_VIDEO_LIB}")
+
+                set(GSTREAMER_FOUND TRUE)
+                set(GST_APP_FOUND   TRUE)
+                set(GST_VIDEO_FOUND TRUE)
+                message(STATUS "Malena: GStreamer found via GSTREAMER_1_0_ROOT (${_gst_root})")
+            else()
+                message(WARNING "Malena: GStreamer root found at ${_gst_root} but its .lib files "
+                                "are missing — is only the RUNTIME installed? The development "
+                                "package is the one with lib/ and include/.")
+            endif()
+        endif()
+    endif()
 else()
     message(STATUS "Malena: MALENA_ENABLE_SCREENSHARE=OFF — ScreenReceiver disabled")
 endif()
