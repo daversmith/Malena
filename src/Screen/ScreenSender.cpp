@@ -118,6 +118,44 @@ struct ScreenSenderBase::Impl
     std::atomic<pid_t> childPid { -1 };
 #endif
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+    // Which H.264 encoders this machine actually has, asked once.
+    //
+    // Probed by running gst-inspect rather than linking GStreamer: the pipeline
+    // runs in a CHILD process (gst-launch), so the host app has no registry of
+    // its own to query and no reason to gain one.
+    //
+    // Order is hardware first, then portable software. x264enc is absent on
+    // purpose — GPL.
+    static std::string pickLinuxEncoder()
+    {
+        static const std::string chosen = []() -> std::string {
+            const std::pair<const char*, const char*> candidates[] = {
+                // Raspberry Pi's V4L2 stateful encoder.
+                { "v4l2h264enc", "v4l2h264enc extra-controls=controls,video_bitrate=6000000" },
+                // Intel/AMD via VA-API, when the driver stack is installed.
+                { "vaapih264enc", "vaapih264enc bitrate=6000 keyframe-period=30" },
+                // Cisco openh264: BSD licensed, software, works anywhere.
+                { "openh264enc", "openh264enc bitrate=6000000 gop-size=30" },
+            };
+            for (const auto& [element, pipeline] : candidates) {
+                const std::string probe = std::string("gst-inspect-1.0 ") + element
+                                        + " >/dev/null 2>&1";
+                if (std::system(probe.c_str()) == 0) {
+                    std::fprintf(stderr, "[ScreenSender] H.264 encoder: %s\n", element);
+                    return pipeline;
+                }
+            }
+            std::fprintf(stderr,
+                "[ScreenSender] no usable H.264 encoder found. Install one of:\n"
+                "    gstreamer1.0-plugins-bad   (openh264enc, portable)\n"
+                "    gstreamer1.0-vaapi         (vaapih264enc, Intel/AMD hardware)\n");
+            return {};
+        }();
+        return chosen;
+    }
+#endif
+
     // Per-platform: desktop capture → convert → non-GPL H.264 encode → RTSP push.
     // Built as an argv-style (unquoted) pipeline for gst-launch-1.0.
     std::string buildPipeline() const
@@ -149,11 +187,24 @@ struct ScreenSenderBase::Impl
             "mfh264enc low-latency=true bitrate=6000 !" + sink;
 
 #else
-        // Linux / Raspberry Pi: V4L2 stateful HW encoder (v4l2h264enc) — not GPL.
-        return
-            "ximagesrc use-damage=false ! videoconvert ! "
-            "video/x-raw,format=I420 ! v4l2h264enc "
-            "extra-controls=controls,video_bitrate=6000000 !" + sink;
+        // Linux: the encoder is chosen at RUNTIME, because "Linux" here spans a
+        // Raspberry Pi and an instructor's laptop, and they share no encoder.
+        // This used to hard-code v4l2h264enc — the Pi's V4L2 hardware encoder —
+        // which simply does not exist on a normal x86 machine, so screen sharing
+        // could never have worked there however it was packaged.
+        //
+        // x264enc is deliberately NOT in the list: it is GPL, and this ships in a
+        // commercial product. openh264 (Cisco, BSD) is the portable fallback.
+        //
+        // ximagesrc is X11. Under a bare Wayland session there is no X server to
+        // capture and this will fail; the fix there is pipewiresrc plus a portal
+        // permission, which is a separate piece of work. Most desktops still run
+        // XWayland, where this works.
+        const std::string enc = pickLinuxEncoder();
+        if (enc.empty()) return {};   // caller logs; nothing sane to launch
+
+        return "ximagesrc use-damage=false ! videoconvert ! "
+               "video/x-raw,format=I420 ! " + enc + " !" + sink;
 #endif
     }
 
