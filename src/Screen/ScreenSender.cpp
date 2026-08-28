@@ -42,19 +42,26 @@ std::string resolveGstLaunch()
 #if defined(_WIN32)
     // A BUNDLED copy first, beside the executable. A shipped app cannot assume
     // GStreamer is installed — the machine it runs on belongs to an instructor,
-    // not a developer — so distribution puts gstreamer\bin next to the .exe and
-    // this finds it before any system install. GStreamer derives its plugin path
-    // from where its own DLLs live, so a bundled layout needs no further hints.
+    // not a developer — so distribution ships gst-launch and the GStreamer DLLs
+    // in the app's own directory and this finds them before any system install.
+    //
+    // Same directory as the .exe, not a gstreamer\bin subdirectory: the app also
+    // loads GStreamer in-process (the receiver), and Windows resolves a DLL
+    // against the directory the PROCESS was loaded from. One copy at the root
+    // serves both. The old subdirectory layout is still accepted so a bundle
+    // built by an older script keeps working.
     {
         char self[MAX_PATH] = {0};
         if (GetModuleFileNameA(nullptr, self, MAX_PATH)) {
             std::string dir(self);
             const auto slash = dir.find_last_of("\\/");
             if (slash != std::string::npos) {
-                const std::string bundled =
-                    dir.substr(0, slash) + "\\gstreamer\\bin\\gst-launch-1.0.exe";
-                if (GetFileAttributesA(bundled.c_str()) != INVALID_FILE_ATTRIBUTES)
-                    return bundled;
+                const std::string base = dir.substr(0, slash);
+                for (const std::string& bundled : {
+                         base + "\\gst-launch-1.0.exe",
+                         base + "\\gstreamer\\bin\\gst-launch-1.0.exe" })
+                    if (GetFileAttributesA(bundled.c_str()) != INVALID_FILE_ATTRIBUTES)
+                        return bundled;
             }
         }
     }

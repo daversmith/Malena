@@ -33,38 +33,67 @@ namespace ml {
 #ifdef MALENA_SCREENSHARE_ENABLED
 
 namespace {
-    // Point GStreamer at plugins shipped INSIDE the application bundle, before
+    // Point GStreamer at plugins shipped ALONGSIDE the application, before
     // gst_init reads the environment.
     //
     // GStreamer plugins are dlopen'd rather than linked, so the usual "vendor
-    // every dylib the binary needs" packaging step never sees them: the bundle
-    // ships the libraries and none of the plugins, and the first pipeline fails
-    // with `no element "appsrc"`. Falling back to a system GStreamer is not an
-    // option either — an end user's Mac has none, and macOS's hardened runtime
-    // refuses to dlopen a library signed by a different team.
+    // every library the binary needs" packaging step never sees them: the
+    // package ships the libraries and none of the plugins, and the first
+    // pipeline fails with `no element "appsrc"`. Falling back to a system
+    // GStreamer is not an option either — an end user's machine has none, and
+    // macOS's hardened runtime refuses to dlopen a library signed by a
+    // different team.
     //
-    // Silently does nothing when there is no bundle (a dev build from a build
+    // Two layouts, because the platforms package differently and both are ours:
+    //   macOS    Contents/Resources/gstreamer-1.0        (inside the .app)
+    //   Win/Lin  <exe dir>/gstreamer/lib/gstreamer-1.0   (beside the binary)
+    // Paths::resourceDir() is the .app's Resources on macOS and the executable's
+    // own directory elsewhere, so probing both covers all three platforms.
+    //
+    // Silently does nothing when neither exists (a dev build run from a build
     // directory), leaving GStreamer's compiled-in search path in force. Every
-    // setenv is non-overwriting so an explicit environment still wins.
+    // set is non-overwriting so an explicit environment still wins.
+    void setEnvIfUnset(const char* key, const std::string& value)
+    {
+#ifdef _WIN32
+        // No setenv on MSVC, and _putenv_s always overwrites — check first so an
+        // environment the user set deliberately still wins, as it does elsewhere.
+        size_t len = 0;
+        if (::getenv_s(&len, nullptr, 0, key) == 0 && len > 0) return;
+        ::_putenv_s(key, value.c_str());
+#else
+        ::setenv(key, value.c_str(), 0);
+#endif
+    }
+
     void useBundledPlugins()
     {
-#ifdef __APPLE__
-        const std::string plugins = Paths::join(Paths::resourceDir(), "gstreamer-1.0");
-        struct stat st{};
-        if (::stat(plugins.c_str(), &st) != 0) return;
+        const std::string base = Paths::resourceDir();
+        if (base.empty()) return;
 
-        ::setenv("GST_PLUGIN_SYSTEM_PATH", plugins.c_str(), 0);
-        ::setenv("GST_PLUGIN_PATH",        plugins.c_str(), 0);
-        // Scan in-process: forking would need gst-plugin-scanner bundled and
-        // signed as well.
-        ::setenv("GST_REGISTRY_FORK",      "no", 0);
+        std::string plugins;
+        for (const std::string& candidate : {
+                 Paths::join(base, "gstreamer-1.0"),                 // macOS .app
+                 Paths::join(Paths::join(Paths::join(base, "gstreamer"), "lib"),
+                             "gstreamer-1.0") })                     // Windows/Linux
+        {
+            struct stat st{};
+            if (::stat(candidate.c_str(), &st) == 0) { plugins = candidate; break; }
+        }
+        if (plugins.empty()) return;
 
-        // The registry cache must be writable; the bundle is not. Without this
-        // GStreamer rescans every plugin on every launch.
+        setEnvIfUnset("GST_PLUGIN_SYSTEM_PATH", plugins);
+        setEnvIfUnset("GST_PLUGIN_PATH",        plugins);
+        // Scan in-process: forking would need gst-plugin-scanner shipped (and,
+        // on macOS, signed) as well.
+        setEnvIfUnset("GST_REGISTRY_FORK",      "no");
+
+        // The registry cache must be writable, and the install directory is not
+        // (a .app is signed; Program Files needs admin). Without this GStreamer
+        // rescans every plugin on every launch.
         const std::string cache = Paths::userDataDir("Malena");
         if (!cache.empty())
-            ::setenv("GST_REGISTRY", Paths::join(cache, "gst-registry.bin").c_str(), 0);
-#endif
+            setEnvIfUnset("GST_REGISTRY", Paths::join(cache, "gst-registry.bin"));
     }
 
     // gst_init must run exactly once per process.
@@ -74,7 +103,7 @@ namespace {
         std::call_once(once, [] { useBundledPlugins(); gst_init(nullptr, nullptr); });
     }
 
-    // Choose the H.264 decoder. We use software (avdec_h264) on every platform:
+    // Choose the H.264 decoder. Software on every platform, never hardware:
     //  - macOS: the hardware path (vtdec) auto-plugs GL surfaces that clobber
     //    SFML's GL context.
     //  - Raspberry Pi 4: the V4L2 hardware decoder (v4l2h264dec / bcm2835-codec)
@@ -82,8 +111,28 @@ namespace {
     //    stream we send (720p/15fps) software decode keeps up in real time with
     //    sub-second latency (measured identical to the macOS receiver), so it's
     //    the better choice here. (Revisit HW decode only for heavy/many streams.)
+    //
+    // avdec_h264 is preferred because it decodes every profile an encoder might
+    // produce. It is not always there to prefer: it lives in gst-libav, which on
+    // Linux links the whole of ffmpeg — 210 MB of x265, AV1 encoders and speech
+    // synthesis for one H.264 decode — far too much to put in a student download
+    // over a classroom hotspot. Those packages ship openh264dec instead (1 MB,
+    // BSD), which handles the constrained-baseline stream we send.
+    //
+    // Asking the registry rather than deciding at compile time means one binary
+    // does the right thing in both places: a dev machine or a Pi with gst-libav
+    // installed keeps the exact behaviour it has today, and a shipped bundle
+    // that carries only openh264 uses that. Must run after gst_init.
     const char* chooseH264Decoder()
     {
+        for (const char* name : { "avdec_h264", "openh264dec" }) {
+            if (GstElementFactory* f = gst_element_factory_find(name)) {
+                gst_object_unref(f);
+                return name;
+            }
+        }
+        // Nothing found: name the preferred one anyway so the pipeline fails with
+        // "no element avdec_h264" rather than something more mysterious.
         return "avdec_h264";
     }
 }
