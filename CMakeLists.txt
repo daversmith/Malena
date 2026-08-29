@@ -8,9 +8,10 @@ include(GNUInstallDirs)
 option(MALENA_BUILD_EXAMPLES "Build Malena examples" ON)
 option(MALENA_BUILD_TESTS    "Build Malena tests"    OFF)
 option(MALENA_USE_SYSTEM_SFML "Use system SFML instead of fetching it" OFF)
-# ScreenReceiver pulls in GStreamer, which on macOS means Homebrew dylibs linked
-# by absolute path (/opt/homebrew/...) and an arm64-only build. Apps that don't
-# need screen sharing turn this OFF to stay self-contained and universal.
+# ScreenReceiver pulls in GStreamer. On macOS that used to mean Homebrew, which
+# is arm64-only and forced an arm64-only app; the official GStreamer.framework is
+# universal, so screen sharing no longer costs Intel support. Apps that don't
+# need it can still turn this OFF.
 option(MALENA_ENABLE_SCREENSHARE "Enable the RTSP/GStreamer ScreenReceiver" ON)
 
 # FetchContent is used for SFML, networking, and JSON dependencies
@@ -179,6 +180,28 @@ endif()
 # consumer can opt out explicitly rather than having it switch itself on
 # wherever pkg-config happens to find GStreamer installed.
 if(MALENA_ENABLE_SCREENSHARE)
+    # Prefer the official GStreamer.framework over Homebrew on macOS. Two reasons,
+    # and both are about what we are allowed and able to ship:
+    #
+    #   ARCHITECTURE  Homebrew's GStreamer is arm64-only, so linking it forced the
+    #                 whole app to arm64 and dropped every Intel Mac. The official
+    #                 framework is x86_64 + arm64, so the app stays universal.
+    #
+    #   LICENCE       Homebrew builds ffmpeg with --enable-gpl --enable-libx264,
+    #                 which makes libavcodec GPL. Shipping that in a proprietary
+    #                 app is a copyleft violation. The official build reports
+    #                 "libavcodec license: LGPL version 2.1 or later", which is
+    #                 compatible with dynamic linking and a commercial product.
+    #
+    # Set MALENA_GST_PREFER_SYSTEM=ON to search the normal pkg-config path first.
+    if(APPLE AND NOT MALENA_GST_PREFER_SYSTEM)
+        set(_gst_fw "/Library/Frameworks/GStreamer.framework/Versions/1.0")
+        if(EXISTS "${_gst_fw}/lib/pkgconfig")
+            set(ENV{PKG_CONFIG_PATH} "${_gst_fw}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+            message(STATUS "Malena: using GStreamer.framework (universal, LGPL)")
+        endif()
+    endif()
+
     find_package(PkgConfig QUIET)
     if(PkgConfig_FOUND OR PKG_CONFIG_FOUND)
         pkg_check_modules(GSTREAMER  IMPORTED_TARGET gstreamer-1.0)
