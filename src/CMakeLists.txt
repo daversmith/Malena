@@ -57,6 +57,42 @@ target_link_libraries(Malena PUBLIC SFML::Graphics SFML::Audio
         SFML::Window
         SFML::System)
 
+# Precompiled header.
+#
+# Malena's ~107 translation units each re-parse the same SFML and standard
+# library headers. Measured on a clean Linux build: 701 CPU-seconds across those
+# files, 6.5s each, and 72% of the whole build — far more than every third-party
+# dependency combined. Parsing the common headers once is the cheapest fix.
+#
+# PRIVATE deliberately: a PUBLIC precompiled header would be forced on every
+# consumer of Malena, which is their choice to make, not ours.
+#
+# Guarded on 3.16 because target_precompile_headers does not exist before it and
+# this project supports 3.14 — the same trap as EXCLUDE_FROM_ALL above, which
+# silently produced an unbuildable tree on CMake 3.22.
+# NOT on Apple. Malena is compiled there with a raw "-x objective-c++" flag, but
+# CMake compiles the precompiled header itself as "-x c++-header" — the two
+# disagree and every translation unit fails with "Objective-C was disabled in
+# PCH file but is currently enabled". Measured, not predicted.
+#
+# The real fix is to declare OBJCXX as a project language and set the sources'
+# LANGUAGE property, which lets CMake drive the PCH for Objective-C++ properly.
+# That changes project(... LANGUAGES CXX) and is too invasive for a patch.
+if(NOT APPLE AND NOT CMAKE_VERSION VERSION_LESS 3.16)
+    target_precompile_headers(Malena PRIVATE
+            <SFML/Graphics.hpp>
+            <SFML/Window.hpp>
+            <SFML/System.hpp>
+            <SFML/Audio.hpp>
+            <algorithm>
+            <cmath>
+            <functional>
+            <memory>
+            <string>
+            <unordered_map>
+            <vector>)
+endif()
+
 # Networking libraries — PRIVATE because the heavy implementation details
 # (httplib, ixwebsocket) are included only in .cpp files, not public headers.
 target_link_libraries(Malena PRIVATE httplib::httplib ixwebsocket)
