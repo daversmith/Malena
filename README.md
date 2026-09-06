@@ -46,13 +46,17 @@ Malena gives you a clean, component-oriented layer on top of SFML so you can foc
 | Requirement | Version |
 |-------------|---------|
 | C++ standard | C++17 or newer |
-| CMake | 3.14+ |
+| CMake | 3.22+ (3.24+ on Windows) |
 | SFML | 3.x |
 
-The CMake floor is tested, not just declared: 3.14 is the documented minimum and
-builds are verified against the CMake that Ubuntu 22.04 LTS actually ships
-(3.22). Releases before 1.1.1 did not build on CMake older than 3.28 — see the
-1.1.1 notes if you are on a distribution CMake.
+The CMake floor comes from SFML, not from Malena: SFML 3.0.2 requires 3.22, and
+3.24 on Windows for SYSTEM support in Visual Studio generators. Since Malena
+fetches and builds SFML by default, that is the real minimum. Earlier releases
+advertised 3.14, which was never achievable in the default configuration.
+
+Ubuntu 22.04 LTS ships CMake 3.22.1, so its stock CMake is enough. Releases
+before 1.1.1 additionally required 3.28 because of a build bug — if you are on a
+distribution CMake, use 1.1.1 or newer.
 
 SFML is fetched and built from source by default, so no system SFML is needed;
 set `MALENA_USE_SYSTEM_SFML=ON` to use an installed one instead. The remaining
@@ -83,7 +87,7 @@ cmake --build build
 
 ```cmake
 # CMakeLists.txt
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22)
 project(MyApp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -98,7 +102,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
 ### FetchContent
 
 ```cmake
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22)
 project(MyApp LANGUAGES CXX)
 
 include(FetchContent)

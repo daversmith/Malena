@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-project(Malena VERSION 1.1.1 LANGUAGES CXX)
+# 3.22 is not arbitrary: SFML 3.0.2, which this project fetches and builds by
+# default, itself requires CMake 3.22 (and 3.24 on Windows, for SYSTEM support in
+# Visual Studio generators). Declaring anything lower was fiction — the configure
+# would reach SFML's own cmake_minimum_required and stop there.
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
+project(Malena VERSION 1.1.2 LANGUAGES CXX)
 
 # Include GNUInstallDirs for platform-specific install directories
 include(GNUInstallDirs)
@@ -17,7 +21,7 @@ option(MALENA_ENABLE_SCREENSHARE "Enable the RTSP/GStreamer ScreenReceiver" ON)
 # FetchContent is used for SFML, networking, and JSON dependencies
 include(FetchContent)
 
-# FetchContent_Declare keywords newer than our declared minimum (3.14) must not
+# FetchContent_Declare keywords newer than our declared minimum (3.22) must not
 # be passed unconditionally — they are not errors on an older CMake, they are
 # silently mis-parsed, which is far worse:
 #
@@ -44,7 +48,7 @@ else()
             GIT_SHALLOW ON
             ${MALENA_FC_SYSTEM})
     # NOTE: no EXCLUDE_FROM_ALL here. It only became a FetchContent_Declare
-    # keyword in CMake 3.28, and this project supports 3.14. On an older CMake
+    # keyword in CMake 3.28, and this project supports 3.22. On an older CMake
     # (Ubuntu 22.04 still ships 3.22) the keyword does not error — SFML simply
     # never populates, and the build dies later with the baffling "Target
     # Malena links to target SFML::Graphics but the target was not found".
