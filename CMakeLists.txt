@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
-project(Malena VERSION 0.2.2 LANGUAGES CXX)
+project(Malena VERSION 1.1.1 LANGUAGES CXX)
 
 # Include GNUInstallDirs for platform-specific install directories
 include(GNUInstallDirs)
@@ -17,6 +17,23 @@ option(MALENA_ENABLE_SCREENSHARE "Enable the RTSP/GStreamer ScreenReceiver" ON)
 # FetchContent is used for SFML, networking, and JSON dependencies
 include(FetchContent)
 
+# FetchContent_Declare keywords newer than our declared minimum (3.14) must not
+# be passed unconditionally — they are not errors on an older CMake, they are
+# silently mis-parsed, which is far worse:
+#
+#   SYSTEM            3.25+  On 3.22 it is swallowed into the PRECEDING keyword's
+#                            value. With URL_HASH that yields "SHA256=...;SYSTEM"
+#                            and the baffling "must be ALGO=value" error.
+#   EXCLUDE_FROM_ALL  3.28+  On 3.22 the dependency simply never populates, and
+#                            the build fails later complaining about a missing
+#                            target that nothing explains.
+#
+# Ubuntu 22.04 LTS still ships CMake 3.22, so this is not a hypothetical.
+set(MALENA_FC_SYSTEM "")
+if(NOT CMAKE_VERSION VERSION_LESS 3.25)
+    set(MALENA_FC_SYSTEM SYSTEM)
+endif()
+
 # SFML handling
 if(MALENA_USE_SYSTEM_SFML)
     find_package(SFML 3.0 COMPONENTS Graphics Audio Window System REQUIRED)
@@ -25,18 +42,23 @@ else()
             GIT_REPOSITORY https://github.com/SFML/SFML.git
             GIT_TAG 3.0.2
             GIT_SHALLOW ON
-            EXCLUDE_FROM_ALL
-            SYSTEM)
+            ${MALENA_FC_SYSTEM})
+    # NOTE: no EXCLUDE_FROM_ALL here. It only became a FetchContent_Declare
+    # keyword in CMake 3.28, and this project supports 3.14. On an older CMake
+    # (Ubuntu 22.04 still ships 3.22) the keyword does not error — SFML simply
+    # never populates, and the build dies later with the baffling "Target
+    # Malena links to target SFML::Graphics but the target was not found".
     FetchContent_MakeAvailable(SFML)
 endif()
 
 # ── cpp-httplib — header-only HTTP/HTTPS client ───────────────────────────────
+# The release archive, not the git repo: the repo checks out 13 MB of history
+# and test fixtures to give us a header. Measured on a clean build.
 FetchContent_Declare(
         httplib
-        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-        GIT_TAG v0.18.3
-        GIT_SHALLOW ON
-        SYSTEM)
+        URL      https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
+        URL_HASH SHA256=a0567bcd6c3fe5cef1b329b96245119047f876b49e06cc129a36a7a8dffe173e
+        ${MALENA_FC_SYSTEM})
 set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(httplib)
 
@@ -51,19 +73,21 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
         GIT_TAG v11.4.5
         GIT_SHALLOW ON
-        SYSTEM)
+        ${MALENA_FC_SYSTEM})
 set(_saved_build_shared ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(ixwebsocket)
 set(BUILD_SHARED_LIBS ${_saved_build_shared} CACHE BOOL "" FORCE)
 
 # ── nlohmann/json ─────────────────────────────────────────────────────────────
+# The packaged release, not the git repo. The repo carries enormous test-data
+# trees: 190 MB checked out, against 108 KB for the archive, for a header-only
+# library. This was the single largest cost in a clean build.
 FetchContent_Declare(
         nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3
-        GIT_SHALLOW ON
-        SYSTEM)
+        URL      https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        URL_HASH SHA256=d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d
+        ${MALENA_FC_SYSTEM})
 set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
 set(JSON_Install    OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(nlohmann_json)
@@ -74,7 +98,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/btzy/nativefiledialog-extended.git
         GIT_TAG v1.2.1
         GIT_SHALLOW ON
-        SYSTEM)
+        ${MALENA_FC_SYSTEM})
 FetchContent_MakeAvailable(nfd)
 
 # ── AirPlay receiver support ─────────────────────────────────────────────────

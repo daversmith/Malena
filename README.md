@@ -49,6 +49,17 @@ Malena gives you a clean, component-oriented layer on top of SFML so you can foc
 | CMake | 3.14+ |
 | SFML | 3.x |
 
+The CMake floor is tested, not just declared: 3.14 is the documented minimum and
+builds are verified against the CMake that Ubuntu 22.04 LTS actually ships
+(3.22). Releases before 1.1.1 did not build on CMake older than 3.28 — see the
+1.1.1 notes if you are on a distribution CMake.
+
+SFML is fetched and built from source by default, so no system SFML is needed;
+set `MALENA_USE_SYSTEM_SFML=ON` to use an installed one instead. The remaining
+dependencies (nlohmann/json, cpp-httplib, IXWebSocket, nativefiledialog) are
+fetched automatically — the header-only ones from their release archives rather
+than their git repositories, which keeps a clean checkout small.
+
 ---
 
 ## Installation
