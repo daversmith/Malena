@@ -1,0 +1,30 @@
+PROJECT_NAME           = SFML
+PROJECT_BRIEF          = "Simple and Fast Multimedia Library"
+OUTPUT_DIRECTORY       = /Users/dsmizzle/WebstormProjects/malena_website
+HTML_OUTPUT            = docs/sfml
+GENERATE_LATEX         = NO
+GENERATE_TAGFILE       = sfml_local.tag
+
+INPUT                  = /usr/local/include/SFML/Graphics \
+                         /usr/local/include/SFML/Window \
+                         /usr/local/include/SFML/System \
+                         /usr/local/include/SFML/Audio \
+                         /usr/local/include/SFML/Network
+RECURSIVE              = YES
+FILE_PATTERNS          = *.hpp *.h
+
+STRIP_FROM_PATH        = /usr/local/include
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+QUIET                  = YES
+WARNINGS               = NO
+WARN_IF_UNDOCUMENTED   = NO
+
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = NO
+TEMPLATE_RELATIONS     = NO
