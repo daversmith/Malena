@@ -81,6 +81,11 @@ namespace ml
             int   row   = 0;
             for (auto& item : _items)
             {
+                // A spacer has no meaning while wrapping: there is no single row
+                // whose leftover width it could take. Treated as zero so the rows
+                // flow as if it were not there, rather than pushing a blank gap.
+                if (item.spacer) continue;
+
                 const float w = item.separator ? (sepPad + sepW + sepPad)
                     : (horiz ? item.component->getGlobalBounds().size.x
                              : item.component->getGlobalBounds().size.y);
@@ -110,10 +115,38 @@ namespace ml
         const float thick  = getBarThickness();
 
         const float scrollOffset = (horiz && overflow == Overflow::SCROLL) ? _scrollOffsetX : 0.f;
+
+        // Spacers need the slack, and the slack is only known once every fixed
+        // item has been measured — so measure first, then place. Without a bar
+        // length there is nothing to divide and each spacer is worth nothing,
+        // which degrades to the old left-to-right behaviour.
+        _spacerWidth = 0.f;
+        {
+            int spacers = 0;
+            float fixed = 0.f;
+            for (const auto& item : _items)
+            {
+                if (item.spacer)    { ++spacers; continue; }
+                if (item.separator) { fixed += sepPad + sepW + sepPad; continue; }
+                fixed += (horiz ? item.component->getGlobalBounds().size.x
+                                : item.component->getGlobalBounds().size.y) + itemSpacing;
+            }
+            if (spacers > 0 && _barLength > 0.f)
+            {
+                const float slack = _barLength - (barPadding * 2.f) - fixed;
+                _spacerWidth = slack > 0.f ? slack / static_cast<float>(spacers) : 0.f;
+            }
+        }
+
         float offset = barPadding - scrollOffset;
 
         for (auto& item : _items)
         {
+            if (item.spacer)
+            {
+                offset += _spacerWidth;
+                continue;
+            }
             if (item.separator)
             {
                 offset += sepPad + sepW + sepPad;
@@ -178,6 +211,15 @@ namespace ml
         for (int i = 0; i < static_cast<int>(_items.size()); ++i)
         {
             const auto& item = _items[i];
+
+            // A spacer owns no component. Advancing by the same width layout()
+            // used keeps separators and clipping after it aligned; dereferencing
+            // component here would simply crash.
+            if (item.spacer)
+            {
+                offset += _spacerWidth;
+                continue;
+            }
 
             if (item.separator)
             {
@@ -437,6 +479,14 @@ namespace ml
         item.separator = true;
         _items.push_back(std::move(item));
         // No layout needed — separator has no component
+    }
+
+    void Toolbar::addSpacer()
+    {
+        Item item;
+        item.spacer = true;
+        _items.push_back(std::move(item));
+        layout();   // unlike a separator, a spacer changes where everything after it sits
     }
 
     void Toolbar::clear()

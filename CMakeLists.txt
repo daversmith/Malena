@@ -3,7 +3,7 @@
 # Visual Studio generators). Declaring anything lower was fiction — the configure
 # would reach SFML's own cmake_minimum_required and stop there.
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
-project(Malena VERSION 1.1.2 LANGUAGES CXX)
+project(Malena VERSION 1.1.3 LANGUAGES CXX)
 
 # Include GNUInstallDirs for platform-specific install directories
 include(GNUInstallDirs)

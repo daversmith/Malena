@@ -95,6 +95,7 @@ namespace ml
             std::function<void()>     action;
             std::string               label;
             bool                      separator = false;
+            bool                      spacer    = false;  ///< absorbs slack, pushing later items to the far end
             bool                      hovered   = false;
             bool                      enabled   = true;
             bool                      selected  = false;
@@ -110,6 +111,7 @@ namespace ml
         float             _scrollOffsetX  = 0.f;  ///< horizontal scroll offset (Overflow::SCROLL)
         float             _totalItemsLen  = 0.f;  ///< total item span along the bar axis
         mutable int       _rowCount       = 1;    ///< rows used (Overflow::WRAP)
+        float             _spacerWidth    = 0.f;  ///< slack given to each spacer, shared by layout() and draw()
         int               _hoveredIdx     = -1;
 
         void layout();
@@ -215,6 +217,21 @@ namespace ml
 
         /** @brief Add a visual separator. */
         void addSeparator();
+
+        /**
+         * @brief Add a flexible gap that absorbs the bar's remaining width.
+         *
+         * Everything added after it is pushed to the far end of the bar. This is
+         * what lets one toolbar hold two groups that mean different things — the
+         * destinations you navigate to on the near edge, and the settings and
+         * dangerous actions on the far edge — instead of one undifferentiated run
+         * of items where a slip lands on "shut down" instead of "reminders".
+         *
+         * Requires setBarLength(); with no bar length there is no slack to divide
+         * and the spacer contributes nothing. More than one spacer splits the
+         * slack evenly between them.
+         */
+        void addSpacer();
 
         /** @brief Remove all items. */
         void clear();
