@@ -413,12 +413,26 @@ namespace ml
 
     // ── Value ─────────────────────────────────────────────────────────────────
 
+    /**
+     * Set the text programmatically.
+     *
+     * Does NOT fire onChange, and that is the whole point: onChange means "the
+     * user edited this", and a caller populating a field is not the user. Firing
+     * it here made every pooled widget dangerous — a field reused for a new row
+     * still carried the PREVIOUS row's handler at the moment it was refilled, so
+     * setValue() invoked a callback that had captured the old row. In LockInAdmin
+     * that handler held a reference into a vector that had since been reassigned,
+     * and refilling the grading fields wrote a bool through a freed pointer:
+     * EXC_BAD_ACCESS, byte write, during a routine rebuild.
+     *
+     * Callers that genuinely want the side effect can invoke their own handler;
+     * the ones that do not far outnumber them and were all silently at risk.
+     */
     void TextInput::setValue(const std::string& value)
     {
         _buffer.setText(value);
         _scrollX = 0.f;
         rebuild();
-        if (_onChange) _onChange(value);
     }
 
     std::string TextInput::getValue() const { return _buffer.getText(); }
