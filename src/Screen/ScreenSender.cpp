@@ -158,11 +158,11 @@ struct ScreenSenderBase::Impl
         static const std::string chosen = []() -> std::string {
             const std::pair<const char*, const char*> candidates[] = {
                 // Raspberry Pi's V4L2 stateful encoder.
-                { "v4l2h264enc", "v4l2h264enc extra-controls=controls,video_bitrate=6000000" },
+                { "v4l2h264enc", "v4l2h264enc extra-controls=controls,video_bitrate=2000000" },
                 // Intel/AMD via VA-API, when the driver stack is installed.
-                { "vaapih264enc", "vaapih264enc bitrate=6000 keyframe-period=30" },
+                { "vaapih264enc", "vaapih264enc bitrate=2000 keyframe-period=30" },
                 // Cisco openh264: BSD licensed, software, works anywhere.
-                { "openh264enc", "openh264enc bitrate=6000000 gop-size=30" },
+                { "openh264enc", "openh264enc bitrate=2000000 gop-size=30" },
             };
             for (const auto& [element, pipeline] : candidates) {
                 const std::string probe = std::string("gst-inspect-1.0 ") + element
@@ -198,10 +198,10 @@ struct ScreenSenderBase::Impl
             "avfvideosrc capture-screen=true capture-screen-cursor=true device-index="
             + std::to_string(captureIndex) + " ! "
             "video/x-raw ! videorate ! videoscale add-borders=true ! "
-            "video/x-raw,width=1280,height=720,framerate=15/1 ! "
+            "video/x-raw,width=1280,height=720,framerate=10/1 ! "
             "videoconvert ! "
             "vtenc_h264 realtime=true allow-frame-reordering=false "
-            "max-keyframe-interval=15 bitrate=4000 !" + sink;
+            "max-keyframe-interval=10 bitrate=2000 !" + sink;
 
 #elif defined(_WIN32)
         // Media Foundation HW encoder (mfh264enc) — shipped with Windows, not GPL.
@@ -209,8 +209,14 @@ struct ScreenSenderBase::Impl
         // matches the picker's EnumDisplayMonitors order in the common case).
         return
             "d3d11screencapturesrc monitor-index=" + std::to_string(captureIndex) + " ! "
+            // Downscale and cap the rate BEFORE encoding, as macOS does. This
+            // used to encode the desktop at native size and native frame rate,
+            // so a 4K instructor display produced a stream no classroom Wi-Fi
+            // could carry to a room full of students.
+            "videorate ! videoscale add-borders=true ! "
+            "video/x-raw,width=1280,height=720,framerate=10/1 ! "
             "videoconvert ! "
-            "mfh264enc low-latency=true bitrate=6000 !" + sink;
+            "mfh264enc low-latency=true bitrate=2000 !" + sink;
 
 #else
         // Linux: the encoder is chosen at RUNTIME, because "Linux" here spans a
@@ -229,7 +235,8 @@ struct ScreenSenderBase::Impl
         const std::string enc = pickLinuxEncoder();
         if (enc.empty()) return {};   // caller logs; nothing sane to launch
 
-        return "ximagesrc use-damage=false ! videoconvert ! "
+        return "ximagesrc use-damage=false ! videorate ! videoscale add-borders=true ! "
+               "video/x-raw,width=1280,height=720,framerate=10/1 ! videoconvert ! "
                "video/x-raw,format=I420 ! " + enc + " !" + sink;
 #endif
     }
@@ -240,7 +247,7 @@ struct ScreenSenderBase::Impl
     {
         if (src == Src::Window && !windowHelper.empty()) {
             return { windowHelper, "--window-id", std::to_string(windowId),
-                     "--url", url, "--fps", "15", "--bitrate", "4000" };
+                     "--url", url, "--fps", "10", "--bitrate", "2000" };
         }
 
 #if defined(__APPLE__)
@@ -258,7 +265,7 @@ struct ScreenSenderBase::Impl
         // Developer ID, so macOS attributes it to the app and one grant holds.
         if (src == Src::Display && !windowHelper.empty()) {
             return { windowHelper, "--display-index", std::to_string(captureIndex),
-                     "--url", url, "--fps", "15", "--bitrate", "4000" };
+                     "--url", url, "--fps", "10", "--bitrate", "2000" };
         }
 #endif
         std::vector<std::string> a;
