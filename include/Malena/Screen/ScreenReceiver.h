@@ -95,6 +95,46 @@ public:
      */
     void pushFrame(const std::uint8_t* data, std::size_t size);
 
+    /**
+     * Play a LOCAL FILE instead of a live stream.
+     *
+     * WHY THIS IS HERE and not a separate player: everything below the source —
+     * the appsink, the RGBA upload into an sf::Texture, the scale modes, the
+     * freeze — is identical, and so is the hard constraint that made this class
+     * awkward in the first place. decodebin and RGBA caps can auto-plug GL
+     * elements which activate a second GL context and invalidate SFML's
+     * textures; the fix is a forced software path, and it took a crash to find.
+     * A second player would have to rediscover that.
+     *
+     * The classroom reason: streaming a video to thirty students means thirty
+     * live copies of the same bytes, which no classroom Wi-Fi carries. Sending
+     * the file once and playing it locally costs a fraction of the airtime and
+     * looks better, so long as everyone starts together — see playAt().
+     */
+    void setFile(const std::string& absolutePath);
+
+    /**
+     * Start playback at a shared moment.
+     *
+     * @param startAtUnixMs  Wall-clock instant to begin, as Unix milliseconds.
+     *                       In the past means "start now". The instructor's hub
+     *                       picks one a couple of seconds out and sends it to
+     *                       every student, so they begin together rather than
+     *                       whenever each machine happened to get the message.
+     * @param positionMs     Offset within the video to begin at, for resuming
+     *                       or seeking mid-lesson.
+     */
+    void playAt(long long startAtUnixMs, long long positionMs = 0);
+
+    /** Hold playback where it is. The frame stays on screen. */
+    void pausePlayback();
+
+    /** Current position within the file, in milliseconds (0 when not playing). */
+    long long positionMs() const;
+
+    /** True while a local file is loaded (whether or not it is playing). */
+    bool isFilePlayback() const;
+
     /** True once decoded frames are arriving. */
     bool isConnected() const;
 

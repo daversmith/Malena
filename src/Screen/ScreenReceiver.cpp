@@ -163,8 +163,57 @@ struct ScreenReceiverBase::Impl
 
     std::vector<uint8_t> rgba;   // reused scratch buffer
 
+    // ── Local-file playback ───────────────────────────────────────────────
+    // Same sink, same texture, different source. A class watching a video by
+    // screen share needs one live copy per student; playing the file locally
+    // needs none, provided everyone starts at the same instant.
+    bool         fileMode      = false;
+    std::string  filePath;
+    long long    startAtUnixMs = 0;   // 0 = nothing scheduled
+    long long    startPosMs    = 0;
+    bool         playing       = false;
+
+    static long long nowUnixMs()
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+
+    // Flip a scheduled file from PAUSED to PLAYING when its moment arrives.
+    // Driven from draw(), which already runs every frame.
+    void tickSchedule()
+    {
+        if (!fileMode || playing || startAtUnixMs == 0 || !pipeline) return;
+        if (nowUnixMs() < startAtUnixMs) return;
+
+        if (startPosMs > 0)
+            gst_element_seek_simple(pipeline, GST_FORMAT_TIME,
+                (GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
+                (gint64)startPosMs * GST_MSECOND);
+        gst_element_set_state(pipeline, GST_STATE_PLAYING);
+        playing = true;
+        std::fprintf(stderr, "[ScreenReceiver:%s] playing %s from %lldms\n",
+                     name.c_str(), filePath.c_str(), startPosMs);
+        std::fflush(stderr);
+    }
+
     std::string buildPipeline() const
     {
+        if (fileMode)
+        {
+            // MP4/H.264 explicitly, NOT decodebin.
+            //
+            // decodebin auto-plugs whatever it likes, and on macOS that means a
+            // GL-backed decoder whose context invalidates SFML's textures — the
+            // crash the RTSP path below was written to avoid. The same rule
+            // applies here, so the demux and decoder are named. Classroom video
+            // is overwhelmingly MP4/H.264; another container needs the pipeline
+            // widened deliberately, not the constraint relaxed.
+            const std::string dec = chooseH264Decoder();
+            return "filesrc location=\"" + filePath + "\" ! qtdemux ! h264parse ! "
+                   + dec + " ! videoconvert ! video/x-raw,format=RGBA ! "
+                   "appsink name=sink sync=true max-buffers=2 drop=false";
+        }
         // RTSP H.264 → CPU decode → CPU convert → RGBA → appsink.
         //
         // IMPORTANT (macOS): we deliberately force a 100% software path
@@ -216,7 +265,9 @@ struct ScreenReceiverBase::Impl
         if (GstElement* s = gst_bin_get_by_name(GST_BIN(pipeline), "sink"))
             sink = GST_APP_SINK(s);   // keeps the ref returned by get_by_name
 
-        gst_element_set_state(pipeline, GST_STATE_PLAYING);
+        // A scheduled file waits in PAUSED until its start moment; a live stream
+        // plays immediately.
+        gst_element_set_state(pipeline, fileMode ? GST_STATE_PAUSED : GST_STATE_PLAYING);
 
         lastStart   = clock::now();
         lastFrame   = lastStart;
@@ -355,6 +406,49 @@ void ScreenReceiverBase::setUrl(const std::string& rtspUrl)
     if (_impl->running) _impl->startPipeline();   // re-aim at the new source
 }
 
+void ScreenReceiverBase::setFile(const std::string& absolutePath)
+{
+    _impl->fileMode      = true;
+    _impl->filePath      = absolutePath;
+    _impl->url           = absolutePath;   // status/logging read this
+    _impl->playing       = false;
+    _impl->startAtUnixMs = 0;
+    _impl->startPosMs    = 0;
+    _impl->connected.store(false);
+    _impl->textureReady  = false;
+    // Bring it up PAUSED so the first frame is decoded and shown, and playback
+    // can begin the instant the class is told to start rather than after a
+    // cold pipeline spin-up.
+    if (_impl->running) _impl->startPipeline();
+}
+
+void ScreenReceiverBase::playAt(long long startAtUnixMs, long long positionMs)
+{
+    if (!_impl->fileMode) return;
+    _impl->startAtUnixMs = startAtUnixMs;
+    _impl->startPosMs    = positionMs;
+    _impl->playing       = false;   // tickSchedule() flips this at the moment
+    if (!_impl->running) start();
+}
+
+void ScreenReceiverBase::pausePlayback()
+{
+    if (!_impl->fileMode || !_impl->pipeline) return;
+    gst_element_set_state(_impl->pipeline, GST_STATE_PAUSED);
+    _impl->playing       = false;
+    _impl->startAtUnixMs = 0;       // cancel any pending start
+}
+
+long long ScreenReceiverBase::positionMs() const
+{
+    if (!_impl->fileMode || !_impl->pipeline) return 0;
+    gint64 pos = 0;
+    if (!gst_element_query_position(_impl->pipeline, GST_FORMAT_TIME, &pos)) return 0;
+    return static_cast<long long>(pos / GST_MSECOND);
+}
+
+bool ScreenReceiverBase::isFilePlayback() const { return _impl->fileMode; }
+
 void ScreenReceiverBase::setFrozen(bool frozen) { _impl->frozen = frozen; }
 bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
 
@@ -372,6 +466,7 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
     // When frozen, keep the pipeline warm but stop updating the texture — draw()
     // below just re-renders the last decoded frame.
     if (d->running && !d->frozen) {
+        d->tickSchedule();   // start a scheduled file at its appointed instant
         d->pollBus();
         const auto now = Impl::clock::now();
 
@@ -384,7 +479,9 @@ void ScreenReceiverBase::draw(sf::RenderTarget& target, sf::RenderStates states)
                 duration_cast<seconds>(now - d->lastFrame).count() >= 3;
             const bool cooled =
                 duration_cast<milliseconds>(now - d->lastStart).count() >= 1000;
-            if ((d->wantRestart || stalled) && cooled) {
+            // A paused or finished FILE is not a stalled stream — restarting it
+            // would loop the video forever the moment it ended.
+            if (!d->fileMode && (d->wantRestart || stalled) && cooled) {
                 d->connected.store(false);
                 d->startPipeline();   // auto-reconnect (source not up yet, etc.)
             }
@@ -499,6 +596,14 @@ void ScreenReceiverBase::start() {}
 void ScreenReceiverBase::stop()  {}
 
 void ScreenReceiverBase::setUrl(const std::string& rtspUrl) { _impl->url = rtspUrl; }
+
+// Screen sharing compiled out: accept the calls and do nothing, so callers do
+// not need their own #ifdefs.
+void ScreenReceiverBase::setFile(const std::string&) {}
+void ScreenReceiverBase::playAt(long long, long long) {}
+void ScreenReceiverBase::pausePlayback() {}
+long long ScreenReceiverBase::positionMs() const { return 0; }
+bool ScreenReceiverBase::isFilePlayback() const { return false; }
 
 void ScreenReceiverBase::setFrozen(bool frozen) { _impl->frozen = frozen; }
 bool ScreenReceiverBase::isFrozen() const { return _impl->frozen; }
