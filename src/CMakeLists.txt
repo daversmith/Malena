@@ -108,8 +108,32 @@ if(GSTREAMER_FOUND AND GST_APP_FOUND AND GST_VIDEO_FOUND)
         PkgConfig::GST_APP
         PkgConfig::GST_VIDEO)
     message(STATUS "Malena: ScreenReceiver enabled (GStreamer ${GSTREAMER_VERSION})")
+elseif(MALENA_ENABLE_SCREENSHARE)
+    # ASKED FOR IT AND CANNOT HAVE IT — that is an error, not a downgrade.
+    #
+    # This used to print a STATUS line and carry on building a Malena with no
+    # ScreenReceiver in it. Every downstream signal still looked right:
+    # MALENA_ENABLE_SCREENSHARE stayed ON in the cache, the app still linked,
+    # the bundlers still shipped the GStreamer runtime beside it. The only way
+    # to discover the feature was missing was to grep the finished binary.
+    #
+    # It shipped that way. LockIn's macOS student app had no receiver at all,
+    # and a Windows rebuild silently lost one it previously had when a
+    # reconfigure ran without GSTREAMER_1_0_ROOT set. In both cases students
+    # opened the share view and got a black panel, because there was nothing
+    # behind it — and the relay logs showed they never connected at all.
+    #
+    # A build that cannot deliver what was asked of it must say so here, while
+    # someone is watching, not in a classroom.
+    message(FATAL_ERROR
+        "Malena: MALENA_ENABLE_SCREENSHARE=ON but GStreamer was not found.\n"
+        "  Found: GSTREAMER=${GSTREAMER_FOUND} GST_APP=${GST_APP_FOUND} GST_VIDEO=${GST_VIDEO_FOUND}\n"
+        "  macOS  : install the official GStreamer.framework (runtime + devel)\n"
+        "  Windows: set GSTREAMER_1_0_ROOT_MSVC_X86_64 to the GStreamer install\n"
+        "  Linux  : apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev\n"
+        "  Or build without the feature on purpose: -DMALENA_ENABLE_SCREENSHARE=OFF")
 else()
-    message(STATUS "Malena: GStreamer not found — ScreenReceiver disabled")
+    message(STATUS "Malena: ScreenReceiver disabled (MALENA_ENABLE_SCREENSHARE=OFF)")
 endif()
 
 # nfd is a PRIVATE dependency, but CMake still records private deps of an
