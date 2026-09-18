@@ -191,17 +191,34 @@ struct ScreenSenderBase::Impl
             " h264parse ! rtspclientsink location=" + url + " latency=0";
 
 #if defined(__APPLE__)
-        // VideoToolbox HW encoder (vtenc_h264) — Apple-provided, not GPL.
-        // Downscale to 720p / cap 15fps before encode so the receiver's decoder
-        // keeps up (a full Retina desktop at native fps grows latency to seconds).
+        // openh264enc (Cisco, BSD) rather than vtenc_h264, and the reason is the
+        // PROFILE — which decides who can watch.
+        //
+        // vtenc_h264 publishes MAIN and cannot be asked for less: in
+        // GStreamer.framework 1.28.6 (what this app links against) it exposes no
+        // profile property AND advertises no profile in its caps, so a
+        // downstream caps filter only breaks negotiation. A Linux student's
+        // bundled decoder is openh264dec, which handles constrained baseline and
+        // nothing above it — so on 2026-09-16 every Windows and Mac student saw
+        // the shared screen and every Linux student sat on a black panel while
+        // their pipeline silently retried.
+        //
+        // openh264enc emits constrained baseline by construction. The cost is
+        // software encoding instead of Apple hardware; at 720p/10fps for a
+        // screen share that is the cheaper trade. The alternative was bundling
+        // libav on Linux so it could decode Main, measured at +176 MB per
+        // student download (35 MB -> 211 MB) over a classroom hotspot.
+        //
+        // NOTE: avenc_h264_videotoolbox does expose a profile and would keep
+        // hardware encoding — but it exists only in Homebrew's GStreamer, not in
+        // GStreamer.framework, so it is not available to the shipped app.
         return
             "avfvideosrc capture-screen=true capture-screen-cursor=true device-index="
             + std::to_string(captureIndex) + " ! "
             "video/x-raw ! videorate ! videoscale add-borders=true ! "
             "video/x-raw,width=1280,height=720,framerate=10/1 ! "
             "videoconvert ! "
-            "vtenc_h264 realtime=true allow-frame-reordering=false "
-            "max-keyframe-interval=10 bitrate=2000 !" + sink;
+            "openh264enc bitrate=2000000 gop-size=10 !" + sink;
 
 #elif defined(_WIN32)
         // Media Foundation HW encoder (mfh264enc) — shipped with Windows, not GPL.
@@ -216,7 +233,14 @@ struct ScreenSenderBase::Impl
             "videorate ! videoscale add-borders=true ! "
             "video/x-raw,width=1280,height=720,framerate=10/1 ! "
             "videoconvert ! "
-            "mfh264enc low-latency=true bitrate=2000 !" + sink;
+            // Constrained baseline, for the same reason as the macOS branch: a
+            // Linux student's bundled decoder handles nothing above it, so a
+            // Windows instructor left on the Media Foundation default (main)
+            // would reach every student EXCEPT the Linux ones. Unlike
+            // vtenc_h264, mfh264enc advertises the profile in its caps, so
+            // constraining downstream negotiates correctly here.
+            "mfh264enc low-latency=true bitrate=2000 ! "
+            "video/x-h264,profile=constrained-baseline !" + sink;
 
 #else
         // Linux: the encoder is chosen at RUNTIME, because "Linux" here spans a
