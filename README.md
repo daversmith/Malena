@@ -117,6 +117,61 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE Malena::Malena)
 ```
 
+### Build options
+
+Malena's optional parts are controlled by CMake options. The defaults are:
+
+| Option | Default | What it does |
+|--------|---------|--------------|
+| `MALENA_ENABLE_SCREENSHARE` | `ON` | Builds the RTSP/GStreamer `ScreenReceiver`. Needs GStreamer. |
+| `MALENA_BUILD_EXAMPLES` | `ON` | Builds the example programs. |
+| `MALENA_BUILD_TESTS` | `OFF` | Builds the test suite. |
+| `MALENA_USE_SYSTEM_SFML` | `OFF` | Uses an installed SFML instead of fetching and building it. |
+| `MALENA_GST_PREFER_SYSTEM` | `OFF` | macOS only: searches the normal pkg-config path for GStreamer before the official `GStreamer.framework`. |
+
+#### Disabling screen sharing
+
+Screen sharing is on by default. If it is on and GStreamer can't be found, the
+configure step **fails** instead of quietly building without it. If your app
+doesn't need screen sharing, or the machine doesn't have GStreamer, turn it off.
+
+From the command line:
+
+```bash
+cmake -B build -S . -DMALENA_ENABLE_SCREENSHARE=OFF
+```
+
+When you use Malena as a subdirectory or through FetchContent, set the option
+**before** `add_subdirectory` / `FetchContent_MakeAvailable`:
+
+```cmake
+set(MALENA_ENABLE_SCREENSHARE OFF CACHE BOOL "" FORCE)
+set(MALENA_BUILD_EXAMPLES     OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(external/Malena)   # or FetchContent_MakeAvailable(malena)
+```
+
+CMake caches options. If you change one in an existing build directory, delete
+`CMakeCache.txt` (or the whole build directory) so the new value is used.
+
+With screen sharing off, `ScreenReceiver` still compiles and keeps the same API.
+It never connects to a stream and shows only its placeholder, although frames
+passed to `pushFrame()` are still displayed. To check for the feature in your
+own code, use the `MALENA_SCREENSHARE_ENABLED` macro. Malena defines it
+publicly only when screen sharing is built:
+
+```cpp
+#ifdef MALENA_SCREENSHARE_ENABLED
+    // live RTSP receiver available
+#endif
+```
+
+To keep screen sharing on, install GStreamer:
+
+- **macOS:** the official `GStreamer.framework` (runtime + development packages)
+- **Windows:** the official MSI, with `GSTREAMER_1_0_ROOT_MSVC_X86_64` set
+- **Linux:** `apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev`
+
 ---
 
 ## Quick Start
