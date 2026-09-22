@@ -24,27 +24,39 @@ namespace ml
 			return b.position.x + b.size.x;   // include left bearing
 		};
 
-		std::string result, line;
-		std::istringstream iss(input);
-		std::string word;
-
-		while (iss >> word)
+		// Wrap each paragraph on its own and keep the caller's line breaks. Reading
+		// words with `>>` treats '\n' as ordinary whitespace, so a caller's list
+		// ("A. first\nB. second") used to come back as one run-on paragraph.
+		std::string result;
+		std::size_t start = 0;
+		while (true)
 		{
-			std::string testLine = line.empty() ? word : line + " " + word;
+			const std::size_t nl = input.find('\n', start);
+			const std::string para = input.substr(start, nl == std::string::npos ? std::string::npos : nl - start);
 
-			if (lineWidth(testLine) > maxWidth && !line.empty())
+			std::string line;
+			std::istringstream iss(para);
+			std::string word;
+			while (iss >> word)
 			{
-				result += line + "\n";
-				line = word;            // word may itself overflow; handled next pass / at flush
-			}
-			else
-			{
-				line = testLine;
-			}
-		}
+				std::string testLine = line.empty() ? word : line + " " + word;
 
-		if (!line.empty())
+				if (lineWidth(testLine) > maxWidth && !line.empty())
+				{
+					result += line + "\n";
+					line = word;            // word may itself overflow; handled next pass / at flush
+				}
+				else
+				{
+					line = testLine;
+				}
+			}
 			result += line;
+
+			if (nl == std::string::npos) break;
+			result += "\n";                 // the caller's break, blank lines included
+			start = nl + 1;
+		}
 
 		return result;
 	}
