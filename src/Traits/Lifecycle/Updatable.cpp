@@ -4,6 +4,7 @@
 
 #include <Malena/Traits/Lifecycle/Updatable.h>
 #include <Malena/Engine/Events/EventManager.h>
+#include <Malena/Core/Core.h>
 #include <iostream>
 
 namespace ml
@@ -55,6 +56,13 @@ namespace ml
     }
 
     // ── UpdatableDispatcher ───────────────────────────────────────────────────
+    bool UpdatableDispatcher::filter(const std::optional<sf::Event>&, Core* component)
+    {
+        // Effective enabled state, so a disabled ancestor also stops updates.
+        // Subscribers that aren't a Core (component == nullptr) always update.
+        return component == nullptr || component->isEnabled();
+    }
+
     void UpdatableDispatcher::fire()
     {
         // Always fire update every frame

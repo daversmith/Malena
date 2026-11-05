@@ -101,6 +101,15 @@ namespace ml
         });
     }
 
+    // ── onEnabledChanged ──────────────────────────────────────────────────────
+
+    void SplitPanel::onEnabledChanged(bool)
+    {
+        // onUpdate doesn't run while disabled, so resync here; otherwise a held
+        // button at re-enable reads as a fresh press and can start a drag.
+        _prevMouseDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    }
+
     // ── onThemeApplied ────────────────────────────────────────────────────────
 
     void SplitPanel::onThemeApplied(const Theme& theme)

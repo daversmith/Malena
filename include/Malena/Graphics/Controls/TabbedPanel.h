@@ -119,6 +119,7 @@ namespace ml
 
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // drop hover when disabled
         void onThemeApplied(const Theme& theme) override;
 
     public:

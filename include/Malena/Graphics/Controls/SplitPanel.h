@@ -126,6 +126,7 @@ namespace ml
 
     protected:
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void onEnabledChanged(bool enabled) override;   // resync mouse-down tracking
         void onThemeApplied(const Theme& theme) override;
 
     public:

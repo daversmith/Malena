@@ -531,6 +531,10 @@ namespace ml
         // when disabled, and refresh trigger colors (which read ENABLED).
         if (!enabled && checkFlag(Flag::OPEN)) closePanel();
         syncTriggerColors();
+        // onUpdate doesn't run while disabled, so resync its mouse tracking here;
+        // otherwise a stale _prevDown can read as a release edge once re-enabled.
+        _hoveredIndex = -1;
+        _prevDown = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
     }
 
     void Select::setOptionEnabled(std::size_t index, bool enabled)

@@ -56,6 +56,15 @@ namespace ml
         });
     }
 
+    // ── onEnabledChanged ──────────────────────────────────────────────────────
+
+    void TabbedPanel::onEnabledChanged(bool enabled)
+    {
+        // onUpdate doesn't run while disabled, so clear the hover highlight here.
+        // Closed tabs in _pendingDelete are freed on the next enabled update.
+        if (!enabled) _hoveredIdx = -1;
+    }
+
     // ── onThemeApplied ────────────────────────────────────────────────────────
 
     void TabbedPanel::onThemeApplied(const Theme& theme)

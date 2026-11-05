@@ -27,7 +27,7 @@ namespace ml
      *
      * | Callback | Fires when |
      * |----------|-----------|
-     * | @c onUpdate | Every frame, before drawing |
+     * | @c onUpdate | Every frame, before drawing, while the component is enabled |
      * | @c onWindowResized | The application window is resized |
      * | @c onWindowFocusGained | The application window gains OS focus |
      * | @c onWindowFocusLost | The application window loses OS focus |
@@ -65,8 +65,10 @@ namespace ml
         /**
          * @brief Register a no-argument callback invoked every frame.
          *
-         * The callback fires once per frame before the draw pass. All active
-         * components receive this regardless of hover or focus state.
+         * The callback fires once per frame before the draw pass. Every enabled
+         * component receives this regardless of hover or focus state. A disabled
+         * component (@c setEnabled(false), or a disabled ancestor) is skipped
+         * until it is enabled again, the same as for key and click events.
          *
          * @param callback Function invoked with no arguments each frame.
          * @param overwrite When @c true, replaces any existing callback; when @c false, appends an additional one.
@@ -146,7 +148,8 @@ namespace ml
     class MALENA_API UpdatableDispatcher : public FrameDispatcher
     {
     public:
-        bool filter(const std::optional<sf::Event>& event, Core* component) override { return true; }
+        // Skips disabled components, matching the key and click filters.
+        bool filter(const std::optional<sf::Event>& event, Core* component) override;
         void fire() override;
         bool occurred() override { return true; }
     };
