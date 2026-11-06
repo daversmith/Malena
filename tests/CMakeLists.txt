@@ -37,6 +37,7 @@ foreach(suite
         EventSystem      # subscribe / publish / filter / exclusive owner
         Messaging        # typed MessageManager channels
         SceneManager     # bind / start / navigate / back / lazy construction
+        SceneStack       # layered scenes: only the top is live, deferred changes, overlays, hooks
         ControlBehavior  # control value semantics (selection, values, text)
         ManifestResources # manifest set/get + default-font singleton
         VisibilityIndependent # Flag::VISIBILITY_INDEPENDENT opt-out of the Panel setVisible/setActive cascade

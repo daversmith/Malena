@@ -20,5 +20,6 @@
 
 // ── Scene ─────────────────────────────────────────────────────────────────────
 #include <Malena/Engine/Scene/SceneManager.h>
+#include <Malena/Engine/Scene/SceneStack.h>
 
 #endif // MALENA_ENGINE_H

@@ -84,6 +84,7 @@ is enough to jump straight to the broken invariant.
 | `EventSystem`       | subscribe / publish / filter / exclusive owner |
 | `Messaging`         | typed `MessageManager` channels |
 | `SceneManager`      | bind / start / navigate / back / lazy scenes |
+| `SceneStack`        | only the top scene is live / overlays / deferred, ordered changes / lifecycle hooks |
 | `ControlBehavior`   | control value semantics (selection, values, text) |
 | `ManifestResources` | manifest registry + default-font singleton |
 
