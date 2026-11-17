@@ -65,7 +65,8 @@ namespace ml
      * @see Rectangle, Customizable
      */
     template<typename MANIFEST>
-    class RectangleWith : public Rectangle, public Customizable<MANIFEST> {};
+    class RectangleWith : public Rectangle, public Customizable<MANIFEST>
+    { public: using Rectangle::Rectangle; };
 
 } // namespace ml
 

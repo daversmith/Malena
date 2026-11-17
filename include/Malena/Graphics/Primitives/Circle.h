@@ -56,7 +56,8 @@ namespace ml
      * @see Circle, Customizable
      */
     template<typename MANIFEST>
-    class CircleWith : public Circle, public Customizable<MANIFEST> {};
+    class CircleWith : public Circle, public Customizable<MANIFEST>
+    { public: using Circle::Circle; };
 
 } // namespace ml
 

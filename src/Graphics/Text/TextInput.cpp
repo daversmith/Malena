@@ -26,6 +26,7 @@ namespace ml
             ml::FontManager<>::prewarm(font_, sz);
 
         _background.setSize(size);
+        _background.setRadius(radius);
         _background.setFillColor(bgIdle);
         _background.setOutlineColor(borderIdle);
         _background.setOutlineThickness(borderThickness);
@@ -179,15 +180,28 @@ namespace ml
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
+    void TextInput::syncTextDefaults()
+    {
+        // The renderer draws every character that has no explicit attribute
+        // with its own defaults. Those were fixed at construction (white, 16px,
+        // the constructor font), so setTextColor / setCharacterSize / setFont
+        // and the theme's onSurface never showed up. Push them on every rebuild.
+        _renderer.setDefaultFont(*font);
+        _renderer.setDefaultSize(fontSize);
+        _renderer.setDefaultColor(checkFlag(ml::Flag::ENABLED) ? textColor
+                                                               : disabledTextColor);
+    }
+
     void TextInput::rebuild()
     {
+        syncTextDefaults();
         _renderer.rebuild();
 
         if (passwordMode)
         {
             _maskDisplay.setFont(*font);
             _maskDisplay.setCharacterSize(fontSize);
-            _maskDisplay.setFillColor(sf::Color::White);
+            _maskDisplay.setFillColor(_renderer.getDefaultColor());
             const std::u32string masked(
                 _buffer.size(), static_cast<char32_t>(passwordChar));
             _maskDisplay.setString(sf::String::fromUtf32(masked.begin(), masked.end()));
@@ -271,6 +285,15 @@ namespace ml
             _background.setFillColor(bgIdle);
             _background.setOutlineColor(borderIdle);
         }
+
+        _background.setRadius(radius);
+
+        // Text color is part of the visual state too (enabled vs disabled, or a
+        // theme/applyTheme change). Re-render only when it actually changed.
+        const sf::Color want = checkFlag(ml::Flag::ENABLED) ? textColor
+                                                            : disabledTextColor;
+        if (_renderer.getDefaultColor() != want)
+            rebuild();
     }
 
     void TextInput::syncPlaceholder()
@@ -636,7 +659,19 @@ namespace ml
         return a;
     }
 
-    sf::Color TextInput::getTextColor() const { return _renderer.getDefaultColor(); }
+    sf::Color TextInput::getTextColor() const { return textColor; }
+
+    void TextInput::setTextColor(const sf::Color& color)
+    {
+        textColor = color;
+        syncColors();
+    }
+
+    void TextInput::setRadius(float r)
+    {
+        radius = r;
+        _background.setRadius(r);
+    }
 
     void TextInput::setClearSelectionOnBlur(bool enabled) { _clearSelectionOnBlur = enabled; }
 

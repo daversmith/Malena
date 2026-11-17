@@ -461,7 +461,7 @@ button.setLeftOf  (panel,  8.f);
 button.setAbove   (footer, 8.f);
 
 icon.center            (panel);     // center on both axes
-icon.centerHorizonally (panel);     // horizontal only
+icon.centerHorizontally(panel);      // horizontal only
 icon.centerVertically  (panel);     // vertical only
 component.centerText   (myText);    // center an sf::Text inside this object
 ```
@@ -704,7 +704,7 @@ Prefer the component helper callbacks (`onClick`, `onHover`, `onUpdate`) over po
 Most flags (`HOVERED`, `FOCUSED`, `CLICKED`) are managed automatically. Check them inside `onUpdate` for continuous per-frame behavior rather than re-subscribing.
 
 ### Layout
-Use `setRightOf`, `setBelow`, `center`, `centerHorizonally`, and `centerText` instead of hardcoding positions. This makes layouts resilient to size changes.
+Use `setRightOf`, `setBelow`, `center`, `centerHorizontally`, and `centerText` instead of hardcoding positions. This makes layouts resilient to size changes.
 
 ### Manifests and Context
 - Manifests **must** inherit `ml::Manifest`.

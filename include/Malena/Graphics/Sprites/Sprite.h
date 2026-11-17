@@ -62,7 +62,8 @@ namespace ml
      * @see Sprite, Customizable
      */
     template<typename MANIFEST>
-    class SpriteWith : public Sprite, public Customizable<MANIFEST> {}; // TODO: rename to SpriteWith
+    class SpriteWith : public Sprite, public Customizable<MANIFEST>
+    { public: using Sprite::Sprite; };
 
 } // namespace ml
 

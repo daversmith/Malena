@@ -63,7 +63,7 @@ namespace ml
     template<typename Manifest>
     class TraitWith : public Trait,
                       public ml::Customizable<Manifest>
-    {};
+    { public: using Trait::Trait; };
 
 } // namespace ml
 

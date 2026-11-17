@@ -68,6 +68,7 @@ namespace ml
 	 * @see Convex, Customizable
 	 */
 	template<typename MANIFEST>
-	class ConvexWith : public Convex, public Customizable<MANIFEST> {};
+	class ConvexWith : public Convex, public Customizable<MANIFEST>
+	{ public: using Convex::Convex; };
 } // namespace ml
 #endif // MALENA_CONVEX_H

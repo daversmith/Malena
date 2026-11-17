@@ -82,7 +82,7 @@ void test_compose_axes()
     ml::Rectangle parent = makeRect(0.f, 0.f, 100.f, 100.f);
     ml::Rectangle c      = makeRect(0.f, 0.f, 10.f, 10.f);
 
-    c.centerHorizonally(parent);              // x anchor
+    c.centerHorizontally(parent);              // x anchor
     c.centerVertically(parent);               // y anchor
     CHECK(near(c.getPosition().x, 45.f));     // (100-10)/2
     CHECK(near(c.getPosition().y, 45.f));

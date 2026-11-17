@@ -12,6 +12,7 @@
 
 #include <Malena/Core/malena_export.h>
 #include <Malena/Traits/Lifecycle/Updatable.h>
+#include <Malena/Traits/Interaction/Keyable.h>
 #include <Malena/Core/CoreManager.h>
 #include <Malena/Engine/App/AppManager.h>
 #include <Malena/Manifests/Manifest.h>
@@ -33,7 +34,7 @@ namespace ml
      *
      * @see Application, ApplicationWith
      */
-    class MALENA_API ApplicationBase : public AppManager, public Updatable
+    class MALENA_API ApplicationBase : public AppManager, public Updatable, public Keyable
     {
     public:
         /**

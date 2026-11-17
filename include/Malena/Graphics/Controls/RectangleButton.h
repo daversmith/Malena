@@ -61,7 +61,8 @@ namespace ml
      * @see RectangleButton, Customizable
      */
     template<typename MANIFEST>
-    class RectangleButtonWith : public RectangleButton, public Customizable<MANIFEST> {};
+    class RectangleButtonWith : public RectangleButton, public Customizable<MANIFEST>
+    { public: using RectangleButton::RectangleButton; };
 
 } // namespace ml
 

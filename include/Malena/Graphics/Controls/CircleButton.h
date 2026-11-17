@@ -54,7 +54,8 @@ namespace ml
      * @see CircleButton, Customizable
      */
     template<typename MANIFEST>
-    class CircleButtonWith : public CircleButton, public virtual Customizable<MANIFEST> {};
+    class CircleButtonWith : public CircleButton, public virtual Customizable<MANIFEST>
+    { public: using CircleButton::CircleButton; };
 
 } // namespace ml
 

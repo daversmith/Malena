@@ -63,7 +63,7 @@ namespace ml
 	}
 
 	template<class T>
-	void Positionable::centerHorizonally(T &obj)
+	void Positionable::centerHorizontally(T &obj)
 	{
 		Align::centerHorizontally(obj.getGlobalBounds(), *this);
 		anchor_detail::retain(this, AnchorOp::CenterX, obj, 0.f);

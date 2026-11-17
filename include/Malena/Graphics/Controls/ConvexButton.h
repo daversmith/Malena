@@ -58,7 +58,8 @@ namespace ml
      * @see ConvexButton, Customizable
      */
     template<typename MANIFEST>
-    class ConvexButtonWith : public ConvexButton, public Customizable<MANIFEST> {};
+    class ConvexButtonWith : public ConvexButton, public Customizable<MANIFEST>
+    { public: using ConvexButton::ConvexButton; };
 
 } // namespace ml
 

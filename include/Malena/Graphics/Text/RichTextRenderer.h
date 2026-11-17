@@ -107,6 +107,16 @@ namespace ml
         [[nodiscard]] sf::Color getDefaultColor() const { return _defaultColor; }
 
         /**
+         * @brief Change the defaults used for characters with no explicit
+         *        attribute. Call @c rebuild() afterwards to re-render.
+         */
+        void setDefaultColor(const sf::Color& color) { _defaultColor = color; }
+        void setDefaultFont(const sf::Font& font)    { _defaultFont  = &font; }
+        void setDefaultSize(unsigned int size)       { _defaultSize  = size; }
+        [[nodiscard]] const sf::Font* getDefaultFont() const { return _defaultFont; }
+        [[nodiscard]] unsigned int    getDefaultSize() const { return _defaultSize; }
+
+        /**
          * @brief Rebuild @c sf::Text objects from the current buffer content.
          *
          * Call when text or styling actually changes.

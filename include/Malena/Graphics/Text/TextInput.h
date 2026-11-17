@@ -12,6 +12,7 @@
 #include <Malena/Manifests/Manifest.h>
 #include <Malena/Graphics/Text/RichTextBuffer.h>
 #include <Malena/Graphics/Text/RichTextRenderer.h>
+#include <Malena/Graphics/Primitives/RoundedRectangle.h>
 #include <Malena/Resources/FontManager.h>
 #include <Malena/Traits/Settings/TextInputSettings.h>
 #include <Malena/Traits/Theme/TextInputTheme.h>
@@ -55,7 +56,7 @@ namespace ml
         RichTextRenderer          _renderer;
         mutable sf::RenderTexture _canvas;
 
-        sf::RectangleShape _background;
+        RoundedRectangle   _background;   // corners follow GraphicTheme::radius
         sf::Vector2f       _position = {0.f, 0.f};
         float              _scrollX  = 0.f;
 
@@ -82,7 +83,8 @@ namespace ml
         virtual void onRebuildComplete() {}
         virtual void reflow();
         virtual void rebuildAndScroll();
-        void syncColors();
+        void syncColors();          // background, border, corners AND text color
+        void syncTextDefaults();    // push font/fontSize/text color into the renderer
         virtual void syncPlaceholder();
         virtual std::size_t hitTest(const sf::Vector2f& worldPos) const;
 
@@ -191,6 +193,15 @@ namespace ml
         [[nodiscard]] bool isFocused() const { return checkFlag(ml::Flag::FOCUSED); }
         /** The default (unstyled) text color. */
         [[nodiscard]] sf::Color getTextColor() const;
+
+        // ── Theme tokens that must reach the drawing ─────────────────────────
+        // These hide the plain-assignment setters inherited from the theme
+        // structs so the change is applied to what is drawn, not just stored.
+
+        /// Color of typed text that carries no explicit color attribute.
+        void setTextColor(const sf::Color& color);
+        /// Corner radius of the field's background and border.
+        void setRadius(float radius);
 
         // ── Options ───────────────────────────────────────────────────────────
 

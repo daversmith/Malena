@@ -58,7 +58,7 @@ namespace ml
      * labelB.setRightOf(labelA, 10.f);   // place B 10px to the right of A
      * button.setBelow(header, 20.f);     // place button 20px below header
      * icon.center(panel);                // center icon inside panel
-     * icon.centerHorizonally(panel);     // center horizontally only
+     * icon.centerHorizontally(panel);    // center horizontally only
      * @endcode
      *
      * @see Draggable, CoreAdapter, Component
@@ -187,7 +187,13 @@ namespace ml
          * @param obj Container to center within.
          */
         template<class T>
-        void centerHorizonally(T& obj);
+        void centerHorizontally(T& obj);
+
+        /// @deprecated Misspelled; use centerHorizontally(). Kept so existing
+        ///             code still compiles, with a warning.
+        template<class T>
+        [[deprecated("misspelled: use centerHorizontally()")]]
+        void centerHorizonally(T& obj) { centerHorizontally(obj); }
 
         /**
          * @brief Center this object vertically within @p obj.
