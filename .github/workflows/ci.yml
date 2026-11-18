@@ -105,7 +105,9 @@ jobs:
       - name: Install MSYS2 Dependencies
         if: contains(matrix.platform.name, 'MSYS2')
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-sfml mingw-w64-x86_64-openal
+          # SFML is fetched and built by Malena itself (MALENA_USE_SYSTEM_SFML=OFF),
+          # so the system package was never used, and the mirror can drop it.
+          pacman -S --noconfirm mingw-w64-x86_64-openal
 
       - name: Install Windows MSVC Dependencies
         if: runner.os == 'Windows' && !contains(matrix.platform.name, 'MSYS2')
