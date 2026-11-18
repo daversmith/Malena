@@ -31,13 +31,15 @@ jobs:
           - { name: Fedora, os: ubuntu-latest, container: "fedora:latest" }
           - { name: ArchLinux, os: ubuntu-latest, container: "archlinux:latest" }
           - { name: macOS, os: macos-latest }
+        # Runners have no GStreamer, and Malena now fails the configure rather than
+        # silently dropping screen sharing (55eaa78), so CI builds without it.
         config:
-          - { name: Shared Debug, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug }
-          - { name: Shared Release, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
-          - { name: Shared RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
-          - { name: Static Debug, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Debug }
-          - { name: Static Release, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON }
-          - { name: Static RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=RelWithDebInfo }
+          - { name: Shared Debug, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Debug -DMALENA_ENABLE_SCREENSHARE=OFF }
+          - { name: Shared Release, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DMALENA_ENABLE_SCREENSHARE=OFF }
+          - { name: Shared RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=TRUE -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMALENA_ENABLE_SCREENSHARE=OFF }
+          - { name: Static Debug, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Debug -DMALENA_ENABLE_SCREENSHARE=OFF }
+          - { name: Static Release, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DMALENA_ENABLE_SCREENSHARE=OFF }
+          - { name: Static RelWithDebInfo, flags: -DBUILD_SHARED_LIBS=FALSE -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMALENA_ENABLE_SCREENSHARE=OFF }
         exclude:
           - platform: { name: Windows MSYS2 }
             config: { name: Shared Debug }
